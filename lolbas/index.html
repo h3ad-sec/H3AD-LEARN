@@ -3,58 +3,71 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>H3AD-LEARN — Living Off the Land · Complete Guide</title>
-  <meta name="description" content="Coming soon: LOLBins, LOLScripts, LOLBAS framework, and detection strategies for defense evasion via legitimate Windows binaries." />
+  <title>H3AD-LEARN — LOLBAS · Living Off the Land</title>
+  <meta name="description" content="Eight-chapter LOLBAS curriculum. LOLBin taxonomy, attacker tradecraft, detection strategy, KQL/Sigma queries, threat actor campaigns, and advanced evasion defense." />
   <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/style.css" />
   <style>
-    .lol-hero { padding: 3.5rem 0 2.5rem; }
-    .lol-hero-inner { display: flex; flex-direction: column; gap: 1.25rem; }
+    /* Module-index page styles */
+    .module-hero { padding: 3.5rem 0 2.5rem; }
+    .module-hero-inner { display: flex; flex-direction: column; gap: 1.25rem; }
     .back-link { display: inline-flex; align-items: center; gap: 0.4rem; font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; color: var(--muted); text-decoration: none; transition: color 0.2s; }
     .back-link:hover { color: var(--accent); }
-    .back-link::before { content: '←'; }
-    .soon-badge { display: inline-block; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; letter-spacing: 0.14em; color: var(--amber); background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); border-radius: 4px; padding: 0.25em 0.75em; }
-    .lol-hero-title { font-size: clamp(1.75rem, 4vw, 2.75rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; margin: 0; }
-    .lol-hero-desc { color: var(--muted); font-size: 0.95rem; line-height: 1.7; max-width: 680px; }
-    .lol-stats-strip { display: flex; flex-wrap: wrap; gap: 2rem; padding: 1.25rem 1.5rem; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; opacity: 0.7; }
-    .lol-stat { display: flex; flex-direction: column; gap: 0.2rem; }
-    .lol-stat-value { font-family: 'Share Tech Mono', monospace; font-size: 1rem; color: var(--text); font-weight: 600; }
-    .lol-stat-label { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; color: var(--muted); }
-    .lol-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-    .lol-tag { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--amber); background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.15); border-radius: 3px; padding: 0.2em 0.55em; }
+    .back-link::before { content: '\2190'; }
+    .module-badge { display: inline-block; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; letter-spacing: 0.14em; color: var(--accent); background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.25); border-radius: 4px; padding: 0.25em 0.75em; }
+    .module-hero-title { font-size: clamp(1.75rem, 4vw, 2.75rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; margin: 0; }
+    .module-hero-desc { color: var(--muted); font-size: 0.95rem; line-height: 1.7; max-width: 680px; }
+    .module-stats-strip { display: flex; flex-wrap: wrap; gap: 2rem; padding: 1.25rem 1.5rem; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; }
+    .module-stat { display: flex; flex-direction: column; gap: 0.2rem; }
+    .module-stat-value { font-family: 'Share Tech Mono', monospace; font-size: 1rem; color: var(--text); font-weight: 600; }
+    .module-stat-label { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; color: var(--muted); }
+    .module-progress-wrap { display: flex; flex-direction: column; gap: 0.5rem; }
+    .module-progress-bar-outer { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .module-progress-bar-inner { height: 100%; background: linear-gradient(90deg, var(--accent), var(--secondary)); border-radius: 3px; transition: width 0.6s ease; width: 0%; }
+    .module-progress-meta { display: flex; justify-content: space-between; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+    .module-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .module-tag { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--secondary); background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.15); border-radius: 3px; padding: 0.2em 0.55em; }
 
-    /* Chapter preview list */
-    .chapters-preview-section { padding: 3rem 0; }
-    .chapters-preview-list { display: flex; flex-direction: column; gap: 0.75rem; }
-    .chapter-preview-item { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; opacity: 0.55; cursor: not-allowed; }
-    .chapter-preview-num { font-family: 'Share Tech Mono', monospace; font-size: 1.1rem; color: var(--muted); font-weight: 700; min-width: 2ch; }
-    .chapter-preview-info { display: flex; flex-direction: column; gap: 0.15rem; flex: 1; }
-    .chapter-preview-title { font-size: 0.9rem; font-weight: 500; color: var(--muted); }
-    .chapter-preview-desc { font-size: 0.78rem; color: var(--muted); opacity: 0.7; line-height: 1.4; }
-    .chapter-lock { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; color: var(--muted); border: 1px solid var(--border); border-radius: 3px; padding: 0.2em 0.55em; white-space: nowrap; }
+    /* Chapter grid */
+    .chapters-section { padding: 3rem 0; }
+    .chapters-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+    @media (max-width: 768px) { .chapters-grid { grid-template-columns: 1fr; } }
 
-    /* Notify section */
-    .notify-section { padding: 3rem 0; background: var(--panel-alt); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-    .notify-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 2rem 2rem 2rem; max-width: 560px; display: flex; flex-direction: column; gap: 1rem; }
-    .notify-title { font-size: 1.05rem; font-weight: 600; color: var(--text); margin: 0; }
-    .notify-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.55; margin: 0; }
-    .notify-dev-note { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--amber); background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 4px; padding: 0.4em 0.8em; display: inline-block; }
-    .notify-form { display: flex; gap: 0.75rem; flex-wrap: wrap; }
-    .notify-input { flex: 1; min-width: 200px; background: var(--panel-alt); border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 0.9rem; font-family: 'Share Tech Mono', monospace; font-size: 0.78rem; color: var(--text); outline: none; transition: border-color 0.2s; cursor: not-allowed; opacity: 0.6; }
-    .notify-btn { font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; background: var(--border); color: var(--muted); border: none; border-radius: 6px; padding: 0.6rem 1.1rem; cursor: not-allowed; opacity: 0.5; }
-    .notify-caption { font-size: 0.75rem; color: var(--muted); }
+    .chapter-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; text-decoration: none; color: inherit; transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s; cursor: pointer; position: relative; }
+    .chapter-card:hover { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(0,212,255,0.1), 0 4px 20px rgba(0,212,255,0.05); transform: translateY(-1px); }
+    .chapter-card-top { display: flex; align-items: center; justify-content: space-between; }
+    .chapter-num { font-family: 'Share Tech Mono', monospace; font-size: 1.4rem; color: var(--accent); font-weight: 700; opacity: 0.7; line-height: 1; }
+    .chapter-badges { display: flex; gap: 0.5rem; align-items: center; }
+    .chapter-time { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--muted); background: var(--panel-alt); border: 1px solid var(--border); border-radius: 3px; padding: 0.2em 0.55em; }
+    .chapter-diff-beginner { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; color: var(--secondary); background: rgba(88,166,255,0.1); border: 1px solid rgba(88,166,255,0.2); border-radius: 3px; padding: 0.2em 0.55em; }
+    .chapter-diff-intermediate { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; color: var(--amber); background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); border-radius: 3px; padding: 0.2em 0.55em; }
+    .chapter-diff-advanced { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; color: var(--accent); background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2); border-radius: 3px; padding: 0.2em 0.55em; }
+    .chapter-title { font-size: 1rem; font-weight: 600; color: var(--text); margin: 0; line-height: 1.3; }
+    .chapter-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.55; margin: 0; }
+    .chapter-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .chapter-tag { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; color: var(--muted); background: var(--panel-alt); border: 1px solid var(--border); border-radius: 3px; padding: 0.15em 0.45em; }
+    .chapter-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+    .chapter-status { display: flex; align-items: center; gap: 0.4rem; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; }
+    .chapter-status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+    .chapter-status-dot.is-reading { background: var(--amber); }
+    .chapter-status-dot.is-complete { background: var(--accent); }
+    .chapter-status-text { color: var(--muted); }
+    .chapter-arrow { font-size: 1rem; color: var(--accent); opacity: 0; transition: opacity 0.2s; }
+    .chapter-card:hover .chapter-arrow { opacity: 1; }
 
-    /* CTA section */
-    .lol-cta-section { padding: 3rem 0; }
-    .lol-cta-inner { display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; }
-    .lol-back-cta { display: inline-flex; align-items: center; gap: 0.5rem; font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; letter-spacing: 0.08em; color: var(--bg); background: var(--accent); border-radius: 6px; padding: 0.65rem 1.25rem; text-decoration: none; transition: opacity 0.2s; }
-    .lol-back-cta:hover { opacity: 0.85; }
-    .lol-available-note { font-size: 0.85rem; color: var(--muted); }
-    .lol-available-link { color: var(--accent); text-decoration: none; }
-    .lol-available-link:hover { text-decoration: underline; }
+    /* Prerequisites */
+    .prereq-section { padding: 3rem 0; background: var(--panel-alt); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .prereq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 768px) { .prereq-grid { grid-template-columns: 1fr; } }
+    .prereq-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; }
+    .prereq-card-title { font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; letter-spacing: 0.1em; color: var(--accent); margin: 0 0 1rem; }
+    .prereq-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+    .prereq-list li { font-size: 0.88rem; color: var(--muted); line-height: 1.45; padding-left: 1.1rem; position: relative; }
+    .prereq-list li::before { content: '\00B7'; position: absolute; left: 0; color: var(--accent); font-size: 1rem; line-height: 1.3; }
+    .prereq-card.is-outcomes .prereq-list li::before { color: var(--secondary); }
   </style>
 </head>
 <body>
@@ -70,13 +83,12 @@
         <div class="nav-pill">
           <span class="nav-pill-name">H3AD-LEARN</span>
           <span class="nav-pill-sep">//</span>
-          <span class="nav-pill-tagline">Living Off the Land</span>
+          <span class="nav-pill-tagline">LIVING OFF THE LAND</span>
         </div>
       </div>
       <nav class="header-nav" aria-label="Primary navigation">
-        <a href="https://h3ad-sec.github.io/" class="nav-link">HOME</a>
-        <a href="https://h3ad-sec.github.io/H3AD-HUNT/" class="nav-link">H3AD-HUNT</a>
-        <a href="https://h3ad-sec.github.io/#contact" class="nav-link">CONTACT</a>
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
       </nav>
       <div class="header-actions">
         <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme" title="Toggle theme">
@@ -91,160 +103,365 @@
   <div class="container" style="padding-top: 1.25rem; padding-bottom: 0;">
     <nav aria-label="Breadcrumb" style="font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; color: var(--muted); display: flex; align-items: center; gap: 0.5rem;">
       <a href="../index.html" style="color: var(--muted); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">Home</a>
-      <span aria-hidden="true">›</span>
-      <span style="color: var(--text);">Living Off the Land</span>
+      <span aria-hidden="true">&#8250;</span>
+      <span style="color: var(--text);">LOLBAS</span>
     </nav>
   </div>
 
-  <!-- HERO -->
-  <section class="lol-hero">
+  <!-- MODULE HERO -->
+  <section class="module-hero">
     <div class="container">
-      <div class="lol-hero-inner">
+      <div class="module-hero-inner">
         <a href="../index.html" class="back-link">All Modules</a>
-        <span class="soon-badge">COMING SOON</span>
-        <h1 class="lol-hero-title">Living Off the Land · Complete Guide</h1>
-        <p class="lol-hero-desc">Understand how attackers abuse legitimate Windows binaries, scripts, and services to evade defenses and persist undetected. This module covers LOLBins, LOLScripts, the LOLBAS framework taxonomy, and the detection engineering approaches needed to catch these techniques in production environments.</p>
+        <span class="module-badge">LOLBAS</span>
+        <h1 class="module-hero-title">Living Off the Land &middot; Complete Guide</h1>
+        <p class="module-hero-desc">Eight chapters on LOLBin taxonomy, attacker tradecraft, detection strategy, KQL/Sigma queries, threat actor campaigns, and advanced evasion defense. Built for detection engineers and threat hunters who need to go beyond signatures.</p>
 
-        <div class="lol-stats-strip">
-          <div class="lol-stat">
-            <span class="lol-stat-value">8</span>
-            <span class="lol-stat-label">CHAPTERS</span>
+        <div class="module-stats-strip">
+          <div class="module-stat">
+            <span class="module-stat-value">8</span>
+            <span class="module-stat-label">CHAPTERS</span>
           </div>
-          <div class="lol-stat">
-            <span class="lol-stat-value">~10 HRS</span>
-            <span class="lol-stat-label">CONTENT</span>
+          <div class="module-stat">
+            <span class="module-stat-value">~10 HRS</span>
+            <span class="module-stat-label">CONTENT</span>
           </div>
-          <div class="lol-stat">
-            <span class="lol-stat-value">INTERMEDIATE → ADVANCED</span>
-            <span class="lol-stat-label">SKILL RANGE</span>
+          <div class="module-stat">
+            <span class="module-stat-value">INTERMEDIATE to ADVANCED</span>
+            <span class="module-stat-label">SKILL RANGE</span>
           </div>
-          <div class="lol-stat">
-            <span class="lol-stat-value">IN DEVELOPMENT</span>
-            <span class="lol-stat-label">STATUS</span>
+          <div class="module-stat">
+            <span class="module-stat-value">JUN 2026</span>
+            <span class="module-stat-label">LAST UPDATED</span>
           </div>
         </div>
 
-        <div class="lol-tags">
-          <span class="lol-tag">LOLBAS</span>
-          <span class="lol-tag">LOLBins</span>
-          <span class="lol-tag">Windows</span>
-          <span class="lol-tag">defense evasion</span>
-          <span class="lol-tag">KQL</span>
-          <span class="lol-tag">Sigma</span>
-          <span class="lol-tag">behavioral detection</span>
+        <div class="module-progress-wrap">
+          <div class="module-progress-meta">
+            <span>MODULE PROGRESS</span>
+            <span id="lolbas-progress-label">0 / 8 chapters complete</span>
+          </div>
+          <div class="module-progress-bar-outer">
+            <div class="module-progress-bar-inner" id="lolbas-progress-bar"></div>
+          </div>
+        </div>
+
+        <div class="module-tags">
+          <span class="module-tag">LOLBins</span>
+          <span class="module-tag">T1218</span>
+          <span class="module-tag">LOTL</span>
+          <span class="module-tag">certutil</span>
+          <span class="module-tag">PowerShell</span>
+          <span class="module-tag">KQL</span>
+          <span class="module-tag">Sigma</span>
+          <span class="module-tag">behavioral detection</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- CHAPTER PREVIEW -->
-  <section class="chapters-preview-section" aria-labelledby="chapters-preview-heading">
+  <!-- CHAPTER GRID -->
+  <section class="chapters-section" aria-labelledby="chapters-heading">
     <div class="container">
       <div class="section-header" style="margin-bottom: 2rem;">
-        <span class="section-label">PREVIEW</span>
-        <h2 class="section-title" id="chapters-preview-heading">CHAPTER OUTLINE</h2>
-        <p class="section-subtitle">Eight chapters currently in development. Content will unlock when the module launches.</p>
+        <span class="section-label">CURRICULUM</span>
+        <h2 class="section-title" id="chapters-heading">ALL CHAPTERS</h2>
       </div>
-      <div class="chapters-preview-list" role="list" aria-label="Locked chapter list">
+      <div class="chapters-grid" id="chaptersGrid">
 
-        <div class="chapter-preview-item" role="listitem">
-          <span class="chapter-preview-num">01</span>
-          <div class="chapter-preview-info">
-            <span class="chapter-preview-title">LOL Fundamentals: What Is Living Off the Land?</span>
-            <span class="chapter-preview-desc">Origins of the LOL concept, threat actor motivation, and why defenders consistently fail to detect native binary abuse.</span>
+        <!-- CHAPTER 01 -->
+        <a class="chapter-card" href="./01-lol-fundamentals.html" aria-label="Chapter 1: LOL Fundamentals">
+          <div class="chapter-card-top">
+            <span class="chapter-num">01</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-beginner">BEGINNER</span>
+              <span class="chapter-time">30 min</span>
+            </div>
           </div>
-          <span class="chapter-lock">LOCKED</span>
+          <h3 class="chapter-title">LOL Fundamentals</h3>
+          <p class="chapter-desc">What LOLBins are, why they exist, and why signature-based detection fails against them. The LOLBAS Project taxonomy and T1218 subtechnique structure.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">taxonomy</span>
+            <span class="chapter-tag">T1218</span>
+            <span class="chapter-tag">LOLBAS</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="01">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <!-- CHAPTER 02 -->
+        <a class="chapter-card" href="./02-lolbin-catalog.html" aria-label="Chapter 2: LOLBin Catalog">
+          <div class="chapter-card-top">
+            <span class="chapter-num">02</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
+              <span class="chapter-time">40 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">LOLBin Catalog</h3>
+          <p class="chapter-desc">Deep reference for certutil, mshta, regsvr32, rundll32, PowerShell, wmic, bitsadmin, and installutil. Abuse patterns, CommandLine indicators, and detection notes per binary.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">certutil</span>
+            <span class="chapter-tag">mshta</span>
+            <span class="chapter-tag">regsvr32</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="02">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <!-- CHAPTER 03 -->
+        <a class="chapter-card" href="./03-lolscripts-net.html" aria-label="Chapter 3: LOLScripts, LOLLibs, and LOLDrivers">
+          <div class="chapter-card-top">
+            <span class="chapter-num">03</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
+              <span class="chapter-time">30 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">LOLScripts, LOLLibs, and LOLDrivers</h3>
+          <p class="chapter-desc">Beyond executables: how attackers abuse built-in scripts, .NET libraries, and vulnerable kernel drivers. BYOVD attacks and the LOLDrivers catalog.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">LOLScripts</span>
+            <span class="chapter-tag">LOLDrivers</span>
+            <span class="chapter-tag">BYOVD</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="03">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <!-- CHAPTER 04 -->
+        <a class="chapter-card" href="./04-attacker-tradecraft.html" aria-label="Chapter 4: Attacker Tradecraft">
+          <div class="chapter-card-top">
+            <span class="chapter-num">04</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
+              <span class="chapter-time">35 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Attacker Tradecraft</h3>
+          <p class="chapter-desc">Download cradles, execution proxies, persistence mechanisms, lateral movement, and defense evasion patterns. How LOLBins chain together across an intrusion lifecycle.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">download cradle</span>
+            <span class="chapter-tag">lateral movement</span>
+            <span class="chapter-tag">PPID spoofing</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="04">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <!-- CHAPTER 05 -->
+        <a class="chapter-card" href="./05-detection-strategy.html" aria-label="Chapter 5: Detection Strategy">
+          <div class="chapter-card-top">
+            <span class="chapter-num">05</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
+              <span class="chapter-time">35 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Detection Strategy</h3>
+          <p class="chapter-desc">Why behavioral detection beats signature detection for LOLBins. Parent-child process analysis, CommandLine baselining, network-side indicators, and alert triage methodology.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">behavioral</span>
+            <span class="chapter-tag">parent-child</span>
+            <span class="chapter-tag">baselining</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="05">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <!-- CHAPTER 06 -->
+        <a class="chapter-card" href="./06-detection-queries.html" aria-label="Chapter 6: Detection Queries">
+          <div class="chapter-card-top">
+            <span class="chapter-num">06</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
+              <span class="chapter-time">40 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Detection Queries</h3>
+          <p class="chapter-desc">Production KQL, SPL, and Sigma rules for certutil, mshta, regsvr32, PowerShell IEX, wmic, bitsadmin, and more. Tuning guidance and false positive management per query.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">KQL</span>
+            <span class="chapter-tag">SPL</span>
+            <span class="chapter-tag">Sigma</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="06">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <!-- CHAPTER 07 -->
+        <a class="chapter-card" href="./07-threat-actor-usage.html" aria-label="Chapter 7: Threat Actor Campaigns">
+          <div class="chapter-card-top">
+            <span class="chapter-num">07</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-advanced">ADVANCED</span>
+              <span class="chapter-time">35 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Threat Actor Campaigns</h3>
+          <p class="chapter-desc">How APT32, APT34, Lazarus, BlackMatter, LockBit, and Conti use LOLBins. Cobalt Strike stager delivery methods. Attribution signals and translating CTI into hunt hypotheses.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">APT</span>
+            <span class="chapter-tag">ransomware</span>
+            <span class="chapter-tag">Cobalt Strike</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="07">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <!-- CHAPTER 08 -->
+        <a class="chapter-card" href="./08-advanced-evasion.html" aria-label="Chapter 8: Advanced Evasion and Defense">
+          <div class="chapter-card-top">
+            <span class="chapter-num">08</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-advanced">ADVANCED</span>
+              <span class="chapter-time">40 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Advanced Evasion and Defense</h3>
+          <p class="chapter-desc">AMSI bypass detection, AppLocker/WDAC limitations, EDR evasion via LOLBins, hardening controls, Atomic Red Team validation, and threat-informed defense prioritization.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">AMSI</span>
+            <span class="chapter-tag">WDAC</span>
+            <span class="chapter-tag">Atomic Red Team</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="08">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+      </div><!-- /chapters-grid -->
+    </div>
+  </section>
+
+  <!-- PREREQUISITES -->
+  <section class="prereq-section" aria-labelledby="prereq-heading">
+    <div class="container">
+      <div class="section-header" style="margin-bottom: 2rem;">
+        <span class="section-label">BEFORE YOU START</span>
+        <h2 class="section-title" id="prereq-heading">PREREQUISITES &amp; OUTCOMES</h2>
+      </div>
+      <div class="prereq-grid">
+
+        <div class="prereq-card">
+          <p class="prereq-card-title">WHAT YOU SHOULD KNOW</p>
+          <ul class="prereq-list">
+            <li>Windows OS fundamentals: processes, registry, file system, and signed binary concepts</li>
+            <li>Basic SIEM or query language exposure (KQL, SPL, or similar)</li>
+            <li>Familiarity with MITRE ATT&amp;CK technique structure and T-numbers</li>
+            <li>General understanding of how endpoint security and AV products work</li>
+          </ul>
         </div>
 
-        <div class="chapter-preview-item" role="listitem">
-          <span class="chapter-preview-num">02</span>
-          <div class="chapter-preview-info">
-            <span class="chapter-preview-title">LOLBAS Framework and Taxonomy</span>
-            <span class="chapter-preview-desc">How the LOLBAS project catalogs binaries, functions, and scripts. Reading LOLBAS entries and mapping them to ATT&CK techniques.</span>
-          </div>
-          <span class="chapter-lock">LOCKED</span>
-        </div>
-
-        <div class="chapter-preview-item" role="listitem">
-          <span class="chapter-preview-num">03</span>
-          <div class="chapter-preview-info">
-            <span class="chapter-preview-title">Common LOL Binaries</span>
-            <span class="chapter-preview-desc">Deep coverage of cmd, powershell, wscript, mshta, regsvr32, certutil, and bitsadmin — abuse patterns, real-world usage, and detection anchors.</span>
-          </div>
-          <span class="chapter-lock">LOCKED</span>
-        </div>
-
-        <div class="chapter-preview-item" role="listitem">
-          <span class="chapter-preview-num">04</span>
-          <div class="chapter-preview-info">
-            <span class="chapter-preview-title">LOL Scripts: WMI, PowerShell, VBScript Abuse Patterns</span>
-            <span class="chapter-preview-desc">Scripting engine abuse, WMIC lateral movement, PowerShell obfuscation tiers, and VBScript execution chains.</span>
-          </div>
-          <span class="chapter-lock">LOCKED</span>
-        </div>
-
-        <div class="chapter-preview-item" role="listitem">
-          <span class="chapter-preview-num">05</span>
-          <div class="chapter-preview-info">
-            <span class="chapter-preview-title">Defense Evasion via LOL Techniques</span>
-            <span class="chapter-preview-desc">Proxy execution, AppLocker bypass patterns, signed binary proxy abuse, and how LOL chains extend attacker dwell time.</span>
-          </div>
-          <span class="chapter-lock">LOCKED</span>
-        </div>
-
-        <div class="chapter-preview-item" role="listitem">
-          <span class="chapter-preview-num">06</span>
-          <div class="chapter-preview-info">
-            <span class="chapter-preview-title">Detecting LOL Abuse: Behavioral Signatures</span>
-            <span class="chapter-preview-desc">Building process-tree based detections, parent-child anomalies, command-line baselining, and reducing false positives in noisy environments.</span>
-          </div>
-          <span class="chapter-lock">LOCKED</span>
-        </div>
-
-        <div class="chapter-preview-item" role="listitem">
-          <span class="chapter-preview-num">07</span>
-          <div class="chapter-preview-info">
-            <span class="chapter-preview-title">Hunting LOL Binaries with KQL and Sigma</span>
-            <span class="chapter-preview-desc">Ready-to-deploy hunt queries for Microsoft Sentinel and Elastic. Sigma rules for 12 common LOL techniques with tuning guidance.</span>
-          </div>
-          <span class="chapter-lock">LOCKED</span>
-        </div>
-
-        <div class="chapter-preview-item" role="listitem">
-          <span class="chapter-preview-num">08</span>
-          <div class="chapter-preview-info">
-            <span class="chapter-preview-title">Advanced LOL Patterns and Supply Chain Abuse</span>
-            <span class="chapter-preview-desc">Bring-your-own-LOL, DLL sideloading, signed binary chain attacks, and how threat actors weaponize legitimate update mechanisms.</span>
-          </div>
-          <span class="chapter-lock">LOCKED</span>
+        <div class="prereq-card is-outcomes">
+          <p class="prereq-card-title">WHAT YOU WILL KNOW AFTER</p>
+          <ul class="prereq-list">
+            <li>The full LOLBin taxonomy: LOLBins, LOLScripts, LOLLibs, and LOLDrivers</li>
+            <li>How to write behavioral KQL, SPL, and Sigma rules for T1218 subtechniques</li>
+            <li>How APT and ransomware operators use LOLBins across the intrusion lifecycle</li>
+            <li>How to translate CTI reports into hunt hypotheses using actor LOLBin patterns</li>
+            <li>Which hardening controls actually reduce LOTL attack surface and which do not</li>
+            <li>How to validate detection coverage using Atomic Red Team and track coverage gaps</li>
+          </ul>
         </div>
 
       </div>
     </div>
   </section>
 
-  <!-- NOTIFY -->
-  <section class="notify-section" aria-labelledby="notify-heading">
+  <!-- RECOMMENDED TOOLS -->
+  <section class="resources-section" aria-labelledby="tools-heading">
     <div class="container">
-      <div class="notify-card">
-        <span class="notify-dev-note">MODULE IN DEVELOPMENT</span>
-        <h2 class="notify-title" id="notify-heading">Get Notified on Launch</h2>
-        <p class="notify-desc">This module is being built in parallel with the platform. Leave your email to be notified when it goes live. No account required, no spam.</p>
-        <div class="notify-form" role="form" aria-label="Notification signup (non-functional — module in development)">
-          <input class="notify-input" type="email" placeholder="your@email.com" disabled aria-disabled="true" aria-label="Email address (currently disabled)" />
-          <button class="notify-btn" disabled aria-disabled="true">NOTIFY ME</button>
-        </div>
-        <p class="notify-caption">Notifications are not yet active. Check back or follow <a href="https://h3ad-sec.github.io/" style="color:var(--accent);text-decoration:none;">H3AD-SEC</a> for updates.</p>
+      <div class="section-header">
+        <span class="section-label">TOOLS</span>
+        <h2 class="section-title" id="tools-heading">RECOMMENDED TOOLS</h2>
+        <p class="section-subtitle">H3AD-SEC tools that pair directly with this module's content.</p>
       </div>
-    </div>
-  </section>
+      <div class="resources-grid">
 
-  <!-- CTA -->
-  <section class="lol-cta-section">
-    <div class="container">
-      <div class="lol-cta-inner">
-        <p class="lol-available-note">While you wait, the Threat Hunting module is <a href="../threat-hunting/index.html" class="lol-available-link">fully available now</a>.</p>
-        <a href="../index.html" class="lol-back-cta">← Back to All Modules</a>
+        <a class="resource-card" href="https://h3ad-sec.github.io/TRACERULES/" target="_blank" rel="noopener noreferrer">
+          <div class="resource-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="resource-card-body">
+            <span class="resource-card-name mono">TRACERULES</span>
+            <p class="resource-card-desc">KQL/Sigma/XQL detection query arsenal organized by MITRE ATT&amp;CK technique. Includes T1218 subtechnique coverage.</p>
+          </div>
+          <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
+        </a>
+
+        <a class="resource-card" href="https://h3ad-sec.github.io/HYPOS/" target="_blank" rel="noopener noreferrer">
+          <div class="resource-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div class="resource-card-body">
+            <span class="resource-card-name mono">HYPOS</span>
+            <p class="resource-card-desc">ATT&amp;CK-driven hypothesis platform. Build and track LOLBin hunt hypotheses from CTI reports using the ABLE framework.</p>
+          </div>
+          <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
+        </a>
+
+        <a class="resource-card" href="https://h3ad-sec.github.io/PIVEX/" target="_blank" rel="noopener noreferrer">
+          <div class="resource-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          </div>
+          <div class="resource-card-body">
+            <span class="resource-card-name mono">PIVEX</span>
+            <p class="resource-card-desc">Pivot graph for threat investigations. Map LOLBin execution chains to IOCs, actors, and infrastructure during active hunts.</p>
+          </div>
+          <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
+        </a>
+
+        <a class="resource-card" href="https://h3ad-sec.github.io/TRACEPULSE/" target="_blank" rel="noopener noreferrer">
+          <div class="resource-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+          </div>
+          <div class="resource-card-body">
+            <span class="resource-card-name mono">TRACEPULSE</span>
+            <p class="resource-card-desc">Threat query packs by campaign and CVE. Structured hunt packs ready to deploy for LOLBin-heavy actor campaigns.</p>
+          </div>
+          <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
+        </a>
+
       </div>
     </div>
   </section>
@@ -256,7 +473,7 @@
         <div class="footer-brand">
           <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png"
                id="footer-logo" class="footer-logo" alt="H3AD-SEC" />
-          <p class="footer-tagline muted">H3AD-LEARN · Living Off the Land</p>
+          <p class="footer-tagline muted">H3AD-LEARN &middot; LOLBAS</p>
         </div>
         <div class="footer-links">
           <a href="../index.html" class="footer-link">All Modules</a>
@@ -271,5 +488,38 @@
   </footer>
 
   <script src="../js/learn.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Module progress bar
+      const pct   = getModuleProgress('lolbas');
+      const bar   = document.getElementById('lolbas-progress-bar');
+      const label = document.getElementById('lolbas-progress-label');
+      if (bar)   bar.style.width = pct + '%';
+      if (label) {
+        const progress  = initProgress();
+        const chapters  = progress.modules?.['lolbas']?.chapters || {};
+        const completed = Object.values(chapters).filter(c => c.status === 'complete').length;
+        label.textContent = completed + ' / 8 chapters complete';
+      }
+
+      // Chapter status dots
+      const progress = initProgress();
+      const chapters = progress.modules?.['lolbas']?.chapters || {};
+      document.querySelectorAll('.chapter-status[data-chapter-id]').forEach(el => {
+        const id  = el.dataset.chapterId;
+        const ch  = chapters[id];
+        if (!ch) return;
+        const dot  = el.querySelector('.chapter-status-dot');
+        const text = el.querySelector('.chapter-status-text');
+        if (ch.status === 'complete') {
+          dot.classList.add('is-complete');
+          text.textContent = 'COMPLETE';
+        } else if (ch.status === 'reading') {
+          dot.classList.add('is-reading');
+          text.textContent = 'IN PROGRESS';
+        }
+      });
+    });
+  </script>
 </body>
 </html>

