@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>H3AD-LEARN — Threat Hunting · Complete Guide</title>
+  <meta name="description" content="Eight-chapter threat hunting curriculum. PEAK, TaHiTI, hypothesis generation, KQL, evidence scoring, and advanced techniques." />
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    /* Module-index page styles */
+    .module-hero { padding: 3.5rem 0 2.5rem; }
+    .module-hero-inner { display: flex; flex-direction: column; gap: 1.25rem; }
+    .back-link { display: inline-flex; align-items: center; gap: 0.4rem; font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .back-link:hover { color: var(--accent); }
+    .back-link::before { content: '←'; }
+    .module-badge { display: inline-block; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; letter-spacing: 0.14em; color: var(--accent); background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.25); border-radius: 4px; padding: 0.25em 0.75em; }
+    .module-hero-title { font-size: clamp(1.75rem, 4vw, 2.75rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; margin: 0; }
+    .module-hero-desc { color: var(--muted); font-size: 0.95rem; line-height: 1.7; max-width: 680px; }
+    .module-stats-strip { display: flex; flex-wrap: wrap; gap: 2rem; padding: 1.25rem 1.5rem; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; }
+    .module-stat { display: flex; flex-direction: column; gap: 0.2rem; }
+    .module-stat-value { font-family: 'Share Tech Mono', monospace; font-size: 1rem; color: var(--text); font-weight: 600; }
+    .module-stat-label { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; color: var(--muted); }
+    .module-progress-wrap { display: flex; flex-direction: column; gap: 0.5rem; }
+    .module-progress-bar-outer { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .module-progress-bar-inner { height: 100%; background: linear-gradient(90deg, var(--accent), var(--secondary)); border-radius: 3px; transition: width 0.6s ease; width: 0%; }
+    .module-progress-meta { display: flex; justify-content: space-between; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+    .module-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .module-tag { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--secondary); background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.15); border-radius: 3px; padding: 0.2em 0.55em; }
+
+    /* Chapter grid */
+    .chapters-section { padding: 3rem 0; }
+    .chapters-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+    @media (max-width: 768px) { .chapters-grid { grid-template-columns: 1fr; } }
+
+    .chapter-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; text-decoration: none; color: inherit; transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s; cursor: pointer; position: relative; }
+    .chapter-card:hover { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(0,212,255,0.1), 0 4px 20px rgba(0,212,255,0.05); transform: translateY(-1px); }
+    .chapter-card-top { display: flex; align-items: center; justify-content: space-between; }
+    .chapter-num { font-family: 'Share Tech Mono', monospace; font-size: 1.4rem; color: var(--accent); font-weight: 700; opacity: 0.7; line-height: 1; }
+    .chapter-badges { display: flex; gap: 0.5rem; align-items: center; }
+    .chapter-time { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--muted); background: var(--panel-alt); border: 1px solid var(--border); border-radius: 3px; padding: 0.2em 0.55em; }
+    .chapter-diff-beginner { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; color: var(--secondary); background: rgba(88,166,255,0.1); border: 1px solid rgba(88,166,255,0.2); border-radius: 3px; padding: 0.2em 0.55em; }
+    .chapter-diff-intermediate { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; color: var(--amber); background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); border-radius: 3px; padding: 0.2em 0.55em; }
+    .chapter-diff-advanced { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; color: var(--accent); background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2); border-radius: 3px; padding: 0.2em 0.55em; }
+    .chapter-title { font-size: 1rem; font-weight: 600; color: var(--text); margin: 0; line-height: 1.3; }
+    .chapter-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.55; margin: 0; }
+    .chapter-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .chapter-tag { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; color: var(--muted); background: var(--panel-alt); border: 1px solid var(--border); border-radius: 3px; padding: 0.15em 0.45em; }
+    .chapter-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+    .chapter-status { display: flex; align-items: center; gap: 0.4rem; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; }
+    .chapter-status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+    .chapter-status-dot.is-reading { background: var(--amber); }
+    .chapter-status-dot.is-complete { background: var(--accent); }
+    .chapter-status-text { color: var(--muted); }
+    .chapter-arrow { font-size: 1rem; color: var(--accent); opacity: 0; transition: opacity 0.2s; }
+    .chapter-card:hover .chapter-arrow { opacity: 1; }
+
+    /* Prerequisites and tools */
+    .prereq-section { padding: 3rem 0; background: var(--panel-alt); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .prereq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 768px) { .prereq-grid { grid-template-columns: 1fr; } }
+    .prereq-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; }
+    .prereq-card-title { font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; letter-spacing: 0.1em; color: var(--accent); margin: 0 0 1rem; }
+    .prereq-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+    .prereq-list li { font-size: 0.88rem; color: var(--muted); line-height: 1.45; padding-left: 1.1rem; position: relative; }
+    .prereq-list li::before { content: '·'; position: absolute; left: 0; color: var(--accent); font-size: 1rem; line-height: 1.3; }
+    .prereq-card.is-outcomes .prereq-list li::before { color: var(--secondary); }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="https://h3ad-sec.github.io/" class="logo-link" aria-label="H3AD-SEC Home">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png"
+               id="site-logo" class="site-logo" alt="H3AD-SEC Logo" />
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">//</span>
+          <span class="nav-pill-tagline">Threat Hunting</span>
+        </div>
+      </div>
+      <nav class="header-nav" aria-label="Primary navigation">
+        <a href="https://h3ad-sec.github.io/" class="nav-link">HOME</a>
+        <a href="https://h3ad-sec.github.io/H3AD-HUNT/" class="nav-link">H3AD-HUNT</a>
+        <a href="https://h3ad-sec.github.io/#contact" class="nav-link">CONTACT</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme" title="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- BREADCRUMB -->
+  <div class="container" style="padding-top: 1.25rem; padding-bottom: 0;">
+    <nav aria-label="Breadcrumb" style="font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; color: var(--muted); display: flex; align-items: center; gap: 0.5rem;">
+      <a href="../index.html" style="color: var(--muted); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">Home</a>
+      <span aria-hidden="true">›</span>
+      <span style="color: var(--text);">Threat Hunting</span>
+    </nav>
+  </div>
+
+  <!-- MODULE HERO -->
+  <section class="module-hero">
+    <div class="container">
+      <div class="module-hero-inner">
+        <a href="../index.html" class="back-link">All Modules</a>
+        <span class="module-badge">THREAT HUNTING</span>
+        <h1 class="module-hero-title">Threat Hunting · Complete Guide</h1>
+        <p class="module-hero-desc">A field-focused curriculum built from the methodologies of CrowdStrike OverWatch, Red Canary, Elastic Security, Mandiant, and the PEAK/TaHiTI/SANS frameworks. Nine chapters covering the full hunt lifecycle, including an applied LOLBin abuse hunting chapter.</p>
+
+        <div class="module-stats-strip">
+          <div class="module-stat">
+            <span class="module-stat-value">9</span>
+            <span class="module-stat-label">CHAPTERS</span>
+          </div>
+          <div class="module-stat">
+            <span class="module-stat-value">~13 HRS</span>
+            <span class="module-stat-label">CONTENT</span>
+          </div>
+          <div class="module-stat">
+            <span class="module-stat-value">BEGINNER → ADVANCED</span>
+            <span class="module-stat-label">SKILL RANGE</span>
+          </div>
+          <div class="module-stat">
+            <span class="module-stat-value">JUN 2026</span>
+            <span class="module-stat-label">LAST UPDATED</span>
+          </div>
+        </div>
+
+        <div class="module-progress-wrap">
+          <div class="module-progress-meta">
+            <span>MODULE PROGRESS</span>
+            <span id="th-progress-label">0 / 8 chapters complete</span>
+          </div>
+          <div class="module-progress-bar-outer">
+            <div class="module-progress-bar-inner" id="th-progress-bar"></div>
+          </div>
+        </div>
+
+        <div class="module-tags">
+          <span class="module-tag">hypothesis-driven</span>
+          <span class="module-tag">PEAK</span>
+          <span class="module-tag">TaHiTI</span>
+          <span class="module-tag">ATT&amp;CK</span>
+          <span class="module-tag">KQL</span>
+          <span class="module-tag">Sigma</span>
+          <span class="module-tag">evidence scoring</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHAPTER GRID -->
+  <section class="chapters-section" aria-labelledby="chapters-heading">
+    <div class="container">
+      <div class="section-header" style="margin-bottom: 2rem;">
+        <span class="section-label">CURRICULUM</span>
+        <h2 class="section-title" id="chapters-heading">ALL CHAPTERS</h2>
+      </div>
+      <div class="chapters-grid" id="chaptersGrid">
+
+        <!-- CHAPTER 01 -->
+        <a class="chapter-card" href="./01-foundations.html" aria-label="Chapter 1: Threat Hunting Foundations">
+          <div class="chapter-card-top">
+            <span class="chapter-num">01</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-beginner">BEGINNER</span>
+              <span class="chapter-time">25 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Threat Hunting Foundations</h3>
+          <p class="chapter-desc">The shift from reactive to proactive. SOC maturity, adversary mindset, and the prerequisites for an effective hunt program.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">foundations</span>
+            <span class="chapter-tag">SOC</span>
+            <span class="chapter-tag">mindset</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="01">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">→</span>
+          </div>
+        </a>
+
+        <!-- CHAPTER 02 -->
+        <a class="chapter-card" href="./02-hypothesis.html" aria-label="Chapter 2: Hypothesis Generation">
+          <div class="chapter-card-top">
+            <span class="chapter-num">02</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-beginner">BEGINNER</span>
+              <span class="chapter-time">30 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Hypothesis Generation</h3>
+          <p class="chapter-desc">The ABLE framework, ATT&CK-driven hypothesis creation, prioritization scoring, and converting threat intel reports into testable hunt plans.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">ABLE</span>
+            <span class="chapter-tag">ATT&amp;CK</span>
+            <span class="chapter-tag">intel</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="02">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">→</span>
+          </div>
+        </a>
+
+        <!-- CHAPTER 03 -->
+        <a class="chapter-card" href="./03-frameworks.html" aria-label="Chapter 3: Hunting Frameworks">
+          <div class="chapter-card-top">
+            <span class="chapter-num">03</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
+              <span class="chapter-time">35 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Hunting Frameworks</h3>
+          <p class="chapter-desc">Sqrrl Loop, PEAK, TaHiTI, SANS PAM model, and OTRF Playbook. When to use which framework and how to combine them.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">PEAK</span>
+            <span class="chapter-tag">TaHiTI</span>
+            <span class="chapter-tag">lifecycle</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="03">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">→</span>
+          </div>
+        </a>
+
+        <!-- CHAPTER 04 -->
+        <a class="chapter-card" href="./04-data-sources.html" aria-label="Chapter 4: Data Sources and Telemetry">
+          <div class="chapter-card-top">
+            <span class="chapter-num">04</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
+              <span class="chapter-time">30 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Data Sources and Telemetry</h3>
+          <p class="chapter-desc">Windows Event Logs, Sysmon, EDR, DNS, proxy, identity, and cloud telemetry. The visibility gap and ATT&CK data source coverage mapping.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">logs</span>
+            <span class="chapter-tag">EDR</span>
+            <span class="chapter-tag">Sysmon</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="04">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">→</span>
+          </div>
+        </a>
+
+        <!-- CHAPTER 05 -->
+        <a class="chapter-card" href="./05-execution.html" aria-label="Chapter 5: Hunt Execution">
+          <div class="chapter-card-top">
+            <span class="chapter-num">05</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
+              <span class="chapter-time">35 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Hunt Execution</h3>
+          <p class="chapter-desc">Planning a hunt, writing hunting queries in KQL/SPL/Sigma, statistical analysis methods, pivot techniques, and iterating on findings.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">KQL</span>
+            <span class="chapter-tag">queries</span>
+            <span class="chapter-tag">pivoting</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="05">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">→</span>
+          </div>
+        </a>
+
+        <!-- CHAPTER 06 -->
+        <a class="chapter-card" href="./06-evidence.html" aria-label="Chapter 6: Evidence Quality and Scoring">
+          <div class="chapter-card-top">
+            <span class="chapter-num">06</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
+              <span class="chapter-time">25 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Evidence Quality and Scoring</h3>
+          <p class="chapter-desc">Admiralty System, Diamond Model, Pyramid of Pain, confidence scoring, and false positive management.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">Admiralty</span>
+            <span class="chapter-tag">Diamond</span>
+            <span class="chapter-tag">Pyramid</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="06">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">→</span>
+          </div>
+        </a>
+
+        <!-- CHAPTER 07 -->
+        <a class="chapter-card" href="./07-lifecycle.html" aria-label="Chapter 7: Hunt Lifecycle and Documentation">
+          <div class="chapter-card-top">
+            <span class="chapter-num">07</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-advanced">ADVANCED</span>
+              <span class="chapter-time">30 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Hunt Lifecycle and Documentation</h3>
+          <p class="chapter-desc">The full PEAK lifecycle applied, hunt scoping templates, outcome classification, after-action reports, and KPI measurement.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">PEAK</span>
+            <span class="chapter-tag">reporting</span>
+            <span class="chapter-tag">KPIs</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="07">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">→</span>
+          </div>
+        </a>
+
+        <!-- CHAPTER 08 -->
+        <a class="chapter-card" href="./08-advanced.html" aria-label="Chapter 8: Advanced Topics">
+          <div class="chapter-card-top">
+            <span class="chapter-num">08</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-advanced">ADVANCED</span>
+              <span class="chapter-time">40 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Advanced Topics</h3>
+          <p class="chapter-desc">Threat actor profiling, campaign-based hunting, ML-assisted methods, purple team validation, and building a hunt program.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">ML</span>
+            <span class="chapter-tag">purple team</span>
+            <span class="chapter-tag">AI</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="08">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">→</span>
+          </div>
+        </a>
+
+
+        <!-- CHAPTER 09 -->
+        <a class="chapter-card" href="./09-hunting-lolbins.html" aria-label="Chapter 9: Hunting LOLBin Abuse">
+          <div class="chapter-card-top">
+            <span class="chapter-num">09</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-advanced">ADVANCED</span>
+              <span class="chapter-time">40 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Hunting LOLBin Abuse</h3>
+          <p class="chapter-desc">Hunt for certutil, mshta, regsvr32, rundll32, and BITS abuse using behavioral hypotheses, KQL and Sigma queries, and the full ABLE workflow.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">LOLBins</span>
+            <span class="chapter-tag">T1218</span>
+            <span class="chapter-tag">detection</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="09">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">→</span>
+          </div>
+        </a>
+
+      </div><!-- /chapters-grid -->
+    </div>
+  </section>
+
+  <!-- PREREQUISITES -->
+  <section class="prereq-section" aria-labelledby="prereq-heading">
+    <div class="container">
+      <div class="section-header" style="margin-bottom: 2rem;">
+        <span class="section-label">BEFORE YOU START</span>
+        <h2 class="section-title" id="prereq-heading">PREREQUISITES &amp; OUTCOMES</h2>
+      </div>
+      <div class="prereq-grid">
+
+        <div class="prereq-card">
+          <p class="prereq-card-title">WHAT YOU SHOULD KNOW</p>
+          <ul class="prereq-list">
+            <li>Basic Windows OS concepts — processes, registry, file system structure</li>
+            <li>Familiarity with log concepts: event IDs, timestamps, field structure</li>
+            <li>Some exposure to a SIEM or query language (KQL, SPL, or similar)</li>
+            <li>General understanding of the cyber kill chain or ATT&amp;CK framework</li>
+          </ul>
+        </div>
+
+        <div class="prereq-card is-outcomes">
+          <p class="prereq-card-title">WHAT YOU WILL KNOW AFTER</p>
+          <ul class="prereq-list">
+            <li>The full threat hunting lifecycle from scoping to after-action reporting</li>
+            <li>How to write testable hypotheses using ABLE and ATT&amp;CK data sources</li>
+            <li>PEAK, TaHiTI, and Sqrrl Loop — when and how to apply each</li>
+            <li>Hunting query writing in KQL, SPL, and Sigma</li>
+            <li>Evidence scoring using Admiralty, Diamond Model, and Pyramid of Pain</li>
+            <li>How to build and measure a hunt program using KPIs</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- RECOMMENDED TOOLS -->
+  <section class="resources-section" aria-labelledby="tools-heading">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">TOOLS</span>
+        <h2 class="section-title" id="tools-heading">RECOMMENDED TOOLS</h2>
+        <p class="section-subtitle">H3AD-SEC tools that pair directly with this module's content.</p>
+      </div>
+      <div class="resources-grid">
+
+        <a class="resource-card" href="https://h3ad-sec.github.io/HYPOS/" target="_blank" rel="noopener noreferrer">
+          <div class="resource-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div class="resource-card-body">
+            <span class="resource-card-name mono">HYPOS</span>
+            <p class="resource-card-desc">ATT&amp;CK-driven hypothesis platform. Build and track hunt hypotheses using the ABLE framework.</p>
+          </div>
+          <span class="resource-card-arrow" aria-hidden="true">↗</span>
+        </a>
+
+        <a class="resource-card" href="https://h3ad-sec.github.io/TRACERULES/" target="_blank" rel="noopener noreferrer">
+          <div class="resource-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="resource-card-body">
+            <span class="resource-card-name mono">TRACERULES</span>
+            <p class="resource-card-desc">KQL/Sigma/XQL detection query arsenal, organized by MITRE ATT&amp;CK technique.</p>
+          </div>
+          <span class="resource-card-arrow" aria-hidden="true">↗</span>
+        </a>
+
+        <a class="resource-card" href="https://h3ad-sec.github.io/PIVEX/" target="_blank" rel="noopener noreferrer">
+          <div class="resource-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          </div>
+          <div class="resource-card-body">
+            <span class="resource-card-name mono">PIVEX</span>
+            <p class="resource-card-desc">Pivot graph for threat investigations. Map relationships between IOCs, artifacts, and actors.</p>
+          </div>
+          <span class="resource-card-arrow" aria-hidden="true">↗</span>
+        </a>
+
+        <a class="resource-card" href="https://h3ad-sec.github.io/TRACEPULSE/" target="_blank" rel="noopener noreferrer">
+          <div class="resource-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+          </div>
+          <div class="resource-card-body">
+            <span class="resource-card-name mono">TRACEPULSE</span>
+            <p class="resource-card-desc">Threat query packs by campaign and CVE. Structured hunt packs ready to deploy.</p>
+          </div>
+          <span class="resource-card-arrow" aria-hidden="true">↗</span>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png"
+               id="footer-logo" class="footer-logo" alt="H3AD-SEC" />
+          <p class="footer-tagline muted">H3AD-LEARN · Threat Hunting</p>
+        </div>
+        <div class="footer-links">
+          <a href="../index.html" class="footer-link">All Modules</a>
+          <a href="https://h3ad-sec.github.io/" class="footer-link">Platform</a>
+          <a href="https://github.com/h3ad-sec" class="footer-link" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+        <div class="footer-copy">
+          <span class="mono muted">H3AD-SEC &copy; 2026</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/learn.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Module progress bar
+      const pct     = getModuleProgress('threat-hunting');
+      const bar     = document.getElementById('th-progress-bar');
+      const label   = document.getElementById('th-progress-label');
+      if (bar)   bar.style.width = pct + '%';
+      if (label) {
+        const progress  = initProgress();
+        const chapters  = progress.modules?.['threat-hunting']?.chapters || {};
+        const completed = Object.values(chapters).filter(c => c.status === 'complete').length;
+        label.textContent = completed + ' / 9 chapters complete';
+      }
+
+      // Chapter status dots
+      const progress = initProgress();
+      const chapters = progress.modules?.['threat-hunting']?.chapters || {};
+      document.querySelectorAll('.chapter-status[data-chapter-id]').forEach(el => {
+        const id  = el.dataset.chapterId;
+        const ch  = chapters[id];
+        if (!ch) return;
+        const dot  = el.querySelector('.chapter-status-dot');
+        const text = el.querySelector('.chapter-status-text');
+        if (ch.status === 'complete') {
+          dot.classList.add('is-complete');
+          text.textContent = 'COMPLETE';
+        } else if (ch.status === 'reading') {
+          dot.classList.add('is-reading');
+          text.textContent = 'IN PROGRESS';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="07">
+  <meta name="module-id" content="threat-hunting">
+  <title>Hunt Lifecycle and Documentation · Threat Hunting · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png"
+               id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">HUNT LIFECYCLE</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">Threat Hunting</a>
+        <a href="https://h3ad-sec.github.io/HYPOS/" class="nav-link" target="_blank" rel="noopener">HYPOS</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Threat Hunting</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 07 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 7 sections</span>
+      </div>
+    </aside>
+
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 07</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-advanced">ADVANCED</span>
+          </div>
+          <h1 class="chapter-title">Hunt Lifecycle and Documentation</h1>
+          <p class="chapter-intro">Two analysts on the same team ran hunts for the same TTP six months apart, used different queries, found different things, and documented them in different formats in different locations. Neither could build on the other's work. The hunt program made no measurable progress despite 200 hours of analyst effort. Structured lifecycle management is what separates a hunt program that compounds knowledge from one that resets every time a hunt session ends.</p>
+          <div class="chapter-tags">
+            <span class="tag">PEAK</span>
+            <span class="tag">reporting</span>
+            <span class="tag">KPIs</span>
+          </div>
+        </header>
+
+        <!-- SECTION 1 -->
+        <section class="content-section" id="lifecycle-overview">
+          <h2>The Full Hunt Lifecycle</h2>
+          <p>PEAK, introduced in Chapter 3, provides the operational backbone for every hunt. This chapter covers PEAK in practice, with the specific activities, deliverables, and quality checks that make each phase effective rather than ceremonial.</p>
+
+          <p>The three phases are not equally weighted in time or importance:</p>
+          <ul>
+            <li><strong>PREPARE:</strong> 20 to 30% of total hunt time. Most hunters rush this phase. The ones who invest in it find more and waste less time during execution.</li>
+            <li><strong>EXECUTE:</strong> 50 to 60% of total hunt time. The actual query work, analysis, and iteration.</li>
+            <li><strong>ACT:</strong> 20 to 30% of total hunt time. Most hunters skip or compress this. The ones who do not skip it build better programs over time.</li>
+          </ul>
+
+          <p>The lifecycle applies to every hunt regardless of scale. A 2-hour hunt has a lighter version of the same structure. A 2-week campaign hunt has a full version. The structure does not change; only the depth of each phase changes with scope.</p>
+
+          <p>What distinguishes a structured hunt from an ad hoc investigation: the written plan, the execution log, and the ACT phase output. Without all three, you are investigating, not hunting. The distinction matters for program maturity measurement, institutional knowledge retention, and the ability to build detections from hunt findings.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> CrowdStrike OverWatch's SEARCH methodology (Sense, Enrich, Analyze, Reconstruct, Communicate, Hone) maps directly to PEAK. Their "Hone" phase is the equivalent of PEAK's ACT phase. CrowdStrike invests heavily in Hone because that is where program improvement lives. Every iteration of Hone makes the next hunt cycle faster and more accurate.
+          </div>
+        </section>
+
+        <!-- SECTION 2 -->
+        <section class="content-section" id="prepare-phase">
+          <h2>PREPARE Phase in Detail</h2>
+          <p>PREPARE is where most hunt value is won or lost before a single query runs. The five steps of the PREPARE phase:</p>
+
+          <p><strong>Step 1: Select hypothesis from backlog.</strong> Use the priority score framework from Chapter 2: threat relevance (is this actor or technique active against your industry?), data availability (do you have the logs to test it?), business risk (what is the impact if the technique is present?), and hunt coverage recency (when was this TTP last hunted?).</p>
+
+          <p><strong>Step 2: Intelligence research.</strong> What do you know about this TTP? Who uses it, what variations exist, what artifacts it leaves? Check MITRE ATT&CK procedure examples, recent threat reports from your intel feeds, and HYPOS at <a href="https://h3ad-sec.github.io/HYPOS/" target="_blank" rel="noopener" class="accent">h3ad-sec.github.io/HYPOS/</a> for structured hypothesis variants. Time spent here directly reduces false positive investigation time during execution.</p>
+
+          <p><strong>Step 3: Scope definition.</strong> Write it down. Required fields:</p>
+          <ul>
+            <li>Hypothesis in ABLE format</li>
+            <li>Target systems: all endpoints, specific segments, cloud, identity, or a defined subset</li>
+            <li>Time window with justification for the choice</li>
+            <li>Data sources with explicit confirmation each is available and quality-checked</li>
+            <li>Out of scope: explicit exclusions documented (dev environment, known test systems, specific known-good processes)</li>
+          </ul>
+
+          <p><strong>Step 4: Query planning.</strong> Draft queries before opening the SIEM. What tables? What filters? What aggregation logic? Drafting first prevents the common failure of opening the SIEM and writing whatever comes to mind, which typically produces queries that are either too broad (massive result sets) or too narrow (zero results that look like no findings).</p>
+
+          <p><strong>Step 5: Plan review.</strong> One other analyst reviews the plan before execution starts. The SANS PAM (Plan, Action, Measure) approach formalizes this. Peer review catches scope gaps, wrong data source assumptions, and missing exclusion filters before they waste execution time.</p>
+
+          <div class="callout-example">
+            <strong>Example:</strong> Full hunt scoping document for an APT29-style lateral movement hunt.
+            <br><br>
+            <strong>Hypothesis:</strong> APT29 used Windows Remote Management (WinRM, T1021.006) for lateral movement from compromised workstations to domain controllers, leaving Windows Remote Management service connection events (Event 6 in the Microsoft-Windows-WinRM/Operational channel) and PowerShell remoting logs (Event 400 and 800 in PowerShell Operational) on target hosts.
+            <br><br>
+            <strong>Target systems:</strong> All Windows endpoints, priority on domain controllers and file servers. Standard workstations included as source hosts.
+            <br><br>
+            <strong>Time window:</strong> Last 30 days. Justification: APT29's known operational tempo in recent campaigns suggests activity within 30-day windows after initial compromise.
+            <br><br>
+            <strong>Data sources:</strong> Sysmon Event 3 (network connections to port 5985/5986, all endpoints — confirmed present and quality-checked 2026-06-01), Windows Security Event 4624 Type 3 (network logons — confirmed), WinRM Operational log (confirmed on DCs only; gap on standard workstations — documented).
+            <br><br>
+            <strong>Out of scope:</strong> Linux and macOS hosts, cloud infrastructure, known IT admin machines using WinRM for authorized management (documented list from IT ops team).
+            <br><br>
+            <strong>Success criteria:</strong> Hunt confirms if: WinRM connections are observed between non-server hosts, or between workstations and DCs outside of documented admin activity. Hunt is complete when all anomalous WinRM connections are triaged or when confirmed coverage gap prevents answering the hypothesis.
+          </div>
+        </section>
+
+        <!-- SECTION 3 -->
+        <section class="content-section" id="execute-phase">
+          <h2>EXECUTE Phase in Detail</h2>
+          <p>EXECUTE has three sub-phases: gather, analyze, and iterate. Each has a specific quality check before moving to the next.</p>
+
+          <p><strong>Gather:</strong> Pull the relevant data. Run initial queries. Before analyzing results, verify data quality: are the expected record types present? Are event counts plausible for the environment size and time window? If data quality is bad, stop. Document the gap and its likely cause. This is a control deficiency finding, not a hunt result. Do not spend analysis time on bad data.</p>
+
+          <p><strong>Analyze:</strong> Apply the statistical methods from Chapter 5. Frequency analysis, long-tail sorting, baseline deviation comparison. Look for anomalies. Apply the Diamond Model for pivot structure: for each anomaly, which other vertices can you pivot toward? Score evidence with Admiralty ratings as you go, not after the fact.</p>
+
+          <p><strong>Iterate:</strong> For each anomaly, investigate and classify. If false positive: document and add to the filter list. If true positive: pivot and escalate. If coverage gap: document for the data source team. Generate new hypotheses from unexpected tangential findings and add them to the backlog, not the active hunt scope.</p>
+
+          <p>Execution log discipline is what separates a documented hunt from a forgotten session. Keep a running log as you work. Include: timestamp, query run in copy-paste format, result count, action taken, and reasoning for each action. This log becomes the body of your after-action report and proves your methodology to any reviewer.</p>
+
+          <div class="code-block">
+            <span class="lang-label">MARKDOWN</span>
+            <button class="copy-btn" aria-label="Copy code">copy</button>
+            <pre><code>## Hunt Execution Log
+**Hypothesis:** APT29 WinRM lateral movement (T1021.006)
+**Analyst:** [name] | **Date:** 2026-06-02
+
+### 09:15 — Initial scope query
+Query: DeviceNetworkEvents
+| where RemotePort in (5985, 5986)
+| summarize count() by DeviceName, RemoteIP
+Result: 847 connection events across 23 hosts
+Action: Filtering to connections between non-server hosts (workstation-to-workstation)
+
+### 09:32 — Refined: workstation-to-workstation WinRM
+Query: [refined with asset type filter using device classification]
+Result: 12 events across 3 host pairs
+Action: Reviewing host pairs individually
+  - Pair 1: IT-ADMIN-01 to FILESERVER-03 — known admin activity, documented. FP.
+  - Pair 2: LAPTOP-128 to WORKSTATION-44 — unusual. No admin activity documented.
+  - Pair 3: LAPTOP-128 to FILESERVER-03 — same source host as pair 2.
+
+### 09:55 — Suspicious finding: LAPTOP-128 lateral movement
+Both connections originated from LAPTOP-128 at 02:17 on 2026-05-28.
+Connection to WORKSTATION-44 (standard endpoint) and FILESERVER-03 (file server).
+Time is outside business hours. User account associated is a standard user.
+Action: Pivot to Sysmon Event 1 on target hosts for timestamp. Check what process spawned.
+
+### 10:12 — EDR process tree pivot on FILESERVER-03
+FILESERVER-03 shows wsmprovhost.exe spawning cmd.exe at 02:18.
+cmd.exe executes: net user /domain and net localgroup administrators.
+Enumeration commands. This is post-exploitation behavior.
+Confidence: 85 (A1 from EDR). Severity: HIGH (file server with domain credentials).
+Action: Escalate to IR team. Ticket #IR-2026-0547.
+New hypothesis for backlog: Hunt for other WinRM sessions from LAPTOP-128 in last 60 days.</code></pre>
+          </div>
+        </section>
+
+        <!-- SECTION 4 -->
+        <section class="content-section" id="act-phase">
+          <h2>ACT Phase in Detail</h2>
+          <p>ACT is where hunt value becomes permanent. Three components: preserve, detect, communicate. All three are required. Skipping any one converts a completed hunt into a dead-end session.</p>
+
+          <p><strong>Preserve:</strong> Document the full hunt in a standard format. Future analysts and future-you need to reproduce this hunt without asking questions. The documentation is the institutional memory. Without it, the hunt exists only in one analyst's head and disappears when they take PTO or change roles.</p>
+
+          <p><strong>Detect:</strong> Every confirmed true positive should produce a detection rule. Every confirmed coverage gap should produce a data source improvement request submitted to the engineering team. The path from hunt finding to detection rule: confirmed TP, write a Sigma rule that captures the behavior, test against known-good and known-bad data, submit to TRACERULES at <a href="https://h3ad-sec.github.io/TRACERULES/" target="_blank" rel="noopener" class="accent">h3ad-sec.github.io/TRACERULES/</a>, monitor alert volume in SIEM for the first 30 days to tune false positives. Hunts that do not produce detections are not being fully operationalized.</p>
+
+          <p><strong>Communicate:</strong> Who needs to know what, and at what level of detail?</p>
+          <ul>
+            <li>IR team: if there is an active threat, give them the full pivot trail, evidence chain, and confidence rating.</li>
+            <li>Management: if the finding is significant, a one-page summary with business impact language, not technical query details.</li>
+            <li>Data source team: if coverage gaps were found, a specific, actionable improvement request with the ATT&CK technique gap documented.</li>
+            <li>Threat intel team: if you observed TTPs not yet in your intel profiles, or if actor attribution was clarified by the finding.</li>
+          </ul>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> If a hunt finds nothing, the ACT phase still matters. Document the null finding with the data quality confirmation. Six months from now, when a peer asks whether WinRM lateral movement has been hunted, you have a specific dated answer. "We hunted this on 2026-06-02 across 30 days of data, good quality, no evidence found" is a valuable organizational statement.
+          </div>
+        </section>
+
+        <!-- SECTION 5 -->
+        <section class="content-section" id="hunt-outcomes">
+          <h2>Classifying Hunt Outcomes</h2>
+          <p>Four standard outcome classifications are used by Red Canary, OTRF, and mature hunt teams. Using a consistent classification across all hunts enables program-level metrics that are otherwise impossible to compute.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Outcome</th>
+                  <th>Definition</th>
+                  <th>Action</th>
+                  <th>Who Is Notified</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>True Positive (TP)</strong></td>
+                  <td>Confirmed malicious or suspicious activity after false positives are ruled out</td>
+                  <td>Escalate to IR. Create detection rule. Document full evidence chain.</td>
+                  <td>IR team, management (if high severity), threat intel team</td>
+                </tr>
+                <tr>
+                  <td><strong>False Positive (FP)</strong></td>
+                  <td>Investigation confirmed the activity is legitimate</td>
+                  <td>Document the FP pattern. Update query exclusion filters. Update team knowledge base.</td>
+                  <td>Hunt team internal. Asset owner notified if they provided context.</td>
+                </tr>
+                <tr>
+                  <td><strong>Coverage Gap</strong></td>
+                  <td>The data needed to test the hypothesis does not exist or is of insufficient quality</td>
+                  <td>Document the gap specifically (missing log source, missing field, retention too short). Submit as control deficiency to data source team.</td>
+                  <td>Data source / security engineering team. Management if gap is high-impact.</td>
+                </tr>
+                <tr>
+                  <td><strong>No-Find</strong></td>
+                  <td>Hypothesis tested against confirmed good-quality data, no evidence found</td>
+                  <td>Document as No-Find with explicit data quality confirmation. This is a positive result: coverage is working.</td>
+                  <td>Hunt team internal. Management summary if the technique is high-priority.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>A fifth outcome gets missed by most teams: <strong>New Hypothesis Generated.</strong> During execution you found something tangentially suspicious that was not your original target. Add it to the backlog immediately with the context that generated it. Do not chase it mid-hunt. It is a separate scoped hunt. The backlog entry with context is more valuable than an undocumented detour that disrupts the current hunt scope.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> Do not collapse Coverage Gap and No-Find. They look identical in output (no evidence found) but mean opposite things. No-Find with good data means your coverage is working. Coverage Gap means you cannot draw any conclusion at all. Distinguish them explicitly in every hunt record. Reporting a Coverage Gap as a No-Find gives management false confidence that a technique has been hunted when it has not.
+          </div>
+        </section>
+
+        <!-- SECTION 6 -->
+        <section class="content-section" id="after-action-report">
+          <h2>After-Action Report Template</h2>
+          <p>The after-action report is the formal output of a completed hunt. It replaces tribal knowledge with documented process. Any analyst on the team should be able to read the after-action report and reproduce the hunt, understand why decisions were made, and build on the findings without asking questions.</p>
+
+          <div class="code-block">
+            <span class="lang-label">TEMPLATE</span>
+            <button class="copy-btn" aria-label="Copy code">copy</button>
+            <pre><code>HUNT AFTER-ACTION REPORT
+─────────────────────────────────────────────
+
+Hypothesis: [ABLE format: Actor, Behavior, Location, Evidence]
+Hunt Dates: [start date] to [end date]
+Analyst: [name]
+ATT&CK Technique: [e.g., T1021.006 — Remote Services: Windows Remote Management]
+
+─── SCOPE ───────────────────────────────────
+Target Systems: [all endpoints / specific segments / cloud / identity]
+Time Window: [start] to [end] — [justification for window length]
+Data Sources:
+  - [source 1]: [available / quality confirmed / gap noted]
+  - [source 2]: [available / quality confirmed / gap noted]
+Out of Scope: [explicit exclusions with rationale]
+
+─── EXECUTION SUMMARY ───────────────────────
+Queries Run: [count]
+Records Analyzed: [approximate count]
+Data Quality Issues: [none — OR — specific issue and impact on hunt coverage]
+
+─── FINDINGS ────────────────────────────────
+Result Classification: [TP / FP / Coverage Gap / No-Find]
+Finding Summary: [2-3 sentences describing what was found or confirmed absent]
+Evidence Quality: [Admiralty rating, e.g., A2 — own EDR, probably true]
+Confidence Score: [0-100 with brief rationale]
+Severity: [Critical / High / Medium / Low with rationale]
+
+─── ACTIONS TAKEN ───────────────────────────
+Escalated to IR: [Yes — Ticket #IR-XXXX-XXXX / No]
+Detection Rules Created: [Yes — TRACERULES link / No]
+Data Source Improvement Requests: [Yes — description / No]
+New Hypotheses Added to Backlog: [list with brief context for each]
+
+─── LESSONS LEARNED ─────────────────────────
+What worked: [specific tactics or queries that were efficient]
+What to improve: [scope too broad, missing data, query logic issues, etc.]</code></pre>
+          </div>
+
+          <div class="callout-example">
+            <strong>Example:</strong> Completed after-action report for the APT29 WinRM hunt from Sections 2 and 3.
+            <br><br>
+            <strong>Hypothesis:</strong> APT29 used WinRM (T1021.006) for lateral movement from compromised workstations to domain controllers. Actor: APT29. Behavior: WinRM lateral movement (T1021.006). Location: Windows endpoints, production environment. Evidence: WinRM connection events (port 5985/5986), PowerShell remoting logs (Events 400/800), network logon events (Event 4624 Type 3).
+            <br><br>
+            <strong>Hunt Dates:</strong> 2026-06-02 to 2026-06-02 (same-day hunt, 30-day data window).
+            <br><br>
+            <strong>Result Classification:</strong> True Positive.
+            <br><br>
+            <strong>Finding Summary:</strong> LAPTOP-128 made WinRM connections to WORKSTATION-44 and FILESERVER-03 at 02:17 on 2026-05-28, outside business hours using a standard user account. EDR process tree on FILESERVER-03 confirmed wsmprovhost.exe spawning cmd.exe executing domain enumeration commands. Escalated to IR as ticket #IR-2026-0547.
+            <br><br>
+            <strong>Evidence Quality:</strong> A1 — Own EDR telemetry, confirmed in environment. Confidence: 85. Severity: HIGH (file server with domain credentials).
+            <br><br>
+            <strong>Actions Taken:</strong> Escalated to IR. Detection rule created for WinRM connections from non-admin workstations to servers outside business hours (TRACERULES entry #TR-20260602-001). New hypothesis added: "Hunt WinRM activity from LAPTOP-128 in prior 60 days for earlier lateral movement."
+            <br><br>
+            <strong>Lessons Learned:</strong> Asset classification (server vs. workstation) was not available in DeviceNetworkEvents. Required a join to device inventory table. Future WinRM hunts should include asset classification join in the query template.
+          </div>
+        </section>
+
+        <!-- SECTION 7 -->
+        <section class="content-section" id="kpis-and-metrics">
+          <h2>Hunt KPIs and Metrics</h2>
+          <p>How do you measure a hunt program? Most security metrics are activity metrics that measure inputs, not outcomes. These are outcome metrics that tell you whether the program is actually working.</p>
+
+          <h3>Core KPIs</h3>
+
+          <p><strong>Hunt Yield Rate:</strong> confirmed TPs divided by total hunts conducted. Target: above 15% for mature programs. Below 5% signals that hypotheses are too broad, data quality is insufficient, or false positive management is poor. Above 30% may indicate hunts are too narrow and are missing novel activity.</p>
+
+          <p><strong>Mean Time to Confirm (MTTC):</strong> time from hunt start to result classification (TP, FP, Gap, or No-Find). Track the trend over time. Decreasing MTTC means improving efficiency from better query design, better false positive suppression, and accumulated environment knowledge.</p>
+
+          <p><strong>Detection Rule Creation Rate:</strong> new detection rules created from hunt findings divided by total hunts completed. Target: above 50%. Every two hunts should produce at least one new detection rule. Zero detections from ten hunts means hunt findings are not being operationalized into durable detection capability.</p>
+
+          <p><strong>ATT&CK Coverage:</strong> percentage of relevant ATT&CK techniques covered by at least one hunt in the prior 90 days. "Relevant" is defined by your actor profiles and industry sector. Track this quarterly. Growing percentage means improving program maturity.</p>
+
+          <p><strong>Data Gap Discovery Rate:</strong> number of confirmed coverage gaps identified per quarter. A team identifying zero gaps is either exceptionally covered (unlikely) or not hunting broadly enough to encounter gaps. Gaps are expected. Discovering them is a program health indicator.</p>
+
+          <p><strong>Dwell Time Reduction:</strong> when a hunt finds an active threat, measure the gap between the initial compromise timestamp and the hunt discovery timestamp. Compare this to your pre-program dwell time average. Decreasing dwell time is the clearest evidence that the hunt program is delivering security value.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>KPI</th>
+                  <th>Target (Mature Program)</th>
+                  <th>Low Signal</th>
+                  <th>Action if Below Target</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Hunt Yield Rate</td>
+                  <td>&gt;15%</td>
+                  <td>&lt;5%</td>
+                  <td>Improve hypothesis intel input or data quality</td>
+                </tr>
+                <tr>
+                  <td>Mean Time to Confirm</td>
+                  <td>Trend decreasing quarter-over-quarter</td>
+                  <td>Increasing trend</td>
+                  <td>Improve query templates, FP suppression, asset context</td>
+                </tr>
+                <tr>
+                  <td>Detection Rule Creation Rate</td>
+                  <td>&gt;50%</td>
+                  <td>&lt;20%</td>
+                  <td>Build explicit Sigma conversion step into ACT phase workflow</td>
+                </tr>
+                <tr>
+                  <td>ATT&CK Coverage (90-day)</td>
+                  <td>Growing % toward sector-relevant techniques</td>
+                  <td>Flat for two or more quarters</td>
+                  <td>Diversify hypothesis backlog across ATT&CK tactic categories</td>
+                </tr>
+                <tr>
+                  <td>Data Gap Discovery Rate</td>
+                  <td>1-3 actionable gaps per quarter</td>
+                  <td>0 for two consecutive quarters</td>
+                  <td>Expand hypothesis coverage to less-hunted log sources</td>
+                </tr>
+                <tr>
+                  <td>Dwell Time Reduction</td>
+                  <td>Decreasing trend year-over-year</td>
+                  <td>No change or increasing</td>
+                  <td>Increase hunt frequency on high-dwell-time techniques</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> Hunt Yield Rate below 5% is a signal, not a failure. It means hypotheses need better intel input or data quality needs improvement. Both are fixable. Neither is catastrophic. Track it quarterly and act on the trend, not individual hunt results.
+          </div>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> Alert count, query count, and hours hunted are not KPIs. They measure activity, not effectiveness. A team running 100 queries per week that produces zero detections and zero TPs is spending 100% of its capacity on activity with no measurable security outcome. A team running 20 queries per week that produces 5 detections and 3 TPs is delivering more value with 20% of the query volume.
+          </div>
+        </section>
+
+        <!-- SUMMARY -->
+        <div class="chapter-summary">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>PEAK's three phases have distinct time allocations: PREPARE (20-30%), EXECUTE (50-60%), ACT (20-30%). Most analysts invest too little in PREPARE and ACT.</li>
+            <li>A structured hunt differs from an ad hoc investigation by three things: a written plan, an execution log, and an ACT phase output. All three are required.</li>
+            <li>ACT phase has three components: preserve (documentation), detect (Sigma rule creation and data gap requests), and communicate (right information to the right people at the right level of detail).</li>
+            <li>Coverage Gap and No-Find are distinct outcomes. No-Find with good data confirms coverage is working. Coverage Gap means you cannot draw any conclusion. Never report them as the same outcome.</li>
+            <li>The after-action report is the institutional memory of a completed hunt. Any analyst should be able to reproduce the hunt from the report without asking questions.</li>
+            <li>Hunt Yield Rate above 15% is the target for a mature program. Detection Rule Creation Rate above 50% means hunt findings are being operationalized into durable detection.</li>
+            <li>Activity metrics (query count, hours hunted) are not KPIs. Outcome metrics (yield rate, dwell time reduction, ATT&CK coverage) measure whether the program is working.</li>
+          </ul>
+        </div>
+
+        <!-- KNOWLEDGE CHECK -->
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What are the three components of the PEAK ACT phase?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">Plan, query, escalate</button>
+              <button class="kc-option" data-correct="true">Preserve, detect, communicate</button>
+              <button class="kc-option" data-correct="false">Review, report, close</button>
+              <button class="kc-option" data-correct="false">Analyze, iterate, document</button>
+            </div>
+            <div class="kc-answer">The ACT phase has three components: <strong>Preserve</strong> (document the hunt for institutional memory), <strong>Detect</strong> (convert confirmed findings into Sigma rules submitted to TRACERULES and convert gaps into data source improvement requests), and <strong>Communicate</strong> (deliver the right findings to the right people at the appropriate level of detail). Skipping any one of the three means the hunt does not fully deliver its potential value.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A hunter tests a hypothesis and finds no evidence. The data quality was confirmed good. Which outcome classification applies?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">Coverage Gap — the logs do not support the hypothesis</button>
+              <button class="kc-option" data-correct="false">False Positive — the hypothesis was incorrect</button>
+              <button class="kc-option" data-correct="true">No-Find — hypothesis tested against good data, no evidence found</button>
+              <button class="kc-option" data-correct="false">True Positive — the clean result confirms detection is working</button>
+            </div>
+            <div class="kc-answer"><strong>No-Find</strong> applies when the hypothesis was tested against confirmed good-quality data and no evidence was found. This is a positive result: it means either the adversary has not used the technique in your environment, or your detection coverage for this technique is working. Coverage Gap applies only when the data needed to test the hypothesis does not exist or is insufficient quality.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What is the Hunt Yield Rate target for a mature hunt program?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">Greater than 50%</button>
+              <button class="kc-option" data-correct="false">Greater than 5%</button>
+              <button class="kc-option" data-correct="true">Greater than 15%</button>
+              <button class="kc-option" data-correct="false">Greater than 75%</button>
+            </div>
+            <div class="kc-answer">The target Hunt Yield Rate for a mature program is <strong>above 15%</strong>. Below 5% signals that hypotheses need better intel input or data quality needs improvement. Above 30% may indicate hunts are too narrow and focused only on already-known patterns, missing novel activity. A yield rate of 15-25% reflects a healthy balance of confirmed findings and exploratory coverage.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Which fields are required in a hunt after-action report?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">Analyst name and the queries run</button>
+              <button class="kc-option" data-correct="false">Hypothesis and escalation ticket number only</button>
+              <button class="kc-option" data-correct="true">Hypothesis, scope, execution summary, findings with evidence quality, actions taken, and lessons learned</button>
+              <button class="kc-option" data-correct="false">Date, analyst name, and result classification</button>
+            </div>
+            <div class="kc-answer">A complete after-action report requires: hypothesis (ABLE format), scope (target systems, time window, data sources, out-of-scope), execution summary (queries run, records analyzed, data quality issues), findings (result classification, finding summary, evidence quality with Admiralty rating, confidence and severity), actions taken (IR escalation, detection rules, data gap requests, new hypotheses), and lessons learned. A partial report cannot be reproduced by another analyst without asking questions.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What is the difference between a Coverage Gap and a No-Find result?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">Coverage Gap means the hunt took too long. No-Find means it was fast.</button>
+              <button class="kc-option" data-correct="false">They are the same outcome with different names for different team roles.</button>
+              <button class="kc-option" data-correct="true">Coverage Gap means the data to test the hypothesis does not exist. No-Find means good data was present but no evidence was found.</button>
+              <button class="kc-option" data-correct="false">Coverage Gap is for cloud environments. No-Find is for on-premises environments.</button>
+            </div>
+            <div class="kc-answer">These outcomes are operationally distinct. A <strong>Coverage Gap</strong> means you cannot draw any conclusion about the hypothesis because the required data does not exist or is poor quality. A <strong>No-Find</strong> means the data was present, quality was confirmed, and no evidence matching the hypothesis was found. Reporting a Coverage Gap as a No-Find gives management false confidence that a technique has been hunted when it actually has not been testable.</div>
+          </div>
+        </div>
+
+        <!-- CHAPTER NAV -->
+        <nav class="chapter-nav">
+          <a href="06-evidence.html" class="chapter-nav-prev">← Evidence Quality and Scoring</a>
+          <a href="08-advanced.html" class="chapter-nav-next">Advanced Topics →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('07', 7));</script>
+</body>
+</html>

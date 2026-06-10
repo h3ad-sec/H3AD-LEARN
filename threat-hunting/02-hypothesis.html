@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="02">
+  <meta name="module-id" content="threat-hunting">
+  <title>Hypothesis Generation · Threat Hunting · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png"
+               id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">HYPOTHESIS GEN</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">Threat Hunting</a>
+        <a href="https://h3ad-sec.github.io/HYPOS/" class="nav-link" target="_blank" rel="noopener">HYPOS</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Threat Hunting</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 02 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 7 sections</span>
+      </div>
+    </aside>
+
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 02</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-beginner">BEGINNER</span>
+          </div>
+          <h1 class="chapter-title">Hypothesis Generation</h1>
+          <p class="chapter-intro">Every hunt begins with a question. Not "is there malware?" but something specific enough to test with data: "Did an actor use PowerShell remoting to move laterally from workstations to servers in the last 30 days, leaving WinRM connection events and script block logs on destination hosts?" A bad hypothesis wastes analyst hours. A good hypothesis targets specific evidence, ties to a real technique, and produces a clear result whether or not the threat is present.</p>
+          <div class="chapter-tags">
+            <span class="tag">ABLE</span>
+            <span class="tag">ATT&CK</span>
+            <span class="tag">intel</span>
+          </div>
+        </header>
+
+        <!-- SECTION 1 -->
+        <section class="content-section" id="what-is-hypothesis">
+          <h2>What Makes a Good Hypothesis?</h2>
+          <p>A hypothesis is a specific, testable statement about adversary behavior in your environment. It is not a concern, not a vague worry, and not a repeat of a problem statement. It names the technique, the expected evidence, and the scope of investigation.</p>
+
+          <p>Compare these two statements:</p>
+          <ul>
+            <li>"There might be malware somewhere on our network."</li>
+            <li>"An attacker used PowerShell remoting (T1021.006) to move laterally from workstations to servers, generating WinRM connection logs (Event 4624 Type 3 from PowerShell.exe) and script block logs (Event 4104) on destination hosts in the last 30 days."</li>
+          </ul>
+
+          <p>The first is a concern. The second is a hypothesis. You can write a query to test the second one. You cannot write a query to test the first.</p>
+
+          <p>Four qualities make a hypothesis ready to hunt:</p>
+          <ul>
+            <li><strong>Specific:</strong> Names a technique and describes its expected behavioral signature. Testable with available data.</li>
+            <li><strong>Actionable:</strong> A query or set of queries can be written immediately to investigate it.</li>
+            <li><strong>Bounded:</strong> Defines a scope (systems, time window, data sources). Prevents runaway scope creep during execution.</li>
+            <li><strong>ATT&CK-anchored:</strong> Tied to a specific technique or sub-technique. This connects the hypothesis to known actor behavior, known data sources, and known detection guidance.</li>
+          </ul>
+
+          <div class="callout-info">
+            <strong>Note:</strong> If you cannot write a specific query to test it, it is not a hypothesis. It is a concern. Concerns belong in risk registers. Hypotheses belong in hunt backlogs.
+          </div>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Bad Hypothesis</th>
+                  <th>Why It Fails</th>
+                  <th>Improved Version</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>"Hunt for malware"</td>
+                  <td>No scope, no technique, not testable with any query</td>
+                  <td>"Hunt for LOLBin (certutil or bitsadmin) used to download payloads from external hosts (T1105)"</td>
+                </tr>
+                <tr>
+                  <td>"Look for suspicious PowerShell"</td>
+                  <td>Too vague, generates thousands of results, burns time</td>
+                  <td>"Hunt for Base64-encoded PowerShell commands initiated from Office processes (T1059.001 + T1566.001)"</td>
+                </tr>
+                <tr>
+                  <td>"Check for hackers"</td>
+                  <td>Not a hypothesis at all. No technique, no evidence, no scope.</td>
+                  <td>"Hunt for Kerberoasting: multiple RC4 TGS requests for service accounts from a single host (T1558.003)"</td>
+                </tr>
+                <tr>
+                  <td>"Investigate recent alert"</td>
+                  <td>That is IR triage, not hunting. Starts from a confirmed signal, not a hypothesis.</td>
+                  <td>"Hunt for C2 beaconing: periodic outbound HTTPS connections at fixed intervals to low-reputation domains (T1071.001)"</td>
+                </tr>
+                <tr>
+                  <td>"Find lateral movement"</td>
+                  <td>Too broad. Lateral movement is a tactic covering 15+ techniques. Cannot query a tactic.</td>
+                  <td>"Hunt for WMIC-based remote process creation for lateral movement (T1047)"</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- SECTION 2 -->
+        <section class="content-section" id="hypothesis-sources">
+          <h2>Where Hypotheses Come From</h2>
+          <p>Hunters often stall at hypothesis generation because they treat it as creative work. It is not. Hypotheses come from structured inputs: threat intelligence, the ATT&CK framework, anomalies in your own data, and situational context from your organization. Each source type produces a different kind of hypothesis with different reliability and urgency characteristics.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Source Type</th>
+                  <th>Trigger</th>
+                  <th>Example</th>
+                  <th>Urgency</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Intel-Driven</strong></td>
+                  <td>Threat report or CTI product describes actor TTP</td>
+                  <td>APT29 report describes BITS job persistence. Hypothesis: BITSAdmin.exe spawning from unusual parents or downloading from external IPs.</td>
+                  <td>High: real, current threat</td>
+                </tr>
+                <tr>
+                  <td><strong>TTP-Driven</strong></td>
+                  <td>ATT&CK technique is high-value and coverage has not been tested</td>
+                  <td>T1003 (credential dumping) is ubiquitous in breaches. Have we ever hunted it? Test LSASS memory access patterns.</td>
+                  <td>Medium: coverage gap</td>
+                </tr>
+                <tr>
+                  <td><strong>Anomaly-Driven</strong></td>
+                  <td>Baseline analysis reveals statistical deviation</td>
+                  <td>One host produces 10x the normal DNS query volume. Hypothesis: DNS tunneling C2 (T1071.004).</td>
+                  <td>Medium: data-driven signal</td>
+                </tr>
+                <tr>
+                  <td><strong>Situational</strong></td>
+                  <td>Business event changes threat model</td>
+                  <td>Company announced acquisition. M&A espionage campaigns historically spike. Hunt for insider data staging and unusual external transfers.</td>
+                  <td>Contextual: business-relevant</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Prioritize in this order: Intel-Driven first (real, attributed threat to your industry), Situational second (business context makes specific attack types more likely), TTP-Driven third (systematic coverage improvement), Anomaly-Driven fourth (data signals that may or may not be threats).</p>
+
+          <p>CrowdStrike OverWatch tracks over 140 named adversary groups. Their hunt team knows which groups target which industry verticals and uses that context to prioritize which hypotheses are relevant each week. You may not have that intelligence depth, but the principle scales: use what you know about who targets organizations like yours to bias your hypothesis backlog toward the most relevant threats.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> The best hypotheses combine three elements: who (the threat actor or actor category), what (the specific ATT&CK technique), and where (your environment's attack surface relevant to that technique). A hypothesis with all three is faster to scope and easier to evaluate.
+          </div>
+        </section>
+
+        <!-- SECTION 3 -->
+        <section class="content-section" id="able-framework">
+          <h2>The ABLE Framework</h2>
+          <p>ABLE is the hypothesis structuring model from the PEAK framework (developed by Splunk SURGe). It forces you to answer four questions before writing a single query: Actor, Behavior, Location, Evidence. If you cannot answer all four, the hypothesis is not ready.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Component</th>
+                  <th>Question It Answers</th>
+                  <th>What to Specify</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Actor</strong></td>
+                  <td>Who are you hunting for?</td>
+                  <td>Named group (APT29, FIN7), general category (ransomware affiliate, insider threat), or "unknown advanced"</td>
+                </tr>
+                <tr>
+                  <td><strong>Behavior</strong></td>
+                  <td>What specific TTP?</td>
+                  <td>ATT&CK technique + sub-technique + human-readable description of the specific action</td>
+                </tr>
+                <tr>
+                  <td><strong>Location</strong></td>
+                  <td>Where in the environment?</td>
+                  <td>Platform (Windows/Linux/cloud), network segment, identity layer (AD, Entra ID), specific host groups</td>
+                </tr>
+                <tr>
+                  <td><strong>Evidence</strong></td>
+                  <td>What artifacts would exist if true?</td>
+                  <td>Specific event IDs, log fields, artifact types, expected values or patterns</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout-example">
+            <strong>Worked Example 1: APT41 / Process Injection via DLL</strong>
+            <p><strong>Actor:</strong> APT41 (state-sponsored, dual financial and espionage motivation, known to target healthcare and financial services)</p>
+            <p><strong>Behavior:</strong> T1055.001 Process Injection. APT41 injects malicious DLLs into legitimate processes using CreateRemoteThread to evade process-based detection and inherit the trust of the host process.</p>
+            <p><strong>Location:</strong> Windows endpoints in the finance and trading application segment, specifically hosts running the trading platform and portfolio management software.</p>
+            <p><strong>Evidence:</strong> Sysmon Event 10 (ProcessAccess) from a non-system process targeting lsass.exe or a finance application process with GrantedAccess flags indicating write permissions (0x1FFFFF, 0x1010). Sysmon Event 7 (ImageLoad) showing an unsigned or unusual DLL loaded into a legitimate process. ETW telemetry showing CreateRemoteThread API calls across process boundaries.</p>
+          </div>
+
+          <div class="callout-example">
+            <strong>Worked Example 2: Ransomware Pre-Deployment / Shadow Copy Deletion</strong>
+            <p><strong>Actor:</strong> Ransomware affiliate (financially motivated, operating in pre-encryption phase, goal is to disable recovery options before deploying encryptor)</p>
+            <p><strong>Behavior:</strong> T1490 Inhibit System Recovery. Attacker deletes Volume Shadow Copies using vssadmin.exe or wmic.exe to prevent victim from recovering files without paying ransom. This consistently occurs minutes to hours before encryption begins.</p>
+            <p><strong>Location:</strong> All Windows servers and workstations. Priority: file servers, backup servers, domain controllers.</p>
+            <p><strong>Evidence:</strong> Process creation events (Event 4688 or Sysmon 1) where Image ends with vssadmin.exe or wmic.exe, CommandLine contains "delete shadows" or "shadowcopy delete". Parent process is often cmd.exe or PowerShell.exe, which may itself have been spawned by a remote execution mechanism. Absence of legitimate backup software in the process tree.</p>
+          </div>
+
+          <div class="callout-example">
+            <strong>Blank ABLE Template (copy this into your hunt documentation):</strong>
+            <pre class="mono" style="background:var(--panel-alt);padding:1rem;border-radius:6px;font-size:0.85rem;line-height:1.7;border:1px solid var(--border);">Actor:    [Named group | General category | Unknown advanced]
+Behavior: [ATT&CK T####.### + sub-technique name + specific action description]
+Location: [Platform | Network segment | Identity layer | Host group]
+Evidence: [Log source | Event IDs | Artifact types | Specific fields and expected values]</pre>
+          </div>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> Fill ABLE before writing a single query. If you cannot fill all four fields, the hypothesis is not ready. The most common gap is Evidence: analysts know what the technique is but cannot name the specific event ID or log field that would contain proof. That gap tells you either that you need to research the detection guidance (ATT&CK technique page) or that you lack the telemetry, which is itself a finding worth documenting.
+          </div>
+        </section>
+
+        <!-- SECTION 4 -->
+        <section class="content-section" id="attck-for-hypotheses">
+          <h2>ATT&CK as a Hypothesis Source</h2>
+          <p>Every ATT&CK technique page is a structured hypothesis seed. It tells you who uses the technique, how it works, what artifacts it leaves, what logs you need, and what controls reduce its effectiveness. A hunter who knows how to extract that information can generate dozens of well-formed hypotheses from a single ATT&CK session.</p>
+
+          <p>How to read a technique page for hunting:</p>
+          <ul>
+            <li><strong>Procedure Examples:</strong> Real-world actor usage. This is the Actor field in ABLE. It also shows you specific implementation details that inform your query, such as the exact flags or file paths an actor uses.</li>
+            <li><strong>Detection Section:</strong> ATT&CK's recommended detection guidance. Translate this directly into query logic. It is the starting point for your Evidence field.</li>
+            <li><strong>Data Sources:</strong> The log sources required to detect this technique. If you do not have them, you cannot hunt it. Document the gap.</li>
+            <li><strong>Mitigations:</strong> Controls that reduce the technique's effectiveness. Useful context: if you have the mitigation deployed, factor that into your hypothesis scope.</li>
+          </ul>
+
+          <p>Red Canary analyzed telemetry from 1,700 organizations covering 305 petabytes of data and 329 billion records per day. Across five years of analysis, the same techniques appear consistently in the top detections, comprising approximately 46% of all confirmed threats. These are your highest-priority hypothesis sources because they are what attackers actually use, not just what threat reports discuss theoretically.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Technique</th>
+                  <th>ATT&CK ID</th>
+                  <th>Why High-Frequency</th>
+                  <th>Hunt Priority</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>PowerShell</td>
+                  <td>T1059.001</td>
+                  <td>Living-off-the-land, fileless attacks, nearly universal across actor groups</td>
+                  <td><span class="mono accent">CRITICAL</span></td>
+                </tr>
+                <tr>
+                  <td>Windows Management Instrumentation</td>
+                  <td>T1047</td>
+                  <td>Admin tool abuse, remote execution, lateral movement, persistence</td>
+                  <td><span class="mono accent">CRITICAL</span></td>
+                </tr>
+                <tr>
+                  <td>Process Injection</td>
+                  <td>T1055</td>
+                  <td>Defense evasion, memory-only payloads, inherits process trust</td>
+                  <td><span class="mono accent">CRITICAL</span></td>
+                </tr>
+                <tr>
+                  <td>OS Credential Dumping</td>
+                  <td>T1003</td>
+                  <td>Enables all subsequent phases of attack; near-universal in advanced intrusions</td>
+                  <td><span class="mono accent">CRITICAL</span></td>
+                </tr>
+                <tr>
+                  <td>Scheduled Task/Job</td>
+                  <td>T1053.005</td>
+                  <td>Persistence and execution, very common, built-in Windows feature</td>
+                  <td><span class="mono amber">HIGH</span></td>
+                </tr>
+                <tr>
+                  <td>Registry Run Keys / Startup Folder</td>
+                  <td>T1547.001</td>
+                  <td>Persistence, low effort to implement, common in commodity and advanced malware</td>
+                  <td><span class="mono amber">HIGH</span></td>
+                </tr>
+                <tr>
+                  <td>LSASS Memory</td>
+                  <td>T1003.001</td>
+                  <td>Primary credential theft method, required for pass-the-hash and Kerberos attacks</td>
+                  <td><span class="mono amber">HIGH</span></td>
+                </tr>
+                <tr>
+                  <td>Obfuscated Files or Information</td>
+                  <td>T1027</td>
+                  <td>Defense evasion, pairs with T1059, used to avoid string-based detection</td>
+                  <td><span class="mono amber">HIGH</span></td>
+                </tr>
+                <tr>
+                  <td>Command and Scripting Interpreter</td>
+                  <td>T1059</td>
+                  <td>Parent technique covering cmd.exe, PowerShell, VBScript, JavaScript; universal execution</td>
+                  <td><span class="mono amber">HIGH</span></td>
+                </tr>
+                <tr>
+                  <td>Remote Services</td>
+                  <td>T1021</td>
+                  <td>Lateral movement via SMB, RDP, WinRM, SSH; covers entire movement phase</td>
+                  <td><span class="mono amber">HIGH</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Attackers chain techniques in predictable patterns. A single hunt rarely covers a full attack chain, but understanding the chains tells you which techniques to prioritize and what to pivot to when you find one. Three common chains worth building hypothesis pairs around:</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Chain</th>
+                  <th>Techniques</th>
+                  <th>What It Represents</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Credential theft via lateral movement</td>
+                  <td>T1078 (Valid Accounts) + T1021.002 (SMB) + T1003.001 (LSASS dump)</td>
+                  <td>Attacker uses valid creds to reach a server via SMB, dumps LSASS for additional credentials, repeats</td>
+                </tr>
+                <tr>
+                  <td>Initial access to execution chain</td>
+                  <td>T1566.001 (Spearphish) + T1059.001 (PowerShell) + T1055 (Injection)</td>
+                  <td>Phishing delivers macro, macro runs PowerShell, PowerShell injects into a trusted process</td>
+                </tr>
+                <tr>
+                  <td>WMI lateral movement pattern</td>
+                  <td>T1047 (WMI) + T1021.006 (WinRM) + T1049 (Network Discovery)</td>
+                  <td>Attacker uses WMI for remote execution, switches to WinRM for interactive sessions, runs discovery commands</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout-info">
+            <strong>Note:</strong> When you find one technique in a chain, immediately generate a follow-on hypothesis for the next technique in the chain. If you confirmed PowerShell-based initial access (T1059.001), your next hypothesis should be about injection (T1055) or persistence (T1053.005 or T1547.001). Chains give your hunt backlog structure.
+          </div>
+        </section>
+
+        <!-- SECTION 5 -->
+        <section class="content-section" id="hypothesis-priority">
+          <h2>Prioritizing Your Hunt Backlog</h2>
+          <p>A healthy hunt program generates hypotheses faster than it can execute them. That is a good problem to have, but it requires a disciplined prioritization system. Without one, hunters default to the most interesting hypothesis rather than the most important one. Interesting and important are not the same.</p>
+
+          <p>A simple four-factor scoring matrix prevents that bias. Score each hypothesis from 0-3 on each factor. Max total: 12. Hunt the highest scores first.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Factor</th>
+                  <th>0</th>
+                  <th>1</th>
+                  <th>2</th>
+                  <th>3</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Threat Relevance</strong></td>
+                  <td>No current threat reports</td>
+                  <td>General threat landscape mention</td>
+                  <td>Actively used against your sector</td>
+                  <td>Active campaign targeting your org type right now</td>
+                </tr>
+                <tr>
+                  <td><strong>Data Availability</strong></td>
+                  <td>Log source not collected</td>
+                  <td>Partial coverage or gaps</td>
+                  <td>Log source available, some quality issues</td>
+                  <td>Full coverage, clean data, tested</td>
+                </tr>
+                <tr>
+                  <td><strong>Business Impact</strong></td>
+                  <td>Minimal blast radius if undetected</td>
+                  <td>Moderate impact to one system or team</td>
+                  <td>Significant operational impact</td>
+                  <td>Catastrophic: ransomware, data exfil, executive compromise</td>
+                </tr>
+                <tr>
+                  <td><strong>Hunt Coverage</strong></td>
+                  <td>Hunted this area in last 2 weeks</td>
+                  <td>Hunted 1-3 months ago</td>
+                  <td>Hunted 3-6 months ago</td>
+                  <td>Never hunted or no record of prior hunt</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Hypothesis</th>
+                  <th>Relevance</th>
+                  <th>Data</th>
+                  <th>Impact</th>
+                  <th>Coverage</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>LSASS dump via comsvcs.dll (T1003.001)</td>
+                  <td>3</td>
+                  <td>3</td>
+                  <td>3</td>
+                  <td>2</td>
+                  <td><strong>11</strong></td>
+                </tr>
+                <tr>
+                  <td>Kerberoasting (T1558.003)</td>
+                  <td>3</td>
+                  <td>2</td>
+                  <td>3</td>
+                  <td>1</td>
+                  <td><strong>9</strong></td>
+                </tr>
+                <tr>
+                  <td>DNS tunneling C2 (T1071.004)</td>
+                  <td>2</td>
+                  <td>2</td>
+                  <td>2</td>
+                  <td>3</td>
+                  <td><strong>9</strong></td>
+                </tr>
+                <tr>
+                  <td>Macro-enabled document execution (T1566.001)</td>
+                  <td>3</td>
+                  <td>3</td>
+                  <td>2</td>
+                  <td>1</td>
+                  <td><strong>9</strong></td>
+                </tr>
+                <tr>
+                  <td>BITSAdmin persistence (T1197)</td>
+                  <td>2</td>
+                  <td>2</td>
+                  <td>2</td>
+                  <td>2</td>
+                  <td><strong>8</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Treat your hunt backlog like a Kanban board: Backlog (scored, not yet scheduled), Planned (assigned to a sprint or analyst), In Progress (hunt running), Complete (documented), and New Detections Created (rules or alerts derived from findings). The last stage is critical. A hunt that does not produce a detection rule or a documented data gap has not fully closed.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> Prioritize by what kills you if missed, not by what is most interesting to hunt. Kerberoasting is fascinating technically. But if your org has never hunted LSASS access and you have a data exfiltration risk, hunt LSASS first. Scoring removes that bias.
+          </div>
+        </section>
+
+        <!-- SECTION 6 -->
+        <section class="content-section" id="intel-to-hypothesis">
+          <h2>Converting Threat Intel to Hypotheses</h2>
+          <p>Threat reports are dense and often written for intelligence consumers, not hunters. The skill is extracting the operational content: which techniques were used, in which sequence, with which tools, leaving which artifacts. Then translating each technique into an ABLE-structured hypothesis.</p>
+
+          <div class="callout-example">
+            <strong>Source Report Extract (simulated CTI product):</strong>
+            <p>"Threat cluster CL-CRI-042 was observed targeting financial services firms in Q2 2026. Initial access via spearphishing with ISO attachments (T1566.001, T1553.005). Payload staged via BITSAdmin from compromised CDN infrastructure (T1105, T1197). Lateral movement via WMI remote process creation (T1047). Credential theft via comsvcs.dll MiniDump of LSASS (T1003.001). Data exfiltration over HTTPS to dedicated C2 domains registered via Cloudflare proxy (T1048.002, T1071.001)."</p>
+          </div>
+
+          <p>From that single report, extract five distinct hypotheses:</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Technique</th>
+                  <th>Actor</th>
+                  <th>Behavior</th>
+                  <th>Location</th>
+                  <th>Evidence</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>T1553.005</td>
+                  <td>CL-CRI-042</td>
+                  <td>ISO/IMG mounted to bypass Mark-of-the-Web, spawning LOLBin execution</td>
+                  <td>User workstations with optical drive or ISO mount capability</td>
+                  <td>Sysmon 1: process spawned from a mounted ISO path (e.g., D:\ or virtual drive). Parent: explorer.exe. Unusual executable names from removable-path location.</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>T1197 + T1105</td>
+                  <td>CL-CRI-042</td>
+                  <td>BITSAdmin used to download second-stage payload from external CDN host</td>
+                  <td>All Windows workstations</td>
+                  <td>Sysmon 1: bitsadmin.exe with /transfer and external URL arguments. Sysmon 3: bitsadmin.exe network connection to non-Microsoft external IP. Event 4688: bitsadmin.exe CommandLine with /download.</td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>T1047</td>
+                  <td>CL-CRI-042</td>
+                  <td>WMI remote process creation from compromised workstation to server</td>
+                  <td>Windows servers, particularly those with financial application access</td>
+                  <td>Sysmon 1 on destination host: WmiPrvSE.exe as parent process. Event 4624 Type 3 logon correlated with WMI process creation. Event 4688: child process spawned by WmiPrvSE.exe with suspicious command line.</td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td>T1003.001</td>
+                  <td>CL-CRI-042</td>
+                  <td>comsvcs.dll MiniDump used to dump LSASS memory to a temp file</td>
+                  <td>All Windows hosts, priority on servers where admin accounts log in</td>
+                  <td>Sysmon 1: rundll32.exe with CommandLine containing "comsvcs" + "MiniDump" + "lsass". Sysmon 10: process accessing lsass.exe with high-privilege access rights. Sysmon 11: .dmp file created in temp or unusual directory.</td>
+                </tr>
+                <tr>
+                  <td>5</td>
+                  <td>T1071.001 + T1102</td>
+                  <td>CL-CRI-042</td>
+                  <td>C2 beaconing over HTTPS to Cloudflare-proxied domains, periodic intervals</td>
+                  <td>All endpoints, particularly servers and hosts with internet egress</td>
+                  <td>Proxy logs: periodic HTTPS connections at fixed intervals to domains behind Cloudflare ASNs with low historical traffic. DNS logs: Sysmon 22 queries to recently registered domains resolving to Cloudflare IPs. NetFlow: consistent small byte-count HTTPS connections at regular intervals.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Hypothesis 4 (comsvcs.dll LSASS dump) directly translates into a Sigma rule that any SIEM can consume:</p>
+
+          <div class="code-block">
+            <span class="lang-label">SIGMA</span>
+            <button class="copy-btn" aria-label="Copy">copy</button>
+            <pre><code>title: Potential LSASS Memory Dump via comsvcs.dll
+id: e1a3b5c2-f4d6-4e89-a0b2-c3d5e7f90123
+status: experimental
+description: Detects LSASS memory dump using comsvcs.dll MiniDump function,
+  common in credential theft operations. Observed in multiple ransomware
+  pre-deployment and APT intrusion chains.
+author: H3AD-LEARN
+date: 2026/06/02
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_img:
+    Image|endswith: '\rundll32.exe'
+  selection_cmd:
+    CommandLine|contains|all:
+      - 'comsvcs'
+      - 'MiniDump'
+      - 'lsass'
+  condition: selection_img and selection_cmd
+falsepositives:
+  - Legitimate memory diagnostics tools (verify process tree and initiating user)
+level: critical
+tags:
+  - attack.credential_access
+  - attack.t1003.001</code></pre>
+          </div>
+
+          <div class="callout-info">
+            <strong>Note:</strong> Hypothesis to Sigma rule is the final stage of the hunt cycle. The hypothesis becomes a query during the hunt. If the hunt confirms the threat pattern, the query becomes a detection rule. This is how hunting builds durable detection coverage rather than being a one-time exercise.
+          </div>
+        </section>
+
+        <!-- SECTION 7 -->
+        <section class="content-section" id="hypothesis-mistakes">
+          <h2>Common Mistakes in Hypothesis Generation</h2>
+          <p>Most hypothesis failures fall into five patterns. Recognizing them before you start saves hours of wasted hunt time.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Mistake</th>
+                  <th>What Happens</th>
+                  <th>Fix</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Too broad</strong></td>
+                  <td>"Detect malicious PowerShell" generates thousands of results. The analyst burns hours triaging noise and loses confidence in the hunt process.</td>
+                  <td>Narrow with parent process context, specific flags, or behavioral combination. "PowerShell with -enc flag initiated from an Office application process" is testable.</td>
+                </tr>
+                <tr>
+                  <td><strong>Too narrow</strong></td>
+                  <td>"Check CVE-2024-1234 exploit on host DESKTOP-ABC01" is a single-point check, not a systematic hunt. Even if it finds nothing, it tells you nothing about the broader environment.</td>
+                  <td>Broaden to the TTP the CVE enables, across the relevant system segment. "Hunt for memory corruption exploitation indicators across web-facing hosts in the DMZ."</td>
+                </tr>
+                <tr>
+                  <td><strong>No telemetry</strong></td>
+                  <td>Hypothesis requires WMI activity logs, but the WMI provider is not enabled. Hunt cannot proceed. Analyst discovers the gap mid-hunt after the sprint is already allocated.</td>
+                  <td>Always validate data availability as part of ABLE (Evidence field). Run a test query before scheduling the hunt. If data is absent, log the gap and move to a testable hypothesis.</td>
+                </tr>
+                <tr>
+                  <td><strong>No ATT&CK anchor</strong></td>
+                  <td>"Look for suspicious network traffic" cannot be measured for coverage, cannot be evaluated objectively, and produces inconsistent results across analysts.</td>
+                  <td>Tie to a specific technique (T1071 Application Layer Protocol) with specific sub-behaviors (abnormal user agents, fixed-interval beaconing, unusual port for protocol).</td>
+                </tr>
+                <tr>
+                  <td><strong>Confirmation bias</strong></td>
+                  <td>Hunter suspects a specific host is compromised. Hunt is designed to confirm that belief. Evidence contradicting the hypothesis is ignored. Result: false positive escalated to IR.</td>
+                  <td>Document what would disprove the hypothesis before starting. A null result is as valuable as a positive one. Design queries to surface all results, not just confirming ones.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> A null result, no evidence found, is a valid and valuable outcome. It means one of two things: your controls are working as expected for this technique, or you have a data gap that prevented detection. Both outcomes are actionable. Document which it is. A null result without documentation is just a wasted hunt.
+          </div>
+
+          <p>The confirmation bias mistake is the hardest to self-diagnose. The fix is structural: before executing any hunt, write down the conditions that would prove the hypothesis false. If your only planned queries are designed to confirm your suspicion, add at least one query that would surface contrary evidence. This is the same rigor applied in scientific investigation and it applies directly to adversary hunting.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> The ABLE framework forces you to answer all four questions before touching data. If any field is blank when you finish filling it in, the hypothesis is not ready to hunt. The most common incomplete field is Evidence: if you do not know which specific event IDs or log fields would contain proof, spend 10 minutes on the ATT&CK technique page before scheduling the hunt.
+          </div>
+        </section>
+
+        <!-- SUMMARY -->
+        <div class="chapter-summary">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>A good hypothesis is specific, actionable, bounded, and ATT&CK-anchored. If you cannot write a query to test it, it is not a hypothesis.</li>
+            <li>Hypotheses come from four sources: threat intelligence, ATT&CK technique coverage gaps, anomalies in your own data, and situational business context. Prioritize intel-driven and situational sources first.</li>
+            <li>The ABLE framework (Actor, Behavior, Location, Evidence) structures every hypothesis. All four fields must be filled before a hunt begins.</li>
+            <li>PowerShell (T1059.001) is the most consistently observed technique in Red Canary's multi-year analysis, appearing in the top attacker techniques for five consecutive years across 1,700 organizations.</li>
+            <li>Prioritize hunt backlog using a four-factor matrix: Threat Relevance, Data Availability, Business Impact, and Hunt Coverage. Score 0-3 per factor. Hunt the highest scores first.</li>
+            <li>Every threat report contains multiple hypotheses. Extract each technique from the report and build a separate ABLE-structured hypothesis for each one.</li>
+            <li>A null result is valid and valuable. It either confirms that controls work for this technique or reveals a data gap. Both outcomes are worth documenting.</li>
+          </ul>
+        </div>
+
+        <!-- KNOWLEDGE CHECK -->
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-q-text"><strong>Q1.</strong> What are the four components of the ABLE hypothesis framework?</p>
+            <ul class="kc-options">
+              <li class="kc-option" data-correct="false">A. Alert, Behavior, Log, Escalation</li>
+              <li class="kc-option" data-correct="true">B. Actor, Behavior, Location, Evidence</li>
+              <li class="kc-option" data-correct="false">C. Attacker, Baseline, Log source, Event ID</li>
+              <li class="kc-option" data-correct="false">D. Asset, Behavior, Logic, Evaluation</li>
+            </ul>
+            <div class="kc-answer hidden">B is correct. ABLE stands for Actor (who you are hunting for), Behavior (the specific ATT&CK technique and its action), Location (where in the environment), and Evidence (the specific artifacts, event IDs, and log fields that would exist if the hypothesis is true). All four must be filled before a hunt begins. The other options are invented and do not correspond to any real framework.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-q-text"><strong>Q2.</strong> Which of the following is a well-formed hunt hypothesis?</p>
+            <ul class="kc-options">
+              <li class="kc-option" data-correct="false">A. "Look for suspicious activity on the network"</li>
+              <li class="kc-option" data-correct="false">B. "Check if there are any threats"</li>
+              <li class="kc-option" data-correct="true">C. "Hunt for Kerberoasting: multiple RC4-encrypted TGS requests (Event 4769, EncryptionType 0x17) from a single host within 10 minutes (T1558.003)"</li>
+              <li class="kc-option" data-correct="false">D. "Investigate the recent alert about unusual login"</li>
+            </ul>
+            <div class="kc-answer hidden">C is correct. It names the technique (Kerberoasting, T1558.003), specifies the exact evidence (Event 4769 with EncryptionType 0x17), and bounds the scope (single host, 10-minute window). A query can be written immediately. Options A and B are concerns without testable criteria. Option D describes alert triage (reactive), not hypothesis-driven hunting (proactive). A well-formed hypothesis is specific enough that any analyst could write a query from it without additional information.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-q-text"><strong>Q3.</strong> According to Red Canary's multi-year analysis, what is the most consistently observed ATT&CK technique, appearing across approximately 46% of detections?</p>
+            <ul class="kc-options">
+              <li class="kc-option" data-correct="false">A. Process Injection (T1055)</li>
+              <li class="kc-option" data-correct="true">B. PowerShell (T1059.001)</li>
+              <li class="kc-option" data-correct="false">C. Scheduled Tasks (T1053.005)</li>
+              <li class="kc-option" data-correct="false">D. Credential Dumping (T1003)</li>
+            </ul>
+            <div class="kc-answer hidden">B is correct. PowerShell (T1059.001) is the top technique in Red Canary's analysis across 1,700 organizations and 329 billion records per day, consistently appearing for five consecutive years. It is used for living-off-the-land attacks, fileless execution, and by nearly every category of threat actor from commodity malware to nation-state groups. Process Injection, Scheduled Tasks, and Credential Dumping are all in the top 10 but PowerShell consistently leads.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-q-text"><strong>Q4.</strong> In the four-factor hypothesis prioritization scoring matrix, which factor rewards hypotheses that have never been hunted before?</p>
+            <ul class="kc-options">
+              <li class="kc-option" data-correct="false">A. Threat Relevance</li>
+              <li class="kc-option" data-correct="false">B. Data Availability</li>
+              <li class="kc-option" data-correct="false">C. Business Impact</li>
+              <li class="kc-option" data-correct="true">D. Hunt Coverage</li>
+            </ul>
+            <div class="kc-answer hidden">D is correct. Hunt Coverage scores 3 if this area has never been hunted or there is no record of a prior hunt. It scores 0 if the area was hunted within the past two weeks. This factor prevents teams from repeatedly hunting the same comfortable territory while leaving large ATT&CK areas uncovered. Threat Relevance measures current threat intelligence, Data Availability measures log source quality, and Business Impact measures the blast radius if the threat is missed. All four combine into a score that drives objective prioritization.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-q-text"><strong>Q5.</strong> What is the value of a null result in a threat hunt?</p>
+            <ul class="kc-options">
+              <li class="kc-option" data-correct="false">A. It has no value; the hunt should be re-run with different queries until a threat is found</li>
+              <li class="kc-option" data-correct="false">B. It proves the environment is secure and no further hunting is needed in that area</li>
+              <li class="kc-option" data-correct="true">C. It confirms either that controls are working for this technique or that a data gap exists, both of which are actionable findings</li>
+              <li class="kc-option" data-correct="false">D. It is a failure that should not be documented</li>
+            </ul>
+            <div class="kc-answer hidden">C is correct. A null result means one of two things. Either your controls and detection work as expected for this specific technique in this time window, which is a confirmation worth documenting. Or you have a data gap that prevented finding evidence that may exist, which is a security control gap worth escalating. Both outcomes are actionable. Option A leads to false positives from repeated over-tuning. Option B assumes too much from a single hunt. Option D fails to capture knowledge that would prevent redundant hunts by other analysts.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="01-foundations.html" class="chapter-nav-prev">← Foundations</a>
+          <a href="03-frameworks.html" class="chapter-nav-next">Frameworks →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('02', 7));</script>
+</body>
+</html>

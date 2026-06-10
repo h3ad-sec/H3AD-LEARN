@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="01">
+  <meta name="module-id" content="lolbas">
+  <title>LOLBAS Fundamentals · LOLBAS · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">LOL FUNDAMENTALS</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">LOLBAS</a>
+        <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← LOLBAS</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 01 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 01</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-beginner">BEGINNER</span>
+          </div>
+          <h1 class="chapter-title">LOLBAS Fundamentals</h1>
+          <p class="chapter-intro">Attackers do not always need to drop malware. On every modern Windows system, a full toolkit already exists: signed, trusted, pre-installed, and excluded from most detection policies. This chapter explains what Living Off the Land means, how it works, and why traditional defenses fail against it.</p>
+          <div class="chapter-tags">
+            <span class="tag">foundations</span>
+            <span class="tag">LOLBins</span>
+            <span class="tag">taxonomy</span>
+            <span class="tag">ATT&CK</span>
+          </div>
+        </header>
+
+        <!-- SECTION 1 -->
+        <section class="content-section" id="what-is-lolbas">
+          <h2>What Is Living Off the Land?</h2>
+          <p>The phrase "Living Off the Land" entered security research around 2013. Early APT reports began documenting a consistent pattern: advanced actors were completing intrusions without dropping a single custom binary. They used what was already there. The term stuck because it captures the behavior precisely. A farmer living off the land uses what the environment provides. An attacker doing the same uses what Windows already installed.</p>
+
+          <p>The core principle is availability. Every Windows workstation ships with certutil.exe, mshta.exe, regsvr32.exe, rundll32.exe, and dozens of other capable utilities. These binaries are signed by Microsoft, trusted by every security product, and present in every environment. An attacker who uses certutil.exe to download a payload has introduced no new binary. There is no hash to block, no suspicious file to detect, and no unusual entry in the process list. The only thing that changed is how a legitimate tool was called.</p>
+
+          <p>Modern EDRs and AV products have strong detection coverage for known malware families. That coverage depends on recognizing something unusual: a file with a malicious hash, a known exploit signature, or a process with no legitimate business context. LOL techniques sidestep all three. The binary is legitimate. The hash matches the Microsoft-signed original. The process has been running on every Windows machine for twenty years.</p>
+
+          <p>Attackers use LOLBins to accomplish three things. Execution: running arbitrary code without dropping a foreign binary. Download: fetching remote payloads through trusted Windows utilities that proxy network requests. Persistence: maintaining access after reboots by embedding persistence in scheduled tasks, COM registrations, or BITS transfer jobs, all managed via built-in tools.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> LOL techniques require different detection logic than signature-based tools. The detection target is the behavior, not the binary. Certutil.exe is not malicious. Certutil.exe making an outbound HTTP request from a non-admin workstation, spawned by a browser, is a different matter entirely.
+          </div>
+        </section>
+
+        <!-- SECTION 2 -->
+        <section class="content-section" id="lolbas-project">
+          <h2>The LOLBAS Project</h2>
+          <p>The LOLBAS Project (lolbas-project.github.io) is the community-maintained reference catalog for Windows binaries, scripts, and libraries that can be abused for living-off-the-land attacks. Security researchers contribute entries, and the project is maintained on GitHub. It is the first place to check when building detection coverage for LOL techniques.</p>
+
+          <p>Each catalog entry follows a consistent structure. It names the binary and describes its legitimate Windows function first. Then it documents the abuse commands with working examples, the required permissions, which Windows versions are affected, and the ATT&CK technique ID that maps to the abuse pattern. Many entries include references to known threat actor usage and detection hints.</p>
+
+          <p>The catalog covers four categories. LOLBins are signed Windows executables. LOLScripts are scripting engines and the script formats they run. LOLLibs are .NET assemblies and COM components that can be loaded by legitimate processes. LOLDrivers are signed kernel drivers with known vulnerabilities, used for BYOVD attacks. As of 2026 the catalog contains 150+ entries, and researchers continue adding new discoveries.</p>
+
+          <p>For defenders, the LOLBAS Project functions as a hypothesis generator. Every entry is a potential hunt. The question for each one is: "Has this binary been used in my environment in a way that matches the documented abuse pattern?" Working through the catalog systematically, prioritized by technique prevalence and environment relevance, is a practical hunt program structure.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Examples</th>
+                  <th>Primary Abuse Goal</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>LOLBins</td>
+                  <td>certutil.exe, mshta.exe, regsvr32.exe, rundll32.exe, bitsadmin.exe</td>
+                  <td>Execution, download, proxy execution, persistence</td>
+                </tr>
+                <tr>
+                  <td>LOLScripts</td>
+                  <td>PowerShell (.ps1), VBScript (.vbs), JScript (.js), WSH (.wsf)</td>
+                  <td>Arbitrary code execution via scripting engines</td>
+                </tr>
+                <tr>
+                  <td>LOLLibs</td>
+                  <td>.NET assemblies, COM scriptlets (scrobj.dll), MSXML</td>
+                  <td>Code execution inside trusted process context</td>
+                </tr>
+                <tr>
+                  <td>LOLDrivers</td>
+                  <td>mhyprot2.sys, RTCore64.sys, various signed vendor drivers</td>
+                  <td>EDR/AV termination via BYOVD (ring 0 access)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- SECTION 3 -->
+        <section class="content-section" id="lolbin-taxonomy">
+          <h2>LOLBin, LOLScript, LOLLib, LOLDriver</h2>
+          <p>The four categories are distinct in how they operate, what they require, and how difficult they are to detect. Understanding the differences matters for prioritizing detection coverage.</p>
+
+          <p>LOLBins (Living Off the Land Binaries) are signed Windows executables used for execution proxy, download, or persistence. The list includes certutil.exe for download cradles and Base64 operations, mshta.exe for loading remote HTA files, regsvr32.exe for COM scriptlet execution (the Squiblydoo technique), rundll32.exe for arbitrary DLL loading, wscript.exe and cscript.exe for VBScript and JScript execution, bitsadmin.exe for BITS-based downloads, wmic.exe for remote process creation, and installutil.exe for executing code embedded in .NET assemblies. The common thread: each binary has a legitimate function that gives it trust, and each has a documented abuse pattern that exploits that trust.</p>
+
+          <p>LOLScripts (Living Off the Land Scripts) are the scripting engines and script file formats used to run attacker-controlled code. PowerShell is the most widely abused, with documented techniques ranging from simple encoded commands to obfuscated multi-stage loaders. VBScript (.vbs) and JScript (.js) files run through Windows Script Host are common phishing delivery mechanisms. WSH files (.wsf) can combine multiple scripting languages in a single file. The distinguishing characteristic of LOLScript abuse is that the script interpreter itself is trusted. The interpreter has not changed. The script it runs has.</p>
+
+          <p>LOLLibs (Living Off the Land Libraries) are .NET assemblies and COM components loaded by legitimate processes to execute attacker code. This category is less commonly discussed but increasingly exploited. Attackers load malicious .NET assemblies via installutil.exe or regasm.exe, which are themselves LOLBins. COM components registered in the user hive (HKCU) can be loaded by trusted processes to execute arbitrary code. The detection challenge is that the loading process is legitimate, and the library being loaded may not touch disk at all.</p>
+
+          <p>LOLDrivers (Living Off the Land Drivers) are legitimate but vulnerable signed kernel drivers loaded via BYOVD (Bring Your Own Vulnerable Driver). The technique loads a vulnerable driver with a known exploit to achieve kernel-level code execution. Notable examples include mhyprot2.sys, a driver from the game Genshin Impact that several ransomware groups weaponized to terminate EDR processes, and RTCore64.sys from an MSI utility. The driver is legitimately signed, passes code signing validation, and operates at ring 0.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> BYOVD attacks are some of the most dangerous LOL techniques because they operate at ring 0 (kernel level), where most EDRs have limited visibility. A successful BYOVD attack can terminate user-mode EDR agents, disable kernel callbacks, and clear audit event logs before the primary payload executes. Ransomware groups including BlackByte and Scattered Spider have used BYOVD as a pre-encryption step.
+          </div>
+        </section>
+
+        <!-- SECTION 4 -->
+        <section class="content-section" id="attck-mapping">
+          <h2>ATT&CK Mapping for LOL Techniques</h2>
+          <p>MITRE ATT&CK organizes LOLBin abuse primarily under T1218, Signed Binary Proxy Execution. The parent technique covers the general concept of using a signed Windows binary as a proxy to execute code, bypassing defenses that trust signed executables. T1218 currently has 14 named subtechniques, each covering a specific binary or technique family.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Subtechnique</th>
+                  <th>Binary / Method</th>
+                  <th>Key Abuse</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>T1218.001</td>
+                  <td>Compiled HTML File</td>
+                  <td>Execute script via .chm file loaded by hh.exe</td>
+                </tr>
+                <tr>
+                  <td>T1218.004</td>
+                  <td>InstallUtil</td>
+                  <td>Execute .NET assembly code via AppLocker bypass</td>
+                </tr>
+                <tr>
+                  <td>T1218.005</td>
+                  <td>MSHTA</td>
+                  <td>Load and execute remote HTA files</td>
+                </tr>
+                <tr>
+                  <td>T1218.007</td>
+                  <td>Msiexec</td>
+                  <td>Download and install remote MSI packages</td>
+                </tr>
+                <tr>
+                  <td>T1218.008</td>
+                  <td>Odbcconf</td>
+                  <td>Load arbitrary DLLs via REGSVR action</td>
+                </tr>
+                <tr>
+                  <td>T1218.009</td>
+                  <td>Regasm / Regsvcs</td>
+                  <td>Execute .NET assembly via COM registration utilities</td>
+                </tr>
+                <tr>
+                  <td>T1218.010</td>
+                  <td>Regsvr32 (Squiblydoo)</td>
+                  <td>Load remote COM scriptlets via scrobj.dll</td>
+                </tr>
+                <tr>
+                  <td>T1218.011</td>
+                  <td>Rundll32</td>
+                  <td>Execute arbitrary code via DLL loading</td>
+                </tr>
+                <tr>
+                  <td>T1218.014</td>
+                  <td>MMC</td>
+                  <td>Execute code via malicious MMC snap-in</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Several related techniques fall outside T1218 but are closely associated with LOL tradecraft. T1059 (Command and Scripting Interpreter) covers PowerShell (T1059.001), VBScript (T1059.005), and JavaScript/JScript (T1059.007). T1197 (BITS Jobs) covers bitsadmin-based downloads and persistence. T1105 (Ingress Tool Transfer) covers download cradles including certutil. T1140 (Deobfuscate/Decode Files) covers certutil -decode operations.</p>
+
+          <p>Most LOL techniques fall under the Defense Evasion tactic in the ATT&CK matrix. The mechanism is consistent: a technique evades defenses by executing inside the context of a trusted, signed Windows binary. The adversary is not evading detection by being stealthy. They are evading it by being indistinguishable from a legitimate process on first inspection.</p>
+
+          <p>The Pyramid of Pain is relevant here. Individual command line arguments sit at the TTP level, which is the hardest layer for an adversary to change. An actor can rotate IP addresses in minutes. They cannot stop using certutil for downloads without rewriting their toolkit. Detections anchored at the TTP level are more durable than those anchored at hashes or IPs.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> ATT&CK Navigator is a practical way to map your current detection coverage against LOL techniques. Export the T1218 subtechniques as a layer, color-code by detection status, and the gaps become visible immediately. Any subtechnique without a detection rule is a hunt hypothesis waiting to be written.
+          </div>
+        </section>
+
+        <!-- SECTION 5 -->
+        <section class="content-section" id="why-defenders-struggle">
+          <h2>Why Traditional Defenses Struggle</h2>
+          <p>Hash-based detection fails completely against LOLBin abuse. The binary in question is always certutil.exe, signed by Microsoft, with a known-good hash that appears in every threat intelligence feed as benign. Hash lookups are the foundation of most AV and EDR allow/deny decisions, and for LOLBins that foundation is structurally irrelevant. There is nothing malicious in the file to detect.</p>
+
+          <p>Signature-based behavioral rules struggle with false positive rates. Certutil.exe runs constantly in enterprise environments for certificate operations: verifying OCSP, managing local certificate stores, parsing CRL files. A rule that fires on any certutil execution would generate thousands of alerts per day in a medium-sized organization. Analysts who investigate those alerts, find nothing, and investigate again tomorrow, eventually stop investigating. The rule gets tuned down or disabled.</p>
+
+          <p>Application allowlisting fails unless it incorporates command line context. Regsvr32.exe is on every allowlist because Windows requires it for COM registration. Blocking regsvr32 breaks operating system functionality. The allowlist entry cannot simply be removed. What it needs is refinement: allow regsvr32 for standard system32 COM paths and DLLs, alert on regsvr32 with a URL in the command line. That distinction requires command line analysis that basic allowlisting does not provide.</p>
+
+          <p>Alert fatigue amplifies every other problem. When LOLBin detections are broad and noisy, analysts face a choice between investigating every alert (unsustainable) or tuning the alert volume down (creates gaps). Attackers are aware of this dynamic. A commonly cited attacker tactic is to intentionally trigger noisy but benign-looking LOLBin activity first, saturating the alert queue before the actual malicious phase begins.</p>
+
+          <p>The structural solution is behavioral context. A certutil alert that fires only when certutil makes an outbound HTTP request, was not spawned by a WSUS relay or a certificate auto-enrollment service, and is running on a standard user workstation has a fundamentally different false positive profile than a rule on certutil alone. That combination of binary, parent process, command line flags, and network behavior is the indicator. None of those elements is individually sufficient.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> Many organizations have suppressed or downgraded certutil and mshta detections due to FP volume. Before suppressing a noisy LOLBin rule, check whether the rule is too broad rather than inherently noisy. Adding command line context, restricting to specific parent processes, or filtering known-good administrative activity often drops the FP rate to near-zero while keeping the TP coverage intact.
+          </div>
+        </section>
+
+        <!-- SECTION 6 -->
+        <section class="content-section" id="module-roadmap">
+          <h2>What This Module Covers</h2>
+          <p>Eight chapters build from fundamentals to advanced evasion, with a total time investment of roughly 10 hours. Each chapter stands alone, but the sequence is deliberate: concepts introduced early reappear in the detection and tradecraft chapters later.</p>
+
+          <p>Chapter 1 (this chapter) establishes the vocabulary, the threat model, and the detection problem. Chapter 2 covers the LOLBin Catalog in depth: the 12 most abused binaries, their documented commands, their ATT&CK IDs, and the single highest-signal detection pattern for each. Chapter 3 covers LOLScripts, LOLLibs, and LOLDrivers: PowerShell abuse techniques, .NET assembly exploitation, and BYOVD mechanics.</p>
+
+          <p>Chapter 4 moves into attacker tradecraft: how threat actors chain multiple LOLBins to build complete attack chains from initial access through persistence and lateral movement without ever dropping a foreign binary. Chapter 5 covers detection strategy: behavioral detection architecture, parent-child process analysis, command line baselining, and building detections that survive production environments. Chapter 6 provides the query syntax: KQL, SPL, and Sigma detection queries for every major LOLBin covered in the module.</p>
+
+          <p>Chapter 7 grounds the techniques in real-world campaigns. APT29 (Cozy Bear), FIN7, and several ransomware groups have documented LOLBin usage. Understanding how specific actors use these techniques informs detection prioritization. Chapter 8 covers the advanced tier: AMSI bypass techniques, script block logging evasion, AppLocker bypass chains, BYOVD in detail, and the hardening controls that raise the cost of LOL attacks.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> If you came from the Threat Hunting module's advanced chapters, you have already written hunt hypotheses for certutil and mshta. This module builds the complete catalog and tradecraft picture behind those binaries. The detection query chapter (Chapter 6) directly extends the KQL and Sigma skills from that module.
+          </div>
+
+          <p>The full module is approximately 10 hours of content across 8 chapters, with knowledge checks and detection query exercises throughout. The skill range moves from beginner (Chapters 1 and 2) through intermediate (Chapters 3 through 6) to advanced (Chapters 7 and 8). Working through the module sequentially provides the most complete picture, but individual chapters are self-contained enough to be used as references.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>Living Off the Land means using pre-installed, signed Windows tools for malicious purposes. No new binary, no new hash, no file to detect.</li>
+            <li>The LOLBAS Project (lolbas-project.github.io) maintains the authoritative catalog of abusable Windows binaries, scripts, libraries, and drivers.</li>
+            <li>Four categories: LOLBins (executables), LOLScripts (scripting engines), LOLLibs (.NET/COM), LOLDrivers (vulnerable kernel drivers for BYOVD).</li>
+            <li>ATT&CK T1218 (Signed Binary Proxy Execution) covers LOLBin abuse with multiple subtechniques. Related techniques include T1059, T1197, and T1105.</li>
+            <li>Traditional hash and signature-based detection cannot catch LOLBin abuse because the binary is always the legitimate Windows file with a valid Microsoft signature.</li>
+            <li>Effective LOLBin detection requires behavioral context: the combination of binary, parent process, command line flags, and network behavior is the indicator, not the binary alone.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What is the primary reason hash-based detection fails against LOLBin abuse?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. LOLBins execute in memory without writing to disk</button>
+              <button class="kc-option" data-correct="true">B. The binary is the legitimate Windows executable with a valid Microsoft signature and unchanged hash</button>
+              <button class="kc-option" data-correct="false">C. Hash lookups are too slow for real-time detection</button>
+              <button class="kc-option" data-correct="false">D. LOLBins use polymorphic code that changes the hash on each execution</button>
+            </div>
+            <div class="kc-answer">The binary is always certutil.exe, signed by Microsoft, with the expected hash. There is nothing malicious in the file itself. The attack is in how the binary is invoked, not in the binary's contents. This is why behavioral detection is required: the indicator is in the command line and execution context, not the file.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Which LOLBin category operates at the kernel level and is used to terminate EDR processes?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. LOLScripts</button>
+              <button class="kc-option" data-correct="false">B. LOLLibs</button>
+              <button class="kc-option" data-correct="false">C. LOLBins</button>
+              <button class="kc-option" data-correct="true">D. LOLDrivers (via BYOVD)</button>
+            </div>
+            <div class="kc-answer">LOLDrivers are vulnerable signed kernel drivers loaded via BYOVD (Bring Your Own Vulnerable Driver). Operating at ring 0, they can terminate user-mode processes including EDR agents. Several ransomware groups used BYOVD to kill endpoint protection before deploying encryption payloads. Notable examples include mhyprot2.sys (from a legitimate game driver) and RTCore64.sys.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Where should you look to find the abuse commands and ATT&CK mappings for a specific Windows binary?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. The Windows Security Event log</button>
+              <button class="kc-option" data-correct="true">B. The LOLBAS Project at lolbas-project.github.io</button>
+              <button class="kc-option" data-correct="false">C. The Windows Sysinternals documentation</button>
+              <button class="kc-option" data-correct="false">D. The NVD (National Vulnerability Database)</button>
+            </div>
+            <div class="kc-answer">The LOLBAS Project is the community-maintained catalog specifically designed for this purpose. Each entry includes the legitimate function, documented abuse commands with real-world examples, required permissions, ATT&CK technique mappings, and detection hints. It is the authoritative reference for defenders and a required bookmark for anyone writing LOLBin detections.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="index.html" class="chapter-nav-prev">← LOLBAS Overview</a>
+          <a href="02-lolbin-catalog.html" class="chapter-nav-next">LOLBin Catalog →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('01', 6));</script>
+</body>
+</html>

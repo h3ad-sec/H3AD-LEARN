@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="03">
+  <meta name="module-id" content="threat-hunting">
+  <title>Hunting Frameworks · Threat Hunting · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png"
+               id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">FRAMEWORKS</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">Threat Hunting</a>
+        <a href="https://h3ad-sec.github.io/HYPOS/" class="nav-link" target="_blank" rel="noopener">HYPOS</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Threat Hunting</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 03 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 7 sections</span>
+      </div>
+    </aside>
+
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 03</span>
+            <span class="badge-time muted mono">35 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Hunting Frameworks</h1>
+          <p class="chapter-intro">Two analysts can hunt the same hypothesis and produce completely different results, not because one is more skilled, but because one has a repeatable process and the other is improvising. Frameworks solve that problem. They do not tell you what to hunt. They tell you how to hunt consistently so that knowledge accumulates, detection coverage grows, and any analyst can pick up where the last one left off.</p>
+          <div class="chapter-tags">
+            <span class="tag">PEAK</span>
+            <span class="tag">TaHiTI</span>
+            <span class="tag">lifecycle</span>
+          </div>
+        </header>
+
+        <!-- SECTION 1 -->
+        <section class="content-section" id="why-frameworks">
+          <h2>Why Frameworks Matter</h2>
+          <p>A hunt without a framework is a one-time event. An analyst investigates, finds something or does not, and moves on. No documentation. No detection rules created. No new hypotheses generated. No way for a junior analyst to learn from it. The knowledge lives in one person's head until they leave the team.</p>
+
+          <p>A hunt with a framework is a building block. Each completed hunt adds to a shared knowledge base. Detection rules are created from successful patterns. Gaps discovered during the hunt become the next sprint's hypotheses. Methodology is documented so another analyst can run the same hunt in six months and compare results. The program compounds over time.</p>
+
+          <p>Without a framework, the symptoms are consistent: ad hoc hunts with no repeatability, siloed knowledge, no documentation, cannot scale past the founding analyst, and no way to measure detection coverage improvement over time.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> A framework does not tell you what to hunt. It tells you how to hunt consistently so the next analyst can pick up where you left off. The methodology is the container. The hypothesis is the content.
+          </div>
+
+          <p>The frameworks in this chapter evolved over nearly a decade. Sqrrl published the foundational hunting loop in 2015. TaHiTI formalized the intel-driven approach in 2018 for the Dutch financial sector. SANS published the PAM model around 2020. Splunk SURGe published PEAK in 2023. The Open Research Threat Research Foundation (OTRF) maintains the ThreatHunter-Playbook as a community resource. Each builds on the ones before it, adding documentation discipline, explicit feedback loops, and structured hypothesis management.</p>
+
+          <p>You do not need to choose one and ignore the rest. The most effective programs use elements from multiple frameworks. This chapter covers each one, including where it excels and where it has gaps, so you can build an informed hybrid approach.</p>
+        </section>
+
+        <!-- SECTION 2 -->
+        <section class="content-section" id="sqrrl-loop">
+          <h2>The Sqrrl Hunting Loop</h2>
+          <p>Sqrrl, a threat intelligence startup acquired by AWS in 2017, published the first formal model of threat hunting as an iterative discipline in 2015. Before Sqrrl, hunting was ad hoc. After Sqrrl, it had a language and a structure. Their hunting loop is the conceptual foundation every subsequent framework builds on.</p>
+
+          <p>The loop has four stages:</p>
+
+          <div class="code-block">
+            <span class="lang-label">DIAGRAM</span>
+            <button class="copy-btn" aria-label="Copy">copy</button>
+            <pre><code>    Generate                   Investigate
+    Hypothesis    ---------->  (Query data,
+    (Intel, TTP,               pivot on findings,
+    anomaly,                   correlate events)
+    situational)                     |
+         ^                           |
+         |                           v
+    Inform and               Uncover New Patterns
+    Enrich          <----    (New TTPs, actor behavior,
+    Analytics                data gaps, new hypotheses)</code></pre>
+          </div>
+
+          <p>Each stage has a concrete output that feeds the next:</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Stage</th>
+                  <th>What You Do</th>
+                  <th>Output</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Generate Hypothesis</strong></td>
+                  <td>Form a testable belief about adversary behavior using intel, ATT&CK, anomalies, or situational context</td>
+                  <td>A specific, ABLE-structured hypothesis ready to investigate</td>
+                </tr>
+                <tr>
+                  <td><strong>Investigate</strong></td>
+                  <td>Query data, pivot on findings, correlate across log sources, eliminate false positives</td>
+                  <td>Confirmed threat (escalate to IR) or ruled-out hypothesis with documentation</td>
+                </tr>
+                <tr>
+                  <td><strong>Uncover New Patterns</strong></td>
+                  <td>During investigation, notice new behaviors, gaps in telemetry, or related techniques not in the original scope</td>
+                  <td>New hypotheses, identified data gaps, new actor behavior patterns</td>
+                </tr>
+                <tr>
+                  <td><strong>Inform and Enrich Analytics</strong></td>
+                  <td>Create detection rules from confirmed patterns. Update threat intel. Add new hypotheses to backlog.</td>
+                  <td>New Sigma/KQL/SPL rules, updated hunt backlog, enriched threat intel</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>The most important insight from the Sqrrl model is that hunting is a cycle, not a linear process. Every completed hunt generates the seeds of the next hunt. The "Uncover New Patterns" stage is where you collect those seeds: anomalies you noticed but did not have time to pursue, related techniques suggested by what you found, data gaps that became visible when you tried to query something and got no results.</p>
+
+          <p>The Sqrrl loop's limitations are also what motivated later frameworks. There is no explicit documentation phase. No team coordination mechanism. No feedback loop between the hunt and the broader SOC. And no distinction between different types of hunts. TaHiTI, PEAK, and SANS PAM each address one or more of these gaps.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> Even if you adopt a more complex framework, keep the Sqrrl loop visible as a mental model. When you get lost in process details, ask yourself: which stage am I in? That grounding prevents the common mistake of executing without direction or over-documenting without investigating.
+          </div>
+        </section>
+
+        <!-- SECTION 3 -->
+        <section class="content-section" id="peak-framework">
+          <h2>PEAK: Prepare, Execute, Act with Knowledge</h2>
+          <p>PEAK was developed by the Splunk SURGe research team and published in 2023. It is available on GitHub under splunk/PEAK. The framework solves the Sqrrl loop's main gaps: it adds explicit preparation before the hunt, formalizes the documentation and detection-creation phase after the hunt, and introduces a taxonomy of three distinct hunt types.</p>
+
+          <h3>Three Hunt Types</h3>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>What It Is</th>
+                  <th>Best Used When</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Hypothesis-Driven</strong></td>
+                  <td>Form a specific belief about adversary behavior. Test it with data. Confirm or rule out.</td>
+                  <td>You have a threat report, a specific ATT&CK technique to test, or a situational trigger</td>
+                </tr>
+                <tr>
+                  <td><strong>Baseline</strong></td>
+                  <td>Establish what "normal" looks like in your environment. Find deviations from that baseline.</td>
+                  <td>You lack a behavioral baseline. New environments. After major infrastructure changes.</td>
+                </tr>
+                <tr>
+                  <td><strong>Model-Assisted (M-ATH)</strong></td>
+                  <td>Use machine learning (clustering, classification, anomaly detection) to surface candidates for analyst review.</td>
+                  <td>High data volumes where manual querying cannot cover the search space</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>PREPARE Phase</h3>
+          <p>Everything that happens before touching data. Most hunters skip this and pay for it in wasted query time and unfocused investigation.</p>
+          <ul>
+            <li><strong>Select topic:</strong> Choose a hypothesis from your backlog using the priority scoring system from Chapter 2. Document why this hypothesis was selected now.</li>
+            <li><strong>Research:</strong> Read the relevant ATT&CK technique page. Check if your CTI team has recent reporting on this technique or actor. Review prior hunt results in this area.</li>
+            <li><strong>Scope:</strong> Define explicitly what systems, time window, and data sources are in scope. Write down what is explicitly excluded and why.</li>
+            <li><strong>Document:</strong> Write a one-page hunt plan before starting. Forces clarity on what you expect to find and what would prove the hypothesis false.</li>
+            <li><strong>Verify tooling:</strong> Confirm query access to the required data sources. Run a test query to verify data exists and fields are populated correctly.</li>
+          </ul>
+
+          <h3>EXECUTE Phase</h3>
+          <p>The investigation itself. PEAK treats pivoting as an expected and normal part of execution, not as scope creep. When a query result suggests a related pattern, following that thread is correct behavior, as long as it is documented.</p>
+          <ul>
+            <li><strong>Data gathering:</strong> Pull relevant logs for the scoped time window. Apply initial filters to reduce volume without losing signal.</li>
+            <li><strong>Analysis:</strong> Run your planned queries. Apply statistical techniques: frequency analysis (stack counts to find rare events), clustering (group similar behaviors), time-series analysis (beaconing patterns).</li>
+            <li><strong>Iterate:</strong> Results from the first query inform the second. Each pivot is a new hypothesis derived from evidence. Document each pivot and its rationale.</li>
+            <li><strong>Escalate if needed:</strong> If you find a confirmed threat during execution, hand off to IR immediately. Do not pause the hunt to do IR work. Continue documenting what you found and how.</li>
+          </ul>
+
+          <h3>ACT Phase</h3>
+          <p>The phase most hunters skip. The Sqrrl loop calls it "Inform and Enrich Analytics" but does not prescribe what to do. PEAK is specific.</p>
+          <ul>
+            <li><strong>Preserve:</strong> Write up methodology. Another analyst should be able to re-run this hunt exactly from your documentation.</li>
+            <li><strong>Detect:</strong> Convert every confirmed-malicious query pattern into a Sigma, KQL, or SPL detection rule. If the hunt found no threat but confirmed the pattern would be detectable, create the rule anyway for future monitoring.</li>
+            <li><strong>Backlog:</strong> Every new hypothesis generated during the hunt (patterns noticed, data gaps found, related techniques to investigate) goes into the hunt backlog with a score.</li>
+            <li><strong>Communicate:</strong> Brief your team lead and relevant stakeholders on findings. Even null findings inform coverage posture.</li>
+          </ul>
+
+          <div class="callout-info">
+            <strong>Note:</strong> PEAK's ACT phase is its primary differentiator. Most hunters execute then move to the next hypothesis. The ACT phase is what converts hunting from a point-in-time activity into a compound detection-building program. Every completed PEAK hunt should produce at least one detection rule or one documented data gap. If neither, the hunt was not closed properly.
+          </div>
+
+          <p>A practical hunt plan template following PEAK's Prepare phase:</p>
+
+          <div class="code-block">
+            <span class="lang-label">TEMPLATE</span>
+            <button class="copy-btn" aria-label="Copy">copy</button>
+            <pre><code>HUNT PLAN
+Date: 2026-06-02
+Analyst: [name]
+Hypothesis: An adversary dumped LSASS memory using comsvcs.dll MiniDump
+  to extract credentials for lateral movement (T1003.001)
+ATT&CK: T1003.001 - OS Credential Dumping: LSASS Memory
+Hunt Type: Hypothesis-Driven (PEAK)
+
+Scope:
+- Systems: All Windows servers in domain CORP, all Tier-0/Tier-1 workstations
+- Time window: Last 30 days
+- Data sources: Sysmon Event 10 (ProcessAccess), Sysmon Event 1 (ProcessCreate),
+  Windows Security Event 4688, EDR process telemetry
+
+Expected evidence if hypothesis TRUE:
+- Sysmon 10: GrantedAccess 0x1FFFFF or 0x1010 targeting lsass.exe
+  from a non-system process
+- Sysmon 1 / Event 4688: rundll32.exe with CommandLine containing
+  comsvcs + MiniDump + lsass
+- Sysmon 11: .dmp file created in %TEMP% or unusual directory
+
+Expected evidence if hypothesis FALSE:
+- No Sysmon 10 events targeting lsass.exe from user-space processes
+- No comsvcs.dll invocations outside of Windows Error Reporting
+
+Planned queries:
+1. Search Sysmon 10 for lsass.exe as TargetImage, non-system SourceImage
+2. Search Event 4688 / Sysmon 1 for rundll32.exe with comsvcs + MiniDump
+3. Search Sysmon 11 for .dmp file creation in suspicious paths
+4. If positive: pivot to Sysmon 3 from same host to detect outbound transfer</code></pre>
+          </div>
+        </section>
+
+        <!-- SECTION 4 -->
+        <section class="content-section" id="tahiti-framework">
+          <h2>TaHiTI: Targeted Hunting Integrating Threat Intelligence</h2>
+          <p>TaHiTI was developed by the Dutch Financial Sector ISAC (FI-ISAC) in 2018. It was designed specifically for regulated enterprise environments where threat intelligence is mature and documentation requirements are formal. The name describes the method: every hunt phase is explicitly integrated with the organization's CTI function.</p>
+
+          <p>TaHiTI's core principle is that threat intelligence is not just a hypothesis seed. It is woven throughout the entire hunt: from the trigger that initiates the hunt, to the enrichment applied during investigation, to the output that feeds back into the intelligence cycle. A hunt that begins with a CTI trigger and produces no CTI output has broken the loop.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Phase</th>
+                  <th>Description</th>
+                  <th>Key Output</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>1. Initiation</strong></td>
+                  <td>An intel-driven trigger starts the hunt. A new threat report, a CISA advisory, a CTI product about an active campaign targeting your sector, or an organizational risk event (acquisition, executive travel to high-risk region).</td>
+                  <td>Approved hunt trigger with documented rationale and business context</td>
+                </tr>
+                <tr>
+                  <td><strong>2. Preparation</strong></td>
+                  <td>Define scope, identify data sources, set up tooling, write the hunt plan, validate data availability. Very similar to PEAK's Prepare phase but with explicit CTI enrichment step: pull all available intel on the actor/technique before starting.</td>
+                  <td>Hunt plan with CTI-enriched context, scoped time window, validated data access</td>
+                </tr>
+                <tr>
+                  <td><strong>3. Execution</strong></td>
+                  <td>Targeted investigation using intel-enriched queries. Analysts pivot based on findings. Each pivot is documented. CTI feeds are queried during execution when pivots produce new IOCs or actor-related artifacts.</td>
+                  <td>Evidence trail, confirmed positives or ruled-out hypothesis, pivot log</td>
+                </tr>
+                <tr>
+                  <td><strong>4. Closure</strong></td>
+                  <td>Formal documentation of all findings: true positives (what was found), false positives (what looked suspicious but was legitimate), data gaps (what could not be tested). Formal sign-off on the hunt as closed.</td>
+                  <td>Closure record documenting TPs, FPs, gaps, and final disposition</td>
+                </tr>
+                <tr>
+                  <td><strong>5. Follow-up</strong></td>
+                  <td>Create detection rules from confirmed patterns. Feed findings back to CTI for intel enrichment. Share relevant findings with trusted peer organizations through ISAC channels. Update the hunt backlog.</td>
+                  <td>Detection rules, CTI update, peer sharing, backlog additions</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>MaGMa: Documentation Companion</h3>
+          <p>TaHiTI's documentation methodology is formalized through MaGMa (Management and Growth of Mature Analytics). MaGMa provides structured use case cards that capture every element of a hunt in a consistent format: what the technique is, what telemetry is required, what the expected finding looks like, and what detection rules were created. This enables consistent knowledge capture across an entire team, not just the analyst who ran the hunt.</p>
+
+          <h3>Pyramid of Pain Application</h3>
+          <p>TaHiTI explicitly applies the Pyramid of Pain model developed by David Bianco in 2013. The pyramid ranks indicators by how costly they are for the adversary to change:</p>
+          <ul>
+            <li>Hash values: trivial to change by recompiling</li>
+            <li>IP addresses: easy to rotate</li>
+            <li>Domain names: cheap to register new ones</li>
+            <li>Network and host artifacts: requires more effort</li>
+            <li>Tools: requires significant effort to rewrite</li>
+            <li>TTPs: expensive to change, baked into tradecraft</li>
+          </ul>
+          <p>TaHiTI explicitly targets TTP-level hunting and deprioritizes pure IOC hunting. Hunting for a specific hash or IP address is not hunting in TaHiTI's definition. That is threat intel matching. Hunting means investigating the behavioral pattern that the actor uses, which survives across every infrastructure rotation and tool update.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> TaHiTI was built for the Dutch financial sector's specific regulatory and collaborative environment. That context matters. Its five-phase structure with formal closure and follow-up is more prescriptive than PEAK but it is not bureaucratic overhead: each phase produces a specific artifact that the ISAC uses for peer intelligence sharing. The formality serves the collaborative model.
+          </div>
+
+          <h3>When TaHiTI Fits Best</h3>
+          <p>TaHiTI excels in: regulated industries (finance, healthcare, critical infrastructure) where documentation requirements are formal, environments with dedicated CTI functions that produce finished intelligence products, and organizations that participate in ISACs or peer intelligence sharing networks where standardized hunt output is valuable to the broader community.</p>
+
+          <p>Compared to PEAK: TaHiTI is more prescriptive and explicitly intel-anchored. PEAK is more flexible and covers all three hunt types (hypothesis, baseline, M-ATH). Use TaHiTI when CTI drives every trigger and documentation formality is required. Use PEAK when you need flexibility across hunt types and the team is smaller or less CTI-mature.</p>
+        </section>
+
+        <!-- SECTION 5 -->
+        <section class="content-section" id="sans-pam">
+          <h2>SANS PAM Model</h2>
+          <p>The SANS Practical Analysis Model (PAM) was authored by Dan Gunter and published as a SANS whitepaper. Its six stages follow a linear flow with one structural innovation that distinguishes it from every other framework: a mandatory peer review step before execution begins.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Stage</th>
+                  <th>What Happens</th>
+                  <th>Key Question</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>1. Purpose</strong></td>
+                  <td>Document why this hunt exists. What business risk or threat intelligence triggered it? What is the expected outcome if the hypothesis is true?</td>
+                  <td>Why are we spending hunt time on this now?</td>
+                </tr>
+                <tr>
+                  <td><strong>2. Scope</strong></td>
+                  <td>Define what is explicitly in scope: systems, time range, data sources. Define what is explicitly excluded and why. Written boundaries prevent scope creep during execution.</td>
+                  <td>What is in, what is out, and why?</td>
+                </tr>
+                <tr>
+                  <td><strong>3. Equip</strong></td>
+                  <td>Verify data access before starting. Run test queries to confirm required log sources exist and contain expected fields. Confirm tool access (SIEM, EDR, threat intel platform).</td>
+                  <td>Do we actually have what we need to run this hunt?</td>
+                </tr>
+                <tr>
+                  <td><strong>4. Plan Review</strong></td>
+                  <td>A senior analyst or peer reviews the complete hunt plan before any execution begins. The reviewer checks: is the hypothesis testable? Is the scope correct? Are the planned queries likely to surface the right evidence? Are there data gaps the analyst missed?</td>
+                  <td>Has someone else stress-tested this plan?</td>
+                </tr>
+                <tr>
+                  <td><strong>5. Execute</strong></td>
+                  <td>Run the hunt. Document all queries, all pivots, all results including nulls. If a confirmed threat is found, escalate immediately while continuing to document.</td>
+                  <td>What does the data actually show?</td>
+                </tr>
+                <tr>
+                  <td><strong>6. Feedback</strong></td>
+                  <td>Explicit retrospective after the hunt closes. What worked? What failed? What would you do differently? What new hypotheses were generated? This feeds back into the next hunt's Purpose stage.</td>
+                  <td>What did we learn and how do we do better next time?</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>The Plan Review step is SANS PAM's unique contribution to the field. No other framework mandates peer review before execution. The practical value is significant: a five-minute review by a second analyst catches hypothesis flaws, scope errors, missing data sources, and poorly constructed queries before they waste the executing analyst's time.</p>
+
+          <div class="callout-example">
+            <strong>What Plan Review Catches in Practice:</strong>
+            <p>An analyst plans to hunt for LSASS credential dumping using Sysmon Event 10. The reviewer looks at the Equip stage documentation and notices the test query for Sysmon Event 10 returned zero results, even though Sysmon is deployed. The analyst had not noticed. The reviewer identifies that the Sysmon config does not have ProcessAccess rules enabled for lsass.exe. The hunt plan is updated: first step is to fix the Sysmon config, then schedule the hunt for after data is confirmed flowing. Without Plan Review, the analyst would have queried and gotten zero results, potentially concluded "no LSASS access found" when the real answer was "we cannot see LSASS access at all."</p>
+          </div>
+
+          <p>The Feedback stage is the other element most teams skip. A structured retrospective after every hunt builds team knowledge faster than individual experience alone. Even a 15-minute written retrospective (what worked, what failed, three lessons learned) compounds significantly over a quarter of regular hunting.</p>
+
+          <h3>Where PAM Fits Best</h3>
+          <p>PAM is best suited to structured teams that can invest the time in Plan Review and Feedback, compliance environments where documented process rigor is required, and training programs where the framework's structure teaches junior analysts the right habits. Its limitation is flexibility: for rapid intel-driven hunts where a threat report drops and a team needs to start within hours, the five-stage pre-hunt process adds friction that may be impractical.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> Even if you do not adopt full PAM, steal the Plan Review step. Ask a colleague to read your hunt plan for 5 minutes before you start. It is the single highest-return process improvement in threat hunting that costs almost no time.
+          </div>
+        </section>
+
+        <!-- SECTION 6 -->
+        <section class="content-section" id="otrf-playbook">
+          <h2>OTRF ThreatHunter-Playbook</h2>
+          <p>The Open Threat Research Foundation (OTRF) maintains the ThreatHunter-Playbook as a community-driven, GitHub-hosted library of curated hunt playbooks. Each playbook covers a specific ATT&CK technique with pre-built queries, expected telemetry, and a documented hypothesis. The defining feature of the OTRF approach is the use of Jupyter notebooks as the hunt artifact.</p>
+
+          <p>The OTRF framework has three phases: Plan, Execute, Report. The simplicity is intentional. The complexity lives in the structured notebook format, not in the lifecycle model.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Phase</th>
+                  <th>What It Contains</th>
+                  <th>Artifact</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Plan</strong></td>
+                  <td>Define the behavior being hunted. List assumptions (what must be true for this hunt to work). Map expected telemetry manifestation. Write the hunt rationale. Document prerequisites.</td>
+                  <td>Notebook cells 1-N: hypothesis, assumptions, data requirements</td>
+                </tr>
+                <tr>
+                  <td><strong>Execute</strong></td>
+                  <td>Run queries directly in the notebook. Document pivot rationale inline. Annotate results. Each query cell contains the query, the output, and analyst commentary.</td>
+                  <td>Executable notebook cells with queries + outputs + annotations</td>
+                </tr>
+                <tr>
+                  <td><strong>Report</strong></td>
+                  <td>Capture findings: true positives, false positives, data gaps, follow-on actions. The report IS the notebook. No separate document required.</td>
+                  <td>Final notebook state = complete hunt record, re-runnable by any analyst</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>The Jupyter notebook as hunt artifact solves one of the field's oldest problems: documentation that gets written after the fact, from memory, and that cannot be verified or reproduced. A notebook captures every query, its exact result at that moment, the analyst's interpretation of the result, and the pivot decision. A new analyst can open the notebook, read the plan, observe the execution decisions, and re-run every query on current data to see what has changed.</p>
+
+          <p>The OTRF playbook library contains hundreds of pre-built hunts covering ATT&CK techniques. Each playbook is a starting point. The value is not running the playbook verbatim. It is adapting the pre-built queries to your specific data sources and environment baseline, then contributing improvements back to the community.</p>
+
+          <div class="code-block">
+            <span class="lang-label">OTRF PLAN FORMAT</span>
+            <button class="copy-btn" aria-label="Copy">copy</button>
+            <pre><code># Hunt: LSASS Memory Access via Process Injection
+**Hypothesis:** An adversary accessed LSASS memory using a process with access
+rights 0x1FFFFF (PROCESS_ALL_ACCESS) to extract credentials.
+
+**ATT&CK Technique:** T1003.001 - OS Credential Dumping: LSASS Memory
+
+**Expected Telemetry:**
+- Source: Sysmon Event 10 (ProcessAccess)
+- TargetImage: lsass.exe
+- GrantedAccess: 0x1FFFFF, 0x1010, or 0x1410
+
+**Assumptions:**
+- Sysmon is deployed with ProcessAccess rules targeting lsass.exe
+- lsass.exe is NOT running as Protected Process Light (PPL)
+  Check: HKLM\SYSTEM\CurrentControlSet\Control\Lsa\RunAsPPL
+- Log retention >= 30 days in SIEM
+
+**Data Sources Required:**
+- Sysmon Channel: Microsoft-Windows-Sysmon/Operational (Event 10)
+- Retention: Minimum 30 days
+- Field required: TargetImage, SourceImage, GrantedAccess, SourceUser
+
+**What Would Disprove This:**
+- No Sysmon 10 events targeting lsass.exe from non-system processes
+  in the scoped time window on the scoped hosts</code></pre>
+          </div>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> Even without Jupyter, you can adopt the OTRF documentation format in any tool. A SIEM dashboard with saved queries, query comments, and a linked text document capturing analyst observations produces the same knowledge artifact. The format matters less than the discipline of documenting every query and every result.
+          </div>
+        </section>
+
+        <!-- SECTION 7 -->
+        <section class="content-section" id="choosing-framework">
+          <h2>Choosing Your Framework</h2>
+          <p>No framework fits every team. The right choice depends on team size, CTI maturity, documentation requirements, and whether speed or rigor is the primary constraint.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Framework</th>
+                  <th>Team Size</th>
+                  <th>Intel Integration</th>
+                  <th>Docs Depth</th>
+                  <th>Flexibility</th>
+                  <th>Best For</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Sqrrl Loop</strong></td>
+                  <td>Any</td>
+                  <td>Low</td>
+                  <td>None</td>
+                  <td>Very High</td>
+                  <td>Learning the concept. Mental model for any hunter.</td>
+                </tr>
+                <tr>
+                  <td><strong>PEAK</strong></td>
+                  <td>Any</td>
+                  <td>Medium</td>
+                  <td>Medium</td>
+                  <td>Very High</td>
+                  <td>General purpose. Solo hunters and small teams.</td>
+                </tr>
+                <tr>
+                  <td><strong>TaHiTI</strong></td>
+                  <td>Medium-Large</td>
+                  <td>Very High</td>
+                  <td>High</td>
+                  <td>Medium</td>
+                  <td>CTI-led teams. Regulated industries. ISAC participants.</td>
+                </tr>
+                <tr>
+                  <td><strong>SANS PAM</strong></td>
+                  <td>Small-Medium</td>
+                  <td>Medium</td>
+                  <td>High</td>
+                  <td>Low-Medium</td>
+                  <td>Compliance environments. Junior analyst training programs.</td>
+                </tr>
+                <tr>
+                  <td><strong>OTRF Playbook</strong></td>
+                  <td>Any</td>
+                  <td>Low</td>
+                  <td>High</td>
+                  <td>High</td>
+                  <td>Research teams. Community-contribution programs.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Decision Guide by Scenario</h3>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Scenario</th>
+                  <th>Recommended Framework</th>
+                  <th>Why</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Solo hunter or team of 2-3 analysts</td>
+                  <td>PEAK</td>
+                  <td>Flexible, covers all hunt types, low overhead. ACT phase ensures detection rules are created without requiring formal process.</td>
+                </tr>
+                <tr>
+                  <td>Enterprise with dedicated CTI function</td>
+                  <td>TaHiTI</td>
+                  <td>Intel drives every trigger. Documentation formality matches enterprise requirements. ISAC compatibility built in.</td>
+                </tr>
+                <tr>
+                  <td>Compliance or regulated environment</td>
+                  <td>SANS PAM</td>
+                  <td>Plan Review and Feedback stages produce audit-ready documentation. Six-stage structure demonstrates process rigor to auditors.</td>
+                </tr>
+                <tr>
+                  <td>Building a community-sharable hunt library</td>
+                  <td>OTRF Playbook</td>
+                  <td>Jupyter notebook format is reproducible and shareable. Community already uses this format. Contributions have an established intake path.</td>
+                </tr>
+                <tr>
+                  <td>Learning threat hunting for the first time</td>
+                  <td>Sqrrl Loop, then PEAK</td>
+                  <td>Start with Sqrrl to understand the iterative concept. Graduate to PEAK once the loop is internalized. PEAK adds preparation and follow-through without overwhelming complexity.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>The Hybrid Approach</h3>
+          <p>These frameworks are not mutually exclusive. The most mature hunt programs borrow deliberately from multiple frameworks and build a hybrid that fits their team's specific context. A practical hybrid for most enterprise teams:</p>
+          <ul>
+            <li>Use <strong>PEAK</strong> as the outer lifecycle wrapper: Prepare, Execute, Act applies to every hunt regardless of type.</li>
+            <li>Use <strong>ABLE</strong> (Chapter 2) for structuring every hypothesis in the Prepare phase.</li>
+            <li>Borrow the <strong>Plan Review</strong> step from SANS PAM before any significant hunt begins.</li>
+            <li>Use the <strong>OTRF notebook format</strong> for documentation if your tooling supports it. Adapt to a structured text document if not.</li>
+            <li>Apply <strong>TaHiTI phase logic</strong> specifically when a CTI product drives the hunt trigger, using the formal Initiation/Closure/Follow-up structure for those hunts.</li>
+          </ul>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> The best framework is the one your team actually uses. An imperfect methodology followed consistently beats a perfect one followed sometimes. Pick something reasonable, start using it today, and refine it based on what breaks in practice. The Feedback stage (SANS PAM) or the ACT phase (PEAK) is where you capture those refinements.
+          </div>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> Over-engineering your framework before you have completed ten hunts is a common trap. The process details that matter only become visible through practice. Start simple (PEAK or even just the Sqrrl loop). Add structure as you identify specific gaps. Complexity added before you understand what you need creates compliance theater, not better hunts.
+          </div>
+        </section>
+
+        <!-- SUMMARY -->
+        <div class="chapter-summary">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>A framework converts hunting from a one-time event into a compounding detection-building program. Without one, knowledge stays siloed and cannot scale.</li>
+            <li>The Sqrrl Loop (2015) established the foundational concept: hunting is iterative, not linear. Every hunt generates the seeds of the next.</li>
+            <li>PEAK (Prepare, Execute, Act) is the most general-purpose framework. Its ACT phase, which most hunters skip, is what builds lasting detection coverage from hunt findings.</li>
+            <li>TaHiTI was developed by the Dutch FI-ISAC for regulated environments. It explicitly targets TTP-level hunting over IOC hunting and requires CTI integration at every phase.</li>
+            <li>SANS PAM's unique contribution is the Plan Review stage: mandatory peer review before execution begins. This single step prevents the most common hunt failures.</li>
+            <li>The OTRF ThreatHunter-Playbook uses Jupyter notebooks as hunt artifacts, making every hunt reproducible and shareable. Any analyst can re-run the exact hunt on new data.</li>
+            <li>The best framework is the one your team actually uses consistently. Borrow elements from multiple frameworks and refine based on what breaks in practice.</li>
+          </ul>
+        </div>
+
+        <!-- KNOWLEDGE CHECK -->
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-q-text"><strong>Q1.</strong> What are the three phases of the PEAK framework?</p>
+            <ul class="kc-options">
+              <li class="kc-option" data-correct="false">A. Plan, Execute, Report</li>
+              <li class="kc-option" data-correct="false">B. Purpose, Execute, Analyze</li>
+              <li class="kc-option" data-correct="true">C. Prepare, Execute, Act</li>
+              <li class="kc-option" data-correct="false">D. Prioritize, Evaluate, Archive</li>
+            </ul>
+            <div class="kc-answer hidden">C is correct. PEAK stands for Prepare (everything before touching data: hypothesis selection, research, scoping, documentation, data verification), Execute (the hunt itself: queries, pivots, escalation), and Act (everything after: documentation, detection rule creation, backlog updates, team communication). Option A is the OTRF ThreatHunter-Playbook framework. Option B is not a real framework. Option D is invented.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-q-text"><strong>Q2.</strong> TaHiTI was developed by which organization and for what environment?</p>
+            <ul class="kc-options">
+              <li class="kc-option" data-correct="false">A. Splunk SURGe, for general-purpose enterprise environments</li>
+              <li class="kc-option" data-correct="false">B. SANS Institute, for compliance-driven organizations</li>
+              <li class="kc-option" data-correct="true">C. Dutch Financial Sector ISAC (FI-ISAC), for regulated financial environments with mature CTI functions</li>
+              <li class="kc-option" data-correct="false">D. MITRE, for government and critical infrastructure</li>
+            </ul>
+            <div class="kc-answer hidden">C is correct. TaHiTI was developed by the Dutch FI-ISAC in 2018 specifically for the financial sector's regulated environment, where documentation requirements are formal and CTI sharing through ISAC channels is standard practice. Splunk SURGe developed PEAK (A). SANS published the PAM model developed by Dan Gunter (B). MITRE maintains ATT&CK and CTID but did not develop TaHiTI (D).</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-q-text"><strong>Q3.</strong> How many stages does the Sqrrl Hunting Loop have?</p>
+            <ul class="kc-options">
+              <li class="kc-option" data-correct="false">A. 3</li>
+              <li class="kc-option" data-correct="true">B. 4</li>
+              <li class="kc-option" data-correct="false">C. 5</li>
+              <li class="kc-option" data-correct="false">D. 6</li>
+            </ul>
+            <div class="kc-answer hidden">B is correct. The Sqrrl Hunting Loop has four stages: Generate Hypothesis, Investigate, Uncover New Patterns and TTPs, and Inform and Enrich Analytics. TaHiTI has 5 phases (C). SANS PAM has 6 stages (D). OTRF has 3 phases (A). The Sqrrl loop is the oldest and simplest of the major frameworks, establishing the iterative concept that all later frameworks build on.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-q-text"><strong>Q4.</strong> What is the unique contribution of the SANS PAM model that no other framework includes?</p>
+            <ul class="kc-options">
+              <li class="kc-option" data-correct="false">A. Using Jupyter notebooks as hunt artifacts</li>
+              <li class="kc-option" data-correct="false">B. Explicit CTI integration at every phase</li>
+              <li class="kc-option" data-correct="true">C. A mandatory peer review (Plan Review) step before execution begins</li>
+              <li class="kc-option" data-correct="false">D. Three distinct hunt types: hypothesis-driven, baseline, and model-assisted</li>
+            </ul>
+            <div class="kc-answer hidden">C is correct. The Plan Review stage, where a senior analyst or peer reviews the complete hunt plan before any execution begins, is unique to SANS PAM. It catches hypothesis flaws, scope errors, and missing data sources before they waste the executing analyst's time. Jupyter notebooks are the OTRF approach (A). Explicit CTI integration at every phase is TaHiTI's design principle (B). Three hunt types is PEAK's classification system (D).</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-q-text"><strong>Q5.</strong> What artifact does the OTRF ThreatHunter-Playbook use to capture each hunt, and why is this format valuable?</p>
+            <ul class="kc-options">
+              <li class="kc-option" data-correct="false">A. PDF reports, because they are easy to share and archive</li>
+              <li class="kc-option" data-correct="false">B. Sigma rules, because they are platform-agnostic detection rules</li>
+              <li class="kc-option" data-correct="true">C. Jupyter notebooks, because they capture queries, outputs, and analyst annotations in a single executable document that any analyst can re-run</li>
+              <li class="kc-option" data-correct="false">D. STIX/TAXII feeds, because they are the standard threat intelligence sharing format</li>
+            </ul>
+            <div class="kc-answer hidden">C is correct. Jupyter notebooks are the OTRF format because they solve documentation's core problem: a document written after the fact, from memory, cannot be verified. A notebook captures every query at execution time, the exact result produced, and the analyst's inline interpretation. Another analyst can open the notebook, read the full hunt record, and re-run every query on current data to see what has changed. PDFs (A) are static and cannot be re-executed. Sigma rules (B) are detection outputs, not hunt records. STIX/TAXII (D) are CTI sharing formats, not hunt documentation formats.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="02-hypothesis.html" class="chapter-nav-prev">← Hypothesis Generation</a>
+          <a href="04-data-sources.html" class="chapter-nav-next">Data Sources →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('03', 7));</script>
+</body>
+</html>

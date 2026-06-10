@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="05">
+  <meta name="module-id" content="threat-hunting">
+  <title>Hunt Execution · Threat Hunting · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png"
+               id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">HUNT EXECUTION</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">Threat Hunting</a>
+        <a href="https://h3ad-sec.github.io/HYPOS/" class="nav-link" target="_blank" rel="noopener">HYPOS</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Threat Hunting</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 05 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 7 sections</span>
+      </div>
+    </aside>
+
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 05</span>
+            <span class="badge-time muted mono">35 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Hunt Execution</h1>
+          <p class="chapter-intro">The analyst had a strong hypothesis and confirmed data sources. Then they opened the SIEM and started typing. Four hours later, they were chasing an RMM tool's scheduled maintenance task with no plan, no pivot trail, and nothing documented. Execution without structure is investigation, not hunting. This chapter covers the mechanics of running a hunt: planning before querying, writing effective queries, statistical methods, pivot chains, and capturing output that survives beyond the session.</p>
+          <div class="chapter-tags">
+            <span class="tag">KQL</span>
+            <span class="tag">queries</span>
+            <span class="tag">pivoting</span>
+          </div>
+        </header>
+
+        <!-- SECTION 1 -->
+        <section class="content-section" id="hunt-planning">
+          <h2>Planning a Hunt</h2>
+          <p>A hunt without a written plan is an ad hoc investigation. The two are not the same thing. Ad hoc investigations are reactive, undocumented, and unrepeatable. Hunts are structured, planned, and produce durable output regardless of whether they find a threat.</p>
+
+          <p>The hunt plan document has four required fields. All four must be filled before any query runs.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Field</th>
+                  <th>What It Contains</th>
+                  <th>Why It Matters</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Hypothesis</strong></td>
+                  <td>ABLE-formatted statement from Chapter 2</td>
+                  <td>Defines what you are looking for. Without it, every result looks relevant.</td>
+                </tr>
+                <tr>
+                  <td><strong>Scope</strong></td>
+                  <td>Systems, time window, environment (prod/dev/cloud), platforms</td>
+                  <td>Prevents scope creep mid-hunt. Documents what was NOT covered so gaps are explicit.</td>
+                </tr>
+                <tr>
+                  <td><strong>Data Sources</strong></td>
+                  <td>Which logs, confirmed available, confirmed quality-checked</td>
+                  <td>If the data is not there or is poor quality, stop before wasting time. Document the gap instead.</td>
+                </tr>
+                <tr>
+                  <td><strong>Success Criteria</strong></td>
+                  <td>What confirms the hypothesis, what rules it out</td>
+                  <td>Defines when the hunt is complete. Without this, hunts never end cleanly.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Time windows are a common planning failure. Too short misses slow attackers who operate below daily thresholds. Too long creates noise and slows queries. Start with 14 to 30 days for most hypotheses. If initial results suggest older activity, extend the window with a targeted follow-up query rather than re-running everything from scratch.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> Write the plan before touching the SIEM. A hunter who skips the plan spends 4 hours looking at the wrong data. The plan takes 15 minutes. The wasted SIEM session costs 4 hours.
+          </div>
+
+          <div class="callout-example">
+            <strong>Example:</strong> Filled hunt plan for a lateral movement hypothesis.
+            <br><br>
+            <strong>Hypothesis:</strong> A financially-motivated actor has used PsExec (T1021.002) to move laterally from compromised workstations to servers in the production environment, leaving Service Control Manager event logs and network connection artifacts on source hosts.
+            <br><br>
+            <strong>Scope:</strong> All Windows endpoints in production (approx. 3,200 hosts). Cloud and development environments excluded. Time window: last 21 days. Focus on workstation-to-server connection pairs. Out of scope: Linux hosts, cloud workloads, known IT admin machines using PsExec for legitimate tasks (documented list maintained by IT ops).
+            <br><br>
+            <strong>Data Sources:</strong> Windows Security Event 7045 (service install, DCs and servers), Sysmon Event 3 (network connections, all endpoints), DeviceNetworkEvents (MDE). All three confirmed present and quality-checked on 2026-06-01.
+            <br><br>
+            <strong>Success Criteria:</strong> Hunt confirms if: Event 7045 shows PSEXESVC or a random-named service installed within 60 seconds of a Sysmon Event 3 network connection on the same host pair. Hunt is complete when all anomalous service installs are triaged, or when data quality is confirmed sufficient and no evidence is found.
+          </div>
+        </section>
+
+        <!-- SECTION 2 -->
+        <section class="content-section" id="query-writing">
+          <h2>Query Writing for Hunters</h2>
+          <p>Hunting queries differ from detection rules. Detection rules are narrow and tuned to minimize false positives in automated alerting. Hunt queries start broad, find anomalies, and get refined through iteration. Writing a narrow query on an unvalidated hypothesis is the single most common query mistake hunters make. Zero results could mean "no threat" or "my query was too specific." You cannot tell the difference without starting broad.</p>
+
+          <h3>KQL: Kusto Query Language</h3>
+          <p>KQL powers Microsoft Sentinel and Microsoft Defender for Endpoint. The key operators for hunting: <span class="mono accent">where</span>, <span class="mono accent">summarize</span>, <span class="mono accent">extend</span>, <span class="mono accent">project</span>, <span class="mono accent">join</span>, <span class="mono accent">make_set</span>, <span class="mono accent">dcount</span>, and <span class="mono accent">bin</span>. Learn these eight and you can write 90% of the hunting queries you will ever need.</p>
+
+          <div class="code-block">
+            <span class="lang-label">KQL</span>
+            <button class="copy-btn" aria-label="Copy code">copy</button>
+            <pre><code>// Hunt: unexpected parent processes spawning shells (T1059 + T1036)
+// Most shells should spawn from explorer.exe, terminal emulators, or dev tools.
+// Unusual parents indicate LOLBin abuse, macro execution, or process injection.
+DeviceProcessEvents
+| where FileName in~ ("cmd.exe", "powershell.exe", "wscript.exe", "mshta.exe")
+| where InitiatingProcessFileName !in~ (
+    "explorer.exe", "cmd.exe", "powershell.exe", "bash.exe",
+    "python.exe", "code.exe", "devenv.exe", "conhost.exe",
+    "WindowsTerminal.exe", "wt.exe", "taskmgr.exe"
+)
+| summarize
+    Count = count(),
+    Devices = dcount(DeviceName),
+    CmdLines = make_set(ProcessCommandLine, 10)
+    by InitiatingProcessFileName, FileName
+| where Count &lt; 50  // rare combinations only — common ones are likely legitimate
+| order by Count asc</code></pre>
+          </div>
+
+          <p>The pattern: filter to the target process, exclude known-good parents, summarize to identify rare parent-child combinations, then sort ascending so the rarest results appear first. Always investigate the bottom of the list before the top.</p>
+
+          <h3>SPL: Splunk Processing Language</h3>
+          <p>SPL's key hunting commands: <span class="mono accent">stats</span>, <span class="mono accent">eval</span>, <span class="mono accent">rex</span>, <span class="mono accent">transaction</span>, <span class="mono accent">lookup</span>, and <span class="mono accent">join</span>. SPL's <span class="mono accent">stats</span> is the functional equivalent of KQL's <span class="mono accent">summarize</span>. The following query detects DNS beaconing by measuring query regularity. C2 check-ins are regular. Human browsing is not.</p>
+
+          <div class="code-block">
+            <span class="lang-label">SPL</span>
+            <button class="copy-btn" aria-label="Copy code">copy</button>
+            <pre><code>index=dns sourcetype=dns
+| eval hour=strftime(_time, "%Y-%m-%d %H")
+| stats count by src_ip, query, hour
+| stats
+    avg(count) as avg_hourly,
+    stdev(count) as stdev_hourly,
+    dc(hour) as active_hours,
+    max(count) as peak_hourly
+    by src_ip, query
+| where active_hours > 12 AND stdev_hourly &lt; 3 AND avg_hourly > 2
+| eval beacon_score = round((avg_hourly / (stdev_hourly + 0.1)), 2)
+| where beacon_score > 10
+| sort -beacon_score</code></pre>
+          </div>
+
+          <p>A high beacon score means high regularity: the host queries this domain at a consistent rate across many hours. Low standard deviation and sustained activity across more than 12 hours is the statistical signature of automated check-ins. Investigate the top-scoring pairs first.</p>
+
+          <h3>Sigma: Vendor-Neutral Detection Format</h3>
+          <p>Sigma is a detection rule format that converts to KQL, SPL, or any target SIEM via <span class="mono accent">sigma-cli</span>. It is not a query execution language. For hunters, Sigma is the documentation and sharing format. Write and validate in your SIEM's native language first. Convert to Sigma after validation for sharing and operationalizing as a detection rule in TRACERULES.</p>
+
+          <div class="code-block">
+            <span class="lang-label">YAML (Sigma)</span>
+            <button class="copy-btn" aria-label="Copy code">copy</button>
+            <pre><code>title: Suspicious Scheduled Task Creation via Schtasks
+id: a7e3-hunt-schtask-01
+status: experimental
+description: Detects schtasks.exe creating tasks pointing to temp or user-writable paths
+author: H3AD-LEARN Hunt Exercise
+date: 2026/06/02
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    Image|endswith: '\schtasks.exe'
+    CommandLine|contains: '/create'
+  filter_legit_paths:
+    CommandLine|contains:
+      - '\Windows\System32\'
+      - '\Program Files\'
+  condition: selection and not filter_legit_paths
+falsepositives:
+  - Legitimate software installers using temp paths
+level: medium
+tags:
+  - attack.persistence
+  - attack.t1053.005</code></pre>
+          </div>
+
+          <div class="callout-info">
+            <strong>Note:</strong> Write your hunt query in the language of your SIEM. Convert to Sigma after you validate it. Sigma is for sharing and detection operationalization, not for exploration. Sigma has no interactive query execution environment.
+          </div>
+        </section>
+
+        <!-- SECTION 3 -->
+        <section class="content-section" id="statistical-methods">
+          <h2>Statistical Hunting Methods</h2>
+          <p>Not every hunt starts with a targeted hypothesis. Some of the most impactful findings come from applying statistical methods to baseline data and letting the anomalies surface themselves. Three core approaches are used by mature hunt teams.</p>
+
+          <h3>Frequency Analysis and Long-Tail</h3>
+          <p>Count occurrences and find outliers at the extremes. What processes run on only 1 to 2 hosts out of 5,000? Rare equals suspicious. Legitimate enterprise software runs on hundreds or thousands of hosts. A novel implant runs on 1 to 5. Sort ascending and start at the bottom.</p>
+
+          <div class="code-block">
+            <span class="lang-label">KQL</span>
+            <button class="copy-btn" aria-label="Copy code">copy</button>
+            <pre><code>// Long-tail: find binary hashes seen on very few devices
+// Legitimate enterprise software has broad deployment footprints.
+// A custom implant or staged dropper appears on only the targeted hosts.
+DeviceProcessEvents
+| where isnotempty(SHA256)
+| summarize
+    DeviceCount = dcount(DeviceName),
+    ExecutionCount = count(),
+    ProcessNames = make_set(FileName, 5),
+    FirstSeen = min(Timestamp),
+    LastSeen = max(Timestamp)
+    by SHA256
+| where DeviceCount between (1 .. 3)  // seen on 1-3 devices only
+| where ExecutionCount &lt; 10
+| order by DeviceCount asc, ExecutionCount asc
+| project SHA256, DeviceCount, ExecutionCount, ProcessNames, FirstSeen, LastSeen</code></pre>
+          </div>
+
+          <h3>Baseline Deviation</h3>
+          <p>Compare the current window against a prior window. What is new that was not present last month? Attackers establishing persistence create artifacts that appear in the recent window but have no historical baseline. Any scheduled task, service, or registry run key with zero historical occurrence deserves investigation.</p>
+
+          <div class="code-block">
+            <span class="lang-label">KQL</span>
+            <button class="copy-btn" aria-label="Copy code">copy</button>
+            <pre><code>// Baseline deviation: new scheduled tasks this week vs. prior 30 days
+// A task with no historical baseline is either newly installed software
+// or an attacker establishing persistence. Investigate all results.
+DeviceProcessEvents
+| where FileName =~ "schtasks.exe"
+| where ProcessCommandLine has "/create"
+| extend TaskName = extract(@'\/tn\s+"?([^"\/\s]+)', 1, ProcessCommandLine)
+| where isnotempty(TaskName)
+| summarize
+    RecentCount = countif(Timestamp > ago(7d)),
+    HistoricalCount = countif(Timestamp between (ago(37d) .. ago(7d)))
+    by TaskName
+| where RecentCount > 0 and HistoricalCount == 0
+| project TaskName, RecentCount, HistoricalCount</code></pre>
+          </div>
+
+          <h3>Clustering and Behavioral Outliers</h3>
+          <p>Group entities by behavioral similarity. Every legitimate <span class="mono accent">svchost.exe</span> in your environment should behave similarly: same parent (<span class="mono accent">services.exe</span>), similar command-line patterns, expected network destinations. An svchost.exe that does not fit the cluster is anomalous. This is the foundation of the ML-assisted hunting approach covered in Chapter 8.</p>
+
+          <div class="callout-example">
+            <strong>Example:</strong> You stack parent-child process chains across 10,000 endpoints. Most combinations appear thousands of times: <span class="mono accent">explorer.exe → chrome.exe</span> (8,400 occurrences), <span class="mono accent">services.exe → svchost.exe</span> (52,000 occurrences). One combination appears twice: <span class="mono accent">winword.exe → cmd.exe → powershell.exe → net.exe</span>. That is the hunt finding. Two occurrences means it is not noise. The parent chain through Word means a document spawned a shell. That is T1566.001 followed by T1059.001, and the <span class="mono accent">net.exe</span> execution suggests enumeration. The entire kill chain reconstructed from one frequency anomaly.
+          </div>
+        </section>
+
+        <!-- SECTION 4 -->
+        <section class="content-section" id="pivot-techniques">
+          <h2>Pivot Techniques</h2>
+          <p>A pivot is moving from one data point to a related data point. Pivots are how you turn one suspicious finding into the full scope of an intrusion. A single suspicious process hash tells you one binary ran on one host. A chain of pivots tells you which hosts are affected, what network connections were made, which accounts were used, and where lateral movement occurred.</p>
+
+          <p>Common pivot chains:</p>
+          <ul>
+            <li>Process hash to all hosts running that hash, to network connections from those hosts, to destination IPs, to other processes connecting to the same IPs.</li>
+            <li>Suspicious scheduled task name to creation timestamp, to the process that created it, to the user account, to logon history for that account, to source IPs, to other accounts from the same source IP.</li>
+            <li>C2 domain to IP resolution, to other domains resolving to the same IP, to DNS query history, to all hosts querying those domains, to lateral movement indicators from those hosts.</li>
+          </ul>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Starting Point</th>
+                  <th>Pivot Dimension</th>
+                  <th>What It Reveals</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Process hash</td>
+                  <td>All hosts running the hash</td>
+                  <td>Scope of compromise, deployment breadth</td>
+                </tr>
+                <tr>
+                  <td>Affected host set</td>
+                  <td>Outbound network connections</td>
+                  <td>C2 infrastructure, exfiltration destinations</td>
+                </tr>
+                <tr>
+                  <td>Destination IP</td>
+                  <td>Other domains resolving to same IP</td>
+                  <td>Full C2 cluster, shared infrastructure across campaigns</td>
+                </tr>
+                <tr>
+                  <td>User account</td>
+                  <td>Logon history across all hosts</td>
+                  <td>Lateral movement path, compromised account scope</td>
+                </tr>
+                <tr>
+                  <td>Logon source IP</td>
+                  <td>Other accounts authenticating from same IP</td>
+                  <td>Credential dumping breadth, pass-the-hash victims</td>
+                </tr>
+                <tr>
+                  <td>Scheduled task name</td>
+                  <td>Process that created it</td>
+                  <td>Initial execution chain, staging mechanism</td>
+                </tr>
+                <tr>
+                  <td>DNS query (suspicious domain)</td>
+                  <td>All hosts making the same query</td>
+                  <td>Full set of hosts beaconing to C2</td>
+                </tr>
+                <tr>
+                  <td>C2 beacon process</td>
+                  <td>Child processes spawned from it</td>
+                  <td>Post-exploitation activity, lateral movement tools</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="code-block">
+            <span class="lang-label">KQL</span>
+            <button class="copy-btn" aria-label="Copy code">copy</button>
+            <pre><code>// Two-step pivot: suspicious hash to network connections from affected hosts
+// Replace the hash value with the actual SHA256 from your finding.
+// Step 1 identifies affected hosts. Step 2 surfaces their external communications.
+
+let SuspiciousHash = "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2";
+let AffectedDevices = DeviceProcessEvents
+    | where SHA256 =~ SuspiciousHash
+    | distinct DeviceName;
+
+DeviceNetworkEvents
+| where DeviceName in (AffectedDevices)
+| where RemoteIPType != "Private"
+| where ActionType == "ConnectionSuccess"
+| summarize
+    ConnectionCount = count(),
+    Ports = make_set(RemotePort),
+    FirstSeen = min(Timestamp),
+    LastSeen = max(Timestamp)
+    by DeviceName, RemoteIP, RemoteUrl
+| order by ConnectionCount desc</code></pre>
+          </div>
+
+          <p>H3AD-SEC's PIVEX tool at <a href="https://h3ad-sec.github.io/PIVEX/" target="_blank" rel="noopener" class="accent">h3ad-sec.github.io/PIVEX/</a> visualizes these pivot chains as interactive node graphs. When you need to scope an intrusion under time pressure, a visual pivot diagram is significantly faster than re-reading stacked query outputs.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> Document every pivot as you make it. When you find the threat, you need to prove scope to the IR team. A pivot trail is your evidence chain. An undocumented pivot you cannot reproduce is not admissible as evidence of scope in an IR report.
+          </div>
+        </section>
+
+        <!-- SECTION 5 -->
+        <section class="content-section" id="siem-vs-edr">
+          <h2>SIEM vs. EDR Hunting</h2>
+          <p>Both are valid hunting platforms. They answer different questions. Treating them as interchangeable or choosing one and ignoring the other leaves critical blind spots in any hunt.</p>
+
+          <p>SIEM strengths: breadth across all log sources in a single query interface, correlation between endpoint, identity, and network data, longer retention for historical analysis, full visibility into authentication and cloud activity. SIEM weaknesses: normalized data loses field fidelity, process tree context is absent or reconstructed, memory artifacts are not accessible.</p>
+
+          <p>EDR strengths: deep endpoint telemetry with rich raw field coverage, full process tree visualization with parent-child-grandchild chains, memory artifacts and behavioral analytics, rich process lineage data. EDR weaknesses: endpoint-only view with no identity or network context outside the host, shorter default retention in most deployments.</p>
+
+          <p>The practical workflow: start the hypothesis in SIEM for breadth across all hosts. When you find an anomaly, pivot to EDR for depth on that specific host and process chain. Neither platform alone is sufficient for a complete hunt.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Capability</th>
+                  <th>SIEM</th>
+                  <th>EDR</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Cross-source correlation (endpoint + identity + network)</td>
+                  <td>Strong</td>
+                  <td>Weak</td>
+                </tr>
+                <tr>
+                  <td>Full process tree depth</td>
+                  <td>Reconstructed, limited</td>
+                  <td>Full chain, native</td>
+                </tr>
+                <tr>
+                  <td>Memory artifact visibility (injection, hollowing)</td>
+                  <td>Not available</td>
+                  <td>Full</td>
+                </tr>
+                <tr>
+                  <td>Identity and authentication context</td>
+                  <td>Full (AD, cloud, VPN)</td>
+                  <td>Endpoint session only</td>
+                </tr>
+                <tr>
+                  <td>Typical log retention</td>
+                  <td>90 days to 1 year</td>
+                  <td>30 to 90 days</td>
+                </tr>
+                <tr>
+                  <td>Cloud activity visibility</td>
+                  <td>Full (with connectors)</td>
+                  <td>Not applicable</td>
+                </tr>
+                <tr>
+                  <td>Behavioral analytics (on-agent)</td>
+                  <td>Rule-based, higher latency</td>
+                  <td>On-agent, lower latency</td>
+                </tr>
+                <tr>
+                  <td>Network traffic content and proxy logs</td>
+                  <td>Full with proxy/firewall connectors</td>
+                  <td>Connection metadata only</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="code-block">
+            <span class="lang-label">KQL</span>
+            <button class="copy-btn" aria-label="Copy code">copy</button>
+            <pre><code>// Hunt: CreateRemoteThread cross-process injection (T1055.001)
+// This query requires EDR-level telemetry (MDE DeviceEvents).
+// SIEM-normalized logs do not contain CreateRemoteThreadApiCall data.
+DeviceEvents
+| where ActionType == "CreateRemoteThreadApiCall"
+| where InitiatingProcessFileName != FileName  // injecting into a different process
+| where FileName !in~ (
+    "svchost.exe", "dwm.exe", "csrss.exe",
+    "SearchIndexer.exe", "WmiPrvSE.exe"
+)
+| summarize
+    InjectionCount = count(),
+    TargetProcesses = make_set(FileName, 10),
+    SourceProcesses = make_set(InitiatingProcessFileName, 10)
+    by DeviceName, InitiatingProcessSHA256, bin(Timestamp, 1h)
+| where InjectionCount > 2
+| order by InjectionCount desc</code></pre>
+          </div>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> SIEM hunting on normalized logs misses context that EDR preserves. If your SIEM shows a suspicious process event, always verify the full process tree in EDR before drawing conclusions. A normalized Event 4688 tells you a process was created. The EDR process tree tells you the full lineage, the file hash, the parent command line, and every child process spawned afterward.
+          </div>
+        </section>
+
+        <!-- SECTION 6 -->
+        <section class="content-section" id="iterating-findings">
+          <h2>Iterating on Hunt Findings</h2>
+          <p>A hunt rarely ends at the first query. Iteration is the mechanism for going from "something seems off" to "here is the full scope with evidence." Every initial query is a starting point, not a final answer. The results tell you what to filter, what to follow up on, and what to pivot toward.</p>
+
+          <p>The iteration loop runs until the hypothesis is answered:</p>
+          <ol>
+            <li>Run the initial query on the hypothesis scope.</li>
+            <li>Review each result: true positive (confirmed suspicious after investigation), false positive (confirmed legitimate after investigation), or coverage gap (expected results and found none).</li>
+            <li>Refine: add filters to remove false positives, extend scope to cover gaps, run follow-up pivot queries on true positives.</li>
+            <li>Repeat until the hypothesis is confirmed, refuted, or a coverage gap is identified that prevents answering it.</li>
+          </ol>
+
+          <p>Know when to stop. The hunt is complete when the hypothesis is answered, or when you have identified a visibility gap that prevents answering it. Both are valid outcomes. Continuing past this point without a new hypothesis is scope creep, not thoroughness.</p>
+
+          <p>Escalation decision tree: confirmed threat means hand to IR immediately with full documentation. Confirmed coverage gap means document and submit to the data source team as a control deficiency. New hypothesis generated during execution means add it to the hunt backlog with context from the current hunt, not as a branch of the active session.</p>
+
+          <div class="callout-example">
+            <strong>Example:</strong> Initial query finds 3 results matching "powershell.exe with -enc flag launched from an unusual parent." You investigate each one.
+            <br><br>
+            Result 1: Parent is a known RMM tool. The vendor uses encoded PowerShell commands for scripted deployments. Confirmed false positive. Add the RMM parent process name to the exclusion filter.
+            <br><br>
+            Result 2: Parent is a software update service for a line-of-business application. Confirmed false positive after verifying with the application owner. Document with context.
+            <br><br>
+            Result 3: Parent is <span class="mono accent">cmd.exe</span>, grandparent is <span class="mono accent">winword.exe</span>. The Word process opened a file from a path matching an email attachment staging directory two minutes prior. True positive: phishing-delivered macro executing encoded PowerShell. Escalate to IR. Generate a new backlog hypothesis: "Hunt for other hosts where winword.exe spawned command-line processes in the same 72-hour window."
+          </div>
+        </section>
+
+        <!-- SECTION 7 -->
+        <section class="content-section" id="hunt-output">
+          <h2>Capturing Hunt Output</h2>
+          <p>A hunt with no documented output is a wasted hunt. You cannot reproduce it, share it, build a detection from it, or use it to measure program effectiveness. Documentation is not optional overhead. It is the mechanism by which a hunt session creates lasting value beyond the analyst who ran it.</p>
+
+          <p>Minimum viable output record for every hunt:</p>
+          <ol>
+            <li>Hypothesis in ABLE format.</li>
+            <li>All queries run, in copy-paste-ready format with any variable substitutions noted inline.</li>
+            <li>Data sources used, with quality status confirmed or noted as degraded.</li>
+            <li>Findings summary: what you found and what you explicitly did not find.</li>
+            <li>Result classification: TP, FP, Coverage Gap, No-Find, or Escalated.</li>
+            <li>New detections created, with links to TRACERULES at <a href="https://h3ad-sec.github.io/TRACERULES/" target="_blank" rel="noopener" class="accent">h3ad-sec.github.io/TRACERULES/</a>.</li>
+            <li>New hypotheses generated during execution, ready for the backlog with enough context to reprioritize them.</li>
+          </ol>
+
+          <p>The full lifecycle documentation process is covered in Chapter 7. What matters here: capture output during execution, not after. A running execution log written as you work is far more accurate than a report written from memory an hour after the session ends. Tools for documentation include OTRF-style Jupyter notebooks, an internal wiki, or H3AD-SEC's QUERYBASE at <a href="https://h3ad-sec.github.io/QUERYBASE/" target="_blank" rel="noopener" class="accent">h3ad-sec.github.io/QUERYBASE/</a> for storing validated hunt queries.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> Null findings have real value. A hunt that confirms no evidence of T1003 in your environment, with confirmed good data quality, means your credential access detection coverage is working. Document it explicitly as a No-Find with good data. In six months, when someone asks whether you have hunted for credential dumping recently, you have a specific, dated, documented answer.
+          </div>
+        </section>
+
+        <!-- SUMMARY -->
+        <div class="chapter-summary">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>A hunt plan requires four fields before any query runs: hypothesis, scope, data sources, and success criteria. Skipping the plan turns a hunt into an ad hoc investigation.</li>
+            <li>KQL's <span class="mono accent">dcount()</span> counts unique values. <span class="mono accent">make_set()</span> aggregates distinct values into an array. <span class="mono accent">summarize ... by</span> groups results. These three patterns cover most hunting aggregations.</li>
+            <li>Long-tail analysis (sort ascending by count) surfaces novel threats hiding at low-frequency outliers. Adversaries operate below the noise threshold of most detection rules.</li>
+            <li>Pivots build scope. One suspicious hash tells you nothing about the intrusion. A pivot chain from that hash through network connections to accounts and lateral movement tells you the full picture.</li>
+            <li>SIEM provides breadth across log sources. EDR provides depth on individual hosts. A complete hunt uses both, not one or the other.</li>
+            <li>Sigma is a documentation and sharing format, not an execution language. Write and validate in your SIEM's native language first, then convert to Sigma for sharing and detection operationalization.</li>
+            <li>Every hunt must produce documented output regardless of whether it finds a threat. Null findings confirm coverage. Coverage gaps reveal control deficiencies. Both outcomes have value.</li>
+          </ul>
+        </div>
+
+        <!-- KNOWLEDGE CHECK -->
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Which KQL operator counts the number of unique values in a column?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">count()</button>
+              <button class="kc-option" data-correct="true">dcount()</button>
+              <button class="kc-option" data-correct="false">make_set()</button>
+              <button class="kc-option" data-correct="false">distinct()</button>
+            </div>
+            <div class="kc-answer"><strong>dcount()</strong> returns the distinct count of values in a column. <strong>count()</strong> returns the total row count. <strong>make_set()</strong> returns an array of distinct values, not a count. <strong>distinct</strong> is a tabular operator used to deduplicate rows, not an aggregation function.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">In long-tail analysis, why do you sort results by count ascending rather than descending?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">To identify the most common processes on the network</button>
+              <button class="kc-option" data-correct="true">To surface rare, low-frequency events where novel threats are most likely to appear</button>
+              <button class="kc-option" data-correct="false">To reduce query execution time on large datasets</button>
+              <button class="kc-option" data-correct="false">To group results by device name for easier triage</button>
+            </div>
+            <div class="kc-answer">Adversaries operate at low frequencies to avoid triggering detection thresholds. Legitimate enterprise software runs on thousands of hosts. A custom implant or staged dropper runs on 1 to 5. Sorting ascending puts the rarest events at the top of your results, exactly where novel threats live. The high-frequency entries at the bottom are almost always legitimate.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What is the primary purpose of Sigma rules in a threat hunting workflow?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">Running exploratory queries interactively during a live hunt session</button>
+              <button class="kc-option" data-correct="false">Replacing KQL or SPL for day-to-day SIEM hunting</button>
+              <button class="kc-option" data-correct="true">Documenting validated detections in a vendor-neutral format for sharing and operationalizing</button>
+              <button class="kc-option" data-correct="false">Automating pivot chains across multiple data sources simultaneously</button>
+            </div>
+            <div class="kc-answer">Sigma is a vendor-neutral detection rule format designed for sharing and operationalizing validated detections. It has no native execution environment. Write and validate in your SIEM's native language first (KQL, SPL, etc.), then convert to Sigma for sharing with peers and submitting to a detection rule library like TRACERULES.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">When should a hunt finding be escalated to the IR team?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">When any query returns more than 10 results</button>
+              <button class="kc-option" data-correct="false">When a coverage gap is identified in the log data</button>
+              <button class="kc-option" data-correct="true">When a confirmed true positive is found: malicious or suspicious activity that survives false positive investigation</button>
+              <button class="kc-option" data-correct="false">When the hypothesis is fully refuted by the evidence</button>
+            </div>
+            <div class="kc-answer">Escalate when you have a confirmed true positive: activity that remains suspicious after ruling out all known false positive patterns. Coverage gaps go to the data source team as control deficiencies. Refuted hypotheses are documented as No-Find. Raw, uninvestigated query results are never a sufficient basis for IR escalation.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What is a pivot in threat hunting?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">Changing the hypothesis when initial results show nothing suspicious</button>
+              <button class="kc-option" data-correct="false">Switching from SIEM to EDR to rerun an identical query on different data</button>
+              <button class="kc-option" data-correct="true">Moving from one data point to a related data point to expand the scope of investigation</button>
+              <button class="kc-option" data-correct="false">Converting a validated KQL query into Sigma format for sharing</button>
+            </div>
+            <div class="kc-answer">A pivot uses one data point (a suspicious hash, a destination IP, a user account) as the anchor for a new query that finds related data. Pivot chains turn a single suspicious indicator into a full intrusion scope map. Documenting each pivot step is how you build the evidence chain that proves scope to the IR team and to management.</div>
+          </div>
+        </div>
+
+        <!-- CHAPTER NAV -->
+        <nav class="chapter-nav">
+          <a href="04-data-sources.html" class="chapter-nav-prev">← Data Sources and Telemetry</a>
+          <a href="06-evidence.html" class="chapter-nav-next">Evidence Quality and Scoring →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('05', 7));</script>
+</body>
+</html>

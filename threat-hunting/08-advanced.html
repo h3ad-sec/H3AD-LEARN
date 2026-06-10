@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="08">
+  <meta name="module-id" content="threat-hunting">
+  <title>Advanced Topics · Threat Hunting · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png"
+               id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">ADVANCED TOPICS</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">Threat Hunting</a>
+        <a href="https://h3ad-sec.github.io/HYPOS/" class="nav-link" target="_blank" rel="noopener">HYPOS</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Threat Hunting</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 08 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">40 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 7 sections</span>
+      </div>
+    </aside>
+
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 08</span>
+            <span class="badge-time muted mono">40 MIN READ</span>
+            <span class="badge-diff badge-advanced">ADVANCED</span>
+          </div>
+          <h1 class="chapter-title">Advanced Topics</h1>
+          <p class="chapter-intro">A hunt program that hunts the same generic techniques at the same cadence will plateau. The hunters who grow beyond that plateau understand how to profile actors relevant to their specific environment, how to run campaign-level hunts across a full kill chain, how to work alongside ML anomaly detection rather than against it, and how to validate that their detection actually works before an adversary tests it for them.</p>
+          <div class="chapter-tags">
+            <span class="tag">ML</span>
+            <span class="tag">purple team</span>
+            <span class="tag">AI</span>
+          </div>
+        </header>
+
+        <!-- SECTION 1 -->
+        <section class="content-section" id="threat-actor-profiling">
+          <h2>Threat Actor Profiling for Hunt Targeting</h2>
+          <p>Not all threat actors are relevant to your organization. Hunting based on irrelevant actor groups wastes time and produces false confidence in the form of No-Find results that mean nothing because the actor was never going to target you anyway. Actor profiling is how you focus the hunt backlog on threats that actually matter for your environment.</p>
+
+          <p>Four dimensions of actor profiling:</p>
+          <ul>
+            <li><strong>Industry targeting:</strong> Which groups have targeted your industry sector in the past 24 months? Filter MITRE ATT&CK Groups by sector. A group targeting financial services has different TTPs than one targeting government or healthcare.</li>
+            <li><strong>Geographic alignment:</strong> State-sponsored actors often target based on geopolitical context. Match your organization's countries of operation against known targeting patterns. A US-based company with operations in Eastern Europe faces a different actor profile than one operating only domestically.</li>
+            <li><strong>Technology alignment:</strong> Actors use techniques that match their targets' technology stacks. If your environment is primarily Azure AD and Microsoft 365, actors exploiting Azure AD token theft are more relevant than actors exploiting legacy on-premises-only infrastructure.</li>
+            <li><strong>Business event triggers:</strong> M&A activity attracts espionage-motivated actors targeting intellectual property. Public company announcements attract financially-motivated actors. Post-breach periods attract follow-on actors who acquire access from initial-access brokers. Match recent business events to actor motivation profiles.</li>
+          </ul>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Actor</th>
+                  <th>Motivation</th>
+                  <th>Primary Sectors</th>
+                  <th>Top 3 TTPs to Hunt</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>APT29 (Cozy Bear)</td>
+                  <td>Espionage (Russian SVR)</td>
+                  <td>Government, think tanks, healthcare, tech</td>
+                  <td>T1021.006 (WinRM), T1078.004 (Valid Cloud Accounts), T1550.001 (App Access Token)</td>
+                </tr>
+                <tr>
+                  <td>APT41</td>
+                  <td>Espionage + financial (Chinese MSS)</td>
+                  <td>Healthcare, tech, telecoms, finance</td>
+                  <td>T1190 (Exploit Public-Facing App), T1059.001 (PowerShell), T1003.001 (LSASS dump)</td>
+                </tr>
+                <tr>
+                  <td>Lazarus Group</td>
+                  <td>Financial (DPRK)</td>
+                  <td>Finance, crypto, defense, healthcare</td>
+                  <td>T1566.001 (Phishing), T1059.001 (PowerShell), T1041 (Exfil over C2)</td>
+                </tr>
+                <tr>
+                  <td>Black Basta / Ransomware groups</td>
+                  <td>Financial (ransomware)</td>
+                  <td>All sectors, especially manufacturing, healthcare</td>
+                  <td>T1486 (Data Encryption), T1490 (Shadow Copy Delete), T1021.002 (SMB lateral)</td>
+                </tr>
+                <tr>
+                  <td>Scattered Spider</td>
+                  <td>Financial (social engineering)</td>
+                  <td>Retail, hospitality, finance, tech</td>
+                  <td>T1621 (MFA Request Generation), T1078.004 (Valid Cloud Accounts), T1537 (Transfer to Cloud)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout-example">
+            <strong>Example:</strong> Actor profiling for a US-based healthcare organization that recently acquired a smaller clinic chain.
+            <br><br>
+            Industry: Healthcare. APT10, APT41, and Lazarus Group have all targeted healthcare in the past 24 months, with APT41 conducting supply chain campaigns against healthcare IT vendors.
+            <br><br>
+            Geography: US-based, some international patient data. Lazarus (DPRK-attributed) is highly relevant given DPRK's documented healthcare targeting for IP theft. NATO-targeting actors are less relevant.
+            <br><br>
+            Technology: Epic EHR on Windows, Azure AD for identity, Office 365. Azure AD abuse TTPs from APT29 and Scattered Spider are relevant. On-premises-only exploitation techniques are lower priority.
+            <br><br>
+            Recent business event: M&A acquisition of a smaller clinic. The acquired entity represents an unknown security posture and a potential initial access vector. APT10's documented approach of targeting acquired subsidiaries as a path to the parent organization makes them an elevated priority.
+            <br><br>
+            Result: Priority hunt hypotheses around Azure AD token abuse (APT29/Scattered Spider TTPs), healthcare IT supply chain compromise indicators (APT41), and initial access via the acquired clinic's systems (APT10 pattern).
+          </div>
+
+          <div class="code-block">
+            <span class="lang-label">KQL</span>
+            <button class="copy-btn" aria-label="Copy code">copy</button>
+            <pre><code>// Hunt: Cobalt Strike default and common C2 beacon patterns
+// Used by multiple actor groups. Beacon pattern: periodic connections,
+// consistent byte sizes, specific URI patterns.
+DeviceNetworkEvents
+| where ActionType == "ConnectionSuccess"
+| where RemoteIPType != "Private"
+| where RemotePort in (80, 443, 8080, 8443)
+| summarize
+    ConnectionCount = count(),
+    BytesSent = sum(SentBytes),
+    BytesReceived = sum(ReceivedBytes),
+    UniqueRemoteIPs = dcount(RemoteIP),
+    HoursActive = dcount(bin(Timestamp, 1h))
+    by DeviceName, InitiatingProcessFileName, RemoteIP, bin(Timestamp, 1d)
+| where ConnectionCount between (48 .. 1440)  // ~every 1-30 min over 24 hours
+| where UniqueRemoteIPs == 1  // single C2 target: not browsing behavior
+| extend AvgMinutesBetweenConnections = round((1440.0 / ConnectionCount), 2)
+| where AvgMinutesBetweenConnections between (1.0 .. 30.0)
+| order by ConnectionCount desc</code></pre>
+          </div>
+        </section>
+
+        <!-- SECTION 2 -->
+        <section class="content-section" id="campaign-hunting">
+          <h2>Campaign-Based Hunting</h2>
+          <p>Intel-driven, time-boxed hunts focused on a specific threat campaign rather than a single technique. When a major threat report drops, when CISA issues a sector-specific alert, or when a CVE is being actively exploited by a documented actor, a campaign hunt is faster and more thorough than hunting each technique individually.</p>
+
+          <p>Campaign hunt structure:</p>
+          <ol>
+            <li>Collect the full campaign intel: all TTPs used (not just the headline technique), IOCs as starting points, infrastructure patterns, and victim profile.</li>
+            <li>Map every TTP to an ABLE hypothesis. A typical ransomware campaign has 6 to 8 technique stages, each requiring its own hypothesis.</li>
+            <li>Build a hunt pack: bundle all hypotheses for the campaign with a shared scope and time window.</li>
+            <li>Execute in order of confidence (highest data availability first). Starting with the technique where you have the most reliable telemetry gives you early results that may guide the remaining stages.</li>
+            <li>Results feed into a single campaign report rather than individual hunt reports.</li>
+          </ol>
+
+          <p>TRACEPULSE at <a href="https://h3ad-sec.github.io/TRACEPULSE/" target="_blank" rel="noopener" class="accent">h3ad-sec.github.io/TRACEPULSE/</a> provides campaign-tied query packs. When a new campaign is reported, start there before writing queries from scratch.</p>
+
+          <div class="callout-example">
+            <strong>Example:</strong> Campaign hunt for ransomware pre-deployment phase (Black Basta / Conti-style).
+            <br><br>
+            Stage 1: Initial access via phishing. T1566.001. Hunt: macro execution from Office applications spawning shells.
+            <br><br>
+            Stage 2: PowerShell download cradle. T1059.001 + T1105. Hunt: encoded PowerShell with IEX or Invoke-WebRequest in the command line.
+            <br><br>
+            Stage 3: Cobalt Strike beacon. T1071.001. Hunt: periodic HTTP/S connections from unusual processes to freshly registered domains.
+            <br><br>
+            Stage 4: Credential dumping. T1003.001. Hunt: LSASS memory access (Sysmon Event 10) from non-EDR processes.
+            <br><br>
+            Stage 5: Lateral movement via SMB. T1021.002. Hunt: admin share connections between workstation-class hosts outside business hours.
+            <br><br>
+            Stage 6: Volume shadow copy deletion. T1490. Hunt: vssadmin.exe or wmic.exe with "delete shadows" in the command line.
+            <br><br>
+            Each stage is one hypothesis. The six hypotheses together form one campaign hunt pack. Execute stages 1 and 4 first (highest data availability from endpoint telemetry), then stages 2, 3, 5, and 6.
+          </div>
+        </section>
+
+        <!-- SECTION 3 -->
+        <section class="content-section" id="ml-assisted-hunting">
+          <h2>ML-Assisted Hunting (M-ATH)</h2>
+          <p>PEAK's third hunt type: Model-Assisted Threat Hunting. Machine learning does not replace the hunter. It surfaces anomalies that are too subtle or too voluminous for manual statistical review. The hunter's job is to interpret the ML output and separate genuine anomalies from model noise.</p>
+
+          <h3>Three ML Methods Relevant to Hunting</h3>
+          <p><strong>Clustering (unsupervised):</strong> Group entities by behavioral similarity. Identify entities that do not fit any cluster as outliers. Use case: process behavior clustering. Every legitimate <span class="mono accent">svchost.exe</span> on 5,000 endpoints should cluster together by parent process, command-line pattern, and network destination. One svchost.exe that is a statistical outlier from the cluster is the anomaly to investigate. Manual frequency analysis alone would miss this because the process name is common.</p>
+
+          <p><strong>Anomaly detection:</strong> Establish a normal behavior model over a time baseline, then flag deviations. Use case: user behavior baseline. Alert when a user's login pattern, data access volume, or system usage deviates significantly from their 30-day behavioral baseline. This approach catches insider threats and account compromises that do not match any known TTP pattern.</p>
+
+          <p><strong>Classification (supervised):</strong> Train on labeled known-good and known-bad examples. Classify new events by probability. Use case: command-line classification. Train a model on malicious vs. benign PowerShell command strings. Flag any new PowerShell command scoring above a confidence threshold for analyst review. Reduces analyst time spent on obvious benign commands while surfacing subtle obfuscation patterns.</p>
+
+          <p>SIEM and EDR tools with built-in ML: Microsoft Sentinel anomaly rules and BehaviorAnalytics, Elastic ML jobs (anomaly detection on log fields), Splunk MLTK (machine learning toolkit with pre-built anomaly detection algorithms).</p>
+
+          <div class="code-block">
+            <span class="lang-label">KQL</span>
+            <button class="copy-btn" aria-label="Copy code">copy</button>
+            <pre><code>// ML-assisted hunt: Microsoft Sentinel BehaviorAnalytics for anomalous user activity
+// BehaviorAnalytics applies ML to sign-in patterns, access behavior, and location data.
+// InvestigationPriority is a composite score from multiple ML models.
+BehaviorAnalytics
+| where ActivityType == "LogOn"
+| where ActivityInsights has "UnusualLocation"
+    or ActivityInsights has "UnusualTime"
+    or ActivityInsights has "MassDownload"
+    or ActivityInsights has "ImpossibleTravel"
+| where InvestigationPriority > 5
+| project
+    TimeGenerated,
+    UserPrincipalName,
+    ActivityType,
+    ActivityInsights,
+    InvestigationPriority,
+    SourceIPAddress,
+    SourceDevice
+| order by InvestigationPriority desc</code></pre>
+          </div>
+
+          <p>The hunter's role with M-ATH output: triage the flagged anomalies. Determine which are genuine behavioral deviations requiring investigation vs. model noise (user traveled for a conference, hence "UnusualLocation"). The ML surfaces the candidates. The hunter applies context and makes the call.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> ML models trained on your environment's "normal" will fail if an attack has persisted long enough to be included in the training window. An adversary who has maintained low-and-slow access for 45 days before the model's 30-day baseline window may appear "normal" to the model. Supplement ML-assisted hunts with hypothesis-driven hunts that do not depend on baseline models.
+          </div>
+        </section>
+
+        <!-- SECTION 4 -->
+        <section class="content-section" id="purple-teaming">
+          <h2>Threat Emulation and Hunt Validation</h2>
+          <p>The most direct way to know whether your hunt capability works: simulate the attack and see if you find it. A hunt team that has never validated its detection against actual technique execution is operating on the assumption that the detection works. Assumptions are not security controls.</p>
+
+          <p>Purple teaming pairs red team (offense) and blue team (defense) working together rather than against each other. The goal is not to compromise the organization; it is to generate artifacts, validate detection, and close gaps.</p>
+
+          <p>Hunt validation workflow:</p>
+          <ol>
+            <li>Select a TTP to validate, for example T1003.001 (LSASS credential dumping).</li>
+            <li>Red team executes the technique in a controlled lab environment, or in production with explicit written approval and a defined rollback plan.</li>
+            <li>Hunt team hunts for evidence using their standard methodology, without advance knowledge of exactly when or where the technique was executed.</li>
+            <li>Compare: what evidence was generated by the execution vs. what evidence was found by the hunt. Every artifact generated but not found is a detection gap.</li>
+            <li>Gap analysis: document each gap, identify whether it is a data source gap, a query logic gap, or a retention gap, then remediate.</li>
+          </ol>
+
+          <p>Tools for threat emulation: Atomic Red Team (open source, github.com/redcanaryco/atomic-red-team), MITRE Caldera (open source adversary emulation platform), MITRE ATT&CK Evaluations public data (use as reference for expected artifacts per technique).</p>
+
+          <div class="code-block">
+            <span class="lang-label">POWERSHELL (reference)</span>
+            <button class="copy-btn" aria-label="Copy code">copy</button>
+            <pre><code># Atomic Red Team T1003.001 — LSASS credential dumping
+# NOTE: Execute ONLY in an isolated lab environment with explicit written approval.
+# This documents the expected artifacts so hunters know what to validate detection against.
+
+# Technique: Task Manager UI dump of LSASS (basic — well-known to defenders)
+# To simulate: In Task Manager, right-click lsass.exe, select "Create dump file"
+
+# Expected artifacts to validate detection against:
+#   Sysmon Event 10 (ProcessAccess): lsass.exe accessed by taskmgr.exe
+#     - GrantedAccess: 0x1FFFFF (full access) or 0x001FFFFF
+#   Windows Security Event 4656: Handle request to lsass.exe
+#   File creation: C:\Users\[user]\AppData\Local\Temp\lsass.DMP
+
+# Hunt query to validate detection coverage:
+# DeviceEvents
+# | where ActionType == "OpenProcessApiCall"
+# | where FileName =~ "lsass.exe"
+# | where not(InitiatingProcessFileName in~ ("MsMpEng.exe","csrss.exe","werfault.exe"))
+# | project Timestamp, DeviceName, InitiatingProcessFileName,
+#           InitiatingProcessCommandLine, GrantedAccess</code></pre>
+          </div>
+
+          <p>CrowdStrike OverWatch's SEARCH methodology includes a "Hone" phase that specifically incorporates adversary emulation findings to update hunt techniques. Their approach: run emulation, identify what the hunt team missed, update the hypothesis backlog and query library, repeat quarterly.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> Purple team exercises are most valuable when the hunt team does NOT know in advance which specific technique will be emulated, or when on the timeline. Informed tests confirm you have the detection query written. Blind tests confirm you would actually find it under real conditions. Both are needed. Start with informed validation, then move to blind exercises as the program matures.
+          </div>
+        </section>
+
+        <!-- SECTION 5 -->
+        <section class="content-section" id="building-hunt-program">
+          <h2>Building a Hunt Program</h2>
+          <p>An individual hunter is valuable. A structured program is scalable, measurable, and institutional. The program survives when analysts change roles, when the team grows, and when management asks for evidence of value.</p>
+
+          <h3>Hunt Program Maturity Levels</h3>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Level</th>
+                  <th>Description</th>
+                  <th>Team Requirement</th>
+                  <th>Key Output</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Level 1: Ad hoc</strong></td>
+                  <td>Individual analysts hunt occasionally based on intuition. No repeatable process, no documentation standard.</td>
+                  <td>1-2 analysts with hunting interest alongside other SOC duties</td>
+                  <td>Occasional findings with no tracking or detection conversion</td>
+                </tr>
+                <tr>
+                  <td><strong>Level 2: Structured</strong></td>
+                  <td>Defined methodology (PEAK), basic hypothesis backlog, standard documentation format.</td>
+                  <td>1 dedicated hunter or 2-3 part-time hunters with clear ownership</td>
+                  <td>Hunt reports, basic backlog, some detection rules from findings</td>
+                </tr>
+                <tr>
+                  <td><strong>Level 3: Intelligence-driven</strong></td>
+                  <td>Hypothesis backlog driven by threat intel (TaHiTI model), ATT&CK coverage tracking, hunt KPIs measured quarterly.</td>
+                  <td>2-3 dedicated hunters, CTI analyst feeding hypotheses</td>
+                  <td>Intel-sourced hypotheses, ATT&CK heatmap, quarterly KPI reports</td>
+                </tr>
+                <tr>
+                  <td><strong>Level 4: Continuous</strong></td>
+                  <td>Dedicated hunt team, scheduled hunt cadence, detection creation pipeline, ATT&CK coverage heatmap actively maintained.</td>
+                  <td>Hunt Lead, 3-5 hunters, Detection Engineer, CTI Analyst</td>
+                  <td>Scheduled hunt sprints, detection pipeline, coverage heatmap updates</td>
+                </tr>
+                <tr>
+                  <td><strong>Level 5: Automated</strong></td>
+                  <td>ML-assisted hunts running continuously, human hunters focus on edge cases and novel techniques, comprehensive ATT&CK coverage aspiration.</td>
+                  <td>Full hunt team plus ML/data science support</td>
+                  <td>Automated anomaly triage, human hunters on high-complexity hypotheses only</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Hunt Cadence Recommendations</h3>
+          <ul>
+            <li><strong>Weekly:</strong> 1-2 quick hunts under 2 hours each, based on current threat intel reports or new CVE exploitation activity.</li>
+            <li><strong>Monthly:</strong> 2-4 medium hunts of 2 to 8 hours each, covering priority ATT&CK techniques from the hypothesis backlog.</li>
+            <li><strong>Quarterly:</strong> 1-2 deep hunts spanning multiple days, covering complex techniques or full campaign reconstructions. Include purple team validation of one or two previous hunt detections.</li>
+          </ul>
+
+          <h3>Team Structure for a Mature Program</h3>
+          <ul>
+            <li><strong>Hunt Lead:</strong> Owns strategy, manages the hypothesis backlog, coordinates with CTI and detection engineering, delivers KPI reporting to management.</li>
+            <li><strong>Hunters (2-4):</strong> Execute hunt sprints, run queries, perform analysis and iteration, generate hypotheses from execution findings.</li>
+            <li><strong>Detection Engineer:</strong> Converts confirmed hunt findings into tuned, production-ready detection rules. Owns the TRACERULES library.</li>
+            <li><strong>CTI Analyst:</strong> Feeds the hypothesis backlog from threat intelligence. Maintains actor profiles, tracks emerging campaigns, maps intel to ABLE hypotheses.</li>
+          </ul>
+        </section>
+
+        <!-- SECTION 6 -->
+        <section class="content-section" id="ai-assisted-hunting">
+          <h2>AI-Assisted Threat Hunting</h2>
+          <p>AI changes the speed and scale of certain hunt tasks. It does not change the fundamental methodology. A hunter who understands the methodology will use AI well. A hunter who treats AI as a replacement for methodology will produce AI-confident, methodologically unsound hunts.</p>
+
+          <h3>Where AI Adds Value</h3>
+          <ul>
+            <li><strong>Hypothesis generation:</strong> Give an LLM a threat report excerpt and ask for ABLE-formatted hypotheses. Dramatically speeds up the intel-to-hypothesis conversion step. Still requires analyst review for environment relevance and data source feasibility.</li>
+            <li><strong>Query drafting:</strong> Describe what you want to find, receive a KQL or SPL draft. Saves time on syntax and table name lookup. Requires validation before running against production data.</li>
+            <li><strong>Result interpretation:</strong> Give a query result set to an LLM and ask whether any entries look suspicious. Useful for triaging large result sets where most entries are clearly benign. The LLM surfaces candidates; the analyst makes the final call.</li>
+            <li><strong>Report generation:</strong> Provide the execution log and findings to an LLM to draft the after-action report structure. Saves formatting time; analyst must verify accuracy of every claim.</li>
+            <li><strong>ATT&CK mapping:</strong> Describe an observed artifact or behavior, ask for ATT&CK technique mapping. Faster than manual ATT&CK Navigator navigation for initial mapping. Verify against the actual ATT&CK entry.</li>
+          </ul>
+
+          <h3>Where AI Fails</h3>
+          <ul>
+            <li>AI does not know your environment. It cannot tell you what is normal for your organization's specific processes, tools, or users. Only you know that.</li>
+            <li>AI hallucinates table names, field names, and KQL operator syntax. Every query it generates must be tested against a small time window on non-critical data before running on production.</li>
+            <li>AI cannot pivot in real time. Pivoting requires interactive data queries on live data. AI operates on static text inputs. The pivot chain is entirely the analyst's work.</li>
+            <li>AI context windows have a limit. A large SIEM result set will not fit, and AI will summarize or truncate in ways that may miss exactly the anomaly you are looking for.</li>
+          </ul>
+
+          <p>H3AD-SEC AI tools integrated into the hunt workflow:</p>
+          <ul>
+            <li><a href="https://h3ad-sec.github.io/QUERYCRAFT-AI/" target="_blank" rel="noopener" class="accent">QUERYCRAFT-AI</a>: AI-assisted query generation for KQL, SPL, and Sigma from plain-language descriptions.</li>
+            <li><a href="https://h3ad-sec.github.io/ATTMAP-AI/" target="_blank" rel="noopener" class="accent">ATTMAP-AI</a>: Maps observed behaviors and artifacts to ATT&CK techniques.</li>
+            <li><a href="https://h3ad-sec.github.io/INSIGHT-AI/" target="_blank" rel="noopener" class="accent">INSIGHT-AI</a>: Runbook and hypothesis generation from threat intel input.</li>
+          </ul>
+
+          <div class="code-block">
+            <span class="lang-label">PROMPT TEMPLATE</span>
+            <button class="copy-btn" aria-label="Copy code">copy</button>
+            <pre><code>SYSTEM: You are an L3 threat hunting analyst. Generate structured hunt hypotheses
+based on threat report input. Be precise. Use only techniques documented in MITRE
+ATT&CK. Do not invent techniques or artifact names.
+
+USER: Based on the following threat report excerpt, generate 3 hunt hypotheses
+in ABLE format. Each hypothesis must be testable with Windows endpoint telemetry.
+
+Report: [paste threat report excerpt here]
+
+Format each hypothesis as:
+Actor: [who, if known, or 'Unknown financially-motivated actor']
+Behavior: [ATT&CK technique ID and full name]
+Location: [system type, platform, and environment]
+Evidence: [specific log sources, event IDs, field names, or observable artifacts]
+Confidence basis: [why this technique is worth hunting based on the report]
+Data sources required: [specific tables or log sources in your environment]</code></pre>
+          </div>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> AI-generated queries contain errors. Field names, operator syntax, and table schemas vary by environment. Run every AI-generated KQL or SPL query against a small time window on non-critical data first. Validate that the syntax executes without errors, the field names exist in your tables, and the logic actually captures what you intended. Never run an untested AI query against production data with a wide time window.
+          </div>
+        </section>
+
+        <!-- SECTION 7 -->
+        <section class="content-section" id="whats-next">
+          <h2>Where to Go from Here</h2>
+          <p>You have completed the Threat Hunting module. The 8 chapters have covered the full arc from what threat hunting is and why it matters, through hypothesis construction and ABLE format, through PEAK lifecycle and frameworks, through data sources and telemetry, through query execution and statistical methods, through evidence scoring and the Diamond Model, through documentation and KPIs, and into advanced topics. That is the knowledge layer.</p>
+
+          <p>The practice layer is what matters next. The gap between knowing threat hunting and doing threat hunting is closed by running one hunt with full structure. Not reading about one. Running one.</p>
+
+          <p><strong>Immediate next steps:</strong></p>
+          <ol>
+            <li>Open HYPOS at <a href="https://h3ad-sec.github.io/HYPOS/" target="_blank" rel="noopener" class="accent">h3ad-sec.github.io/HYPOS/</a> and pick one ATT&CK technique from your industry's relevant actor profile. Write an ABLE hypothesis for it.</li>
+            <li>Confirm the data sources needed for that hypothesis are available in your SIEM. Check for quality using the methods from Chapter 4.</li>
+            <li>Write a hunt query in KQL or SPL. Run it against a 14-day window. Classify every result as TP, FP, or Gap.</li>
+            <li>Fill out the after-action report template from Chapter 7. All fields. Even if the result is No-Find.</li>
+          </ol>
+
+          <p><strong>Resources to continue learning:</strong></p>
+          <ul>
+            <li>MITRE ATT&CK: <a href="https://attack.mitre.org" target="_blank" rel="noopener" class="accent">attack.mitre.org</a></li>
+            <li>ThreatHunter-Playbook (OTRF): <a href="https://github.com/OTRF/ThreatHunter-Playbook" target="_blank" rel="noopener" class="accent">github.com/OTRF/ThreatHunter-Playbook</a></li>
+            <li>PEAK Framework: <a href="https://github.com/splunk/PEAK" target="_blank" rel="noopener" class="accent">github.com/splunk/PEAK</a></li>
+            <li>Red Canary Threat Detection Report: <a href="https://redcanary.com/threat-detection-report" target="_blank" rel="noopener" class="accent">redcanary.com/threat-detection-report</a></li>
+            <li>HEARTH hypothesis library (THORCollective): <a href="https://github.com/THORCollective/HEARTH" target="_blank" rel="noopener" class="accent">github.com/THORCollective/HEARTH</a></li>
+            <li>Atomic Red Team: <a href="https://github.com/redcanaryco/atomic-red-team" target="_blank" rel="noopener" class="accent">github.com/redcanaryco/atomic-red-team</a></li>
+          </ul>
+
+          <h3>H3AD-SEC Tools in Your Hunt Workflow</h3>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Tool</th>
+                  <th>Hunt Workflow Role</th>
+                  <th>URL</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>HYPOS</td>
+                  <td>Hypothesis library: browse and generate TTP-level hunt hypotheses by ATT&CK technique</td>
+                  <td><a href="https://h3ad-sec.github.io/HYPOS/" target="_blank" rel="noopener" class="accent">h3ad-sec.github.io/HYPOS/</a></td>
+                </tr>
+                <tr>
+                  <td>QUERYBASE</td>
+                  <td>Multi-language detection query corpus: find validated queries for your target technique</td>
+                  <td><a href="https://h3ad-sec.github.io/QUERYBASE/" target="_blank" rel="noopener" class="accent">h3ad-sec.github.io/QUERYBASE/</a></td>
+                </tr>
+                <tr>
+                  <td>PIVEX</td>
+                  <td>Visual pivot graph builder: map relationships between hunt findings as interactive node diagrams</td>
+                  <td><a href="https://h3ad-sec.github.io/PIVEX/" target="_blank" rel="noopener" class="accent">h3ad-sec.github.io/PIVEX/</a></td>
+                </tr>
+                <tr>
+                  <td>TRACERULES</td>
+                  <td>Detection rule library: submit Sigma rules from hunt findings, browse existing rules</td>
+                  <td><a href="https://h3ad-sec.github.io/TRACERULES/" target="_blank" rel="noopener" class="accent">h3ad-sec.github.io/TRACERULES/</a></td>
+                </tr>
+                <tr>
+                  <td>TRACEPULSE</td>
+                  <td>Campaign-tied query packs: find pre-built query bundles for active campaigns</td>
+                  <td><a href="https://h3ad-sec.github.io/TRACEPULSE/" target="_blank" rel="noopener" class="accent">h3ad-sec.github.io/TRACEPULSE/</a></td>
+                </tr>
+                <tr>
+                  <td>QUERYCRAFT-AI</td>
+                  <td>AI query drafting: generate KQL/SPL/Sigma from plain-language hunt descriptions</td>
+                  <td><a href="https://h3ad-sec.github.io/QUERYCRAFT-AI/" target="_blank" rel="noopener" class="accent">h3ad-sec.github.io/QUERYCRAFT-AI/</a></td>
+                </tr>
+                <tr>
+                  <td>ATTMAP-AI</td>
+                  <td>ATT&CK mapping: map observed artifacts and behaviors to ATT&CK technique IDs</td>
+                  <td><a href="https://h3ad-sec.github.io/ATTMAP-AI/" target="_blank" rel="noopener" class="accent">h3ad-sec.github.io/ATTMAP-AI/</a></td>
+                </tr>
+                <tr>
+                  <td>INSIGHT-AI</td>
+                  <td>Runbook generation: generate hunt runbooks and playbooks from threat intel input</td>
+                  <td><a href="https://h3ad-sec.github.io/INSIGHT-AI/" target="_blank" rel="noopener" class="accent">h3ad-sec.github.io/INSIGHT-AI/</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> The gap between knowing threat hunting and doing threat hunting is closed by one hunt. Schedule one. Use the PEAK workflow, write the ABLE hypothesis, run the query, fill out the after-action report. Every subsequent hunt will be faster and more effective because the process becomes muscle memory.
+          </div>
+        </section>
+
+        <!-- SUMMARY -->
+        <div class="chapter-summary">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>Actor profiling for hunt targeting uses four dimensions: industry targeting, geographic alignment, technology alignment, and business event triggers. Hunting based on irrelevant actors produces meaningless No-Find results.</li>
+            <li>Campaign hunts bundle multiple hypotheses for a single threat campaign into a coordinated hunt pack. Execute stages by data availability, not campaign order.</li>
+            <li>ML-assisted hunting surfaces anomalies for analyst triage; it does not replace analyst judgment. ML models trained on a compromised baseline will fail to surface adversaries who have been active long enough to contaminate the training window.</li>
+            <li>Purple team exercises validate whether detection actually works, not whether you have the query written. Blind exercises (hunt team does not know when emulation happened) are the most realistic validation.</li>
+            <li>Hunt program maturity progresses from ad hoc (Level 1) through structured, intelligence-driven, continuous, to automated (Level 5). Most teams are Level 1 to 2. Moving to Level 3 requires only a hypothesis backlog and quarterly KPI tracking.</li>
+            <li>AI accelerates hypothesis generation, query drafting, and result triage. It fails on environment-specific context, real-time pivoting, and accurate field name knowledge. Validate every AI-generated query before running on production.</li>
+            <li>TRACEPULSE provides campaign-tied query packs. QUERYCRAFT-AI generates queries from plain language. PIVEX visualizes pivot chains. HYPOS stores TTP-level hypotheses. Use them together rather than starting from scratch each hunt.</li>
+          </ul>
+        </div>
+
+        <!-- KNOWLEDGE CHECK -->
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Which ML method is most suited to identifying a single outlier host whose behavior does not match any group in the environment?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="true">Clustering (unsupervised)</button>
+              <button class="kc-option" data-correct="false">Supervised classification</button>
+              <button class="kc-option" data-correct="false">Anomaly detection on time-series data</button>
+              <button class="kc-option" data-correct="false">Natural language processing</button>
+            </div>
+            <div class="kc-answer"><strong>Clustering</strong> groups entities by behavioral similarity and identifies entities that do not fit any cluster as statistical outliers. A host that does not cluster with any peer group is the anomaly to investigate. Supervised classification requires labeled training data. Time-series anomaly detection operates on single-entity baselines, not cross-entity comparison. Clustering is the right tool for "which entity is unlike all others."</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What is the primary purpose of a purple team exercise in the context of hunt validation?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">To train junior analysts on ATT&CK techniques</button>
+              <button class="kc-option" data-correct="false">To demonstrate value to management through a simulated breach</button>
+              <button class="kc-option" data-correct="true">To validate that detection actually works by executing the technique and confirming the hunt finds the artifacts</button>
+              <button class="kc-option" data-correct="false">To identify which ATT&CK techniques the red team prefers</button>
+            </div>
+            <div class="kc-answer">Purple team exercises validate that detection works under real conditions, not just that the query is written. Having a KQL query that should detect LSASS dumping is meaningless if the artifacts it relies on are not actually generated in your environment, or if the data source is broken. Emulation generates real artifacts; the hunt team validates that their methodology finds those artifacts.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What is the Hunt Yield Rate target from Chapter 7?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">Greater than 5%</button>
+              <button class="kc-option" data-correct="true">Greater than 15%</button>
+              <button class="kc-option" data-correct="false">Greater than 50%</button>
+              <button class="kc-option" data-correct="false">Greater than 30%</button>
+            </div>
+            <div class="kc-answer">The Hunt Yield Rate target is <strong>above 15%</strong> for a mature program. Below 5% signals that hypotheses need better intel input or data quality needs improvement. Above 30% may indicate hunts are too narrow. The 15-25% range reflects a healthy balance between focused intel-driven hunts and exploratory coverage of novel techniques.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What is the key limitation of AI-assisted threat hunting that cannot be overcome by using a better model?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">AI cannot write KQL syntax</button>
+              <button class="kc-option" data-correct="false">AI cannot read threat intelligence reports</button>
+              <button class="kc-option" data-correct="true">AI does not know what is normal in your specific environment and cannot pivot on live data in real time</button>
+              <button class="kc-option" data-correct="false">AI takes too long to generate results for time-sensitive hunts</button>
+            </div>
+            <div class="kc-answer">AI does not have access to your environment's baseline. It cannot tell you whether a specific svchost.exe command line is normal for your deployment or whether a particular scheduled task has always existed. Environment-specific context requires analyst knowledge of the environment. Real-time pivoting requires live data queries that AI cannot execute. Both limitations are structural, not model quality issues.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What does TRACEPULSE provide for campaign-based hunting?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">ML-generated anomaly scores for each host</button>
+              <button class="kc-option" data-correct="false">A library of individual Sigma detection rules</button>
+              <button class="kc-option" data-correct="true">Campaign-tied query packs that bundle multiple technique queries for a specific threat campaign</button>
+              <button class="kc-option" data-correct="false">An actor profiling database for industry-specific targeting</button>
+            </div>
+            <div class="kc-answer">TRACEPULSE at h3ad-sec.github.io/TRACEPULSE/ provides campaign-tied query packs: pre-built bundles of hypothesis queries for specific threat campaigns. When a major campaign report drops (ransomware pre-deployment, APT campaign, active CVE exploitation), TRACEPULSE gives you a starting point so you are not writing 6-8 queries from scratch under time pressure.</div>
+          </div>
+        </div>
+
+        <!-- CHAPTER NAV -->
+        <nav class="chapter-nav">
+          <a href="07-lifecycle.html" class="chapter-nav-prev">← Hunt Lifecycle and Documentation</a>
+          <a href="index.html" class="chapter-nav-next">← Back to Module</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('08', 7));</script>
+</body>
+</html>

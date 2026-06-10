@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="04">
+  <meta name="module-id" content="threat-hunting">
+  <title>Data Sources and Telemetry · Threat Hunting · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png"
+               id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">DATA SOURCES</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">Threat Hunting</a>
+        <a href="https://h3ad-sec.github.io/HYPOS/" class="nav-link" target="_blank" rel="noopener">HYPOS</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Threat Hunting</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 04 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 7 sections</span>
+      </div>
+    </aside>
+
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 04</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Data Sources and Telemetry</h1>
+          <p class="chapter-intro">A well-formed hypothesis and a solid framework are worth nothing if the data you need does not exist. Most organizations have collection gaps, retention gaps, and quality gaps they are unaware of until they try to run a hunt and get zero results. Before you schedule your first hunt sprint, you need to know exactly what telemetry you have, what is missing, and what each gap costs you in ATT&CK coverage.</p>
+          <div class="chapter-tags">
+            <span class="tag">logs</span>
+            <span class="tag">EDR</span>
+            <span class="tag">Sysmon</span>
+          </div>
+        </header>
+
+        <!-- SECTION 1 -->
+        <section class="content-section" id="visibility-gap">
+          <h2>The Visibility Gap</h2>
+          <p>Most organizations log something. Almost none log everything they need for effective hunting. And even organizations that collect the right sources often have quality problems that silently break queries without producing obvious errors. A query that returns zero results could mean "no threat found" or it could mean "this log source is broken." Without a data quality baseline, you cannot tell the difference.</p>
+
+          <p>Three distinct types of gaps affect hunt capability:</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Gap Type</th>
+                  <th>What It Means</th>
+                  <th>Example</th>
+                  <th>How to Detect It</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Collection Gap</strong></td>
+                  <td>The log source exists on the endpoint or network device but is not forwarded to the SIEM</td>
+                  <td>Sysmon is deployed but the Windows Event Forwarding rule does not include the Sysmon channel</td>
+                  <td>Query the SIEM for recent Sysmon events from a known host. If nothing returns, the collection is broken.</td>
+                </tr>
+                <tr>
+                  <td><strong>Retention Gap</strong></td>
+                  <td>Logs are collected but deleted before they are useful for hunting</td>
+                  <td>Security events retained for 7 days. Attacker persisted for 14 days. Hunt cannot reach the initial access event.</td>
+                  <td>Query for the oldest event in the log source. If it is less than 30 days old, retention is insufficient for most hunts.</td>
+                </tr>
+                <tr>
+                  <td><strong>Quality Gap</strong></td>
+                  <td>Logs are forwarded but missing critical fields, truncated, or missing required audit configuration</td>
+                  <td>Event 4688 collected but CommandLine field is empty because GPO "Include command line in process creation events" is not enabled</td>
+                  <td>Sample recent events and inspect critical fields. A 4688 without CommandLine is useless for process hunting.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Adversaries know about visibility gaps. They operate in them deliberately. An attacker who understands that most organizations do not monitor WMI activity will use WMI for lateral movement exclusively. An actor who knows DNS logs are rarely parsed will use DNS tunneling for C2. Closing gaps eliminates their advantage in those specific areas.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> A hypothesis you cannot test because the logs do not exist is not a hunt gap. It is a security control gap. Document it as such. The finding from a failed hunt (data gap discovered) goes to the security engineering team as a control deficiency, not back into the hunt backlog as a lower-priority task.
+          </div>
+
+          <p>The practical goal of this chapter: build a complete map of what you have, what you are missing, and what each gap costs in ATT&CK technique coverage. That map becomes the foundation for both your hunt prioritization and your telemetry improvement roadmap.</p>
+        </section>
+
+        <!-- SECTION 2 -->
+        <section class="content-section" id="endpoint-telemetry">
+          <h2>Endpoint Telemetry</h2>
+          <p>Endpoint telemetry is the highest-value data source category for threat hunting. Adversaries spend most of their time on endpoints: executing code, reading credentials, modifying registry keys, moving files, making network connections. Everything they do leaves a trace in endpoint logs.</p>
+
+          <h3>Windows Event Logs: The Minimum Viable Set</h3>
+          <p>Windows Event Logs are available on every Windows system without additional software. They require specific audit policy configuration to be useful. The default audit policy is insufficient for hunting.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Event ID</th>
+                  <th>Description</th>
+                  <th>Critical Fields</th>
+                  <th>Hunt Use Case</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="mono accent">4624</span></td>
+                  <td>Successful logon</td>
+                  <td>LogonType (2=interactive, 3=network, 10=remote interactive), SubjectUserName, WorkstationName</td>
+                  <td>Lateral movement (Type 3), pass-the-hash (Type 3 from unusual source), RDP (Type 10)</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">4625</span></td>
+                  <td>Failed logon</td>
+                  <td>FailureReason, SubjectUserName, WorkstationName, IpAddress</td>
+                  <td>Password spray (many accounts, few attempts each), brute force (many attempts, one account)</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">4648</span></td>
+                  <td>Logon using explicit credentials</td>
+                  <td>SubjectUserName, TargetUserName, TargetServerName</td>
+                  <td>Pass-the-hash, runas execution, credential relay attacks</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">4688</span></td>
+                  <td>Process creation</td>
+                  <td>NewProcessName, CommandLine (requires GPO), ParentProcessName, SubjectUserName</td>
+                  <td>Execution hunting, LOLBin abuse, encoded commands, unusual process parents</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">4698 / 4702</span></td>
+                  <td>Scheduled task created / modified</td>
+                  <td>TaskName, TaskContent (XML with command details)</td>
+                  <td>Persistence detection, scheduled task abuse for execution</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">4768 / 4769</span></td>
+                  <td>Kerberos TGT / TGS request</td>
+                  <td>AccountName, ServiceName, ClientAddress, TicketEncryptionType, TicketOptions</td>
+                  <td>Kerberoasting (4769 with RC4 EncType 0x17), AS-REP roasting (4768 without pre-auth)</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">4776</span></td>
+                  <td>NTLM credential validation</td>
+                  <td>TargetName, Workstation, Status</td>
+                  <td>Pass-the-hash patterns, NTLM relay indicators</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">5140 / 5145</span></td>
+                  <td>Network share accessed / share object access check</td>
+                  <td>SubjectUserName, ShareName, ShareLocalPath, IpAddress</td>
+                  <td>Lateral movement via SMB (5140 ADMIN$ or C$), data collection via share access</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">7045</span></td>
+                  <td>New service installed (System channel)</td>
+                  <td>ServiceName, ImagePath, ServiceType, StartType, AccountName</td>
+                  <td>Persistence via malicious service, many implants use service installation</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">4103 / 4104</span></td>
+                  <td>PowerShell Module Logging / Script Block Logging</td>
+                  <td>ScriptBlockText (4104: full decoded script), MessageNumber, Path</td>
+                  <td>PowerShell-based execution, obfuscated commands decoded, download cradles, C2 communication</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> Event 4688 without CommandLine auditing enabled is nearly useless for process hunting. You see that a process was created, but not what it did. Enabling CommandLine in process creation events requires a specific GPO setting: Computer Configuration > Administrative Templates > System > Audit Process Creation > "Include command line in process creation events" = Enabled. Verify this is in place before planning any execution-based hunt.
+          </div>
+
+          <h3>Sysmon: The Threat Hunter's Primary Source</h3>
+          <p>System Monitor (Sysmon) is a Windows system service and device driver that logs detailed process and network activity to the Windows Event Log. It provides data that Windows native logging cannot: full process hash, parent command line in process creation events, DLL load events, process access events (critical for LSASS detection), and DNS query logs from individual processes.</p>
+
+          <p>Sysmon must be deployed with a thoughtful configuration. The default minimal config captures everything and produces enormous volumes. The hunt-optimized config captures signal-rich events while filtering known-good noise.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Event ID</th>
+                  <th>Name</th>
+                  <th>What It Logs</th>
+                  <th>Primary Hunt Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="mono accent">Sysmon 1</span></td>
+                  <td>Process Create</td>
+                  <td>Full process details: hash, parent, full CommandLine, ParentCommandLine, working directory, user</td>
+                  <td>Best execution visibility. Includes parent command line, which Windows 4688 lacks.</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">Sysmon 3</span></td>
+                  <td>Network Connection</td>
+                  <td>Source/dest IP and port, protocol, process that made the connection, DNS resolution result</td>
+                  <td>C2 detection, lateral movement network traces, unusual outbound from LOLBins</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">Sysmon 7</span></td>
+                  <td>Image Load</td>
+                  <td>DLL loaded into a process: image path, hash, signed status, process that loaded it</td>
+                  <td>DLL injection detection, hijacking, unsigned DLLs in signed processes</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">Sysmon 10</span></td>
+                  <td>Process Access</td>
+                  <td>Process opening another process with specific access rights (GrantedAccess)</td>
+                  <td>LSASS credential theft (GrantedAccess 0x1FFFFF or 0x1010 on lsass.exe), process injection</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">Sysmon 11</span></td>
+                  <td>File Create</td>
+                  <td>File written to disk: full path, hash, creating process</td>
+                  <td>Payload staging, dropper activity, suspicious file creation in temp directories</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">Sysmon 13</span></td>
+                  <td>Registry Value Set</td>
+                  <td>Registry key write: path, value name, data, writing process</td>
+                  <td>Registry persistence (Run keys), malware configuration storage, defense evasion</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">Sysmon 22</span></td>
+                  <td>DNS Query</td>
+                  <td>DNS lookup performed by a process: query name, query results, querying process</td>
+                  <td>C2 domain resolution, DGA detection, DNS tunneling, process-level DNS visibility</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">Sysmon 25</span></td>
+                  <td>Process Tampering</td>
+                  <td>Process image replaced, hollowed, or herpaderped</td>
+                  <td>Process hollowing (T1055.012), herpaderping, indirect command execution via spoofed image</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>A minimal Sysmon configuration optimized for hunting credential theft, execution, network C2, and persistence:</p>
+
+          <div class="code-block">
+            <span class="lang-label">XML</span>
+            <button class="copy-btn" aria-label="Copy">copy</button>
+            <pre><code>&lt;!-- Minimal Sysmon hunting configuration --&gt;
+&lt;!-- Focus: credential theft, execution, network C2, persistence --&gt;
+&lt;Sysmon schemaversion="4.90"&gt;
+  &lt;EventFiltering&gt;
+
+    &lt;!-- Event 1: Process Create - capture all, exclude common noise --&gt;
+    &lt;RuleGroup name="" groupRelation="or"&gt;
+      &lt;ProcessCreate onmatch="exclude"&gt;
+        &lt;Image condition="is"&gt;C:\Windows\System32\conhost.exe&lt;/Image&gt;
+      &lt;/ProcessCreate&gt;
+    &lt;/RuleGroup&gt;
+
+    &lt;!-- Event 3: Network connections - exclude high-volume known-good --&gt;
+    &lt;RuleGroup name="" groupRelation="or"&gt;
+      &lt;NetworkConnect onmatch="exclude"&gt;
+        &lt;!-- Exclude svchost to port 443 (Windows Update noise) --&gt;
+        &lt;Image condition="is"&gt;C:\Windows\System32\svchost.exe&lt;/Image&gt;
+      &lt;/NetworkConnect&gt;
+    &lt;/RuleGroup&gt;
+
+    &lt;!-- Event 7: Image Load - only capture unsigned or suspicious --&gt;
+    &lt;RuleGroup name="" groupRelation="or"&gt;
+      &lt;ImageLoad onmatch="include"&gt;
+        &lt;Signed condition="is"&gt;false&lt;/Signed&gt;
+      &lt;/ImageLoad&gt;
+    &lt;/RuleGroup&gt;
+
+    &lt;!-- Event 10: Process Access - capture LSASS reads (critical) --&gt;
+    &lt;RuleGroup name="" groupRelation="or"&gt;
+      &lt;ProcessAccess onmatch="include"&gt;
+        &lt;TargetImage condition="end with"&gt;lsass.exe&lt;/TargetImage&gt;
+      &lt;/ProcessAccess&gt;
+    &lt;/RuleGroup&gt;
+
+    &lt;!-- Event 11: File Create - capture drops in suspicious locations --&gt;
+    &lt;RuleGroup name="" groupRelation="or"&gt;
+      &lt;FileCreate onmatch="include"&gt;
+        &lt;TargetFilename condition="contains"&gt;\Temp\&lt;/TargetFilename&gt;
+        &lt;TargetFilename condition="contains"&gt;\AppData\Roaming\&lt;/TargetFilename&gt;
+        &lt;TargetFilename condition="end with"&gt;.exe&lt;/TargetFilename&gt;
+        &lt;TargetFilename condition="end with"&gt;.dll&lt;/TargetFilename&gt;
+        &lt;TargetFilename condition="end with"&gt;.ps1&lt;/TargetFilename&gt;
+      &lt;/FileCreate&gt;
+    &lt;/RuleGroup&gt;
+
+    &lt;!-- Event 13: Registry Value Set - capture persistence-relevant keys --&gt;
+    &lt;RuleGroup name="" groupRelation="or"&gt;
+      &lt;RegistryEvent onmatch="include"&gt;
+        &lt;TargetObject condition="contains"&gt;Run&lt;/TargetObject&gt;
+        &lt;TargetObject condition="contains"&gt;RunOnce&lt;/TargetObject&gt;
+        &lt;TargetObject condition="contains"&gt;CurrentVersion\Image File Execution&lt;/TargetObject&gt;
+      &lt;/RegistryEvent&gt;
+    &lt;/RuleGroup&gt;
+
+    &lt;!-- Event 22: DNS Query - capture all (high value, low volume) --&gt;
+    &lt;RuleGroup name="" groupRelation="or"&gt;
+      &lt;DnsQuery onmatch="exclude"&gt;
+        &lt;!-- Optionally exclude known-good Windows domains --&gt;
+        &lt;QueryName condition="end with"&gt;.microsoft.com&lt;/QueryName&gt;
+      &lt;/DnsQuery&gt;
+    &lt;/RuleGroup&gt;
+
+  &lt;/EventFiltering&gt;
+&lt;/Sysmon&gt;</code></pre>
+          </div>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Source</th>
+                  <th>Coverage Depth</th>
+                  <th>Deployment Complexity</th>
+                  <th>Cost</th>
+                  <th>Key Gap Filled</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Windows Event Logs</strong></td>
+                  <td>Medium (config-dependent)</td>
+                  <td>Low (built-in, GPO-configurable)</td>
+                  <td>None</td>
+                  <td>Authentication, process creation baseline, Kerberos, service installs</td>
+                </tr>
+                <tr>
+                  <td><strong>Sysmon</strong></td>
+                  <td>High</td>
+                  <td>Medium (config management required)</td>
+                  <td>None (free from Microsoft)</td>
+                  <td>LSASS access, DLL loads, DNS per-process, network per-process, hash values</td>
+                </tr>
+                <tr>
+                  <td><strong>EDR</strong></td>
+                  <td>Very High</td>
+                  <td>Medium (agent deployment)</td>
+                  <td>Significant license cost</td>
+                  <td>Memory analysis, behavioral analytics, process trees, response actions</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- SECTION 3 -->
+        <section class="content-section" id="network-telemetry">
+          <h2>Network Telemetry</h2>
+          <p>Network telemetry is the second pillar of hunt visibility. It covers what endpoint logs miss: traffic between hosts that have no EDR agent, east-west movement within segments, and command-and-control communication patterns that are invisible in process logs but obvious in flow data.</p>
+
+          <h3>DNS Logs: Highest Return on Investment</h3>
+          <p>DNS logs are the most underused hunt data source in most environments. Every C2 beacon performs a DNS resolution. Every DGA domain gets queried. DNS tunneling encodes data directly in query names. And yet most SIEMs have DNS logs disabled or unforwarded.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>DNS Indicator</th>
+                  <th>What It Looks Like</th>
+                  <th>Hunt Query Approach</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>DGA domain</td>
+                  <td>High-entropy labels, random-looking strings (e.g., xk3m9p2.example.com), unusual TLDs</td>
+                  <td>Frequency analysis on query label entropy. Filter for labels with Shannon entropy above 3.5.</td>
+                </tr>
+                <tr>
+                  <td>DNS tunneling</td>
+                  <td>Query labels longer than 45-50 characters. Very high query frequency to one domain. TXT record requests.</td>
+                  <td>Measure label length. Count queries per domain per host per hour. Threshold on both volume and length.</td>
+                </tr>
+                <tr>
+                  <td>C2 resolution</td>
+                  <td>Recently registered domain (less than 30 days old), resolves to cloud/CDN IP, queried only by one or two hosts</td>
+                  <td>Enrich DNS results with domain age and registrar data. Flag low-prevalence domains.</td>
+                </tr>
+                <tr>
+                  <td>Long TTL C2</td>
+                  <td>C2 domain resolved once and cached with high TTL, subsequent DNS traffic absent but C2 continues</td>
+                  <td>Correlate DNS resolution events with subsequent network connections to same IP. Gap between DNS and connection is suspicious.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="code-block">
+            <span class="lang-label">KQL</span>
+            <button class="copy-btn" aria-label="Copy">copy</button>
+            <pre><code>// Hunt for DNS tunneling: abnormally long query labels (T1071.004)
+// DNS tunneling encodes data in subdomains, producing long and often
+// encoded label strings. Normal DNS labels rarely exceed 30 characters.
+DnsEvents
+| where SubType == "LookupQuery"
+| extend LabelLength = strlen(extract(@"^([^.]+)", 1, Name))
+| where LabelLength > 45
+| summarize
+    TotalQueries = count(),
+    UniqueLabels = dcount(Name),
+    SampleLabels = make_set(Name, 5)
+  by Computer, bin(TimeGenerated, 1h)
+| where TotalQueries > 20 or UniqueLabels > 10
+| order by TotalQueries desc</code></pre>
+          </div>
+
+          <h3>Web Proxy Logs</h3>
+          <p>Proxy logs capture HTTP metadata: method, full URL, user agent, response code, request and response bytes, referrer. This data is essential for detecting staged payload downloads, suspicious user agents, large outbound POST requests (exfil), and C2 traffic patterns.</p>
+
+          <ul>
+            <li><strong>Staged downloads:</strong> GET requests from processes that should not browse the web (regsvr32.exe, certutil.exe, bitsadmin.exe) to external hosts. URL often ends in .dat, .txt, .gif (disguised payload).</li>
+            <li><strong>Suspicious user agents:</strong> curl, python-requests, empty string, randomized or missing user agents indicate scripted access, not browser traffic.</li>
+            <li><strong>Exfil indicator:</strong> Large POST requests (megabytes) to external hosts not matching known SaaS destinations. Especially from servers that do not normally initiate outbound web traffic.</li>
+            <li><strong>HTTP C2 beaconing:</strong> Fixed-interval GET requests with small response sizes to the same URL. Jitter is common (small random variation in interval). Look at time deltas between consecutive requests from the same process to the same host.</li>
+          </ul>
+
+          <h3>NetFlow and IPFIX</h3>
+          <p>NetFlow captures connection metadata without payload: source IP, destination IP, source port, destination port, protocol, byte count, packet count, start time, end time. It does not require proxy deployment and covers all traffic, not just HTTP.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Log Source</th>
+                  <th>Best Hunt Use Case</th>
+                  <th>Minimum Retention</th>
+                  <th>Priority</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>DNS logs</td>
+                  <td>C2 domain resolution, DGA, DNS tunneling, low-prevalence domain access</td>
+                  <td>30 days</td>
+                  <td><span class="mono accent">Critical</span></td>
+                </tr>
+                <tr>
+                  <td>Web proxy logs</td>
+                  <td>Payload download, user agent anomalies, HTTP C2 beaconing, exfil via HTTP</td>
+                  <td>30 days</td>
+                  <td><span class="mono accent">Critical</span></td>
+                </tr>
+                <tr>
+                  <td>NetFlow / IPFIX</td>
+                  <td>East-west scanning, large data transfers, beaconing pattern analysis</td>
+                  <td>90 days</td>
+                  <td><span class="mono amber">High</span></td>
+                </tr>
+                <tr>
+                  <td>Full PCAP</td>
+                  <td>Targeted deep analysis of specific connection, payload extraction</td>
+                  <td>7 days (targeted)</td>
+                  <td>Medium (rarely available at scale)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> If you can enable one network log source today, enable DNS. The ratio of hunt value to implementation effort is better for DNS than any other network log type. DNS is lightweight, already traverses your DNS servers or resolvers, and covers C2 detection patterns that endpoint logs alone cannot surface.
+          </div>
+        </section>
+
+        <!-- SECTION 4 -->
+        <section class="content-section" id="identity-telemetry">
+          <h2>Identity and Authentication Telemetry</h2>
+          <p>Active Directory is the primary target in the vast majority of enterprise intrusions. Compromising AD means compromising everything it controls: access to file servers, databases, cloud workloads, remote management systems, and backup infrastructure. Identity telemetry is where the attack chain is most visible, yet it is consistently underutilized because the relevant event IDs require specific configuration and the volume is high.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Event ID</th>
+                  <th>Description</th>
+                  <th>Hunt Significance</th>
+                  <th>Key Fields</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="mono accent">4624 Type 3</span></td>
+                  <td>Network logon success</td>
+                  <td>Lateral movement: one host authenticating to another via network. Look for unusual source/destination pairs and unusual account types.</td>
+                  <td>SubjectUserName, WorkstationName, IpAddress, LogonType</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">4625</span></td>
+                  <td>Logon failure</td>
+                  <td>Password spray: many different accounts with a few failures each within a short window. Brute force: many failures on one account from one source.</td>
+                  <td>TargetUserName, IpAddress, FailureReason, SubStatus</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">4769 RC4</span></td>
+                  <td>Kerberos service ticket (TGS) requested</td>
+                  <td>Kerberoasting: attacker requests TGS with RC4 encryption (EncryptionType 0x17) for offline password cracking. Normal Kerberos uses AES.</td>
+                  <td>AccountName, ServiceName, TicketEncryptionType (0x17 = RC4), ClientAddress</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">4776</span></td>
+                  <td>NTLM credential validation</td>
+                  <td>Pass-the-hash: NTLM auth from an unusual source, especially where Kerberos should be used. Also visible in NTLM relay attacks.</td>
+                  <td>TargetName, Workstation, Status</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">4720 / 4722 / 4728</span></td>
+                  <td>Account created / enabled / added to security group</td>
+                  <td>Persistence via rogue account creation. An attacker who creates a new admin account has persistence that survives password resets of known accounts.</td>
+                  <td>SubjectUserName, SamAccountName, GroupName</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">4732</span></td>
+                  <td>Member added to security-enabled local group</td>
+                  <td>Privilege escalation indicator. Adding an account to Administrators or Remote Desktop Users is a common attacker action after initial compromise.</td>
+                  <td>MemberName, GroupName, SubjectUserName</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> Kerberoasting leaves no failed logon events. An attacker can request service tickets for every service account in the domain without producing a single 4625 (logon failure). If you rely only on failed login monitoring to detect credential attacks, you will miss Kerberoasting entirely. You need Event 4769 with EncryptionType 0x17 (RC4-HMAC) from your Domain Controllers. Confirm this event is being collected from ALL DCs: partial DC coverage creates blind spots where an attacker can route their requests through the uncovered DC.
+          </div>
+
+          <div class="code-block">
+            <span class="lang-label">KQL</span>
+            <button class="copy-btn" aria-label="Copy">copy</button>
+            <pre><code>// Hunt for Kerberoasting: multiple RC4-encrypted TGS requests (T1558.003)
+// Attacker requests service tickets with RC4 encryption type for offline cracking.
+// Legitimate Kerberos environments prefer AES (EncType 0x12 or 0x11).
+// RC4 (EncType 0x17) is a strong indicator of Kerberoasting activity.
+SecurityEvent
+| where EventID == 4769
+| where TicketOptions == "0x40810000"
+| where TicketEncryptionType == "0x17"      // RC4-HMAC: weak, chosen by attackers
+| where ServiceName !endswith "$"            // Exclude machine account service tickets
+| where AccountName !endswith "$"            // Exclude machine accounts as requestors
+| summarize
+    RequestCount = count(),
+    TargetAccounts = make_set(ServiceName, 20),
+    SourceHosts = make_set(IpAddress, 5)
+  by AccountName, bin(TimeGenerated, 30m)
+| where RequestCount >= 3
+| order by RequestCount desc</code></pre>
+          </div>
+
+          <p>Azure AD / Entra ID adds additional identity telemetry for hybrid and cloud environments:</p>
+          <ul>
+            <li><strong>Sign-in Logs:</strong> Risky sign-in flags (Microsoft's own risk engine), MFA status, conditional access result, location and IP. Essential for detecting impossible travel, token theft, and legacy protocol abuse.</li>
+            <li><strong>Audit Logs:</strong> Role assignment changes, group membership changes, conditional access policy modifications. An attacker who weakens a Conditional Access policy has changed your security posture without touching an endpoint.</li>
+            <li><strong>Identity Protection:</strong> Microsoft's ML-flagged risk events. Even if you do not block on risk, use these events as hunt seeds for the highest-risk accounts.</li>
+          </ul>
+        </section>
+
+        <!-- SECTION 5 -->
+        <section class="content-section" id="cloud-telemetry">
+          <h2>Cloud Telemetry</h2>
+          <p>Cloud fundamentally changes the threat model. There is no network perimeter. Every action is an API call. Resources appear and disappear in minutes. Adversaries who compromise cloud environments operate entirely differently from on-premises attackers: they do not pivot across endpoints, they pivot across IAM roles and service accounts.</p>
+
+          <h3>AWS CloudTrail</h3>
+          <p>CloudTrail logs every API call made in an AWS account: who made it, from where, at what time, and with what parameters. For a threat hunter, this is the equivalent of Sysmon for the cloud. Every action an attacker takes produces a CloudTrail event.</p>
+
+          <p>Key patterns to hunt for:</p>
+          <ul>
+            <li><strong>AssumeRole chains:</strong> One compromised role used to assume another, building toward a privileged role. Map the chain of AssumeRole events from a single external IP.</li>
+            <li><strong>IAM user creation + admin policy attachment:</strong> CreateUser followed by AttachUserPolicy with an admin ARN in the same short window. Classic persistence move.</li>
+            <li><strong>API calls from unusual regions:</strong> If your organization only operates in us-east-1 and eu-west-1, an API call from ap-southeast-2 warrants investigation.</li>
+            <li><strong>Mass S3 GetObject:</strong> Hundreds or thousands of GetObject calls in a short window from a single identity. Data exfiltration pattern.</li>
+          </ul>
+
+          <h3>Azure Activity Log and Entra ID</h3>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Log Source</th>
+                  <th>Key Hunt Patterns</th>
+                  <th>ATT&CK Technique</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Azure Activity Log</td>
+                  <td>PIM role activation at unusual hours, resource group deletions, VNet peering changes, VM snapshot exports</td>
+                  <td>T1078.004, T1562, T1537</td>
+                </tr>
+                <tr>
+                  <td>Entra ID Sign-in Logs</td>
+                  <td>MFA bypass via legacy protocol auth, impossible travel, Conditional Access policy failure patterns, token refresh without MFA</td>
+                  <td>T1078.004, T1556.006</td>
+                </tr>
+                <tr>
+                  <td>Entra ID Audit Logs</td>
+                  <td>Conditional Access policy weakening, new application permissions granted, privileged role assignment</td>
+                  <td>T1484.002, T1098.003</td>
+                </tr>
+                <tr>
+                  <td>Microsoft 365 Unified Audit Log</td>
+                  <td>Mail forwarding rules created, OAuth apps granted broad permissions, bulk email download, eDiscovery searches by non-legal users</td>
+                  <td>T1114.003, T1548.005, T1567</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Mail forwarding rules are among the highest-yield BEC (Business Email Compromise) indicators. An attacker who gains mailbox access creates a forwarding rule to an external address. Every email the victim receives is now silently copied to the attacker. This can persist for months. The ExchangeTransportConfig event in the M365 Audit Log captures rule creation. It should be monitored for any rule that forwards to an external domain.</p>
+
+          <div class="code-block">
+            <span class="lang-label">KQL</span>
+            <button class="copy-btn" aria-label="Copy">copy</button>
+            <pre><code>// Hunt for impossible travel in Microsoft 365 / Entra ID (T1078.004)
+// Successful logins from two geographically distant locations within
+// a timeframe that makes physical travel impossible (less than 2 hours).
+// This is a strong indicator of credential theft or session token reuse.
+SigninLogs
+| where ResultType == "0"           // Successful sign-in only
+| where UserType == "Member"        // Exclude guest accounts and service principals
+| summarize
+    SigninCount = count(),
+    Locations = make_set(Location, 10),
+    IPAddresses = make_set(IPAddress, 10),
+    FirstSeen = min(TimeGenerated),
+    LastSeen = max(TimeGenerated)
+  by UserPrincipalName, bin(TimeGenerated, 2h)
+| where array_length(Locations) > 1    // Multiple locations in 2-hour window
+| extend DurationMinutes = datetime_diff('minute', LastSeen, FirstSeen)
+| where DurationMinutes < 120          // Two locations within 120 minutes
+| project
+    TimeGenerated,
+    UserPrincipalName,
+    Locations,
+    IPAddresses,
+    SigninCount,
+    DurationMinutes
+| order by DurationMinutes asc</code></pre>
+          </div>
+
+          <div class="callout-info">
+            <strong>Note:</strong> False positive rate for impossible travel is higher than it appears. VPN endpoints, split-tunnel configurations, and Microsoft's location data (which is IP-based and can be wrong) all produce legitimate-looking impossible travel events. Tune by adding an allowlist for known VPN exit node IP ranges and verifying location data accuracy before escalating.
+          </div>
+        </section>
+
+        <!-- SECTION 6 -->
+        <section class="content-section" id="attck-data-sources">
+          <h2>MITRE ATT&CK Data Sources Mapping</h2>
+          <p>ATT&CK version 14 introduced a structured Data Sources taxonomy. Each technique now explicitly lists which Data Sources and Data Components are needed to detect it. This taxonomy is the bridge between "I want to hunt for T1003.001" and "which log source do I need?"</p>
+
+          <p>The hierarchy: Data Source contains Data Components. A Data Component represents a specific observable within a source. Each Data Component has a detection relationship with specific ATT&CK techniques.</p>
+
+          <div class="callout-example">
+            <strong>Example Mapping:</strong>
+            <p>Data Source: "Process" contains Data Component "Process Creation." Process Creation has a detection relationship with T1059.001 (PowerShell execution), T1047 (WMI execution), T1053.005 (Scheduled Task execution), and approximately 200 other techniques. Enabling Sysmon Event 1 (Process Create) or Windows Event 4688 gives you Process Creation telemetry, covering all those techniques simultaneously.</p>
+          </div>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Data Source</th>
+                  <th>Key Component</th>
+                  <th>ATT&CK Coverage (approx.)</th>
+                  <th>Implementation</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Process</td>
+                  <td>Process Creation</td>
+                  <td>~200 techniques</td>
+                  <td>Sysmon Event 1 or Event 4688 with CommandLine enabled</td>
+                </tr>
+                <tr>
+                  <td>Network Traffic</td>
+                  <td>Network Connection Creation</td>
+                  <td>~120 techniques</td>
+                  <td>Sysmon Event 3, NetFlow, EDR network telemetry</td>
+                </tr>
+                <tr>
+                  <td>File</td>
+                  <td>File Creation</td>
+                  <td>~100 techniques</td>
+                  <td>Sysmon Event 11, EDR file monitoring</td>
+                </tr>
+                <tr>
+                  <td>Windows Registry</td>
+                  <td>Registry Key Modification</td>
+                  <td>~80 techniques</td>
+                  <td>Sysmon Event 13, Windows Event 4657</td>
+                </tr>
+                <tr>
+                  <td>Command</td>
+                  <td>Command Execution</td>
+                  <td>~90 techniques</td>
+                  <td>Event 4688 CommandLine, Sysmon 1, PowerShell 4104</td>
+                </tr>
+                <tr>
+                  <td>Logon Session</td>
+                  <td>Logon Session Creation</td>
+                  <td>~60 techniques</td>
+                  <td>Windows Security Events 4624, 4648, 4768, 4769</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>The "big three" data sources cover approximately 60% of all ATT&CK techniques: Process Creation, Network Connection Creation, and DNS Query. These three are the non-negotiable minimum. An organization with reliable data flowing in all three can hunt the majority of the ATT&CK technique catalog.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> Use the ATT&CK Navigator to create a heat map of your data source coverage. Load your confirmed log sources and map them to ATT&CK data sources. The techniques with no coverage are your hunt blind spots and your security control gaps. Prioritize closing the ones that correspond to high-frequency techniques (PowerShell, WMI, Process Injection, Credential Dumping) first.
+          </div>
+
+          <h3>Gap Analysis Process</h3>
+          <ol>
+            <li>List every confirmed log source you collect and forward to your SIEM.</li>
+            <li>Map each log source to its ATT&CK Data Source and Data Component (reference the ATT&CK Data Sources page).</li>
+            <li>In ATT&CK Navigator, create a layer marking covered Data Components in cyan and uncovered ones unmarked.</li>
+            <li>The uncovered techniques are your gap list. Prioritize them by technique frequency (Red Canary top 10 from Chapter 2) and business impact.</li>
+            <li>For each gap, identify the log source needed and the implementation cost. Escalate as a security control deficiency.</li>
+          </ol>
+        </section>
+
+        <!-- SECTION 7 -->
+        <section class="content-section" id="data-quality">
+          <h2>Data Quality Assessment</h2>
+          <p>Collecting logs is necessary. Quality makes them huntable. A log source with critical fields missing or truncated provides false confidence: you believe you can detect a technique because you "have the logs," but the missing field means your query will never return a result even if the attacker is active.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Quality Failure</th>
+                  <th>Detection Impact</th>
+                  <th>Fix</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Event 4688 without CommandLine field</td>
+                  <td>You see a process was created, not what it did. Process-based hunting is blind.</td>
+                  <td>Enable via GPO: Audit Process Creation policy + "Include command line in process creation events"</td>
+                </tr>
+                <tr>
+                  <td>Sysmon deployed with outdated config missing Event 10</td>
+                  <td>Cannot detect LSASS reads. The most common credential theft method is invisible.</td>
+                  <td>Update Sysmon config to include ProcessAccess rules targeting lsass.exe</td>
+                </tr>
+                <tr>
+                  <td>DNS logs with truncated query names</td>
+                  <td>Long DGA or tunneling labels are cut off. Pattern detection fails silently.</td>
+                  <td>Review DNS server log configuration. Windows DNS debug log defaults to 255-char limit, confirm it is not lower.</td>
+                </tr>
+                <tr>
+                  <td>Proxy logs without user agent or response size</td>
+                  <td>Cannot detect scripted downloads, suspicious user agents, or large exfil via HTTP POST.</td>
+                  <td>Review proxy log format. Ensure extended W3C format fields are enabled: cs(User-Agent), sc-bytes, cs-bytes.</td>
+                </tr>
+                <tr>
+                  <td>Kerberos events enabled on some DCs but not all</td>
+                  <td>Attacker routes Kerberoasting requests through an uncovered DC. No events generated.</td>
+                  <td>Confirm 4768/4769 audit policy is consistent across ALL Domain Controllers.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Data quality checklist to run before scheduling any hunt:</p>
+
+          <div class="code-block">
+            <span class="lang-label">CHECKLIST</span>
+            <button class="copy-btn" aria-label="Copy">copy</button>
+            <pre><code>TELEMETRY QUALITY CHECKLIST
+Run before scheduling any hunt sprint.
+
+Endpoint - Windows:
+[ ] Event 4688 includes full CommandLine field on target hosts?
+    Test: query recent 4688 events and check CommandLine is populated.
+[ ] Sysmon Event 1 includes ParentCommandLine field?
+[ ] Sysmon Event 10 (ProcessAccess) enabled with lsass.exe rules?
+    Test: confirm recent events for EventID 10 targeting lsass.exe exist.
+[ ] PowerShell Script Block Logging (Event 4104) enabled via GPO?
+    Test: run a test PowerShell command, verify 4104 event appears in SIEM.
+[ ] Sysmon Event 22 (DNS Query) deployed on endpoint set?
+
+Network:
+[ ] DNS events include full query name (not truncated beyond 45 chars)?
+[ ] Proxy logs include full URL, User-Agent, and response bytes?
+[ ] Kerberos events (4768, 4769) collected from ALL Domain Controllers?
+    Verify count of DCs forwarding events matches total DC count.
+
+Identity / Cloud:
+[ ] Azure AD Sign-in logs flowing to SIEM (if hybrid/cloud)?
+[ ] M365 Unified Audit Log enabled and forwarding?
+[ ] CloudTrail logs covering all regions and accounts (if AWS)?
+
+Retention:
+[ ] Log retention minimum 30 days in SIEM for all sources?
+[ ] High-value sources (Security events, Sysmon) retained 90 days?
+
+Quality Validation:
+[ ] Run quality test query (see below) on 4688 CommandLine coverage.
+[ ] Spot-check 5 random Sysmon Event 1 records: all fields populated?</code></pre>
+          </div>
+
+          <p>A KQL query to validate that Event 4688 is actually including the CommandLine field across your endpoints:</p>
+
+          <div class="code-block">
+            <span class="lang-label">KQL</span>
+            <button class="copy-btn" aria-label="Copy">copy</button>
+            <pre><code>// Validate Event 4688 CommandLine field coverage per host
+// If CoveragePct is 0: "Include command line in process creation events" GPO
+// setting is not enabled on that host.
+// If CoveragePct is low (under 90%): partial GPO application or mixed configs.
+SecurityEvent
+| where EventID == 4688
+| where TimeGenerated > ago(1h)
+| summarize
+    TotalEvents = count(),
+    WithCommandLine = countif(isnotempty(CommandLine)),
+    WithoutCommandLine = countif(isempty(CommandLine))
+  by Computer
+| extend CoveragePct = round(100.0 * WithCommandLine / TotalEvents, 1)
+| where CoveragePct < 90   // Flag any host below 90% CommandLine coverage
+| order by CoveragePct asc
+// Output: hosts with incomplete CommandLine auditing.
+// Remediation: apply GPO to the OU containing these computers.</code></pre>
+          </div>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> Run quality checks before scheduling hunts, not after. A broken log source is worse than no log source: it gives you false confidence in your detection coverage. Zero results from a hunt may mean "no threat found" or "the data was never there." Only a pre-hunt quality check tells you which it is.
+          </div>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> Do not treat data quality as a one-time project. Log pipeline changes, EDR agent updates, Sysmon config drift, and GPO inheritance breaks all silently degrade data quality over time. Schedule a monthly quality sweep using the checklist above. Assign it to a specific analyst and track results in your hunt backlog.
+          </div>
+        </section>
+
+        <!-- SUMMARY -->
+        <div class="chapter-summary">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>Three gap types affect hunt capability: collection (logs not forwarded), retention (logs deleted too soon), and quality (logs forwarded with missing fields). All three must be audited before scheduling hunts.</li>
+            <li>Sysmon Event 10 (ProcessAccess) is the primary data source for LSASS credential theft detection. Without it, the most common credential dumping method is invisible in your telemetry.</li>
+            <li>Kerberoasting (T1558.003) produces Event 4769 with TicketEncryptionType 0x17 (RC4-HMAC). This is the only reliable indicator. Failed login monitoring (4625) will not surface Kerberoasting at all.</li>
+            <li>DNS logs are the highest return-on-investment network telemetry for hunting. DNS tunneling detection requires measuring query label length. DGA detection requires entropy analysis. Both require the full query name field to be present.</li>
+            <li>The three non-negotiable data sources (Process Creation, Network Connection Creation, DNS Query) cover approximately 60% of all ATT&CK techniques. These are the floor for any hunt program.</li>
+            <li>Event 4688 without the CommandLine field enabled is nearly useless for execution hunting. Verify this GPO setting is applied across all endpoints before planning any process-based hunt.</li>
+            <li>Use the ATT&CK Navigator to map your data sources to technique coverage. Uncovered techniques are security control gaps, not just hunt gaps. Escalate them accordingly.</li>
+          </ul>
+        </div>
+
+        <!-- KNOWLEDGE CHECK -->
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-q-text"><strong>Q1.</strong> Which Sysmon event ID is the primary source for detecting LSASS credential theft attempts?</p>
+            <ul class="kc-options">
+              <li class="kc-option" data-correct="false">A. Sysmon Event 1 (Process Create)</li>
+              <li class="kc-option" data-correct="false">B. Sysmon Event 3 (Network Connection)</li>
+              <li class="kc-option" data-correct="true">C. Sysmon Event 10 (Process Access)</li>
+              <li class="kc-option" data-correct="false">D. Sysmon Event 22 (DNS Query)</li>
+            </ul>
+            <div class="kc-answer hidden">C is correct. Sysmon Event 10 (ProcessAccess) logs when one process opens another process with specific access rights. Credential dumping tools access lsass.exe with high-privilege GrantedAccess flags (0x1FFFFF = PROCESS_ALL_ACCESS, 0x1010 = PROCESS_VM_READ + PROCESS_QUERY_INFORMATION). Event 10 targeting lsass.exe from a non-system process is the primary signal for tools like Mimikatz, comsvcs.dll MiniDump, and Procdump targeting lsass. Sysmon 1 (A) captures process creation but not memory access. Sysmon 3 (B) captures network connections. Sysmon 22 (D) captures DNS queries.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-q-text"><strong>Q2.</strong> What TicketEncryptionType value in Event 4769 indicates potential Kerberoasting activity?</p>
+            <ul class="kc-options">
+              <li class="kc-option" data-correct="false">A. 0x11 (AES128-CTS-HMAC-SHA1)</li>
+              <li class="kc-option" data-correct="false">B. 0x12 (AES256-CTS-HMAC-SHA1)</li>
+              <li class="kc-option" data-correct="true">C. 0x17 (RC4-HMAC)</li>
+              <li class="kc-option" data-correct="false">D. 0x18 (RC4-HMAC-EXP)</li>
+            </ul>
+            <div class="kc-answer hidden">C is correct. RC4-HMAC (EncryptionType 0x17) is the weak encryption type that Kerberoasting attackers deliberately request for service tickets. RC4-encrypted tickets can be cracked offline faster than AES-encrypted tickets. In a healthy modern environment, Kerberos service tickets should use AES (0x11 or 0x12). Multiple 4769 events with EncryptionType 0x17 for service accounts from the same source host in a short window is the Kerberoasting signature. AES types (0x11, 0x12) are expected in modern environments. RC4-EXP (0x18) is even weaker but less commonly used by attackers in practice.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-q-text"><strong>Q3.</strong> What characteristic of DNS queries is the primary indicator of DNS tunneling exfiltration?</p>
+            <ul class="kc-options">
+              <li class="kc-option" data-correct="false">A. High-frequency queries to well-known domains like google.com</li>
+              <li class="kc-option" data-correct="false">B. NXDOMAIN (non-existent domain) responses in high volume</li>
+              <li class="kc-option" data-correct="true">C. Abnormally long subdomain labels (over 45-50 characters) encoding data</li>
+              <li class="kc-option" data-correct="false">D. DNS queries using UDP port 53 instead of TCP</li>
+            </ul>
+            <div class="kc-answer hidden">C is correct. DNS tunneling encodes data in the subdomain portion of queries. Tools like iodine, dnscat2, and DNSExfiltrator convert data to Base32 or Base64 and embed it in subdomain labels. Normal DNS labels are typically under 30 characters. Labels exceeding 45-50 characters are unusual in legitimate traffic and strongly suggest encoding. Combined with high query frequency to a single parent domain, this is the DNS tunneling signature. High-frequency queries to known-good domains (A) is normal CDN or streaming behavior. NXDOMAIN volume (B) suggests DGA, not tunneling. UDP/TCP choice (D) is normal protocol behavior with no security significance by itself.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-q-text"><strong>Q4.</strong> Which three data sources combined provide approximately 60% coverage of MITRE ATT&CK techniques?</p>
+            <ul class="kc-options">
+              <li class="kc-option" data-correct="false">A. Windows Security Events, PowerShell Logs, and Proxy Logs</li>
+              <li class="kc-option" data-correct="false">B. NetFlow, Full PCAP, and Web Application Firewall Logs</li>
+              <li class="kc-option" data-correct="true">C. Process Creation, Network Connection Creation, and DNS Query</li>
+              <li class="kc-option" data-correct="false">D. Registry Modification, File Creation, and Logon Session Creation</li>
+            </ul>
+            <div class="kc-answer hidden">C is correct. ATT&CK's data source mapping shows that Process Creation covers approximately 200 techniques, Network Connection Creation covers approximately 120, and DNS Query covers a significant additional set. Together these three non-overlapping data source components cover approximately 60% of the entire ATT&CK technique catalog. Option A is a valid set but more limited in total coverage. Option B covers network but misses endpoint execution and identity. Option D covers important techniques but misses the execution and network categories that dominate attacker activity.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-q-text"><strong>Q5.</strong> Event 4688 is collected from all endpoints, but hunt queries for encoded PowerShell return zero results. What is the most likely cause?</p>
+            <ul class="kc-options">
+              <li class="kc-option" data-correct="false">A. PowerShell has been removed from those endpoints by the security team</li>
+              <li class="kc-option" data-correct="false">B. The ATT&CK technique T1059.001 does not appear in Event 4688</li>
+              <li class="kc-option" data-correct="true">C. The GPO setting "Include command line in process creation events" is not enabled, so the CommandLine field is empty</li>
+              <li class="kc-option" data-correct="false">D. Encoded PowerShell commands are encrypted and cannot appear in logs</li>
+            </ul>
+            <div class="kc-answer hidden">C is correct. Event 4688 captures that powershell.exe was created, but the CommandLine field (which contains the -enc flag and encoded payload) is only populated when the GPO setting "Include command line in process creation events" is explicitly enabled. Without it, CommandLine is empty or null in every 4688 event. Queries searching for -enc in CommandLine return nothing. This is the most common data quality failure in process-based hunting. PowerShell removal (A) would eliminate the process events entirely. T1059.001 does appear in 4688 (B). Encoded commands are Base64, not encrypted, and are visible in plaintext once decoded in the CommandLine field (D).</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="03-frameworks.html" class="chapter-nav-prev">← Frameworks</a>
+          <a href="05-execution.html" class="chapter-nav-next">Hunt Execution →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('04', 7));</script>
+</body>
+</html>

