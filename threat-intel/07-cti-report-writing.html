@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="07">
+  <meta name="module-id" content="threat-intel">
+  <title>CTI Report Writing · Threat Intelligence · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">CTI REPORT WRITING</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">Threat Intel</a>
+        <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
+        <a href="../lolbas/index.html" class="nav-link">LOLBAS</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Threat Intel</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 07 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 5 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 07</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-advanced">ADVANCED</span>
+          </div>
+          <h1 class="chapter-title">CTI Report Writing</h1>
+          <p class="chapter-intro">Most threat intelligence analysis never becomes finished intelligence because analysts do not know how to write for their audience. A technically rigorous analysis delivered in the wrong format to the wrong reader is wasted work. This chapter covers how to structure CTI products for the audiences that consume them, how to apply confidence language that is precise without being evasive, and how to measure whether your reports are actually being used.</p>
+          <div class="chapter-tags">
+            <span class="tag">intelligence products</span>
+            <span class="tag">BLUF</span>
+            <span class="tag">PIRs and RFIs</span>
+            <span class="tag">executive vs technical</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="intelligence-products">
+          <h2>Intelligence Products</h2>
+          <p>An intelligence product is a finished deliverable that communicates analyzed intelligence to a specific consumer for a specific purpose. Different consumers need different product types. A product that works for a SOC analyst will not work for a CISO, and a product designed for a CISO will not give an IR team what they need to act. Matching product type to consumer is the first decision in any CTI production workflow.</p>
+
+          <p>Tactical bulletins are short, time-sensitive products covering active threats. A tactical bulletin might cover a newly observed phishing campaign: the lure type, the delivery mechanism, the payload family, and what to block or hunt for. Format is short: one to two pages, bullet-heavy, with an IOC appendix. Audience is SOC analysts and incident responders who need to act immediately. A tactical bulletin that takes longer than five minutes to act on has failed its format requirement.</p>
+
+          <p>Strategic assessments are longer-form products covering trends, actor landscape changes, or sector-level risk. They operate on quarterly or annual time horizons and are written for senior leadership. A strategic assessment might analyze how ransomware targeting patterns in the healthcare sector changed over 18 months and what that means for organizational risk posture going into the next year. Format is narrative with supporting data, clear key judgments at the front, and an executive summary that contains the conclusions rather than deferring to the body of the report.</p>
+
+          <p>Campaign reports cover a specific observed adversary campaign: who, what, when, and how. They include actor attribution (with confidence level), technique timeline, TTPs, IOCs, and defensive recommendations. Campaign reports bridge tactical and operational intelligence: they give analysts enough technical detail to act while giving management enough context to understand scope and impact. Format follows a consistent template: executive summary, actor assessment, campaign timeline, technical analysis, IOCs and YARA, and recommended mitigations.</p>
+
+          <p>Flash reports are the most urgent product type: one-paragraph notifications that something significant has happened, with enough information to enable immediate action and a commitment to follow-up detail. A flash report might cover a zero-day disclosure affecting a widely deployed product in your environment, a credible nation-state targeting alert from a government source, or an emerging ransomware campaign observed in your sector within the last 24 hours. Speed is the primary value here; depth comes in the follow-on report.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Product Type</th><th>Time Horizon</th><th>Primary Audience</th><th>Length</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Flash report</td><td>Hours</td><td>SOC, IR, management</td><td>One paragraph</td></tr>
+                <tr><td>Tactical bulletin</td><td>Days</td><td>SOC analysts, IR teams</td><td>1-2 pages + IOC appendix</td></tr>
+                <tr><td>Campaign report</td><td>Weeks</td><td>SOC, IR, security managers</td><td>5-10 pages</td></tr>
+                <tr><td>Strategic assessment</td><td>Months to years</td><td>CISO, executives, board</td><td>10-20 pages</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="pirs-rfis">
+          <h2>PIRs, RFIs, and Stakeholder Alignment</h2>
+          <p>Every intelligence product should trace to a requirement. Products that do not trace to a requirement are analytical exercises without guaranteed consumers. Before writing anything, identify: which PIR or SIR does this address? Who will receive it? What decision does it support? Answering these questions before writing ensures the product has a purpose and shapes every subsequent decision about what to include, what to omit, and how to structure the output.</p>
+
+          <p>Stakeholder alignment is the process of ensuring your intelligence products match what consumers actually need. The gap between what analysts think is important and what consumers need to act is one of the most common CTI program failure modes. An analyst who spent three weeks deeply analyzing a complex APT campaign may be surprised when the CISO asks for "just one sentence that tells me if we need to change our security posture." That sentence is not a failure of the CISO to appreciate complexity; it is a failure of the analyst to understand what their consumer needs.</p>
+
+          <p>Regular touchpoints with intelligence consumers prevent this misalignment from accumulating. A quarterly review of PIRs with the CISO and security team leadership ensures the requirements driving CTI production reflect current organizational priorities. A monthly debrief with SOC team leads ensures tactical products are providing value at the analyst level. Feedback from these sessions should directly update PIRs and product templates.</p>
+
+          <p>RFIs (Requests for Information) require a different workflow than PIR-driven production. An RFI arrives with urgency: an IR team on an active case, a manager responding to a board question, a compliance team preparing for a regulatory submission. Triage the RFI immediately: can it be answered from existing collection, or does it require new research? Set an expectation with the requester: "I can give you a preliminary response in 2 hours with what we know now, and a full analysis in 24 hours." Then deliver on that timeline. Late RFI responses are worse than no response because they created an expectation that was not met.</p>
+        </section>
+
+        <section class="content-section" id="bluf-writing">
+          <h2>BLUF and Structured Intelligence Writing</h2>
+          <p>BLUF (Bottom Line Up Front) is the most important structural principle in intelligence writing. In BLUF structure, the most important conclusion comes first, followed by the supporting analysis. This is the opposite of how most people learn to write academically, where you build to your conclusion at the end. Intelligence consumers do not have time to read to the end before deciding whether the report is relevant to them. If the conclusion is buried on page 5, most readers will not reach it.</p>
+
+          <p>A well-structured campaign report leads with a BLUF box: two to four sentences that state the actor, the campaign objective, the current threat level to the organization, and the most important recommended action. After the BLUF comes the executive summary (for reports longer than two pages): a narrative paragraph that expands on the BLUF with key supporting facts. The body of the report contains the full analysis. Appendices contain raw IOCs, YARA rules, and technical details that analysts need but that would interrupt the narrative for a management reader.</p>
+
+          <p>Key judgments are precise statements of assessed fact, clearly distinguished from speculative interpretation. A key judgment reads: "We assess with moderate confidence that this activity is attributable to APT29 based on toolset similarities, infrastructure overlap with previously attributed campaigns, and targeting pattern consistency with known APT29 collection objectives." That sentence contains: the assessment (attributable to APT29), the confidence level (moderate), the basis (three specific evidence types), and the reasoning (targeting consistency). Every element is explicit. No element is hidden in passive voice or buried in a subordinate clause.</p>
+
+          <p>Confidence language should be precise and consistent. The intelligence community uses a standardized vocabulary: "almost certainly" (90%+), "likely" (55-75%), "roughly even chance" (45-55%), "unlikely" (25-45%), "remote" (less than 10%). Using these terms consistently throughout your organization's CTI products means that readers can calibrate their response to the level of certainty expressed. An analyst who uses "likely" to mean 60% and "probably" to mean the same thing has introduced ambiguity that a reader cannot resolve without asking follow-up questions.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> Hedging language used to avoid commitment is different from confidence language used to express calibrated uncertainty. "It is possible that" and "one could argue that" are hedges: they avoid making any claim at all. "We assess with low confidence that" is a calibrated uncertainty expression: it makes a specific claim and states the confidence level in that claim. CTI products that hedge instead of expressing calibrated confidence are not providing intelligence; they are providing analysis that the consumer cannot act on.
+          </div>
+        </section>
+
+        <section class="content-section" id="executive-vs-technical">
+          <h2>Executive vs Technical Reports</h2>
+          <p>The same intelligence event should produce different products for different audiences. An IR manager needs the technical IOC list and behavioral indicators to direct the investigation. The CISO needs the business impact, the attribution confidence, and the recommended organizational response. A board member needs one paragraph on the nature of the threat and one paragraph on what is being done about it. None of these audiences reads the same document effectively.</p>
+
+          <p>Writing for executives requires the following adaptations. Eliminate technical jargon: "the actor used T1059.001 PowerShell IEX cradle to load a reflective DLL" becomes "the attacker used legitimate Windows scripting tools to execute malicious code in memory, bypassing traditional file-based detection." Quantify impact wherever possible: "five systems compromised" is more useful than "moderate intrusion scope." Lead with relevance: "This campaign is targeting companies with annual revenue above $500M in the US financial sector — we match both criteria" tells the CISO immediately why this matters to them.</p>
+
+          <p>Writing for technical audiences requires the opposite adaptations. Precision over simplicity: use ATT&CK technique IDs, specific tool names, exact command line patterns, and precise log source references. Include everything the analyst needs to search for the behavior: the exact SIEM query or its components, the specific Event IDs to check, the exact file paths and registry keys to examine. Do not summarize; include the raw data in appendices so analysts can work from primary sources rather than a filtered abstraction.</p>
+
+          <p>A practical structure for large campaign reports accommodates both audiences: executive summary (1 page, BLUF, business impact, recommended action), technical analysis (body of the report, full detail for technical audience), IOC appendix (CSV-formatted indicators ready for SIEM import), and detection appendix (Sigma rules, YARA rules, KQL queries). An executive reads the first page and skips to the conclusion. A SOC analyst skips the first page and goes directly to the appendices. Both get what they need from one document.</p>
+        </section>
+
+        <section class="content-section" id="dissemination-metrics">
+          <h2>Dissemination and Metrics</h2>
+          <p>A report is only intelligence if it reaches and is used by its intended consumer. Dissemination is the delivery step: the right format, through the right channel, to the right person, at the right time. Each variable matters. A technically correct report sent to an email distribution list that no one reads is not disseminated intelligence. A flash report delivered via Slack with a clear action item is.</p>
+
+          <p>Channel selection depends on urgency and audience. Automated SIEM integration (STIX/TAXII ingestion) is the fastest channel for technical IOCs. Slack or Teams for time-sensitive analyst alerts. Formal report delivery via email or a shared intelligence portal for campaign reports and strategic assessments. Verbal briefing for executive-level strategic intelligence, often more effective than a written document for an audience that reads email selectively.</p>
+
+          <p>Timing is a critical dimension. Intelligence delivered after the decision window has closed is worthless. A campaign report about an intrusion technique delivered after the actor has already been evicted from the environment is interesting but does not improve the organization's position. Building feedback loops with consumers helps calibrate timing: "When does the SOC shift change, so I can deliver tactical reports before the new shift starts?" "When is the CISO's monthly security review, so strategic assessments arrive with enough time for preparation?"</p>
+
+          <p>Measuring report quality requires consumer feedback, not just delivery confirmation. Metrics that matter include: Was the intelligence acted on? Did it change a decision? Did it produce a detection or a hunt that found something? Did it support an executive talking point that prevented a board escalation? These outcomes are harder to measure than delivery metrics but are the only ones that demonstrate CTI program value. Build a simple feedback mechanism into every report: a one-question form, a Slack reaction, a follow-up conversation. Track the answers. Use them to improve the next product.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> The single most efficient feedback mechanism is to walk an IR lead or SOC team lead through a tactical bulletin once and ask: "If you received this alone at 2am with no context, what would you do first?" The answer tells you immediately whether the BLUF is clear, whether the recommended actions are specific enough, and whether the IOC format is usable in your SIEM. This test takes 20 minutes and produces more useful feedback than any formal survey process.
+          </div>
+        </section>
+
+        <div class="chapter-summary">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>Intelligence products must match the consumer: flash reports (hours, everyone), tactical bulletins (days, SOC/IR), campaign reports (weeks, technical teams), strategic assessments (months, executives/CISO).</li>
+            <li>Every product should trace to a PIR or RFI. Products without a mapped requirement have no guaranteed consumer and waste analytical resources.</li>
+            <li>BLUF structure: conclusion first, support second. Key judgments are precise, stated with explicit confidence levels, with reasoning visible to the reader.</li>
+            <li>Confidence language should be consistent and calibrated: "almost certainly," "likely," "roughly even chance," "unlikely," "remote." Hedging is not uncertainty expression — it avoids making any claim at all.</li>
+            <li>Executive reports eliminate jargon, quantify impact, lead with relevance. Technical reports use precise ATT&CK language, exact log sources, and raw indicator appendices. Both can live in the same document with clear structure.</li>
+            <li>Dissemination metrics that matter are outcomes: was it acted on, did it change a decision, did it produce a detection? Delivery confirmation is not a quality metric.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">You write a campaign report where the first two pages are methodology and data sources, and the conclusion appears on page 8. What is the primary problem with this structure?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. The report is too long for most consumers</button>
+              <button class="kc-option" data-correct="true">B. It violates BLUF structure: consumers who stop reading before page 8 will not receive the key intelligence</button>
+              <button class="kc-option" data-correct="false">C. Methodology should never be included in intelligence reports</button>
+              <button class="kc-option" data-correct="false">D. Data sources should be in an appendix, not the body</button>
+            </div>
+            <div class="kc-answer">BLUF requires the conclusion to come first. An executive or senior analyst who has 30 seconds to decide whether this report is relevant to them cannot reach a conclusion on page 8. If the most important finding is that this campaign is actively targeting your organization right now, that sentence belongs in paragraph one, not at the end of a methodological explanation. Readers who stop reading early (which most do) should still receive the key intelligence. The methodology and supporting analysis follow the conclusion for readers who need to understand the basis for the assessment.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A CTI analyst writes: "It is possible that this activity could potentially be associated with a nation-state actor." What is wrong with this statement?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Nation-state attribution should never appear in written reports</button>
+              <button class="kc-option" data-correct="false">B. "Could potentially" is grammatically redundant</button>
+              <button class="kc-option" data-correct="true">C. This is a hedge, not a calibrated assessment — it makes no actionable claim and cannot inform any decision</button>
+              <button class="kc-option" data-correct="false">D. It should include a specific nation-state name to be useful</button>
+            </div>
+            <div class="kc-answer">"It is possible that this could potentially be" expresses near-zero information. It is consistent with any level of confidence from 1% to 99%. A calibrated intelligence assessment would say something like: "We assess with low confidence that this activity is consistent with nation-state tradecraft based on the level of operational security and the absence of financially motivated behavior in the observed actions." That statement makes a specific claim, states the confidence level, and provides the basis. A reader can decide whether to act on it. No reader can decide anything from a phrase that could mean anything.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A CISO asks what your CTI team's impact was last quarter. The most useful metric to provide is:</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. The number of IOCs ingested into the SIEM</button>
+              <button class="kc-option" data-correct="false">B. The number of reports produced</button>
+              <button class="kc-option" data-correct="true">C. The number of detections produced from CTI-derived queries, incidents where TI contributed to scope or triage, and executive briefings that informed security investment decisions</button>
+              <button class="kc-option" data-correct="false">D. The volume of threat feed data processed</button>
+            </div>
+            <div class="kc-answer">Output metrics (IOC count, report count, data volume) measure activity, not impact. A CISO asking about impact wants to know whether the CTI program improved security outcomes. Detections produced from CTI queries, incidents where intelligence contributed to faster scope determination or better triage decisions, and executive decisions informed by CTI assessments are outcome metrics. They demonstrate that the CTI function changed what happened, not just that it produced things.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="06-malware-campaign-intel.html" class="chapter-nav-prev">← Malware and Campaign Intel</a>
+          <a href="08-detection-from-intel.html" class="chapter-nav-next">Detection from Intelligence →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('07', 5));</script>
+  <div id="h3gc" style="position:fixed;bottom:16px;right:16px;display:flex;align-items:center;gap:6px;background:rgba(8,10,18,.9);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.45);z-index:9500;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);pointer-events:none;">
+    <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3.5" stroke="rgba(74,222,128,.7)" stroke-width="1"/><circle cx="4" cy="4" r="1.5" fill="rgba(74,222,128,.8)"/></svg>
+    <span id="h3gc-n" style="color:rgba(74,222,128,.9);font-weight:600">—</span>
+    <span style="opacity:.5">VISITORS</span>
+  </div>
+  <!-- h3gc-v3 -->
+  <script>
+    (function(){
+      var key = (location.pathname.split('/').join('') || 'hub').toLowerCase();
+      var base = 'https://api.counterapi.dev/v1/h3ad-sec/' + key;
+      var lk = 'h3gc_c_' + key; var sk = 'h3gc_s_' + key;
+      var el = document.getElementById('h3gc-n');
+      function store(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+      function session(k){try{return sessionStorage.getItem(k);}catch(e){return null;}}
+      function sessionSet(k,v){try{sessionStorage.setItem(k,v);}catch(e){}}
+      try{ var cached=localStorage.getItem(lk); if(el&&cached) el.textContent=Number(cached).toLocaleString(); }catch(e){}
+      var seen = session(sk); if (!seen) sessionSet(sk,'1');
+      fetch(seen ? base + '/' : base + '/up').then(function(r){ if(!r.ok) throw r; return r.json(); }).then(function(d){ if(d.count!=null){ store(lk,d.count); if(el) el.textContent=Number(d.count).toLocaleString(); } }).catch(function(){});
+      var gsk = 'h3gc_s_total'; if (!session(gsk)) { sessionSet(gsk,'1'); fetch('https://api.counterapi.dev/v1/h3ad-sec/total/up').catch(function(){}); }
+    })();
+  </script>
+</body>
+</html>

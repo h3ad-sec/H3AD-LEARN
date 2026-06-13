@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="02">
+  <meta name="module-id" content="threat-intel">
+  <title>IOC Types and Confidence · Threat Intelligence · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">IOC TYPES AND CONFIDENCE</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">Threat Intel</a>
+        <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
+        <a href="../lolbas/index.html" class="nav-link">LOLBAS</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Threat Intel</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 02 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 02</span>
+            <span class="badge-time muted mono">35 MIN READ</span>
+            <span class="badge-diff badge-beginner">BEGINNER</span>
+          </div>
+          <h1 class="chapter-title">IOC Types and Confidence</h1>
+          <p class="chapter-intro">Not all indicators of compromise are equally useful, equally durable, or equally actionable. A file hash changes the moment an attacker recompiles. An IP address gets rotated in minutes. A behavioral TTP can persist across an entire campaign spanning years. Understanding the difference between these indicator types, and how to score confidence in them, determines whether a CTI feed improves or degrades analyst decision-making.</p>
+          <div class="chapter-tags">
+            <span class="tag">IOC types</span>
+            <span class="tag">Pyramid of Pain</span>
+            <span class="tag">confidence scoring</span>
+            <span class="tag">IOC lifecycle</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="ioc-taxonomy">
+          <h2>IOC Taxonomy</h2>
+          <p>An indicator of compromise is a forensic artifact or observable that suggests a system may have been compromised or that adversary activity is present. The word "may" is intentional. Indicators are probabilistic, not deterministic. A malicious IP appearing in a firewall log does not confirm a breach. It confirms that something in your environment communicated with an address associated with adversary infrastructure at some point. What you do with that depends on the confidence level, the context, and what other signals are present.</p>
+
+          <p>Network indicators include IP addresses, domain names, and URLs. An IP address identifies a server that was used in a campaign. A domain name is one step more durable than an IP because the attacker can point a domain at new IPs without changing the domain itself. A URL is the most specific: a particular path on a particular host. Network indicators are highly shareable, easy to automate into blocklists, and fast to decay. An actor who notices their infrastructure is being burned will rotate it quickly.</p>
+
+          <p>Host indicators include file hashes, file names, registry keys, mutex names, and file paths. File hashes (MD5, SHA-1, SHA-256) are the most common host indicator. They are deterministic for a specific file: the same file always produces the same hash. This is also their weakness. Recompiling a binary with a minor change produces a completely different hash. Attackers who know their malware is burned recompile and redeploy. SHA-256 is preferred over MD5 for hash verification due to MD5's collision vulnerabilities, though neither solves the trivial recompilation problem.</p>
+
+          <p>Email indicators cover sender addresses, subject line patterns, attachment names, and email header fields. They are commonly extracted from phishing campaigns and are useful for blocking delivery of follow-on waves after an initial attack. Like IP addresses, email sender domains rotate quickly as actors burn through infrastructure.</p>
+
+          <p>Behavioral indicators describe how an attacker operates rather than what artifacts they leave. A behavioral indicator might be: "actor executes PowerShell with base64-encoded content, immediately followed by a process injection into svchost.exe, followed by LDAP reconnaissance against the domain controller." No specific hash, no specific IP, no specific domain. The behavior is the indicator. These are the most durable indicators because they describe what an actor must do to accomplish their objective, not the particular tools they use to do it.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Indicator Type</th><th>Examples</th><th>Decay Rate</th><th>Blocking Ease</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>IP Address</td><td>185.220.101.45</td><td>Hours to days</td><td>Easy (firewall/SIEM)</td></tr>
+                <tr><td>Domain</td><td>update-service-cdn.com</td><td>Days to weeks</td><td>Easy (DNS block)</td></tr>
+                <tr><td>URL</td><td>/wp-content/uploads/payload.php</td><td>Hours to days</td><td>Medium (proxy)</td></tr>
+                <tr><td>File Hash</td><td>SHA-256 of malware binary</td><td>Hours (recompile)</td><td>Easy (EDR/AV)</td></tr>
+                <tr><td>Behavioral TTP</td><td>PowerShell + process injection + LDAP recon chain</td><td>Months to years</td><td>Hard (requires behavioral detection)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="pyramid-of-pain">
+          <h2>The Pyramid of Pain</h2>
+          <p>David Bianco's Pyramid of Pain is the most useful single framework for understanding indicator value in threat intelligence. It organizes indicators by the cost they impose on an adversary when defenders detect and respond to them. The pyramid has six levels. The bottom levels are easy to detect but easy for the attacker to change. The top levels are hard to detect but almost impossible for the attacker to change without fundamentally altering how they operate.</p>
+
+          <p>Hash values sit at the base. Detecting and blocking a specific file hash is easy. But changing a hash costs an attacker almost nothing: recompile with a minor modification, pad the binary, swap a string, and the hash changes completely. Every antivirus vendor knows this. Hash-based detection is reactive: by the time you have the hash, the sample has already executed somewhere. Hashes still have value as confirmation and forensic evidence, but as a predictive or proactive detection mechanism, they are the weakest indicator type.</p>
+
+          <p>IP addresses are one level up. Blocking an IP causes mild disruption for an attacker, who must pay for a new server or rotate to a different bulletproof hosting provider. With automation, this can happen in under an hour. IP blocking is still worthwhile for known-bad ranges, but treating IP blocklists as a primary defense is an illusion. Sophisticated actors maintain large pools of rotating infrastructure specifically to defeat IP-based blocking.</p>
+
+          <p>Domain names impose somewhat more cost. Registering a new domain, setting up DNS, and deploying it takes longer than rotating an IP. Some actors use DGA (domain generation algorithms) to produce large numbers of fallback domains, but even then, the specific algorithmic patterns can become signatures. Domain indicators are more durable than IPs but still decay within days to weeks for active campaigns.</p>
+
+          <p>Network artifacts such as specific HTTP headers, User-Agent strings, URI patterns, and SSL certificate fingerprints start to impose real pain. These are harder to change because they are often baked into implant behavior. An attacker who changes their Cobalt Strike team server configuration, beacon profile, and SSL certificate all at once while an active campaign is running introduces operational risk. The Pyramid starts to bite here.</p>
+
+          <p>Tools cause significant pain. If defenders can identify and detect the specific malware family, RAT, or post-exploitation framework an actor uses, the actor must switch tools. Developing or acquiring a new tool is expensive and time-consuming. YARA rules that detect an actor's custom implant, or behavioral signatures that identify Cobalt Strike beaconing patterns regardless of configuration, impose this cost.</p>
+
+          <p>TTPs, at the apex, are the most valuable detections. An attacker's TTPs describe their fundamental operational behavior. To change TTPs, an actor must retrain, redevelop, and potentially rebuild their entire intrusion methodology. Detections anchored at TTP level are almost immune to infrastructure rotation, toolset changes, or recompilation. A detection that fires whenever PowerShell encodes a base64 payload and spawns a child process that injects into a system binary will catch the actor whether they are using Cobalt Strike, Metasploit, or a custom implant.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> When evaluating a CTI feed, check where the bulk of the indicators sit on the Pyramid. A feed that is 95% IP addresses and file hashes is providing low-pain, fast-decaying data. A feed that includes behavioral TTP descriptions, YARA rules, and Sigma detection logic for actor techniques is providing high-pain, durable intelligence. Price the feed accordingly, and do not confuse volume with value.
+          </div>
+        </section>
+
+        <section class="content-section" id="confidence-scoring">
+          <h2>IOC Confidence Scoring</h2>
+          <p>Confidence scoring answers: how certain are we that this indicator is genuinely associated with adversary activity, and how certain are we that it is still relevant? Without confidence scores, every indicator in a blocklist gets treated identically, which means a high-fidelity TTP-level detection and a low-confidence IP from a single source with no corroboration both block traffic or fire alerts with equal authority. That is not a workable operating model at scale.</p>
+
+          <p>Source quality is the first factor. An IP address extracted from a vetted government ISAC report with documented campaign attribution carries different weight than the same IP from a public pastebin scrape. Source categories, from most to least reliable, generally run: direct victim telemetry (you observed it in your own environment), trusted sharing partner with documented methodology, commercial intelligence provider with disclosed collection practices, open-source research from reputable vendors, and unvetted public feeds. Weight accordingly.</p>
+
+          <p>Corroboration is the second factor. An indicator seen in a single report is low confidence. The same indicator appearing in three independent reports from different vendors using different collection methods is high confidence. Independence is critical: if three vendors are all citing the same original source, that is one data point, not three. True corroboration requires independent collection paths reaching the same conclusion.</p>
+
+          <p>Recency determines whether an indicator is still operationally relevant. An IP address from a campaign six months ago may have been decommissioned, taken over by a sinkhole, or repurposed by an unrelated actor. A domain registration that expired and was re-registered is no longer the actor's. Age decay should be factored into any confidence score: technical indicators depreciate quickly, behavioral TTPs depreciate slowly.</p>
+
+          <p>Context specificity affects confidence in a different direction: does this indicator apply to your environment? An IP address associated with attacks on Japanese financial institutions is a lower-confidence signal for a North American healthcare provider than the same IP associated with attacks on healthcare targets globally. Sector relevance, geographic relevance, and organizational size relevance all affect whether a given indicator should trigger defensive action in your specific context.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> The MISP confidence scale uses a 0-100 numeric range. STIX 2.1 uses a "confidence" property from 0-100 on any object. The Admiralty System (covered in the Threat Hunting module) uses a two-dimensional scale: source reliability (A-F) and information credibility (1-6). Whichever system you use, the key requirement is consistency: apply the same scoring criteria to every indicator so comparisons are meaningful.
+          </div>
+        </section>
+
+        <section class="content-section" id="ioc-lifecycle">
+          <h2>IOC Lifecycle</h2>
+          <p>An indicator of compromise does not remain valid indefinitely. It has a lifecycle that begins at collection and ends when the indicator is retired as no longer reliable or relevant. Managing this lifecycle is one of the least glamorous and most important parts of CTI operations. A blocklist full of stale indicators wastes analyst time on false alerts and creates a false sense of coverage.</p>
+
+          <p>Collection is the first stage. The indicator is observed or received from a source and logged with its provenance: where it came from, when it was collected, and what context accompanied it. Provenance is essential because it determines the indicator's starting confidence and enables reassessment if the source is later found to be unreliable.</p>
+
+          <p>Validation confirms the indicator is not already known as benign. IP addresses must be cross-checked against CDN ranges, known benign scanning services (Shodan, Censys scan ranges), and your organization's own infrastructure. Domains must be checked against newly registered domain feeds, DGA dictionaries, and parking services. A surprising fraction of "malicious" indicators in public feeds are shared scanning infrastructure, CDN exit nodes, or research honeypots.</p>
+
+          <p>Enrichment adds context: geolocation, ASN and hosting provider, registration date, passive DNS history, associated malware families, and ATT&CK technique mappings where available. Enriched indicators are significantly more actionable than bare IOCs. A bare IP address tells an analyst nothing. An IP address with ASN attribution to a known bulletproof hosting provider, associated with three known malware families, first observed in a specific campaign, tells an analyst a great deal.</p>
+
+          <p>Deployment moves the indicator into defensive use: SIEM watchlist, firewall blocklist, EDR deny list, or proxy block. The deployment tier should match confidence level. High-confidence indicators with strong corroboration can go directly to blocking. Low-confidence indicators should go to alerting-only so analysts can review before action is taken.</p>
+
+          <p>Review and retirement are where most CTI programs fail. Indicators should be reviewed on a schedule tied to their type: technical indicators (IPs, hashes) should be reviewed within 30 days. Domain indicators within 90 days. Behavioral indicators can persist longer but should still be reviewed annually for continued relevance. Indicators that fail review should be retired, not left in place to accumulate false positives indefinitely.</p>
+        </section>
+
+        <section class="content-section" id="indicator-context">
+          <h2>Indicator Context</h2>
+          <p>A bare indicator without context is an obstacle, not an asset. When an analyst receives an alert that an internal host communicated with a flagged IP, the useful question is not "is this IP bad" but "what does this IP tell us about what happened and who did it." Answering that question requires context that goes well beyond the indicator itself.</p>
+
+          <p>Kill chain position is one of the most important context elements. Does this indicator appear in initial access (phishing delivery IP), command and control (beacon endpoint), or exfiltration (destination of outbound data transfer)? The kill chain position tells the analyst what phase of the attack they are observing and what is likely to have come before and after. A C2 indicator means dwell time has already occurred. An exfiltration indicator means data has likely already left.</p>
+
+          <p>Actor attribution gives the indicator meaning beyond the specific campaign. If an IP address is associated with a known APT group, the analyst can immediately apply existing knowledge about that actor's TTPs, typical targets, and usual post-exploitation behavior. Attribution is probabilistic, but even low-confidence attribution to a category (financially motivated actor vs nation-state) changes the response priority and scope.</p>
+
+          <p>Related indicators extend the value of any single IOC through pivoting. A domain leads to its IP. That IP leads to other domains sharing the same infrastructure. Those domains lead to certificate fingerprints. Certificate fingerprints lead to additional IPs. A single IOC with good enrichment can open a pivot chain that maps a significant portion of an actor's infrastructure. Chapter 5 covers this pivot workflow in detail in the context of intel-driven hunting.</p>
+
+          <p>False positive risk is context that often gets neglected. An IP on an APNIC range in a region associated with threat activity is not the same as an IP that appears in multiple vendor reports with direct evidence of malicious use. Blocklisting a shared hosting IP because it appeared once in a low-fidelity feed is how teams get an angry call from a business partner whose legitimate web presence just went dark. Context includes knowing the limitations and false positive profiles of your sources.</p>
+        </section>
+
+        <section class="content-section" id="ioc-quality">
+          <h2>IOC Quality vs Quantity</h2>
+          <p>The most common indicator program failure is optimizing for quantity. Teams subscribe to more feeds, ingest more indicators, build bigger blocklists, and measure success by the number of IOCs in the database. At a certain scale this approach produces nothing but alert fatigue, and alert fatigue produces the same outcome as no detection at all: analysts stop investigating.</p>
+
+          <p>Feed fatigue is real and well-documented. A SOC that receives 50,000 threat feed hits per day and closes 80% without investigation because they are known false positives has not built a CTI-enhanced detection capability. It has built a noise machine. The time spent handling low-fidelity feed hits is time not spent investigating higher-priority signals. The opportunity cost is significant.</p>
+
+          <p>Curation is the solution. A curated set of 500 high-confidence, context-enriched, recently validated indicators will outperform a firehose of 500,000 bare IOCs every time. Curation requires human judgment: reviewing sources, applying confidence scoring, validating against environment, and retiring stale indicators. It is more work than subscribing to a feed and ingesting everything, but it produces a system analysts trust and use rather than one they suppress.</p>
+
+          <p>Feed evaluation should be a regular practice. Measure the true positive rate of each feed: how many hits from this feed resulted in confirmed malicious activity versus false positives? Feeds with consistently poor TP rates should be deprioritized or eliminated. Feeds that consistently surface high-confidence, well-contextualized indicators should get more attention and integration.</p>
+
+          <p>Internal telemetry often outperforms external feeds for detection. IOCs observed directly in your own environment, extracted from endpoint forensics or network captures during incident response, carry the highest possible confidence because you have direct evidence of malicious use in your specific context. Building a program to capture, enrich, and operationalize internal indicators is usually more valuable than adding another external feed subscription.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> Automated IOC ingestion without validation is a meaningful security risk. Feeds can be poisoned: an attacker who knows your organization ingests a specific public feed can plant false indicators pointing at legitimate services, causing you to block resources your organization depends on. This is a demonstrated attack technique. Any IOC that would cause significant disruption if blocked should go through human validation before deployment, regardless of the source's reputation.
+          </div>
+        </section>
+
+        <div class="chapter-summary">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>IOC types range from network (IP, domain, URL) to host (hash, registry key, mutex) to behavioral (TTP-level patterns). Each has different durability and different blocking difficulty.</li>
+            <li>The Pyramid of Pain maps indicator types to the cost imposed on an adversary when defenders act on them. Hash and IP indicators impose minimal cost. TTP-level detections impose maximum cost.</li>
+            <li>Confidence scoring should factor in source quality, corroboration from independent sources, recency, and relevance to your specific environment and sector.</li>
+            <li>Every IOC has a lifecycle: collection, validation, enrichment, deployment, review, and retirement. Stale indicators in blocklists generate false positives and erode analyst trust.</li>
+            <li>Context transforms a bare indicator into intelligence: kill chain position, actor attribution, related indicators via pivoting, and false positive risk profiles.</li>
+            <li>Optimize for IOC quality over quantity. A curated, validated, context-enriched indicator set outperforms a large unfiltered firehose every time.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">An actor recompiles their malware with a minor string change. Which defense does this defeat?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="true">A. Hash-based blocking in EDR/AV</button>
+              <button class="kc-option" data-correct="false">B. Behavioral detection of PowerShell process injection</button>
+              <button class="kc-option" data-correct="false">C. YARA rules targeting structural malware characteristics</button>
+              <button class="kc-option" data-correct="false">D. ATT&CK TTP-based Sigma detection rules</button>
+            </div>
+            <div class="kc-answer">Recompiling a binary changes its hash immediately, defeating any blocking or detection rule that relies on the specific hash value. Behavioral detections, structural YARA rules (that target code patterns, not the binary's hash), and TTP-level Sigma rules all operate on what the malware does rather than what it is, and survive recompilation. This is exactly the Pyramid of Pain dynamic: hash-level detections impose almost no cost on an attacker.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">You receive the same IP address from three different threat intelligence feeds. What must you verify before treating this as high-confidence corroboration?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. That the IP resolves to an active domain</button>
+              <button class="kc-option" data-correct="true">B. That the three feeds collected this indicator independently, not from the same upstream source</button>
+              <button class="kc-option" data-correct="false">C. That the IP appears in more than 100 feeds total</button>
+              <button class="kc-option" data-correct="false">D. That the IP is in a country associated with threat activity</button>
+            </div>
+            <div class="kc-answer">True corroboration requires independent collection paths. If three commercial feeds are all citing the same government advisory or the same original blog post, that is one data point appearing three times, not three independent confirmations. Before treating multiple-feed agreement as corroboration, check whether the feeds disclose their collection methodology and whether the timestamps suggest they could have collected independently rather than republishing the same upstream source.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Your SOC receives 10,000 threat feed hits per day. Analysts investigate 20% and close the rest as presumed false positives without review. What is the primary problem?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. The SIEM is not properly tuned for the feeds</button>
+              <button class="kc-option" data-correct="false">B. The SOC needs more analysts to handle the volume</button>
+              <button class="kc-option" data-correct="true">C. The feed quality is too low, producing alert fatigue that defeats the detection capability</button>
+              <button class="kc-option" data-correct="false">D. The threat feeds need to be refreshed more frequently</button>
+            </div>
+            <div class="kc-answer">When analysts routinely close alerts without investigation because they expect false positives, the detection system has effectively failed. Adding analysts delays the collapse but does not fix it. The root cause is low-quality, uncurated indicators generating excessive noise. The correct response is to audit feed true positive rates, retire low-quality feeds, curate the remaining indicators with validation and enrichment, and build analyst trust back by demonstrating that alerts are worth investigating.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="01-cti-foundations.html" class="chapter-nav-prev">← CTI Foundations</a>
+          <a href="03-threat-actor-profiling.html" class="chapter-nav-next">Threat Actor Profiling →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('02', 6));</script>
+  <div id="h3gc" style="position:fixed;bottom:16px;right:16px;display:flex;align-items:center;gap:6px;background:rgba(8,10,18,.9);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.45);z-index:9500;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);pointer-events:none;">
+    <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3.5" stroke="rgba(74,222,128,.7)" stroke-width="1"/><circle cx="4" cy="4" r="1.5" fill="rgba(74,222,128,.8)"/></svg>
+    <span id="h3gc-n" style="color:rgba(74,222,128,.9);font-weight:600">—</span>
+    <span style="opacity:.5">VISITORS</span>
+  </div>
+  <!-- h3gc-v3 -->
+  <script>
+    (function(){
+      var key = (location.pathname.split('/').join('') || 'hub').toLowerCase();
+      var base = 'https://api.counterapi.dev/v1/h3ad-sec/' + key;
+      var lk = 'h3gc_c_' + key; var sk = 'h3gc_s_' + key;
+      var el = document.getElementById('h3gc-n');
+      function store(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+      function session(k){try{return sessionStorage.getItem(k);}catch(e){return null;}}
+      function sessionSet(k,v){try{sessionStorage.setItem(k,v);}catch(e){}}
+      try{ var cached=localStorage.getItem(lk); if(el&&cached) el.textContent=Number(cached).toLocaleString(); }catch(e){}
+      var seen = session(sk); if (!seen) sessionSet(sk,'1');
+      fetch(seen ? base + '/' : base + '/up').then(function(r){ if(!r.ok) throw r; return r.json(); }).then(function(d){ if(d.count!=null){ store(lk,d.count); if(el) el.textContent=Number(d.count).toLocaleString(); } }).catch(function(){});
+      var gsk = 'h3gc_s_total'; if (!session(gsk)) { sessionSet(gsk,'1'); fetch('https://api.counterapi.dev/v1/h3ad-sec/total/up').catch(function(){}); }
+    })();
+  </script>
+</body>
+</html>

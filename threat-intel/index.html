@@ -3,15 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>H3AD-LEARN — LOLBAS · Living Off the Land</title>
-  <meta name="description" content="Eight-chapter LOLBAS curriculum. LOLBin taxonomy, attacker tradecraft, detection strategy, KQL/Sigma queries, threat actor campaigns, and advanced evasion defense." />
+  <title>H3AD-LEARN — Threat Intelligence · CTI Operations</title>
+  <meta name="description" content="Eight-chapter Threat Intelligence curriculum. CTI lifecycle, IOC confidence scoring, threat actor profiling, STIX/TAXII, intel-driven hunting, CTI report writing, and detection from intelligence." />
   <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/style.css" />
   <style>
-    /* Module-index page styles */
     .module-hero { padding: 3.5rem 0 2.5rem; }
     .module-hero-inner { display: flex; flex-direction: column; gap: 1.25rem; }
     .back-link { display: inline-flex; align-items: center; gap: 0.4rem; font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; color: var(--muted); text-decoration: none; transition: color 0.2s; }
@@ -31,7 +30,6 @@
     .module-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
     .module-tag { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--secondary); background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.15); border-radius: 3px; padding: 0.2em 0.55em; }
 
-    /* Chapter grid */
     .chapters-section { padding: 3rem 0; }
     .chapters-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
     @media (max-width: 768px) { .chapters-grid { grid-template-columns: 1fr; } }
@@ -58,7 +56,6 @@
     .chapter-arrow { font-size: 1rem; color: var(--accent); opacity: 0; transition: opacity 0.2s; }
     .chapter-card:hover .chapter-arrow { opacity: 1; }
 
-    /* Prerequisites */
     .prereq-section { padding: 3rem 0; background: var(--panel-alt); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
     .prereq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
     @media (max-width: 768px) { .prereq-grid { grid-template-columns: 1fr; } }
@@ -72,7 +69,6 @@
 </head>
 <body>
 
-  <!-- HEADER -->
   <header class="site-header">
     <div class="header-inner">
       <div class="header-left">
@@ -83,13 +79,13 @@
         <div class="nav-pill">
           <span class="nav-pill-name">H3AD-LEARN</span>
           <span class="nav-pill-sep">//</span>
-          <span class="nav-pill-tagline">LIVING OFF THE LAND</span>
+          <span class="nav-pill-tagline">THREAT INTELLIGENCE</span>
         </div>
       </div>
       <nav class="header-nav" aria-label="Primary navigation">
         <a href="../index.html" class="nav-link">Hub</a>
         <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
-        <a href="../threat-intel/index.html" class="nav-link">Threat Intel</a>
+        <a href="../lolbas/index.html" class="nav-link">LOLBAS</a>
       </nav>
       <div class="header-actions">
         <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme" title="Toggle theme">
@@ -100,23 +96,21 @@
     </div>
   </header>
 
-  <!-- BREADCRUMB -->
   <div class="container" style="padding-top: 1.25rem; padding-bottom: 0;">
     <nav aria-label="Breadcrumb" style="font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; color: var(--muted); display: flex; align-items: center; gap: 0.5rem;">
       <a href="../index.html" style="color: var(--muted); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">Home</a>
       <span aria-hidden="true">&#8250;</span>
-      <span style="color: var(--text);">LOLBAS</span>
+      <span style="color: var(--text);">Threat Intelligence</span>
     </nav>
   </div>
 
-  <!-- MODULE HERO -->
   <section class="module-hero">
     <div class="container">
       <div class="module-hero-inner">
         <a href="../index.html" class="back-link">All Modules</a>
-        <span class="module-badge">LOLBAS</span>
-        <h1 class="module-hero-title">Living Off the Land &middot; Complete Guide</h1>
-        <p class="module-hero-desc">Eight chapters on LOLBin taxonomy, attacker tradecraft, detection strategy, KQL/Sigma queries, threat actor campaigns, and advanced evasion defense. Built for detection engineers and threat hunters who need to go beyond signatures.</p>
+        <span class="module-badge">THREAT INTELLIGENCE</span>
+        <h1 class="module-hero-title">Threat Intelligence &middot; Complete Guide</h1>
+        <p class="module-hero-desc">Eight chapters on the full CTI lifecycle: IOC types and confidence scoring, threat actor profiling using the Diamond Model, STIX/TAXII sharing infrastructure, intel-driven hunt methodology, campaign intelligence, and converting finished intelligence into detection rules. Built for SOC analysts, threat hunters, and detection engineers who need to move beyond raw IOC feeds.</p>
 
         <div class="module-stats-strip">
           <div class="module-stat">
@@ -124,11 +118,11 @@
             <span class="module-stat-label">CHAPTERS</span>
           </div>
           <div class="module-stat">
-            <span class="module-stat-value">~10 HRS</span>
+            <span class="module-stat-value">~11 HRS</span>
             <span class="module-stat-label">CONTENT</span>
           </div>
           <div class="module-stat">
-            <span class="module-stat-value">INTERMEDIATE to ADVANCED</span>
+            <span class="module-stat-value">BEGINNER to ADVANCED</span>
             <span class="module-stat-label">SKILL RANGE</span>
           </div>
           <div class="module-stat">
@@ -140,28 +134,27 @@
         <div class="module-progress-wrap">
           <div class="module-progress-meta">
             <span>MODULE PROGRESS</span>
-            <span id="lolbas-progress-label">0 / 8 chapters complete</span>
+            <span id="threat-intel-progress-label">0 / 8 chapters complete</span>
           </div>
           <div class="module-progress-bar-outer">
-            <div class="module-progress-bar-inner" id="lolbas-progress-bar"></div>
+            <div class="module-progress-bar-inner" id="threat-intel-progress-bar"></div>
           </div>
         </div>
 
         <div class="module-tags">
-          <span class="module-tag">LOLBins</span>
-          <span class="module-tag">T1218</span>
-          <span class="module-tag">LOTL</span>
-          <span class="module-tag">certutil</span>
-          <span class="module-tag">PowerShell</span>
-          <span class="module-tag">KQL</span>
-          <span class="module-tag">Sigma</span>
-          <span class="module-tag">behavioral detection</span>
+          <span class="module-tag">CTI lifecycle</span>
+          <span class="module-tag">IOC confidence</span>
+          <span class="module-tag">Diamond Model</span>
+          <span class="module-tag">STIX 2.1</span>
+          <span class="module-tag">TAXII</span>
+          <span class="module-tag">MISP</span>
+          <span class="module-tag">Pyramid of Pain</span>
+          <span class="module-tag">intel-driven hunting</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- CHAPTER GRID -->
   <section class="chapters-section" aria-labelledby="chapters-heading">
     <div class="container">
       <div class="section-header" style="margin-bottom: 2rem;">
@@ -170,8 +163,7 @@
       </div>
       <div class="chapters-grid" id="chaptersGrid">
 
-        <!-- CHAPTER 01 -->
-        <a class="chapter-card" href="./01-lol-fundamentals.html" aria-label="Chapter 1: LOL Fundamentals">
+        <a class="chapter-card" href="./01-cti-foundations.html" aria-label="Chapter 1: CTI Foundations">
           <div class="chapter-card-top">
             <span class="chapter-num">01</span>
             <div class="chapter-badges">
@@ -179,12 +171,12 @@
               <span class="chapter-time">30 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">LOL Fundamentals</h3>
-          <p class="chapter-desc">What LOLBins are, why they exist, and why signature-based detection fails against them. The LOLBAS Project taxonomy and T1218 subtechnique structure.</p>
+          <h3 class="chapter-title">CTI Foundations</h3>
+          <p class="chapter-desc">What threat intelligence is, what it is not, and why the distinction matters. The intelligence cycle, types of intelligence, and who consumes each type.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">taxonomy</span>
-            <span class="chapter-tag">T1218</span>
-            <span class="chapter-tag">LOLBAS</span>
+            <span class="chapter-tag">intel cycle</span>
+            <span class="chapter-tag">TLP</span>
+            <span class="chapter-tag">PIRs</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="01">
@@ -195,21 +187,20 @@
           </div>
         </a>
 
-        <!-- CHAPTER 02 -->
-        <a class="chapter-card" href="./02-lolbin-catalog.html" aria-label="Chapter 2: LOLBin Catalog">
+        <a class="chapter-card" href="./02-ioc-types-confidence.html" aria-label="Chapter 2: IOC Types and Confidence">
           <div class="chapter-card-top">
             <span class="chapter-num">02</span>
             <div class="chapter-badges">
-              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
-              <span class="chapter-time">40 min</span>
+              <span class="chapter-diff-beginner">BEGINNER</span>
+              <span class="chapter-time">35 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">LOLBin Catalog</h3>
-          <p class="chapter-desc">Deep reference for certutil, mshta, regsvr32, rundll32, PowerShell, wmic, bitsadmin, and installutil. Abuse patterns, CommandLine indicators, and detection notes per binary.</p>
+          <h3 class="chapter-title">IOC Types and Confidence</h3>
+          <p class="chapter-desc">IP addresses, domains, hashes, URLs, and behavioral indicators. The Pyramid of Pain, IOC lifecycle, confidence scoring, and managing indicator quality over quantity.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">certutil</span>
-            <span class="chapter-tag">mshta</span>
-            <span class="chapter-tag">regsvr32</span>
+            <span class="chapter-tag">Pyramid of Pain</span>
+            <span class="chapter-tag">IOC lifecycle</span>
+            <span class="chapter-tag">confidence scoring</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="02">
@@ -220,21 +211,20 @@
           </div>
         </a>
 
-        <!-- CHAPTER 03 -->
-        <a class="chapter-card" href="./03-lolscripts-net.html" aria-label="Chapter 3: LOLScripts, LOLLibs, and LOLDrivers">
+        <a class="chapter-card" href="./03-threat-actor-profiling.html" aria-label="Chapter 3: Threat Actor Profiling">
           <div class="chapter-card-top">
             <span class="chapter-num">03</span>
             <div class="chapter-badges">
               <span class="chapter-diff-intermediate">INTERMEDIATE</span>
-              <span class="chapter-time">30 min</span>
+              <span class="chapter-time">35 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">LOLScripts, LOLLibs, and LOLDrivers</h3>
-          <p class="chapter-desc">Beyond executables: how attackers abuse built-in scripts, .NET libraries, and vulnerable kernel drivers. BYOVD attacks and the LOLDrivers catalog.</p>
+          <h3 class="chapter-title">Threat Actor Profiling</h3>
+          <p class="chapter-desc">Actor naming conventions across vendors, motivation and intent taxonomies, the Diamond Model, and using TTPs as actor fingerprints that survive infrastructure changes.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">LOLScripts</span>
-            <span class="chapter-tag">LOLDrivers</span>
-            <span class="chapter-tag">BYOVD</span>
+            <span class="chapter-tag">Diamond Model</span>
+            <span class="chapter-tag">APT naming</span>
+            <span class="chapter-tag">attribution</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="03">
@@ -245,21 +235,20 @@
           </div>
         </a>
 
-        <!-- CHAPTER 04 -->
-        <a class="chapter-card" href="./04-attacker-tradecraft.html" aria-label="Chapter 4: Attacker Tradecraft">
+        <a class="chapter-card" href="./04-stix-taxii-sharing.html" aria-label="Chapter 4: STIX, TAXII and Sharing">
           <div class="chapter-card-top">
             <span class="chapter-num">04</span>
             <div class="chapter-badges">
               <span class="chapter-diff-intermediate">INTERMEDIATE</span>
-              <span class="chapter-time">35 min</span>
+              <span class="chapter-time">30 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">Attacker Tradecraft</h3>
-          <p class="chapter-desc">Download cradles, execution proxies, persistence mechanisms, lateral movement, and defense evasion patterns. How LOLBins chain together across an intrusion lifecycle.</p>
+          <h3 class="chapter-title">STIX, TAXII and Sharing</h3>
+          <p class="chapter-desc">STIX 2.1 object types and relationships, TAXII protocol mechanics, MISP and OpenCTI, ISAC membership, and sharing etiquette in trust communities.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">download cradle</span>
-            <span class="chapter-tag">lateral movement</span>
-            <span class="chapter-tag">PPID spoofing</span>
+            <span class="chapter-tag">STIX 2.1</span>
+            <span class="chapter-tag">TAXII</span>
+            <span class="chapter-tag">MISP</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="04">
@@ -270,21 +259,20 @@
           </div>
         </a>
 
-        <!-- CHAPTER 05 -->
-        <a class="chapter-card" href="./05-detection-strategy.html" aria-label="Chapter 5: Detection Strategy">
+        <a class="chapter-card" href="./05-intel-driven-hunting.html" aria-label="Chapter 5: Intel-Driven Hunting">
           <div class="chapter-card-top">
             <span class="chapter-num">05</span>
             <div class="chapter-badges">
               <span class="chapter-diff-intermediate">INTERMEDIATE</span>
-              <span class="chapter-time">35 min</span>
+              <span class="chapter-time">40 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">Detection Strategy</h3>
-          <p class="chapter-desc">Why behavioral detection beats signature detection for LOLBins. Parent-child process analysis, CommandLine baselining, network-side indicators, and alert triage methodology.</p>
+          <h3 class="chapter-title">Intel-Driven Hunting</h3>
+          <p class="chapter-desc">Reading CTI reports for huntable content, building pivot chains from IOCs to actor infrastructure, enrichment workflows, and converting TTP descriptions to search queries.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">behavioral</span>
-            <span class="chapter-tag">parent-child</span>
-            <span class="chapter-tag">baselining</span>
+            <span class="chapter-tag">pivot chains</span>
+            <span class="chapter-tag">enrichment</span>
+            <span class="chapter-tag">KQL from TI</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="05">
@@ -295,21 +283,20 @@
           </div>
         </a>
 
-        <!-- CHAPTER 06 -->
-        <a class="chapter-card" href="./06-detection-queries.html" aria-label="Chapter 6: Detection Queries">
+        <a class="chapter-card" href="./06-malware-campaign-intel.html" aria-label="Chapter 6: Malware and Campaign Intelligence">
           <div class="chapter-card-top">
             <span class="chapter-num">06</span>
             <div class="chapter-badges">
               <span class="chapter-diff-intermediate">INTERMEDIATE</span>
-              <span class="chapter-time">40 min</span>
+              <span class="chapter-time">35 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">Detection Queries</h3>
-          <p class="chapter-desc">Production KQL, SPL, and Sigma rules for certutil, mshta, regsvr32, PowerShell IEX, wmic, bitsadmin, and more. Tuning guidance and false positive management per query.</p>
+          <h3 class="chapter-title">Malware and Campaign Intelligence</h3>
+          <p class="chapter-desc">Malware family classification, sandbox report interpretation, campaign clustering, code overlap attribution, YARA rule basics, and consuming malware intelligence feeds.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">KQL</span>
-            <span class="chapter-tag">SPL</span>
-            <span class="chapter-tag">Sigma</span>
+            <span class="chapter-tag">sandbox reports</span>
+            <span class="chapter-tag">YARA</span>
+            <span class="chapter-tag">campaign tracking</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="06">
@@ -320,21 +307,20 @@
           </div>
         </a>
 
-        <!-- CHAPTER 07 -->
-        <a class="chapter-card" href="./07-threat-actor-usage.html" aria-label="Chapter 7: Threat Actor Campaigns">
+        <a class="chapter-card" href="./07-cti-report-writing.html" aria-label="Chapter 7: CTI Report Writing">
           <div class="chapter-card-top">
             <span class="chapter-num">07</span>
             <div class="chapter-badges">
               <span class="chapter-diff-advanced">ADVANCED</span>
-              <span class="chapter-time">35 min</span>
+              <span class="chapter-time">30 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">Threat Actor Campaigns</h3>
-          <p class="chapter-desc">How APT32, APT34, Lazarus, BlackMatter, LockBit, and Conti use LOLBins. Cobalt Strike stager delivery methods. Attribution signals and translating CTI into hunt hypotheses.</p>
+          <h3 class="chapter-title">CTI Report Writing</h3>
+          <p class="chapter-desc">Tactical bulletins vs strategic assessments, PIRs and RFIs, BLUF structured writing, executive vs technical reports, dissemination, and measuring report quality.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">APT</span>
-            <span class="chapter-tag">ransomware</span>
-            <span class="chapter-tag">Cobalt Strike</span>
+            <span class="chapter-tag">BLUF</span>
+            <span class="chapter-tag">PIRs</span>
+            <span class="chapter-tag">finished intel</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="07">
@@ -345,8 +331,7 @@
           </div>
         </a>
 
-        <!-- CHAPTER 08 -->
-        <a class="chapter-card" href="./08-advanced-evasion.html" aria-label="Chapter 8: Advanced Evasion and Defense">
+        <a class="chapter-card" href="./08-detection-from-intel.html" aria-label="Chapter 8: Detection from Intelligence">
           <div class="chapter-card-top">
             <span class="chapter-num">08</span>
             <div class="chapter-badges">
@@ -354,12 +339,12 @@
               <span class="chapter-time">40 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">Advanced Evasion and Defense</h3>
-          <p class="chapter-desc">AMSI bypass detection, AppLocker/WDAC limitations, EDR evasion via LOLBins, hardening controls, Atomic Red Team validation, and threat-informed defense prioritization.</p>
+          <h3 class="chapter-title">Detection from Intelligence</h3>
+          <p class="chapter-desc">The TI-to-detection pipeline, ATT&CK Navigator coverage mapping, Sigma rule writing from actor TTPs, KQL from IOC reports, detection tuning with intel context, and closing the feedback loop.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">AMSI</span>
-            <span class="chapter-tag">WDAC</span>
-            <span class="chapter-tag">Atomic Red Team</span>
+            <span class="chapter-tag">Sigma</span>
+            <span class="chapter-tag">ATT&CK Navigator</span>
+            <span class="chapter-tag">coverage mapping</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="08">
@@ -370,11 +355,10 @@
           </div>
         </a>
 
-      </div><!-- /chapters-grid -->
+      </div>
     </div>
   </section>
 
-  <!-- PREREQUISITES -->
   <section class="prereq-section" aria-labelledby="prereq-heading">
     <div class="container">
       <div class="section-header" style="margin-bottom: 2rem;">
@@ -386,22 +370,22 @@
         <div class="prereq-card">
           <p class="prereq-card-title">WHAT YOU SHOULD KNOW</p>
           <ul class="prereq-list">
-            <li>Windows OS fundamentals: processes, registry, file system, and signed binary concepts</li>
-            <li>Basic SIEM or query language exposure (KQL, SPL, or similar)</li>
-            <li>Familiarity with MITRE ATT&amp;CK technique structure and T-numbers</li>
-            <li>General understanding of how endpoint security and AV products work</li>
+            <li>Basic understanding of how SOC alert triage works: what a ticket looks like, what an analyst does with it</li>
+            <li>Familiarity with common IOC types: IP addresses, domains, file hashes, URLs</li>
+            <li>General awareness of MITRE ATT&amp;CK: what techniques and tactics are, how T-numbers work</li>
+            <li>Some exposure to SIEM queries (KQL, SPL, or similar) helps for Chapter 5 onward</li>
           </ul>
         </div>
 
         <div class="prereq-card is-outcomes">
           <p class="prereq-card-title">WHAT YOU WILL KNOW AFTER</p>
           <ul class="prereq-list">
-            <li>The full LOLBin taxonomy: LOLBins, LOLScripts, LOLLibs, and LOLDrivers</li>
-            <li>How to write behavioral KQL, SPL, and Sigma rules for T1218 subtechniques</li>
-            <li>How APT and ransomware operators use LOLBins across the intrusion lifecycle</li>
-            <li>How to translate CTI reports into hunt hypotheses using actor LOLBin patterns</li>
-            <li>Which hardening controls actually reduce LOTL attack surface and which do not</li>
-            <li>How to validate detection coverage using Atomic Red Team and track coverage gaps</li>
+            <li>How to run a full intelligence cycle from collection through dissemination and feedback</li>
+            <li>How to score IOC confidence and decide which indicators are worth acting on</li>
+            <li>How to build a threat actor profile using the Diamond Model and ATT&amp;CK Groups</li>
+            <li>How STIX 2.1 and TAXII work, and how to consume and share intelligence via MISP</li>
+            <li>How to take a finished CTI report and produce hunt hypotheses and detection queries from it</li>
+            <li>How to write intelligence products for both technical and executive audiences</li>
           </ul>
         </div>
 
@@ -409,7 +393,6 @@
     </div>
   </section>
 
-  <!-- RECOMMENDED TOOLS -->
   <section class="resources-section" aria-labelledby="tools-heading">
     <div class="container">
       <div class="section-header">
@@ -419,24 +402,13 @@
       </div>
       <div class="resources-grid">
 
-        <a class="resource-card" href="https://h3ad-sec.github.io/TRACERULES/" target="_blank" rel="noopener noreferrer">
+        <a class="resource-card" href="https://h3ad-sec.github.io/X-VERDIKT/" target="_blank" rel="noopener noreferrer">
           <div class="resource-card-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </div>
           <div class="resource-card-body">
-            <span class="resource-card-name mono">TRACERULES</span>
-            <p class="resource-card-desc">KQL/Sigma/XQL detection query arsenal organized by MITRE ATT&amp;CK technique. Includes T1218 subtechnique coverage.</p>
-          </div>
-          <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
-        </a>
-
-        <a class="resource-card" href="https://h3ad-sec.github.io/HYPOS/" target="_blank" rel="noopener noreferrer">
-          <div class="resource-card-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          </div>
-          <div class="resource-card-body">
-            <span class="resource-card-name mono">HYPOS</span>
-            <p class="resource-card-desc">ATT&amp;CK-driven hypothesis platform. Build and track LOLBin hunt hypotheses from CTI reports using the ABLE framework.</p>
+            <span class="resource-card-name mono">X-VERDIKT</span>
+            <p class="resource-card-desc">Multi-source IOC analysis across VirusTotal, Shodan, OTX, and AbuseIPDB. Applies confidence weighting per source to score indicators in real time.</p>
           </div>
           <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
         </a>
@@ -447,18 +419,29 @@
           </div>
           <div class="resource-card-body">
             <span class="resource-card-name mono">PIVEX</span>
-            <p class="resource-card-desc">Pivot graph for threat investigations. Map LOLBin execution chains to IOCs, actors, and infrastructure during active hunts.</p>
+            <p class="resource-card-desc">Visual pivot graph for threat investigations. Map IOC relationships, actor infrastructure, and campaign connections during active intelligence analysis.</p>
           </div>
           <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
         </a>
 
-        <a class="resource-card" href="https://h3ad-sec.github.io/TRACEPULSE/" target="_blank" rel="noopener noreferrer">
+        <a class="resource-card" href="https://h3ad-sec.github.io/HYPOS/" target="_blank" rel="noopener noreferrer">
           <div class="resource-card-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           </div>
           <div class="resource-card-body">
-            <span class="resource-card-name mono">TRACEPULSE</span>
-            <p class="resource-card-desc">Threat query packs by campaign and CVE. Structured hunt packs ready to deploy for LOLBin-heavy actor campaigns.</p>
+            <span class="resource-card-name mono">HYPOS</span>
+            <p class="resource-card-desc">ATT&amp;CK-driven hypothesis platform. Convert threat actor TTP profiles from CTI reports into structured hunt hypotheses using the ABLE framework.</p>
+          </div>
+          <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
+        </a>
+
+        <a class="resource-card" href="https://h3ad-sec.github.io/DNSCOPE/" target="_blank" rel="noopener noreferrer">
+          <div class="resource-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          </div>
+          <div class="resource-card-body">
+            <span class="resource-card-name mono">DNSCOPE</span>
+            <p class="resource-card-desc">Deep DNS intelligence: passive DNS history, subdomain enumeration, WHOIS, and registrar risk scoring. Essential for pivoting across actor infrastructure.</p>
           </div>
           <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
         </a>
@@ -467,14 +450,13 @@
     </div>
   </section>
 
-  <!-- FOOTER -->
   <footer class="site-footer">
     <div class="container">
       <div class="footer-inner">
         <div class="footer-brand">
           <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png"
                id="footer-logo" class="footer-logo" alt="H3AD-SEC" />
-          <p class="footer-tagline muted">H3AD-LEARN &middot; LOLBAS</p>
+          <p class="footer-tagline muted">H3AD-LEARN &middot; Threat Intelligence</p>
         </div>
         <div class="footer-links">
           <a href="../index.html" class="footer-link">All Modules</a>
@@ -491,21 +473,19 @@
   <script src="../js/learn.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Module progress bar
-      const pct   = getModuleProgress('lolbas');
-      const bar   = document.getElementById('lolbas-progress-bar');
-      const label = document.getElementById('lolbas-progress-label');
+      const pct   = getModuleProgress('threat-intel');
+      const bar   = document.getElementById('threat-intel-progress-bar');
+      const label = document.getElementById('threat-intel-progress-label');
       if (bar)   bar.style.width = pct + '%';
       if (label) {
         const progress  = initProgress();
-        const chapters  = progress.modules?.['lolbas']?.chapters || {};
+        const chapters  = progress.modules?.['threat-intel']?.chapters || {};
         const completed = Object.values(chapters).filter(c => c.status === 'complete').length;
         label.textContent = completed + ' / 8 chapters complete';
       }
 
-      // Chapter status dots
       const progress = initProgress();
-      const chapters = progress.modules?.['lolbas']?.chapters || {};
+      const chapters = progress.modules?.['threat-intel']?.chapters || {};
       document.querySelectorAll('.chapter-status[data-chapter-id]').forEach(el => {
         const id  = el.dataset.chapterId;
         const ch  = chapters[id];

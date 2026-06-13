@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="03">
+  <meta name="module-id" content="threat-intel">
+  <title>Threat Actor Profiling · Threat Intelligence · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">THREAT ACTOR PROFILING</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">Threat Intel</a>
+        <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
+        <a href="../lolbas/index.html" class="nav-link">LOLBAS</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Threat Intel</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 03 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 03</span>
+            <span class="badge-time muted mono">35 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Threat Actor Profiling</h1>
+          <p class="chapter-intro">An actor profile is a structured understanding of who is targeting you, why, and how. A list of IOCs attributed to an actor is not a profile. A profile describes motivation, capability, targeting patterns, infrastructure behavior, and the TTPs that define how they operate across multiple campaigns. This chapter covers how to build one and how to use it.</p>
+          <div class="chapter-tags">
+            <span class="tag">actor naming</span>
+            <span class="tag">Diamond Model</span>
+            <span class="tag">motivation</span>
+            <span class="tag">attribution</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="naming-conventions">
+          <h2>Actor Naming Conventions</h2>
+          <p>Every major CTI vendor uses a different naming system for threat actors, which creates confusion for analysts who read reports from multiple sources. When a Mandiant report about APT41 and a CrowdStrike report about WICKED PANDA describe the same actor group, recognizing the connection requires knowing the naming conventions. Understanding the logic behind each system makes cross-vendor correlation significantly easier.</p>
+
+          <p>Mandiant uses a numbered APT system: APT1 through APT43 (and beyond) with each number representing a distinct Chinese, Russian, Iranian, or North Korean state-sponsored group. The numbers have no inherent meaning beyond sequence of discovery and reporting. APT41 is notable for straddling the line between state-sponsored espionage and financially motivated cybercrime, operated by the same individuals under different mandates. Mandiant's naming convention prioritizes clarity and public attribution over codenames.</p>
+
+          <p>CrowdStrike uses an adversary codename system built around animal-country pairs. The country suffix indicates suspected nation-state affiliation: BEAR for Russia, PANDA for China, KITTEN for Iran, CHOLLIMA for North Korea, SPIDER for eCrime, BUFFALO for Vietnam, WOLF for Turkey, and JACKAL for hacktivist groups. The first word is unique to the actor cluster: COZY BEAR, FANCY BEAR, WICKED PANDA, CHARMING KITTEN. This system makes attribution immediately visible from the name itself.</p>
+
+          <p>Microsoft abandoned its previous ZINC/THALLIUM/STRONTIUM naming scheme in 2023 and adopted a weather-themed taxonomy. Nation-state actors use weather phenomena: Midnight Blizzard (formerly NOBELIUM, a Russian SVR group), Salt Typhoon (Chinese state-sponsored), Peach Sandstorm (Iranian MOIS). eCrime groups use storms: Scattered Spider, Lace Tempest. The system distinguishes category by weather type and country by a consistent keyword.</p>
+
+          <p>MITRE ATT&CK Groups use a G-number system (G0001 through Gnnn) alongside common names. G0016 is APT29, also tracked as Cozy Bear, Midnight Blizzard, and The Dukes. ATT&CK Group pages aggregate associated techniques, software, and campaigns across vendor reporting, making them the best single source for cross-vendor correlation. When you encounter an unfamiliar actor name, searching ATT&CK Groups for it usually reveals the full naming map.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Vendor</th><th>Russian Actor</th><th>Chinese Actor</th><th>Iranian Actor</th><th>North Korean Actor</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Mandiant</td><td>APT29</td><td>APT41</td><td>APT34</td><td>APT38</td></tr>
+                <tr><td>CrowdStrike</td><td>COZY BEAR</td><td>WICKED PANDA</td><td>HELIX KITTEN</td><td>LABYRINTH CHOLLIMA</td></tr>
+                <tr><td>Microsoft</td><td>Midnight Blizzard</td><td>Volt Typhoon</td><td>Peach Sandstorm</td><td>Sapphire Sleet</td></tr>
+                <tr><td>Common alias</td><td>The Dukes / NOBELIUM</td><td>Winnti Group</td><td>OilRig / APT34</td><td>Lazarus Group</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="motivation-intent">
+          <h2>Motivation and Intent</h2>
+          <p>An actor's motivation shapes everything about how they operate: what they target, how patient they are, what risk they accept, and what success looks like for them. Attribution without motivation is incomplete. Knowing that an intrusion involves tools associated with APT41 is more useful when you understand that APT41 operates under two different mandates: strategic espionage on behalf of Chinese state interests, and financially motivated cybercrime on behalf of its operators personally.</p>
+
+          <p>Nation-state espionage is the most patient and most persistent category. These actors are funded by governments, operate on long time horizons, and prioritize access over speed. Their goal is typically data theft: intellectual property, government communications, strategic plans, or personal information that enables blackmail or recruitment. They tolerate long dwell times and invest in maintaining persistent access rather than rushing to exfiltration. Russian actors like APT29 are known for dwelling in environments for months or years while conducting careful, low-volume data collection to avoid detection.</p>
+
+          <p>Financially motivated cybercrime is the most common category by volume. It includes ransomware operators, business email compromise (BEC) groups, banking trojans, and crypto theft actors. Their goal is conversion of access to money as quickly as possible. Dwell time is typically shorter because extended presence increases risk of detection before monetization. North Korean actors present an interesting hybrid: state-sponsored groups like Lazarus conduct cryptocurrency theft as a revenue source for the DPRK government, blurring the line between nation-state and financially motivated actors.</p>
+
+          <p>Hacktivism involves actors motivated by political, ideological, or social goals. They target organizations for symbolic value, typically seeking to embarrass, disrupt, or expose perceived wrongdoing. The hacktivist category includes Anonymous-affiliated groups, pro-state influence operations, and groups tied to specific political conflicts. Their technical sophistication varies widely. Some hacktivist operations are conducted by highly capable actors using hacktivism as cover for state objectives.</p>
+
+          <p>Destructive operations aim to cause damage rather than steal data or generate revenue. These are the rarest and most severe category. Wiper malware campaigns, infrastructure attacks, and denial-of-service operations designed to cause physical damage fall here. NotPetya (attributed to Sandworm, a Russian GRU unit) encrypted critical infrastructure in Ukraine and caused collateral damage globally estimated at billions of dollars. The intent was disruption and destruction, not data theft.</p>
+        </section>
+
+        <section class="content-section" id="diamond-model">
+          <h2>The Diamond Model</h2>
+          <p>The Diamond Model of Intrusion Analysis, developed by Sergio Caltagirone, Andrew Pendergast, and Christopher Betz in 2013, provides a structured framework for describing and analyzing intrusion events. It is called the Diamond Model because its four core features form a diamond shape: adversary and victim on the vertical axis, capability and infrastructure on the horizontal axis.</p>
+
+          <p>The adversary is the individual, group, or organization conducting the intrusion. In practice, the adversary is often the element with the least certainty. Early in an investigation you may have strong evidence of capability and infrastructure but only working hypotheses about who the adversary is. The model accommodates this: you can build a complete analytical picture of an intrusion without confirmed adversary attribution, and add the adversary element as evidence develops.</p>
+
+          <p>Capability describes what the adversary can do: their toolset, techniques, and exploit development capacity. Capability includes both the malware or tools used in a specific intrusion and the broader set of techniques the actor has demonstrated across multiple campaigns. An actor who relies exclusively on commodity RATs has a different capability profile than one who develops custom implants and exploits zero-day vulnerabilities. Capability assessment directly informs detection strategy: actors with high technical capability require more behavioral detection, because they can easily defeat signature-based approaches.</p>
+
+          <p>Infrastructure encompasses the systems and services the adversary uses to conduct their operations: C2 servers, staging infrastructure, email accounts, VPN exit nodes, and any other technical resources involved in the attack. Infrastructure is the most volatile element of a threat actor profile because it changes with every campaign cycle. However, infrastructure patterns often persist: actors tend to use the same hosting providers, the same ASN ranges, the same domain registration habits, and the same certificate configurations across multiple campaigns. These patterns are what make infrastructure pivot analysis possible.</p>
+
+          <p>The victim is the targeted entity. In the Diamond Model, victim is not just a passive recipient of attack: understanding who is targeted and why reveals information about adversary motivation and intent. An actor who consistently targets defense contractors, research universities, and technology companies is demonstrating an interest in intellectual property. An actor who focuses on financial institutions and cryptocurrency exchanges has a different objective. Victim profiling helps organizations assess their own likelihood of being targeted and prioritize defensive resources accordingly.</p>
+
+          <p>Activity threading extends the model by linking multiple Diamond events into a campaign. A single intrusion produces one Diamond. A campaign produces many Diamonds linked by shared adversary, shared capability, or shared infrastructure. Threading these events together reveals the complete picture of how an actor operates over time, what their typical kill chain looks like, and where in that kill chain defenders have the best opportunities to interrupt the operation.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> The Diamond Model is not a replacement for ATT&CK. They serve different purposes. ATT&CK catalogs the specific techniques an adversary uses. The Diamond Model provides the analytical structure for understanding the relationship between adversary, capability, infrastructure, and victim across an intrusion or campaign. They are most powerful when used together: ATT&CK populates the capability vertex of the Diamond with specific technique mappings.
+          </div>
+        </section>
+
+        <section class="content-section" id="ttps-as-fingerprints">
+          <h2>TTPs as Actor Fingerprints</h2>
+          <p>Infrastructure changes. Tools get recompiled. Domains rotate. The one thing that is genuinely difficult for an actor to change is how they operate. The procedures an actor has developed, drilled, and automated across dozens of operations represent significant investment. Changing them requires retraining, retooling, and accepting reduced operational efficiency during the transition. As a result, TTP patterns are far more durable than any technical indicator, and TTP-level actor profiling produces intelligence that survives multiple campaign cycles.</p>
+
+          <p>Operation-specific TTPs are the specific technique implementations an actor uses in a given campaign: the exact PowerShell obfuscation pattern, the precise registry key used for persistence, the naming convention for dropped files, the timing patterns of C2 beaconing. These are observable in incident response forensics and sandbox analysis. They are highly specific and often unique to a particular actor or toolset variant.</p>
+
+          <p>Campaign-level TTPs are the broader patterns that persist across multiple operations: the actor always starts with spearphishing; they always move laterally using valid credentials stolen from a targeted system; they always stage data before exfiltration rather than exfiltrating in place. These patterns emerge from aggregating and comparing multiple incidents and reports over time. Campaign-level TTPs are what make intelligence-driven hunt hypotheses possible: if you know an actor consistently uses BITS jobs for lateral movement, you can hunt for unusual BITS activity in your environment before you have any evidence that actor is present.</p>
+
+          <p>Procedural fingerprints often outlast tool changes. When APT29 transitioned away from a particular implant family following public disclosure, their operational procedures remained largely consistent: the same spearphishing tactics, the same patience in initial reconnaissance, the same preference for living-off-the-land techniques during lateral movement. Defenders who focused only on the disclosed malware lost visibility. Defenders who focused on the procedural fingerprints maintained detection capability across the tool change.</p>
+
+          <p>Tool reuse creates a different kind of TTP fingerprint. Many actors use commercially available tools: Cobalt Strike, Metasploit, Mimikatz, BloodHound. Tool reuse alone does not indicate actor attribution because many distinct groups use the same tools. However, specific configurations of commercial tools can become fingerprints: a particular Cobalt Strike malleable C2 profile, a specific sleep jitter pattern, a consistent staging methodology. MITRE ATT&CK Software entries document which groups use which tools and in what configurations where known.</p>
+        </section>
+
+        <section class="content-section" id="attribution-challenges">
+          <h2>Attribution Challenges</h2>
+          <p>Attribution is one of the most analytically difficult problems in threat intelligence, and it is one of the most frequently overstated. Vendors have commercial incentives to make confident attribution claims that generate press coverage and justify intelligence service pricing. Governments have political incentives to attribute attacks in ways that support policy objectives. Analysts who accept published attributions uncritically are not doing intelligence work; they are doing citation work.</p>
+
+          <p>False flags are a known adversary technique. Nation-state actors have deliberately planted code strings, language artifacts, and infrastructure indicators designed to implicate other nation-states. The Olympic Destroyer malware used in the 2018 Winter Olympics opening ceremony attack contained deliberate false flag elements pointing at North Korea, China, and Russia simultaneously. The actual attacker was Russian Sandworm. A single attribution data point, regardless of how specific it appears, is not sufficient for high-confidence attribution.</p>
+
+          <p>Shared tools and infrastructure create attribution confusion. When multiple distinct actor groups use the same bulletproof hosting provider, the same commercial malware kit, or the same open-source offensive tool, infrastructure and tool evidence alone cannot distinguish between them. This is a particular problem with commodity access brokers: an initial access broker may compromise an environment and sell access to multiple distinct actors. The forensic evidence of the initial access looks identical regardless of who ultimately purchased and used it.</p>
+
+          <p>Reporting bias shapes the public record. Vendors report what they can investigate. What they can investigate is shaped by which victims engage their IR services, which geographies they operate in, and which actor groups are active enough to produce sufficient incident data for analysis. Chinese and North Korean actors are heavily documented in the Western CTI ecosystem because they heavily target Western organizations. Russian actors in South America or Iranian actors targeting Gulf states are likely underreported in English-language CTI relative to their actual activity levels.</p>
+
+          <p>The appropriate response to attribution uncertainty is calibrated language. "Assessed with moderate confidence to be associated with APT29 based on overlapping infrastructure, tool configuration similarities, and targeting pattern consistency" is a different claim than "This is APT29." High-confidence attribution requires multiple independent evidence streams: unique tool attribution, infrastructure overlap with previously attributed activity, operational security failures that reveal actor identity, or direct confirmation from law enforcement or intelligence community partners. Most CTI attributions do not meet that bar, and the confidence should be expressed accordingly.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> Acting on misattribution has real consequences. If a defender concludes they are being targeted by a nation-state espionage actor and responds with a high-intensity IR engagement and regulatory notification, but the actual threat is a financially motivated actor that will leave voluntarily once they determine the environment is not profitable, the mismatch in response has consumed significant resources and possibly created unnecessary disclosure obligations. Calibrate response to the confidence level of attribution, not to worst-case assumptions.
+          </div>
+        </section>
+
+        <section class="content-section" id="building-a-profile">
+          <h2>Building a Threat Actor Profile</h2>
+          <p>A threat actor profile is a living document, not a static deliverable. It begins with what is known and evolves as new intelligence accumulates. The structure of a useful profile tracks the Diamond Model: who the actor is, what they do (capability and TTPs), what infrastructure they use, and who they target. Each element carries a confidence rating.</p>
+
+          <p>Start with the ATT&CK Groups page for the actor you are profiling. It aggregates technique mappings, associated software, and campaign references from across vendor reporting. Note which techniques are confirmed by multiple sources versus reported by a single vendor. High-confidence technique mappings from multiple independent sources are the most reliable profile elements. Single-source technique attributions should be flagged as lower confidence until corroborated.</p>
+
+          <p>Collect vendor reports and apply source analysis. Read each report with an awareness of what the vendor's collection limitations are. A managed security provider with visibility into specific industry verticals can document targeting patterns within those verticals but may miss activity in sectors where they have no customer base. Acknowledge these gaps in the profile rather than assuming absence of evidence means evidence of absence.</p>
+
+          <p>Document infrastructure patterns rather than specific infrastructure. Specific IPs and domains will change. The pattern of using certain ASNs, certain registrars, certain certificate providers, or certain hosting reseller chains may persist. Document these patterns as they are more durable and more useful for prospective hunting than individual IOCs that may already be retired by the time an analyst reads the profile.</p>
+
+          <p>Assess relevance to your organization directly. A comprehensive profile of an actor is academic unless it connects to your organization's threat surface. For each profiled actor, document: does our sector match their targeting history? Does our geography match their operational footprint? Do we hold data types consistent with their collection objectives? This relevance assessment is what transforms a research exercise into actionable prioritization.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>Major CTI vendors use different naming systems: Mandiant uses APT numbers, CrowdStrike uses country-animal pairs, Microsoft uses weather themes. ATT&CK Groups are the best cross-vendor reference.</li>
+            <li>Actor motivation categories: nation-state espionage (patient, persistent, data theft), financially motivated (fast, monetization-focused), hacktivist (ideological), destructive (damage-oriented). Motivation determines targeting and response priority.</li>
+            <li>The Diamond Model has four vertices: adversary, capability, infrastructure, victim. Activity threading links multiple Diamond events into a campaign picture. ATT&CK populates the capability vertex with specific techniques.</li>
+            <li>TTPs are the most durable actor fingerprints because they describe operational behavior, not specific tools or infrastructure. They survive tool changes and infrastructure rotation.</li>
+            <li>Attribution is analytically difficult and frequently overstated. False flags, shared tools, and reporting bias all create attribution errors. Use calibrated confidence language and require multiple independent evidence streams for high-confidence attribution.</li>
+            <li>A threat actor profile is a living document. Structure it around the Diamond Model, anchor technique confidence to number of independent sources, and always assess relevance to your specific organization's threat surface.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">CrowdStrike reports on COZY BEAR. Mandiant reports on APT29. Microsoft reports on Midnight Blizzard. These are:</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="true">A. Different names for the same Russian SVR threat actor group</button>
+              <button class="kc-option" data-correct="false">B. Three distinct Russian threat actor groups with similar tactics</button>
+              <button class="kc-option" data-correct="false">C. The same group tracked under different attribution confidence levels</button>
+              <button class="kc-option" data-correct="false">D. Subgroups within a single Russian intelligence directorate</button>
+            </div>
+            <div class="kc-answer">COZY BEAR (CrowdStrike), APT29 (Mandiant), and Midnight Blizzard (Microsoft) are all vendor designations for the same actor cluster, widely assessed as the Russian SVR (Foreign Intelligence Service). Also known as The Dukes and NOBELIUM. The ATT&CK Group page G0016 maps all of these names together. Understanding vendor naming conventions is essential for cross-referencing reports and avoiding the mistake of treating the same actor as multiple distinct threats.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">An actor's malware sample is reverse-engineered and contains Korean language artifacts. What is the most analytically sound conclusion?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. The actor is North Korean with high confidence</button>
+              <button class="kc-option" data-correct="false">B. The actor is South Korean, since South Korea is a closer US ally and more likely to be studied</button>
+              <button class="kc-option" data-correct="true">C. Korean language artifacts are present; attribution to a Korean-language actor cluster is possible but requires corroboration, and false flag planting cannot be ruled out</button>
+              <button class="kc-option" data-correct="false">D. The actor is attempting to evade attribution by using a non-standard language</button>
+            </div>
+            <div class="kc-answer">Language artifacts are one indicator, not confirmation. False flag techniques have been documented where actors deliberately plant language artifacts from other nations. High-confidence attribution requires multiple independent streams: language artifacts alone, infrastructure overlap alone, or tool signature alone are insufficient. The Olympic Destroyer false flag (which pointed at multiple nations simultaneously) is a real example of why single-indicator attribution conclusions are analytically unsound.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">In the Diamond Model, which vertex is most useful for prospective hunting before an intrusion is confirmed?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Victim — because you can identify who else they are targeting</button>
+              <button class="kc-option" data-correct="false">B. Infrastructure — because you can block known IPs and domains proactively</button>
+              <button class="kc-option" data-correct="true">C. Capability — because TTP-based detections fire on actor behavior regardless of infrastructure changes</button>
+              <button class="kc-option" data-correct="false">D. Adversary — because knowing who is attacking tells you what to expect</button>
+            </div>
+            <div class="kc-answer">Capability, specifically TTP-level behavioral patterns, is the most durable basis for proactive detection. Infrastructure (IPs, domains) rotates frequently. Victim information helps with targeting assessment but does not directly produce detections. Knowing the adversary identity is useful but does not generate search queries or detection rules by itself. TTP-level behavioral detections based on the capability vertex fire on actor behavior across infrastructure changes, tool recompilations, and campaign pivots.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="02-ioc-types-confidence.html" class="chapter-nav-prev">← IOC Types and Confidence</a>
+          <a href="04-stix-taxii-sharing.html" class="chapter-nav-next">STIX, TAXII and Sharing →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('03', 6));</script>
+  <div id="h3gc" style="position:fixed;bottom:16px;right:16px;display:flex;align-items:center;gap:6px;background:rgba(8,10,18,.9);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.45);z-index:9500;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);pointer-events:none;">
+    <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3.5" stroke="rgba(74,222,128,.7)" stroke-width="1"/><circle cx="4" cy="4" r="1.5" fill="rgba(74,222,128,.8)"/></svg>
+    <span id="h3gc-n" style="color:rgba(74,222,128,.9);font-weight:600">—</span>
+    <span style="opacity:.5">VISITORS</span>
+  </div>
+  <!-- h3gc-v3 -->
+  <script>
+    (function(){
+      var key = (location.pathname.split('/').join('') || 'hub').toLowerCase();
+      var base = 'https://api.counterapi.dev/v1/h3ad-sec/' + key;
+      var lk = 'h3gc_c_' + key; var sk = 'h3gc_s_' + key;
+      var el = document.getElementById('h3gc-n');
+      function store(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+      function session(k){try{return sessionStorage.getItem(k);}catch(e){return null;}}
+      function sessionSet(k,v){try{sessionStorage.setItem(k,v);}catch(e){}}
+      try{ var cached=localStorage.getItem(lk); if(el&&cached) el.textContent=Number(cached).toLocaleString(); }catch(e){}
+      var seen = session(sk); if (!seen) sessionSet(sk,'1');
+      fetch(seen ? base + '/' : base + '/up').then(function(r){ if(!r.ok) throw r; return r.json(); }).then(function(d){ if(d.count!=null){ store(lk,d.count); if(el) el.textContent=Number(d.count).toLocaleString(); } }).catch(function(){});
+      var gsk = 'h3gc_s_total'; if (!session(gsk)) { sessionSet(gsk,'1'); fetch('https://api.counterapi.dev/v1/h3ad-sec/total/up').catch(function(){}); }
+    })();
+  </script>
+</body>
+</html>

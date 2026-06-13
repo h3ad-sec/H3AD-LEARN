@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="08">
+  <meta name="module-id" content="threat-intel">
+  <title>Detection from Intelligence · Threat Intelligence · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">DETECTION FROM INTELLIGENCE</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">Threat Intel</a>
+        <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
+        <a href="../lolbas/index.html" class="nav-link">LOLBAS</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Threat Intel</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 08 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">40 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 08</span>
+            <span class="badge-time muted mono">40 MIN READ</span>
+            <span class="badge-diff badge-advanced">ADVANCED</span>
+          </div>
+          <h1 class="chapter-title">Detection from Intelligence</h1>
+          <p class="chapter-intro">The highest-value outcome of a CTI program is a detection rule that catches an adversary before they accomplish their objective. This chapter covers the complete pipeline from finished intelligence to deployed detection: converting TTP descriptions to Sigma rules, KQL from IOC reports, using ATT&CK Navigator to map coverage gaps, and tuning detections using intel context to reduce false positives without reducing true positive coverage.</p>
+          <div class="chapter-tags">
+            <span class="tag">TI to detection</span>
+            <span class="tag">Sigma</span>
+            <span class="tag">ATT&CK Navigator</span>
+            <span class="tag">KQL</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="ti-detection-pipeline">
+          <h2>The TI-to-Detection Pipeline</h2>
+          <p>The TI-to-detection pipeline converts finished intelligence into deployed SIEM or EDR detection rules. The pipeline has five stages: intelligence intake, TTP extraction, query drafting, testing, and deployment. Each stage has failure modes that, if not addressed, produce detection rules that either generate excessive false positives (hurting analyst trust) or miss the adversary behavior they were designed to catch (creating a false sense of coverage).</p>
+
+          <p>Intelligence intake is where the process starts. Not every piece of intelligence warrants a detection rule. Before writing any query, evaluate: does this technique apply to my environment? Do I have the telemetry to detect it? Has this technique been observed in my sector recently enough to justify the operational cost of a new detection? Techniques that are highly prevalent in your sector, appear at the top of the Pyramid of Pain, and map to log sources you actually collect are the highest-priority candidates.</p>
+
+          <p>TTP extraction involves reading the intelligence report and pulling out the specific behavioral descriptions that can be translated to search conditions. The extraction target is not IOCs (which belong in a separate indicator matching workflow) but the procedural descriptions: "the actor executes discovery commands via cmd.exe spawned from Word.exe", "persistence is established by dropping a file to the Startup folder and creating a registry Run key simultaneously", "lateral movement occurs via PsExec with valid domain credentials". Each of these sentences maps to a specific query.</p>
+
+          <p>Query drafting translates the extracted behavior description into the query language of your target platform. The same behavior may need to be expressed differently in KQL (Microsoft Sentinel/MDE), SPL (Splunk), XQL (Cortex XDR), or Sigma (platform-agnostic). Sigma is the preferred intermediate format because it can be converted to any target platform using the sigmatools pipeline, enabling one rule to be deployed across multiple SIEM platforms simultaneously.</p>
+
+          <p>Testing validates the query before deployment. Test in two directions: run it against historical data to confirm it would have fired on known-good examples of the behavior (true positive test), and run it against a sample of clean data to assess the false positive rate in your specific environment. Detection rules that have not been tested against production data should be deployed in alert-only mode rather than automated blocking or escalation mode.</p>
+
+          <p>Deployment moves the validated rule into production. Document the intel source, the TTP being detected, the expected false positive profile, and the last-reviewed date. Detection rules without documentation accumulate silently over months and eventually become a liability: analysts cannot determine why they exist, whether they are still relevant, or whether the false positives they generate are expected. A rule management process that tracks provenance and review dates prevents this drift.</p>
+        </section>
+
+        <section class="content-section" id="attck-coverage-mapping">
+          <h2>ATT&CK Coverage Mapping</h2>
+          <p>ATT&CK Navigator is a browser-based tool that allows analysts to visualize detection coverage, actor profiles, and campaign TTPs as colored layers over the ATT&CK matrix. Coverage mapping using Navigator transforms an abstract question ("do we detect what our adversaries do?") into a visual answer: techniques with green coverage, techniques with yellow partial coverage, and techniques with no coverage are immediately visible against the actor TTP layer.</p>
+
+          <p>The basic coverage mapping workflow: export your current detection rules as an ATT&CK layer (most SIEM platforms support ATT&CK tagging on rules and can export coverage layers). In Navigator, overlay the actor profile layer for the threat groups relevant to your organization. Gaps are where the actor uses a technique your detections do not cover. This visualization prioritizes rule development: gaps in high-frequency actor techniques are higher priority than gaps in techniques the actor does not use.</p>
+
+          <p>Actor overlay layers are available directly from ATT&CK for documented threat groups. The G0016 layer (APT29) shows all techniques attributed to APT29 in ATT&CK. You can download this layer from Navigator's built-in threat group library and overlay it against your coverage layer. The combined view shows exactly which APT29 techniques you do and do not currently detect. This is the most data-driven way to prioritize detection engineering work against a specific threat.</p>
+
+          <div class="code-block"><code>// ATT&CK Navigator layer workflow — command line approach
+// 1. Export current Sentinel analytics rules as ATT&CK JSON
+//    (available via Microsoft Sentinel → Analytics → Export)
+
+// 2. Download actor layer from ATT&CK (example: APT29)
+//    navigator.attack.mitre.org → Layers → Load → GitHub
+
+// 3. In Navigator: Layer → Create Layer from Other Layers
+//    Set operation: coverage_layer MINUS actor_layer
+//    Result: shows actor techniques with no detection coverage</code></div>
+
+          <p>Coverage scoring goes beyond binary "detected / not detected." A technique may be partially covered: you detect one sub-technique but not all, or your detection fires on one execution context (e.g., PowerShell run directly) but not another (e.g., PowerShell run via encoded command from a WMI call). Nuanced coverage scoring that distinguishes full coverage from partial coverage from no coverage produces a more accurate gap analysis and more targeted remediation priorities.</p>
+        </section>
+
+        <section class="content-section" id="sigma-from-cti">
+          <h2>Sigma Rule Writing from CTI</h2>
+          <p>Sigma is a platform-agnostic detection rule language. A Sigma rule describes a detection in YAML format with log source specification, detection conditions, and metadata. The sigmatools pipeline converts Sigma rules to KQL, SPL, XQL, QRadar AQL, and other target languages. Writing detections in Sigma first means one rule serves multiple platforms, which is particularly valuable in environments that use multiple SIEM products or that intend to eventually migrate platforms.</p>
+
+          <p>A Sigma rule has several required sections: title, status (experimental/test/stable), description, references (source CTI report URLs), logsource (the log category and product), detection (the conditions), falsepositives, and level (informational/low/medium/high/critical). The detection section is the core: it contains named conditions (selection blocks) combined with Boolean logic (condition: selection).</p>
+
+          <div class="code-block"><code># Sigma rule derived from APT29 CTI reporting
+# Detects WMI-spawned PowerShell with encoded payload
+# Reference: [CTI report URL]
+
+title: WMI-Spawned PowerShell Encoded Command
+id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+status: experimental
+description: >
+  Detects PowerShell launched by WMI with a base64-encoded command,
+  a technique documented in APT29 intrusions for post-exploitation code execution.
+references:
+  - https://example-cti-report.com/apt29-campaign-2026
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_parent:
+    ParentImage|endswith:
+      - '\WmiPrvSE.exe'
+      - '\wmic.exe'
+  selection_child:
+    Image|endswith: '\powershell.exe'
+    CommandLine|contains:
+      - ' -enc '
+      - ' -EncodedCommand '
+      - ' -e '
+  condition: selection_parent and selection_child
+falsepositives:
+  - Legitimate WMI-based management tooling using encoded PowerShell commands
+  - SCCM client operations in some configurations
+level: high
+tags:
+  - attack.execution
+  - attack.t1059.001
+  - attack.t1047</code></div>
+
+          <p>Field mapping is the most common challenge in Sigma rule writing. The Sigma logsource definition specifies the log category (process_creation, network_connection, file_event, registry_event), and the sigmatools pipeline maps the Sigma field names to the actual field names in the target SIEM. If your Sysmon field name for parent process image is ParentImage but your SIEM stores it as parent_process_path, the pipeline handles the translation. When it does not, you need to add a custom field mapping to the pipeline configuration.</p>
+
+          <p>Writing detection quality into a Sigma rule requires understanding the false positive landscape. Every rule should have a falsepositives section that lists known benign uses of the detected behavior. This documentation helps the SOC analyst who receives the first alert understand whether they are looking at an expected FP scenario or something that warrants investigation. It also drives tuning: if a specific SCCM configuration consistently triggers the rule, an exclusion for that specific parent process and command line pattern can be added.</p>
+        </section>
+
+        <section class="content-section" id="kql-from-ioc">
+          <h2>KQL Detection from IOC Reports</h2>
+          <p>IOC-based detection in KQL is the most straightforward form of intelligence-driven detection: take an indicator from a report, write a query that searches for it in your telemetry, and alert when it appears. The challenge is doing this at scale, with confidence scoring incorporated, and without generating excessive false positives from stale or low-fidelity indicators.</p>
+
+          <p>The watchlist approach in Microsoft Sentinel allows large numbers of indicators to be managed outside of individual analytics rules. A watchlist of IOCs can be updated programmatically via STIX/TAXII ingestion or CSV upload, and a single analytics rule queries the watchlist rather than hardcoding specific values. This separation of rule logic from indicator data allows the indicator list to be updated independently of the rule itself.</p>
+
+          <div class="code-block"><code>// KQL — Sentinel watchlist-based IOC matching
+// Assumes a watchlist named "CTI_IOCs" with columns: IOCType, IOCValue, Confidence, Source, TLP
+
+let HighConfidenceIPs = (
+    _GetWatchlist('CTI_IOCs')
+    | where IOCType == "IP" and Confidence >= 70
+    | project IOCValue
+);
+
+DeviceNetworkEvents
+| where Timestamp > ago(24h)
+| where RemoteIP in (HighConfidenceIPs)
+| project Timestamp, DeviceName, RemoteIP, RemotePort, ActionType, InitiatingProcessFileName
+| extend AlertSource = "CTI_Watchlist_HighConf_IP"
+| order by Timestamp desc</code></div>
+
+          <p>Behavioral KQL built from TTP descriptions is more durable than indicator-based detection. A behavioral rule that captures the technique survives infrastructure rotation; an IP indicator rule fires exactly once for each IP and is defeated the moment the actor changes IPs. The most effective detection architecture combines both: indicator matching for fast, high-confidence IOC hits, and behavioral rules for durable TTP-level coverage that persists across campaign cycles.</p>
+
+          <div class="code-block"><code>// KQL — Behavioral detection for data staging before exfiltration
+// Derived from CTI reports documenting actor staging to unusual temp paths
+
+DeviceFileEvents
+| where Timestamp > ago(7d)
+| where ActionType == "FileCreated"
+| where FolderPath has_any (
+    @"C:\Users\Public\",
+    @"C:\ProgramData\Temp\",
+    @"C:\Windows\Temp\")
+| where FileName endswith ".zip" or FileName endswith ".rar" or FileName endswith ".7z"
+| where FileSize > 10000000  // files larger than 10MB
+| join kind=leftouter (
+    DeviceProcessEvents
+    | where FileName in~ ("7z.exe", "winrar.exe", "compact.exe")
+    | project DeviceId, ProcessTimestamp = Timestamp, CompressProcess = FileName
+) on DeviceId
+| project Timestamp, DeviceName, FileName, FolderPath, FileSize, CompressProcess
+| order by FileSize desc</code></div>
+        </section>
+
+        <section class="content-section" id="tuning-with-intel">
+          <h2>Detection Tuning with Intel Context</h2>
+          <p>False positive tuning is where most detection programs struggle. A rule that fires constantly on legitimate activity gets suppressed; a suppressed rule provides no coverage. The solution is targeted tuning using intel context to build exclusions that are as specific as possible, preserving TP coverage while eliminating known-FP scenarios.</p>
+
+          <p>Actor context enables targeted exclusions. If a CTI report documents that APT29 uses certutil for download cradles, and your environment also uses certutil for legitimate OCSP checking during certificate operations, a broad certutil detection will fire on both. The actor context tells you to narrow the detection: certutil with download-specific flags (-urlcache, -split, -f) combined with a URL argument, excluding the specific cert server FQDNs used in your environment's PKI. This exclusion is specific enough to preserve TP coverage while eliminating the FP scenario.</p>
+
+          <p>Environment baselining is the other side of tuning. Before deploying a new detection rule, query the last 30 days of the relevant telemetry to understand what the baseline behavior looks like in your specific environment. A rule that fires on "PowerShell with -enc flag" in an environment where SCCM extensively uses encoded PowerShell for software deployment will generate hundreds of FPs per day before you add exclusions. The baseline query tells you this before deployment and shapes the exclusion list you build before the rule goes live.</p>
+
+          <p>Confidence-weighted alerting allows you to express the certainty of a detection in the alert itself. A match on a high-confidence IOC with strong behavioral corroboration (indicator match AND behavioral TTP match) is a higher-priority alert than a match on a single low-confidence IOC with no behavioral context. Building confidence scoring into alert metadata gives SOC analysts a triage signal that helps them prioritize investigation in high-volume environments.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> Tuning by suppression is a dead end. Suppressing an alert because it "always fires on legitimate traffic" means you have accepted that the detection does not work. Suppression should always be the last resort after targeted exclusions have been evaluated. Every suppression removes detection coverage for a class of activity that is similar to adversary behavior. Over time, suppression-heavy environments have large, well-tuned blind spots that exactly match attacker behavior.
+          </div>
+        </section>
+
+        <section class="content-section" id="feedback-loop">
+          <h2>Closing the Feedback Loop</h2>
+          <p>Detection from intelligence is not a one-time pipeline; it is a cycle. Intelligence drives detection development. Detection outcomes (hits, confirmed true positives, false positives, misses) feed back into the intelligence program to update actor profiles, refine hunt hypotheses, and identify collection gaps. This feedback loop is what distinguishes a maturing CTI-detection engineering integration from a static import of vendor feeds into a blocklist.</p>
+
+          <p>Every confirmed true positive from a CTI-derived detection rule is direct victim telemetry: the highest-confidence intelligence type. When a rule fires on behavior that is confirmed malicious, extract the full forensic detail of the event, update the actor profile with any new techniques or infrastructure observed, submit the IOCs to your ISAC, and evaluate whether the rule should be promoted from experimental to stable status. The detection outcome is an intelligence product in itself.</p>
+
+          <p>False positive analysis often reveals collection gaps or detection logic errors. A rule that generates unexpected FPs in your environment may be catching a legitimate administrative tool that mimics adversary behavior, a gap in your tool inventory (you did not know SCCM used that technique), or a logic error in the detection condition. Each FP scenario is worth understanding, not just suppressing. The understanding informs both the detection tuning and the PIR cycle.</p>
+
+          <p>Incident-driven intelligence is the most impactful feedback mechanism. A confirmed intrusion produces forensic artifacts: memory images, disk captures, network logs, and endpoint telemetry. Every artifact from an incident response is potential intelligence input: new malware samples for YARA development, new C2 infrastructure for pivot analysis, new TTPs for actor profile updates, and direct evidence of which of your existing detections fired (and which failed to fire). Systematically harvesting intelligence from IR engagements and feeding it back into the CTI cycle dramatically compresses the time from "actor adopts new technique" to "detection is deployed."</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> If you are using QUERYBASE alongside this module, every detection rule you develop from TI work belongs in the corpus with the intel source tagged in the rule metadata. QUERYBASE's query schema supports source, actor, and ATT&CK technique tagging, making it possible to later query "which rules in our corpus were derived from APT29 intelligence" and assess coverage as new APT29 campaigns are reported. This makes the corpus a living record of your detection coverage against specific actors over time.
+          </div>
+        </section>
+
+        <div class="chapter-summary">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>The TI-to-detection pipeline: intake, TTP extraction, query drafting, testing against known-good and clean data, deployment with documentation. Each stage has failure modes that reduce detection quality.</li>
+            <li>ATT&CK Navigator coverage mapping overlays your detection coverage against actor TTP profiles to make gaps visible. Gaps in high-frequency actor techniques are highest priority for new rule development.</li>
+            <li>Sigma rules are the preferred intermediate format: platform-agnostic YAML that converts to KQL, SPL, XQL, and others via sigmatools. Write once, deploy to multiple platforms.</li>
+            <li>Behavioral KQL detections are more durable than indicator-based detections. Use watchlists for indicator management at scale; use behavioral rules for TTP-level coverage that survives infrastructure changes.</li>
+            <li>Tune with intel context: actor knowledge tells you what exclusions are legitimate and which would create blind spots. Baseline your environment before deployment to build the exclusion list proactively.</li>
+            <li>The feedback loop is the cycle: CTI drives detection, detection outcomes (TPs, FPs, misses) drive intel updates, IR forensics produce new intelligence. A mature program compresses the detection gap continuously.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A CTI report describes an actor using "WMI to spawn PowerShell for post-exploitation execution." The most durable detection approach is:</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Block all WMI execution on the network</button>
+              <button class="kc-option" data-correct="false">B. Add the actor's known C2 IPs to the firewall blocklist</button>
+              <button class="kc-option" data-correct="true">C. Write a Sigma rule for process_creation where parent is WmiPrvSE.exe or wmic.exe and child is powershell.exe with encoded command flags</button>
+              <button class="kc-option" data-correct="false">D. Deploy a YARA rule to scan for the actor's known malware hash</button>
+            </div>
+            <div class="kc-answer">The technique description translates directly to a behavioral Sigma rule targeting process_creation events with the specific parent-child relationship and command line pattern. This detection fires on the behavior regardless of what specific malware is executing, what C2 infrastructure is in use, or what the file hash is. Blocking all WMI breaks legitimate administrative use and may not be operationally feasible. C2 IP blocks defeat one infrastructure instance and nothing else. A YARA hash rule is tool-specific and does not capture the WMI execution technique at all.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Your ATT&CK Navigator coverage map shows that APT29 uses T1021.006 (Windows Remote Management) extensively, but you have no detection coverage for it. What is the best first action?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Deploy a broad WinRM block at the network layer</button>
+              <button class="kc-option" data-correct="false">B. Purchase a commercial threat feed that covers APT29</button>
+              <button class="kc-option" data-correct="true">C. Check whether you have the telemetry to detect WinRM abuse, then write a detection rule targeting anomalous WinRM connections and WS-Management process spawning</button>
+              <button class="kc-option" data-correct="false">D. Add T1021.006 to your PIRs and wait for vendor reporting on the technique</button>
+            </div>
+            <div class="kc-answer">The Navigator gap analysis identifies the priority. The correct response is to check telemetry first (do you log WinRM connections, WS-Management API calls, or process creation via wsmprovhost.exe?), then write a behavioral detection for anomalous WinRM usage: connections from unexpected source hosts, connections outside of known management workflows, or process creation via wsmprovhost.exe with unexpected child processes. Blocking WinRM network-wide may break legitimate remote management. A threat feed purchase addresses IOCs, not the TTP gap. Adding to PIRs delays action without justification.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A detection rule derived from CTI generates 50 alerts per day, all on SCCM software deployment operations. The correct response is:</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Suppress the rule entirely — it is too noisy to be useful</button>
+              <button class="kc-option" data-correct="false">B. Raise the rule's alert threshold until it stops firing</button>
+              <button class="kc-option" data-correct="true">C. Add targeted exclusions for the SCCM process and specific command line patterns that match the legitimate deployment workflow, preserving coverage for the adversary behavior pattern</button>
+              <button class="kc-option" data-correct="false">D. Replace the behavioral rule with an IOC-based rule that only fires on known-malicious IPs</button>
+            </div>
+            <div class="kc-answer">Suppressing the rule removes all detection coverage. Raising thresholds is imprecise and may allow the actual adversary behavior to pass undetected. IOC-based replacement addresses only the infrastructure dimension, not the technique. The correct action is targeted exclusion: identify the specific SCCM parent process name, the specific service account context, and the specific command line patterns that are always benign in this environment, and exclude them explicitly. This eliminates the known FP scenario while preserving detection coverage for the adversary behavior pattern the rule was designed to catch.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="07-cti-report-writing.html" class="chapter-nav-prev">← CTI Report Writing</a>
+          <a href="index.html" class="chapter-nav-next">Back to Threat Intel →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('08', 6));</script>
+  <div id="h3gc" style="position:fixed;bottom:16px;right:16px;display:flex;align-items:center;gap:6px;background:rgba(8,10,18,.9);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.45);z-index:9500;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);pointer-events:none;">
+    <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3.5" stroke="rgba(74,222,128,.7)" stroke-width="1"/><circle cx="4" cy="4" r="1.5" fill="rgba(74,222,128,.8)"/></svg>
+    <span id="h3gc-n" style="color:rgba(74,222,128,.9);font-weight:600">—</span>
+    <span style="opacity:.5">VISITORS</span>
+  </div>
+  <!-- h3gc-v3 -->
+  <script>
+    (function(){
+      var key = (location.pathname.split('/').join('') || 'hub').toLowerCase();
+      var base = 'https://api.counterapi.dev/v1/h3ad-sec/' + key;
+      var lk = 'h3gc_c_' + key; var sk = 'h3gc_s_' + key;
+      var el = document.getElementById('h3gc-n');
+      function store(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+      function session(k){try{return sessionStorage.getItem(k);}catch(e){return null;}}
+      function sessionSet(k,v){try{sessionStorage.setItem(k,v);}catch(e){}}
+      try{ var cached=localStorage.getItem(lk); if(el&&cached) el.textContent=Number(cached).toLocaleString(); }catch(e){}
+      var seen = session(sk); if (!seen) sessionSet(sk,'1');
+      fetch(seen ? base + '/' : base + '/up').then(function(r){ if(!r.ok) throw r; return r.json(); }).then(function(d){ if(d.count!=null){ store(lk,d.count); if(el) el.textContent=Number(d.count).toLocaleString(); } }).catch(function(){});
+      var gsk = 'h3gc_s_total'; if (!session(gsk)) { sessionSet(gsk,'1'); fetch('https://api.counterapi.dev/v1/h3ad-sec/total/up').catch(function(){}); }
+    })();
+  </script>
+</body>
+</html>

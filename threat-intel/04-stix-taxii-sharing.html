@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="04">
+  <meta name="module-id" content="threat-intel">
+  <title>STIX, TAXII and Sharing · Threat Intelligence · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">STIX, TAXII AND SHARING</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">Threat Intel</a>
+        <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
+        <a href="../lolbas/index.html" class="nav-link">LOLBAS</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Threat Intel</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 04 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 04</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">STIX, TAXII and Sharing</h1>
+          <p class="chapter-intro">Intelligence that stays inside one organization is worth less than intelligence shared across a trust community. The security industry built two standards to make that sharing automated, consistent, and machine-readable: STIX for structuring the intelligence itself, and TAXII for transporting it. This chapter covers how both work, what platforms implement them, and how to participate in a sharing community without creating problems for yourself or others.</p>
+          <div class="chapter-tags">
+            <span class="tag">STIX 2.1</span>
+            <span class="tag">TAXII</span>
+            <span class="tag">MISP</span>
+            <span class="tag">ISACs</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="why-structured-sharing">
+          <h2>Why Structured Sharing Matters</h2>
+          <p>Before structured formats existed, threat intelligence sharing happened through email attachments, PDF reports, and informal phone calls. A security team that received a PDF report about a new malware campaign had to manually extract IOCs, paste them into their SIEM, and repeat the process the next time a report arrived. This was slow, error-prone, and did not scale. Two organizations using different tools could not easily exchange intelligence in a way that both could immediately act on.</p>
+
+          <p>Structured threat intelligence solves the interoperability problem. When intelligence is expressed in a standard format, a machine can read it. A SIEM can ingest it automatically. A firewall can pull updates from a shared feed without human intervention. An analyst in one organization can share a structured incident report and a peer in a different organization using different tooling can immediately correlate it against their own data. The value of sharing multiplies when it removes the manual work of parsing and reformatting.</p>
+
+          <p>Consistency enables analytics at scale. When the same types of intelligence objects are described the same way across reports and organizations, you can query across them. How many organizations in my sector observed this IP? What other malware families are associated with the campaign that used this domain? Which ATT&CK techniques appear most frequently in reports about this actor? These questions are answerable with structured data and not answerable with a collection of PDF reports.</p>
+
+          <p>The two dominant standards, STIX and TAXII, were originally developed by MITRE and are now maintained by OASIS. STIX 2.1 is the current version of the data model. TAXII 2.1 is the current version of the transport protocol. They are separate specifications: STIX describes what intelligence looks like; TAXII describes how it moves. They are designed to work together but can be used independently.</p>
+        </section>
+
+        <section class="content-section" id="stix-objects">
+          <h2>STIX 2.1 Core Objects</h2>
+          <p>STIX (Structured Threat Information eXpression) defines a data model for threat intelligence. Everything in STIX is an object. Objects have types, unique identifiers, and properties. Objects are expressed in JSON. Two categories of objects exist: STIX Domain Objects (SDOs), which represent concepts, and STIX Relationship Objects (SROs), which express connections between SDOs.</p>
+
+          <p>The core SDOs that practitioners encounter most frequently are: Indicator, Malware, Threat Actor, Campaign, Attack Pattern, Tool, Vulnerability, Identity, and Report. Each has a defined schema with required and optional properties. An Indicator object represents a pattern that can be used to detect adversary behavior. It contains a pattern field expressed in STIX Pattern language and a valid_from field indicating when the pattern was first observed. A Malware object describes a specific malware sample or family, with fields for malware types, operating system requirements, and relationships to other objects.</p>
+
+          <p>The Threat Actor SDO represents an individual, group, or organization believed to be operating with malicious intent. Properties include name, aliases, goals, sophistication level, resource level, and primary motivation. The Campaign SDO represents a grouping of adversary behaviors believed to be orchestrated by the same actor toward a common objective over a defined time period. The Attack Pattern SDO maps to MITRE ATT&CK via an external_references property that links the technique ID.</p>
+
+          <p>Every STIX object has a type field, an id field (formatted as type--UUID), a created field, and a modified field. The id is globally unique and persistent: the same intelligence object will have the same id across every system that shares it, which enables deduplication and provenance tracking across organizations. Modifying an object produces a new modified timestamp but preserves the original id, so consumers can track object version history.</p>
+
+          <div class="code-block"><code>{
+  "type": "indicator",
+  "spec_version": "2.1",
+  "id": "indicator--8e2e2d2b-17d4-4cbf-938f-98ee46b3cd3f",
+  "created": "2026-06-01T10:00:00.000Z",
+  "modified": "2026-06-01T10:00:00.000Z",
+  "name": "Malicious PowerShell download cradle",
+  "pattern": "[process:command_line MATCHES 'powershell.*-enc.*']",
+  "pattern_type": "stix",
+  "valid_from": "2026-06-01T10:00:00Z",
+  "indicator_types": ["malicious-activity"],
+  "confidence": 75
+}</code></div>
+        </section>
+
+        <section class="content-section" id="stix-relationships">
+          <h2>STIX Relationships</h2>
+          <p>STIX Relationship Objects (SROs) are what make STIX more than a database of facts. They express connections between objects, turning a collection of individual indicators and actor profiles into a graph of interconnected intelligence. A Relationship object has a source_ref (the object the relationship originates from), a target_ref (the object it points to), and a relationship_type that describes the nature of the connection.</p>
+
+          <p>Common relationship types include: uses (a threat actor or campaign uses a specific tool or attack pattern), indicates (an indicator indicates malware or attack pattern presence), attributed-to (a campaign is attributed to a threat actor), targets (a threat actor targets an identity or sector), mitigates (a course of action mitigates an attack pattern or vulnerability), and delivers (malware delivers another malware family as a secondary payload). These relationships allow analysts to traverse the graph and answer questions like: "What attack patterns does this threat actor use, and what indicators have been associated with those patterns?"</p>
+
+          <p>STIX bundles package multiple objects for transport. A bundle contains a type of "bundle", a unique id, and an objects array containing any combination of SDOs and SROs. When a CTI provider shares a threat report as STIX, they typically package it as a bundle containing the relevant SDOs (indicators, malware, threat actor, campaign) and the SROs that link them together. The consumer imports the bundle, and their platform reconstructs the graph from the contained objects and relationships.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> STIX Pattern language is used in Indicator objects to express what to search for. It has its own syntax distinct from KQL, SPL, or Sigma. A STIX pattern looks like: [domain-name:value = 'malicious-domain.com'] or [file:hashes.SHA-256 = 'abc123...']. Most modern TI platforms handle the conversion from STIX patterns to platform-specific query languages, but understanding the pattern syntax helps when reviewing indicator quality in shared bundles.
+          </div>
+        </section>
+
+        <section class="content-section" id="taxii-protocol">
+          <h2>TAXII Protocol</h2>
+          <p>TAXII (Trusted Automated eXchange of Intelligence Information) is the transport protocol for STIX. It defines how to serve and retrieve STIX content over HTTPS. A TAXII server exposes an API with two primary resources: API Roots (top-level endpoints that group related collections) and Collections (named groupings of STIX objects that can be read from or written to).</p>
+
+          <p>TAXII operates in two modes. A server can make collections available for polling (clients fetch on a schedule) or push new intelligence to subscribed clients when it arrives. The poll model is simpler to implement and more common in commercial platforms. The push model provides faster distribution for time-critical intelligence but requires server-side subscription management.</p>
+
+          <p>A TAXII client discovers available resources by querying the discovery endpoint, which returns a list of API Roots. From each API Root, the client can enumerate available collections and retrieve their contents. Collections can be filtered by added_after timestamp, object type, or object id to retrieve only new or relevant content rather than the full collection on every poll. This makes TAXII feeds practical to automate: a client polls hourly, retrieves only objects added since the last poll, and processes the delta.</p>
+
+          <p>Authentication in TAXII is standard HTTP: basic auth, API key via header, or OAuth. The TAXII specification does not mandate a specific authentication mechanism, so implementations vary. Most commercial and community TAXII servers issue API keys to registered participants. Access control to specific collections within a server can be implemented per-collection, allowing a single server to serve public feeds and restricted sharing group content to different audiences.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>TAXII Endpoint</th><th>Method</th><th>Purpose</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>/taxii2/</td><td>GET</td><td>Discovery — list available API Roots</td></tr>
+                <tr><td>/{api-root}/</td><td>GET</td><td>API Root info — list available collections</td></tr>
+                <tr><td>/{api-root}/collections/</td><td>GET</td><td>List all collections in this API Root</td></tr>
+                <tr><td>/{api-root}/collections/{id}/objects/</td><td>GET</td><td>Retrieve objects from a collection</td></tr>
+                <tr><td>/{api-root}/collections/{id}/objects/</td><td>POST</td><td>Add objects to a collection (write access)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="sharing-platforms">
+          <h2>Sharing Platforms and Communities</h2>
+          <p>MISP (Malware Information Sharing Platform) is the most widely deployed open-source threat intelligence sharing platform. It supports STIX 2.1 import and export, provides a web interface for analysts to create and enrich events, implements TAXII server functionality for automated sharing, and includes a flexible taxonomy and tagging system. MISP instances can federate with other MISP instances, creating a mesh of sharing communities. Many national CERTs and ISACs run MISP as their primary sharing infrastructure.</p>
+
+          <p>OpenCTI is an alternative open-source platform designed around the STIX 2.1 data model from the ground up. Its knowledge graph interface is particularly well-suited for actor profiling and campaign analysis. OpenCTI supports MISP import, TAXII 2.1, and a range of connector integrations with commercial feeds, sandbox platforms, and threat intelligence databases. It is increasingly adopted by organizations that need a richer analytical interface than MISP's event-focused model provides.</p>
+
+          <p>Commercial platforms including Anomali ThreatStream, Recorded Future, Mandiant Threat Intelligence, and EclecticIQ provide managed STIX/TAXII infrastructure alongside proprietary enrichment. These platforms aggregate feeds, apply confidence scoring and deduplication, provide threat actor profiles, and offer integration with SIEM and SOAR platforms. The value proposition is reduced curation burden in exchange for subscription cost.</p>
+
+          <p>ISACs (Information Sharing and Analysis Centers) are sector-specific sharing communities. Major ISACs include FS-ISAC (financial services), H-ISAC (health), E-ISAC (electricity), WaterISAC, and IT-ISAC. Each operates as a trust community for its sector, provides vetted analyst-produced intelligence, and runs secure sharing channels typically implemented on MISP or a commercial equivalent. ISAC membership usually requires organizational membership fees, basic vetting, and agreement to the community's sharing rules including TLP handling policies.</p>
+
+          <p>CISA (Cybersecurity and Infrastructure Security Agency) in the United States operates several free sharing programs for critical infrastructure sectors: the Automated Indicator Sharing (AIS) program provides a TAXII feed of indicators, the ISAC programs offer analyst-vetted advisories, and CISA's Known Exploited Vulnerabilities (KEV) catalog is openly accessible. Similar programs operate in the EU through ENISA and national CERTs across Europe.</p>
+        </section>
+
+        <section class="content-section" id="sharing-etiquette">
+          <h2>Sharing Etiquette and Legal Considerations</h2>
+          <p>Intelligence sharing communities function on trust. Trust is built slowly through consistent, high-quality contributions and destroyed quickly through a single mishandled disclosure. Before joining any sharing community, understand both the technical participation requirements and the behavioral norms that govern how members are expected to conduct themselves.</p>
+
+          <p>Contribute before you consume. Communities that have only consumers and no contributors collapse. The expectation in most ISACs and sharing groups is that members contribute intelligence from their own environments, not just receive intelligence from others. Even organizations without a dedicated CTI team can contribute: IOCs extracted during incident response, phishing samples received by users, and anomalous network connection data are all valuable contributions. The quality threshold for community contribution is lower than the threshold for finished intelligence products.</p>
+
+          <p>Honor TLP markings unconditionally. As covered in Chapter 1, TLP defines sharing scope. Violating TLP markings breaks the trust model that makes sharing possible. If you receive TLP:AMBER intelligence and want to share it beyond your organization, contact the originating source first. If you are unsure whether a piece of intelligence can be shared, assume it cannot until confirmed.</p>
+
+          <p>Sanitize sensitive victim data before sharing. Intelligence derived from incident response in your environment may contain information that identifies your organization, your customers, or third-party systems involved in the incident. Before contributing to a sharing community, review the intelligence for identifiable victim information and redact or generalize it. The goal is to share the threat intelligence (what the attacker did and how) without creating a secondary breach of victim privacy.</p>
+
+          <p>Legal considerations vary by jurisdiction. In some countries, sharing threat intelligence that includes personal data may require compliance with data protection regulations (GDPR in Europe, various state laws in the US). Before establishing automated sharing pipelines that include any personal information, consult with legal counsel about what can be shared and under what conditions. Many ISACs provide their member organizations with legal guidance and template sharing agreements specifically for this purpose.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> Automated STIX/TAXII pipelines can inadvertently share sensitive information at scale and speed that outpaces human review. Before enabling automated outbound sharing, implement a review queue or content filtering that checks for sensitive fields before objects are published. An automated pipeline that publishes employee email addresses from a phishing investigation as STIX Identity objects, at TAXII speed, to a sharing community with hundreds of members, represents a significant data handling error.
+          </div>
+        </section>
+
+        <div class="chapter-summary">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>STIX 2.1 is the data model for structured threat intelligence. Objects are expressed in JSON with unique persistent IDs. SDOs represent concepts; SROs represent relationships between them.</li>
+            <li>Core STIX object types include Indicator, Malware, Threat Actor, Campaign, Attack Pattern, Tool, and Report. Relationships connect these objects into an intelligence graph.</li>
+            <li>TAXII 2.1 is the transport protocol. Clients poll collections on a schedule using an added_after filter to retrieve only new objects. Authentication is standard HTTP (API key or OAuth).</li>
+            <li>MISP and OpenCTI are the primary open-source platforms. Commercial platforms (Anomali, Recorded Future, EclecticIQ) provide managed infrastructure with enrichment.</li>
+            <li>ISACs are sector-specific trust communities. FS-ISAC, H-ISAC, IT-ISAC, and others provide vetted intelligence for members in exchange for organizational membership and contribution obligations.</li>
+            <li>Sharing etiquette: contribute before you consume, honor TLP markings unconditionally, sanitize victim data before sharing, and review legal obligations for data containing personal information.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What is the primary difference between STIX and TAXII?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. STIX is used for malware indicators; TAXII is used for network indicators</button>
+              <button class="kc-option" data-correct="true">B. STIX defines the data model for intelligence objects; TAXII defines how those objects are transported</button>
+              <button class="kc-option" data-correct="false">C. STIX is for internal use; TAXII is for external sharing</button>
+              <button class="kc-option" data-correct="false">D. STIX is the newer version of TAXII</button>
+            </div>
+            <div class="kc-answer">STIX and TAXII are separate specifications that address different problems. STIX is the data model: it defines what threat intelligence objects look like, what fields they have, and how they relate to each other. TAXII is the transport protocol: it defines how to serve and retrieve STIX content over HTTPS. They are designed to work together but are independent. You can share STIX bundles via email (no TAXII) or use TAXII to transport other data formats (though STIX is the standard payload).</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">You want to retrieve only the STIX objects added to a TAXII collection in the last 24 hours. What parameter do you use?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. match[type]</button>
+              <button class="kc-option" data-correct="true">B. added_after</button>
+              <button class="kc-option" data-correct="false">C. modified_since</button>
+              <button class="kc-option" data-correct="false">D. created_after</button>
+            </div>
+            <div class="kc-answer">The TAXII 2.1 specification defines an added_after query parameter for filtering collection contents by the timestamp at which objects were added to the collection. Setting added_after to 24 hours ago retrieves only the delta since your last poll, rather than the full collection. This is the standard mechanism for incremental polling in automated TAXII pipelines. The other parameter options do not exist in the TAXII 2.1 specification as defined query filters.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">During an incident, you extract IOCs that include an email address belonging to a victim employee used in a phishing campaign. Before sharing this with your ISAC, you should:</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Share the full email address as it is a valid IOC</button>
+              <button class="kc-option" data-correct="false">B. Convert it to SHA-256 before sharing so it is anonymized</button>
+              <button class="kc-option" data-correct="true">C. Redact the specific email address and share the domain pattern or generalized phishing behavior instead</button>
+              <button class="kc-option" data-correct="false">D. Share it with TLP:AMBER marking so it stays within the ISAC</button>
+            </div>
+            <div class="kc-answer">Victim email addresses are personal data. Even with a TLP:AMBER marking, sharing within an ISAC may still constitute a privacy violation depending on jurisdiction. Hashing the address does not reliably anonymize it because the email namespace is small enough that hashed addresses can be reversed by dictionary attack. The correct approach is to extract the threat intelligence value (the phishing methodology, domain pattern, lure content) and share that, while excluding personally identifiable information about victims.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="03-threat-actor-profiling.html" class="chapter-nav-prev">← Threat Actor Profiling</a>
+          <a href="05-intel-driven-hunting.html" class="chapter-nav-next">Intel-Driven Hunting →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('04', 6));</script>
+  <div id="h3gc" style="position:fixed;bottom:16px;right:16px;display:flex;align-items:center;gap:6px;background:rgba(8,10,18,.9);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.45);z-index:9500;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);pointer-events:none;">
+    <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3.5" stroke="rgba(74,222,128,.7)" stroke-width="1"/><circle cx="4" cy="4" r="1.5" fill="rgba(74,222,128,.8)"/></svg>
+    <span id="h3gc-n" style="color:rgba(74,222,128,.9);font-weight:600">—</span>
+    <span style="opacity:.5">VISITORS</span>
+  </div>
+  <!-- h3gc-v3 -->
+  <script>
+    (function(){
+      var key = (location.pathname.split('/').join('') || 'hub').toLowerCase();
+      var base = 'https://api.counterapi.dev/v1/h3ad-sec/' + key;
+      var lk = 'h3gc_c_' + key; var sk = 'h3gc_s_' + key;
+      var el = document.getElementById('h3gc-n');
+      function store(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+      function session(k){try{return sessionStorage.getItem(k);}catch(e){return null;}}
+      function sessionSet(k,v){try{sessionStorage.setItem(k,v);}catch(e){}}
+      try{ var cached=localStorage.getItem(lk); if(el&&cached) el.textContent=Number(cached).toLocaleString(); }catch(e){}
+      var seen = session(sk); if (!seen) sessionSet(sk,'1');
+      fetch(seen ? base + '/' : base + '/up').then(function(r){ if(!r.ok) throw r; return r.json(); }).then(function(d){ if(d.count!=null){ store(lk,d.count); if(el) el.textContent=Number(d.count).toLocaleString(); } }).catch(function(){});
+      var gsk = 'h3gc_s_total'; if (!session(gsk)) { sessionSet(gsk,'1'); fetch('https://api.counterapi.dev/v1/h3ad-sec/total/up').catch(function(){}); }
+    })();
+  </script>
+</body>
+</html>
