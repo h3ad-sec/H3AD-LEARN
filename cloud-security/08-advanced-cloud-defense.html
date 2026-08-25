@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="08">
+  <meta name="module-id" content="cloud-security">
+  <title>Advanced Cloud Defense · Cloud Security · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">ADVANCED CLOUD DEFENSE</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">Cloud Security</a>
+        <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
+        <a href="../lolbas/index.html" class="nav-link">LOLBAS</a>
+        <a href="../threat-intel/index.html" class="nav-link">Threat Intel</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Cloud Security</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 08 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">40 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 08</span>
+            <span class="badge-time muted mono">40 MIN READ</span>
+            <span class="badge-diff badge-advanced">ADVANCED</span>
+          </div>
+          <h1 class="chapter-title">Advanced Cloud Defense</h1>
+          <p class="chapter-intro">Every chapter before this one asked some version of the same question: how does an attacker get in, and how do you notice once they have. That's necessary work, and it's most of what a SOC does day to day. But detection alone caps out at reacting faster to the same failures repeating. This closing chapter covers the other half of a mature cloud security program: the architectural and governance controls that reduce how often those failures happen at all. Zero Trust, CIEM, CSPM, and baseline hardening won't replace the detections built in Chapters 4 through 6, but they shrink the surface those detections have to cover.</p>
+          <div class="chapter-tags">
+            <span class="tag">Zero Trust</span>
+            <span class="tag">CIEM</span>
+            <span class="tag">CSPM</span>
+            <span class="tag">hardening</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="detection-to-prevention">
+          <h2>From Detection to Prevention</h2>
+          <p>Chapters 2 through 7 built a picture of cloud security from the attacker's side inward: how identity gets compromised in Azure AD and Entra, how AWS IAM and storage get misconfigured into an opening, what telemetry catches each of those, how to hunt for the ones that haven't tripped an alert yet, and how real threat actors chain all of it together end to end. That's the reactive half of the discipline, and it's indispensable. You cannot defend what you don't understand, and you cannot detect what you haven't instrumented.</p>
+
+          <p>But a SOC that only gets better at noticing incidents faster is still absorbing the same volume of incidents. The other half of a mature program is architectural: controls that make the attacks in Chapters 2 and 3 harder to execute in the first place, and governance processes that catch the drift and over-provisioning that create those openings before an attacker ever finds them. This is unglamorous work compared to threat hunting or incident response. It rarely produces a war story. It's also the reason some organizations have a quiet year and others don't, given the same threat landscape and the same detection stack.</p>
+
+          <p>This chapter covers four pieces of that architectural layer: Zero Trust as the underlying principle, CIEM and CSPM as the two governance tooling categories that operationalize it, and a short list of hardening controls that matter more than their reputation suggests. Each one connects directly back to a specific problem raised earlier in the module. That's deliberate. None of this is new theory bolted onto the end of the course. It's the answer to questions the last seven chapters left open.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> Nothing in this chapter replaces detection engineering. Zero Trust, CIEM, and CSPM reduce the frequency and severity of incidents; they don't eliminate the need to watch for the ones that get through anyway. Treat this chapter as complementary to Chapters 4 through 6, not a substitute for them.
+          </div>
+        </section>
+
+        <section class="content-section" id="zero-trust-architecture">
+          <h2>Zero Trust Architecture in Practice</h2>
+          <p>Zero Trust gets used loosely enough in vendor marketing that it's worth pinning down what it actually means before applying it. It isn't a product, and it isn't a single control you can buy and install. It's an architectural principle: never trust, always verify, applied continuously rather than granted once and left standing. The name is almost self-explanatory once you strip the marketing off it, but the operational implication is bigger than the phrase suggests.</p>
+
+          <p>Traditional network security trusted location. If a request came from inside the corporate network, it was treated as more trustworthy than one from outside, often with minimal further checking. That model assumes a defensible perimeter exists, which Chapter 1 already established isn't true in the cloud. Zero Trust replaces location-based trust with continuous, signal-based evaluation. Every request, whether it comes from a human or a service identity, is evaluated on its own merits against identity, device, and context signals, regardless of whether it originates inside or outside whatever network boundary still exists. There is no standing trust granted just because a session started successfully ten minutes ago or because the request came from an office IP range.</p>
+
+          <p>The word "continuously" is doing real work in that definition. A traditional login checks credentials once at authentication and then trusts the resulting session for its lifetime. A Zero Trust implementation re-evaluates as conditions change: a new device fingerprint, an impossible-travel signal, a session token being used from an unexpected location, a risk score that changes mid-session. The check isn't a gate you pass once. It's a posture the system holds continuously.</p>
+
+          <p>Conditional Access, covered in Chapter 2 as an Entra ID feature, is the clearest practical example of this principle already sitting in the module. Conditional Access is a policy engine that evaluates identity, device compliance, location, and session risk signals at each sign-in and can require additional verification, block access, or grant it, based on that evaluation rather than on a standing grant of trust. It doesn't ask "did this user log in successfully once already." It asks "given everything I can observe about this specific request right now, should it proceed." That's Zero Trust implemented as policy, not as slideware. Chapter 2 also covered conditional access bypass techniques attackers use against it, which is a useful reminder that Zero Trust reduces risk, it doesn't remove it. A policy engine is only as strong as the signals it evaluates and the exceptions carved into it.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> When evaluating whether an environment is actually practicing Zero Trust versus just using the term, ask one question: is trust re-evaluated per request based on current signals, or granted once at login and held for the life of the session? If it's the latter, the architecture is still perimeter-based no matter what the marketing calls it.
+          </div>
+        </section>
+
+        <section class="content-section" id="ciem">
+          <h2>Cloud Infrastructure Entitlement Management (CIEM)</h2>
+          <p>Chapter 3 covered IAM privilege escalation in AWS as a technique: an attacker finds a role or policy with more permission than intended and uses it to climb toward a more privileged identity. That technique only works because the gap it exploits already exists before the attacker shows up. CIEM is the tooling category built to find and close that gap proactively, rather than waiting for it to be exploited and caught downstream.</p>
+
+          <p>The underlying problem CIEM addresses is structural, not a one-off mistake. In any cloud environment past a certain size, the gap between granted permissions and actually-used permissions grows continuously. Roles get created with broad access because it's faster than scoping them precisely, and nobody circles back to tighten them once the immediate task is done. A service account provisioned for a migration keeps its elevated access long after the migration finishes. An engineer moves teams and their old permissions never get revoked, only added to. None of these are dramatic failures. Each one is a small, reasonable-seeming shortcut at the time it's taken. The problem is that they accumulate, and in an environment with thousands of identities and finely grained permission systems like AWS IAM or Azure RBAC, manually auditing who has access to what and whether they still need it is not something a human review process can keep up with at scale.</p>
+
+          <p>CIEM tooling closes that gap by analyzing actual usage against granted entitlements. Instead of asking "what does this role's policy document allow," it asks "what has this identity actually done over the observed period, and how much of its granted permission has it ever exercised." The difference between those two numbers, often called the entitlement gap, is the actionable output: a ranked list of identities that hold significantly more access than their behavior justifies, which security or platform teams can then right-size. This directly addresses the IAM privilege escalation risk from Chapter 3, because an escalation path usually depends on some identity along the chain holding unused, unnecessary permission. Shrinking that surplus before an attacker finds it is strictly cheaper than detecting the escalation after the fact.</p>
+
+          <p>CIEM is most valuable in exactly the environments Chapter 1 flagged as high-risk for identity sprawl: large IaaS and PaaS footprints with many non-human identities, cross-account trust relationships, and permission systems complex enough that no single person can hold the full picture in their head. It's less about a specific product and more about a discipline: treat entitlement as something that decays and needs continuous correction, not something you set once at role creation and leave alone.</p>
+        </section>
+
+        <section class="content-section" id="cspm">
+          <h2>Cloud Security Posture Management (CSPM)</h2>
+          <p>CIEM answers "who has too much access." CSPM answers a related but distinct question: "is this environment configured the way it's supposed to be, right now, and has that changed since the last time someone checked." Chapter 3 covered S3 and storage misconfiguration as one of the most common root causes of cloud incidents; a bucket left public, an access policy broader than intended. CSPM is the tooling category built specifically to catch exactly that class of problem, continuously, rather than relying on periodic manual audits that only catch what's wrong at the moment someone happens to be looking.</p>
+
+          <p>CSPM works by continuously scanning cloud environments against defined security benchmarks and flagging deviations. The CIS Benchmarks are the most widely referenced standard here: a set of prescriptive, vendor-published configuration baselines (CIS AWS Foundations, CIS Microsoft Azure Foundations, and equivalents for other platforms) that define what a reasonably hardened baseline configuration looks like for a given service. A CSPM tool evaluates the live environment against a benchmark like this on an ongoing basis and surfaces every resource that has drifted out of compliance.</p>
+
+          <p>Drift is the key concept that separates CSPM from a one-time audit. A storage bucket can be correctly configured at creation, pass every review at launch, and still end up misconfigured months later because someone loosened its access policy to unblock a legitimate-seeming request and never tightened it back. Nobody involved in that change was being careless in an obvious way. It's the kind of well-intentioned, incremental adjustment that happens constantly in a live environment and is nearly invisible without something watching continuously. A quarterly manual audit might catch it eventually. CSPM catches it on the next scan cycle, often within minutes to hours of the drift occurring, which is the difference between a configuration error that gets fixed quietly and one that sits exposed for months until an attacker or an auditor finds it first.</p>
+
+          <p>The table below lays out how CIEM and CSPM divide the governance problem. They're frequently sold as adjacent modules of the same platform, which makes sense given how directly they complement each other, but they're answering different questions and neither substitutes for the other.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Dimension</th><th>CIEM</th><th>CSPM</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>What it analyzes</td><td>Identity permissions vs. actual usage</td><td>Resource configuration vs. security benchmarks</td></tr>
+                <tr><td>Core question</td><td>Who has more access than they need?</td><td>Is this resource configured correctly, right now?</td></tr>
+                <tr><td>Problem it addresses</td><td>Entitlement sprawl and standing privilege risk</td><td>Configuration drift and misconfiguration</td></tr>
+                <tr><td>Example finding</td><td>A service account has S3 write access it hasn't exercised in 90 days</td><td>A storage bucket's access policy was widened after initial secure configuration</td></tr>
+                <tr><td>Related module chapter</td><td>Chapter 3 (IAM privilege escalation)</td><td>Chapter 3 (S3 / storage misconfiguration)</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> A CSPM benchmark scan is a point-in-time or near-continuous check, not a guarantee. A resource can pass a scan and still be exploited between scan cycles, and a benchmark can be satisfied on paper while missing an organization-specific risk it was never designed to catch. Treat CSPM findings as a strong prioritization signal, not proof that everything unflagged is safe.
+          </div>
+        </section>
+
+        <section class="content-section" id="hardening-checklist">
+          <h2>Hardening Controls Checklist</h2>
+          <p>Zero Trust, CIEM, and CSPM are the architectural layer. Underneath them sits a smaller set of baseline hardening controls that are less conceptually interesting but prevent a disproportionate share of the incidents this module has walked through. None of these are novel. All of them get skipped somewhere in most environments, usually not through ignorance but through an exception nobody closed the loop on.</p>
+
+          <p>MFA enforcement for every human identity, without exception, is the first and most consequential of these. Chapter 2's coverage of password spray and consent phishing both assumed the attacker eventually needs to get past authentication, and MFA is still the single control most likely to stop a stolen or guessed credential from becoming account takeover. The failure mode worth watching for isn't the absence of an MFA policy, it's the exception carved into one: a legacy service account, an executive who complained about friction, a break-glass account nobody wanted to lock themselves out of. Each exception is small and each one is a bypass path an attacker only has to find once.</p>
+
+          <p>That last example deserves its own attention, because break-glass and emergency-access accounts need protection that's different in kind, not just degree, from standard conditional access policy. Chapter 2 covered conditional access bypass techniques, and a break-glass account is, by design, meant to work even when normal conditional access policies are failing or misconfigured, which is exactly why it can't be governed by the same policy engine it exists to route around. These accounts need isolated, tightly monitored credentials (often physically secured or split-knowledge), alerting on every single use rather than risk-based conditional alerting, and a documented, regularly tested process for when they're invoked. A break-glass account that's never been tested is a liability wearing a safety feature's name, and one that's monitored the same way as every other admin account defeats the reason it exists.</p>
+
+          <p>Default-deny public access on storage services closes the exact misconfiguration pattern Chapter 3 and this chapter's CSPM section both cover. The practical control is simple to state: storage resources should be private by default at creation, with public access requiring an explicit, reviewed decision rather than being something a template or a rushed configuration change can silently enable. Several major cloud providers now offer account-level or organization-level settings that block public access to storage services outright unless deliberately overridden per resource. Turning that setting on is one of the highest-leverage, lowest-effort hardening actions available, precisely because it converts an easy mistake into a deliberate, auditable exception.</p>
+
+          <p>Regular credential and access-key rotation for service identities rounds out the list. Long-lived, unrotated access keys are a recurring thread through the IAM risk covered in Chapter 3: a static credential that never expires is a static credential an attacker can use indefinitely once obtained, with no natural point at which it stops working. Where the platform supports it, short-lived, automatically rotated credentials (temporary session tokens, managed identities) are preferable to static keys entirely. Where static keys are unavoidable, a defined rotation cadence with monitoring for keys that haven't rotated on schedule turns an indefinite exposure window into a bounded one.</p>
+
+          <p>None of these four controls will show up in a threat actor writeup as the clever part of an intrusion, which is exactly the point. They're the boring, procedural work that prevents most of the incidents this module has described from having anywhere to start.</p>
+        </section>
+
+        <section class="content-section" id="program-roadmap">
+          <h2>Building a Cloud Security Program Roadmap</h2>
+          <p>Eight chapters is enough distance to look back and see how the pieces fit together, so it's worth doing that explicitly before closing the module. Chapter 1 established the frame everything else sits inside: shared responsibility splits duties between provider and customer, and identity, not network location, is the perimeter that actually matters in the cloud. Chapters 2 and 3 made that concrete with the specific techniques attackers use against Azure AD and Entra, and against AWS: password spray, consent phishing, token theft, IAM enumeration, storage misconfiguration, and privilege escalation. You can't detect or prevent what you can't name, and those two chapters exist to give you the names.</p>
+
+          <p>Chapter 4 covered the telemetry that makes any of the earlier chapters observable: sign-in and audit logs, CloudTrail, flow logs, and what a usable baseline looks like when the infrastructure generating it might not exist tomorrow. Chapter 5 built on that telemetry with threat hunting methodology, the discipline of going looking for the intrusion that hasn't triggered an alert rather than waiting for one to fire. Chapter 6 turned hunting hypotheses and known attack patterns into tuned detection logic across KQL, SPL, and Sigma, the difference between a query that exists and a query that actually fires on real signal without drowning the SOC in noise. Chapter 7 pulled all of that together by walking through how real threat actors, from identity-focused groups to nation-state operators, chain these techniques end to end rather than using any one of them in isolation.</p>
+
+          <p>This chapter closes the loop by asking what reduces how often any of that becomes an active incident in the first place. Zero Trust reframes trust as something re-evaluated continuously rather than granted once. CIEM keeps the identity layer from Chapters 2 and 3 from silently accumulating more privilege than it needs. CSPM keeps the configuration layer from drifting out of the secure state it started in. Baseline hardening, unglamorous as it is, closes the specific gaps that show up over and over in postmortems: missing MFA, unprotected break-glass access, public-by-accident storage, stale credentials.</p>
+
+          <p>None of these eight chapters works well in isolation. Detection without prevention means catching the same class of incident forever instead of shrinking it. Prevention without detection means trusting that the architecture holds and having nothing in place for the day it doesn't. A cloud security program that's serious about both, the attack knowledge and the architectural controls, the telemetry and the governance discipline to keep entitlements and configuration honest, is what separates an organization that has a quiet year from one that's just been lucky so far. That's the whole arc of this module in one sentence, and it's worth carrying forward past the last page of it.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>This chapter shifts from detection (Chapters 2-7) to prevention: architectural and governance controls that reduce how often cloud attacks succeed in the first place.</li>
+            <li>Zero Trust means continuously verifying every request against identity, device, and context signals, rather than granting standing trust once a session starts. Conditional Access is a practical Zero Trust enforcement point already covered in Chapter 2.</li>
+            <li>CIEM analyzes actual permission usage against granted entitlements to find and right-size excessive privilege, directly addressing the IAM privilege escalation risk from Chapter 3.</li>
+            <li>CSPM continuously scans configuration against benchmarks like the CIS Benchmarks to catch drift, such as a storage bucket that was secure at creation but was loosened later, addressing the misconfiguration risk from Chapter 3.</li>
+            <li>Baseline hardening (universal MFA, protected break-glass accounts, default-deny public storage access, credential rotation) is unglamorous but prevents a disproportionate share of real-world incidents.</li>
+            <li>A mature cloud security program needs both halves working together: the attack knowledge and telemetry to detect intrusions, and the architectural controls to reduce how often they happen at all.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What is the key difference between what CIEM and CSPM each analyze?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. CIEM analyzes network traffic, CSPM analyzes user behavior</button>
+              <button class="kc-option" data-correct="true">B. CIEM analyzes identity permissions against actual usage, CSPM analyzes resource configuration against security benchmarks</button>
+              <button class="kc-option" data-correct="false">C. They analyze the same thing, just for different cloud providers</button>
+              <button class="kc-option" data-correct="false">D. CIEM is for AWS only, CSPM is for Azure only</button>
+            </div>
+            <div class="kc-answer">CIEM asks who has more access than they actually use, addressing entitlement sprawl. CSPM asks whether resources are configured according to a defined benchmark right now, addressing configuration drift. They're complementary governance categories answering different questions, not competing tools for the same problem.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Under a Zero Trust architecture, what actually changes about how a request is evaluated compared to a traditional perimeter-based model?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Requests from inside the corporate network are trusted automatically, requests from outside are not</button>
+              <button class="kc-option" data-correct="false">B. Trust is granted once at login and held for the entire session</button>
+              <button class="kc-option" data-correct="true">C. Trust is evaluated continuously against identity, device, and context signals for every request, regardless of network location</button>
+              <button class="kc-option" data-correct="false">D. Only non-human identities are subject to verification, human users are trusted by default</button>
+            </div>
+            <div class="kc-answer">Zero Trust replaces standing, location-based trust with continuous, signal-based evaluation applied to every request. Conditional Access is a working example: it evaluates identity, device compliance, and session risk at each sign-in rather than trusting a session simply because it started successfully.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Why do break-glass / emergency-access accounts need protection that's different in kind, not just stricter conditional access policy, compared to standard admin accounts?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. They don't, applying the strictest standard conditional access policy is sufficient</button>
+              <button class="kc-option" data-correct="true">B. Break-glass accounts are designed to work even when normal conditional access policies are failing or misconfigured, so they can't be governed by the same policy engine they exist to route around</button>
+              <button class="kc-option" data-correct="false">C. Break-glass accounts are only used by automated service principals, not humans</button>
+              <button class="kc-option" data-correct="false">D. They need protection only during planned maintenance windows</button>
+            </div>
+            <div class="kc-answer">A break-glass account exists specifically to restore access when normal authentication or conditional access is broken or misconfigured. If it were subject to the same policy engine as everything else, it would fail in exactly the scenario it's meant to solve. Instead it needs isolated credentials, alerting on every use, and a tested invocation process, controls that exist outside the standard conditional access framework rather than layered stricter versions of it.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="07-cloud-threat-actor-campaigns.html" class="chapter-nav-prev">← Cloud Threat Actor Campaigns</a>
+          <a href="index.html" class="chapter-nav-next">Back to Cloud Security →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('08', 6));</script>
+</body>
+</html>

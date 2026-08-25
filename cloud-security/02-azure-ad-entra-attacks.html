@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="02">
+  <meta name="module-id" content="cloud-security">
+  <title>Azure AD & Entra ID Attacks · Cloud Security · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">AZURE AD & ENTRA ID ATTACKS</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">Cloud Security</a>
+        <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
+        <a href="../lolbas/index.html" class="nav-link">LOLBAS</a>
+        <a href="../threat-intel/index.html" class="nav-link">Threat Intel</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Cloud Security</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 02 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 02</span>
+            <span class="badge-time muted mono">35 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Azure AD & Entra ID Attacks</h1>
+          <p class="chapter-intro">Chapter 1 established identity as the perimeter that matters most in the cloud. This chapter puts that idea to work against the platform behind Microsoft 365 and Azure resource access: Entra ID, still called Azure AD by most of the industry out of habit. Password spray, consent phishing, token theft, and conditional access bypass are not four unrelated attack categories, they are four different ways of arriving at the same outcome, control of an identity the rest of the tenant already trusts. This chapter walks through how each technique works, what makes it effective against defenses that look solid on paper, and the telemetry each one leaves behind.</p>
+          <div class="chapter-tags">
+            <span class="tag">password spray</span>
+            <span class="tag">consent phishing</span>
+            <span class="tag">token theft</span>
+            <span class="tag">conditional access</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="idp-high-value-targets">
+          <h2>Why Identity Providers Are High-Value Targets</h2>
+          <p>Entra ID is not just the login screen for Outlook. It is the control plane behind Microsoft 365, direct access to Azure resources through role assignments, and, for a large share of organizations, the single sign-on backbone federating access into dozens of third-party SaaS applications that were never built or secured by the same team. Understanding that scope is what separates a defender who treats Entra compromise as "someone's email got hacked" from one who treats it as the tenant-wide incident it actually is.</p>
+
+          <p>That federation point is the detail analysts underestimate most. When an organization connects Salesforce, a benefits portal, an expense system, and a dozen other vendor applications through Entra ID single sign-on, the identity provider becomes the trust anchor for every one of them. A user does not authenticate separately to each application; they authenticate once to Entra, and Entra vouches for them everywhere else. From a defender's perspective this is efficient and auditable when it works as intended. From an attacker's perspective it means a single compromised identity is not a single compromised account, it is potentially simultaneous access to email, file storage, financial systems, HR data, and whatever else trusts that token.</p>
+
+          <p>Compare this to compromising a single endpoint. A workstation compromise, however serious, is bounded by what that machine can reach: local files, whatever network segments it can route to, cached credentials for services the user happens to be logged into at the time. An identity provider compromise is bounded by the identity's entitlements across the entire federated ecosystem, which in a mature enterprise is often measured in dozens of applications, and if the compromised account carries administrative roles, the entire tenant. This asymmetry is why identity providers sit at the top of nearly every real-world attack path this module references, and why the rest of this chapter treats Entra ID compromise as a category of incident in its own right rather than a subset of ordinary account takeover.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> Every technique in this chapter targets the same underlying object, an Entra identity or the tokens it holds, through a different door. Keep that thread in mind as you read: password spray, consent phishing, and token theft are three separate entry points converging on the same outcome.
+          </div>
+        </section>
+
+        <section class="content-section" id="password-spray-credential-attacks">
+          <h2>Password Spray and Credential Attacks</h2>
+          <p>Password spray attacks work by inverting the usual brute-force ratio. Instead of testing many passwords against one account, an attacker tests a small number of commonly used passwords, often a single attempt per account, against a large number of accounts. The logic is straightforward: most account lockout policies count failed attempts per account, not failed attempts across the tenant, so an attacker who never exceeds a handful of failures on any single account can stay under the lockout threshold indefinitely while working through a company-wide list of usernames built from a predictable email naming convention.</p>
+
+          <p>Entra ID's Smart Lockout is designed specifically to blunt this pattern. It tracks failed sign-ins per account and per location, distinguishing familiar sign-in patterns from unfamiliar ones, and locks an account after a threshold of failures regardless of how those failures are spaced out over time. It is a meaningful control, but it is not the whole picture, and attackers who understand it simply throttle their pacing to stay below the threshold rather than abandoning the technique.</p>
+
+          <p>The more consistent bypass path is legacy authentication. Protocols such as IMAP, POP3, SMTP AUTH, and older Exchange ActiveSync implementations were built before modern authentication and conditional access existed, and they authenticate with a username and password in a single request with no interactive challenge. That means no MFA prompt to satisfy and, in some tenant configurations, no conditional access policy evaluation at all, because those policies were written with interactive, browser-based sign-in in mind. An organization can have Smart Lockout and conditional access covering the front door while leaving a side door open that was never designed to check for a second factor. Microsoft has been steadily deprecating Basic Authentication for Exchange Online protocols, which has closed a lot of this exposure, but tenants with exceptions enabled or other legacy clients still in use remain reachable through it.</p>
+
+          <p>From a telemetry standpoint, password spray leaves a specific and fairly loud footprint if anyone is looking for it. Entra sign-in logs record a failure reason code for every unsuccessful attempt: 50126 corresponds to an invalid username or password, and a burst of 50126 failures spread across many distinct user accounts, arriving from a small number of source IPs or a narrow ASN range within a short window, is closer to a signature than a coincidence. Code 50053 indicates the account has been locked out, and a wave of 50053 events following a wave of 50126 events on different accounts is spray activity that pushed past Smart Lockout's threshold on at least a subset of targets. Neither code alone proves an attack, users mistype passwords constantly, but the pattern across account count, source concentration, and timing is what separates spray from noise.</p>
+        </section>
+
+        <section class="content-section" id="consent-phishing-oauth-abuse">
+          <h2>Consent Phishing and OAuth Abuse</h2>
+          <p>Consent phishing, sometimes called an illicit consent grant attack, targets a different part of the identity chain entirely. Instead of trying to steal a password, the attacker registers an Azure AD application, often with a name designed to look legitimate or familiar, and requests delegated OAuth permissions such as Mail.Read or Files.ReadWrite. The attacker then sends the target a link that walks them through a completely genuine Microsoft consent prompt, hosted on a real Microsoft domain, asking the user to approve those permissions for the application.</p>
+
+          <p>If the user clicks approve, no credential changes hands. The user's password is never entered anywhere, and nothing about the interaction resembles a phishing page, because technically it isn't one. What the user grants is a permission scope, and the malicious application receives an access token and, critically, a refresh token that lets it mint new access tokens indefinitely without the user doing anything else. This is the detail that makes consent phishing durable in a way credential theft is not: a password reset does nothing to revoke an OAuth grant. The application keeps working after the user changes their password, sometimes for months, until someone specifically reviews and revokes its permissions or an administrator notices it during an audit.</p>
+
+          <p>The permission scope requested drives the impact. Mail.Read alone is enough to monitor a mailbox indefinitely, which is valuable both for business email compromise reconnaissance and for intercepting password reset or MFA registration emails sent to the victim. Broader scopes covering file storage or directory data compound that further.</p>
+
+          <p>The single most effective structural defense is requiring admin consent for third-party applications rather than allowing user consent by default. When user consent is permitted, any employee who clicks approve grants the permission, full stop. When admin consent is required, the request instead lands as a pending approval an administrator has to evaluate, which turns a one-click social engineering outcome into a reviewed decision point. Environments that have made this change are meaningfully more resistant to consent phishing, not because the attack becomes impossible, but because it now requires compromising or social-engineering an administrator instead of any one of thousands of end users.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> A periodic review of Enterprise Applications and their granted permissions, looking specifically for apps outside the organization's known-good registry with mail, file, or directory scopes, catches consent grants that predate a policy change or slipped through before admin consent was enforced.
+          </div>
+        </section>
+
+        <section class="content-section" id="token-theft-session-hijacking">
+          <h2>Token Theft and Session Hijacking</h2>
+          <p>Adversary-in-the-middle phishing represents a different failure mode again, one that specifically targets the assumption that MFA closes the loop on credential theft. In an AiTM setup, a reverse-proxy phishing kit sits between the victim and the real Microsoft login page. The victim visits what looks like a normal sign-in page, enters their username and password, and completes whatever MFA challenge Entra prompts them for, a push approval, a one-time code, a security key touch. Every one of those steps is relayed live to the real Microsoft endpoint, because the proxy is faithfully forwarding traffic in both directions. The victim genuinely authenticates. The attacker's proxy simply sits in the middle of that authentication and captures the session token and cookies issued at the end of it.</p>
+
+          <p>This is why AiTM phishing defeats traditional MFA in a way password spray and simple credential phishing do not. The attacker is not trying to guess or steal a password and then separately defeat a second factor. They are letting the victim complete the entire legitimate authentication flow, MFA included, and then stealing the already-authenticated session that comes out the other end. From Entra's perspective, that session token is indistinguishable from any other successfully authenticated session, because it is one.</p>
+
+          <p>Once the attacker holds a valid session token, two related techniques extend the access. Pass-the-cookie is the direct use of the stolen session cookie to access the account without any further authentication prompt, effectively resuming the victim's session from the attacker's own browser or tooling. Refresh token replay is the longer-lived version: the attacker uses the stolen refresh token to mint new access tokens as the original ones expire, maintaining persistence well past the lifetime of the initial session without needing to phish the user again or trigger another MFA prompt. Both techniques are why incident response for a suspected AiTM compromise has to include revoking refresh tokens and invalidating sessions tenant-side, not just resetting the user's password. A password reset alone, exactly as with consent phishing, does not touch a token the attacker already holds.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Technique</th><th>What's Stolen</th><th>Does MFA Stop It</th><th>Primary Telemetry Signal</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Password spray</td><td>Correct password guess</td><td>Usually, if MFA is enforced on the sign-in path used</td><td>Sign-in failure codes 50126/50053 across many accounts, few source IPs</td></tr>
+                <tr><td>AiTM token theft</td><td>Post-authentication session/refresh token</td><td>No, MFA is completed by the victim before the token is stolen</td><td>Same token used from multiple IPs/devices; anomalous non-interactive sign-ins</td></tr>
+                <tr><td>Consent phishing</td><td>OAuth permission grant (no password or token stolen from the user directly)</td><td>Not applicable, no credential or session is captured</td><td>Audit log entries for consent grants to unrecognized applications</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="conditional-access-bypass">
+          <h2>Conditional Access Bypass Techniques</h2>
+          <p>Conditional access policies are the mechanism most organizations rely on to enforce MFA, restrict sign-ins to compliant devices, and limit access by location, and they are effective against a large share of opportunistic attacks. They are not, however, a single control that covers every authentication path uniformly, and attackers who understand where the coverage gaps sit look for exactly those gaps.</p>
+
+          <p>Legacy authentication protocols are the most consistent bypass path, for the same underlying reason they undermine Smart Lockout: they were built before conditional access existed as a concept, and depending on how a tenant's policies are scoped, a legacy authentication attempt may never be evaluated against modern conditional access rules at all. An organization can carefully configure conditional access to require compliant devices and MFA for browser sign-ins and still have a policy gap if legacy protocols were not explicitly included in that policy's scope or blocked through a separate control entirely.</p>
+
+          <p>Device compliance and trusted location or IP allowlisting introduce a different kind of gap. These controls are useful precisely because they let an organization treat sign-ins from known, managed devices or known network ranges with less friction. That same design becomes a target once an attacker has any foothold inside a trusted network segment, whether through a compromised VPN endpoint, a device that already satisfies the compliance check, or infrastructure positioned to appear as though it originates from an allowlisted range. A control built to reduce friction for legitimate, already-trusted traffic reduces friction just as effectively for an attacker who has found a way to look like that traffic.</p>
+
+          <p>Break-glass or emergency access accounts deserve specific attention because of how disproportionate their risk profile is relative to their numbers. These accounts exist to guarantee administrative access if a conditional access misconfiguration or an identity provider outage locks everyone else out, and by design they are often excluded from the very conditional access policies and MFA requirements that apply to every other account, because the whole point is that they have to work when those systems fail. That same design necessity means a break-glass account, if discovered and compromised, hands an attacker administrative access with none of the controls that would normally slow them down or generate the sign-in telemetry those controls produce.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> Break-glass accounts should generate an immediate high-priority alert on any sign-in, full stop. They are used rarely by design, so there is no "normal" volume of activity to baseline against, and any use outside a documented emergency access event should be treated as a potential compromise until proven otherwise.
+          </div>
+        </section>
+
+        <section class="content-section" id="detection-telemetry-entra">
+          <h2>Detection and Telemetry for Entra Attacks</h2>
+          <p>Everything covered in this chapter leaves telemetry somewhere, and knowing where to look is what turns these techniques from abstract risk into something a SOC can actually detect. Entra sign-in logs are the primary source, split into interactive sign-ins, which correspond to a user directly authenticating, and non-interactive sign-ins, which cover token refreshes and background authentication performed on the user's behalf by applications. Both matter. An attacker replaying a stolen refresh token, for example, generates non-interactive sign-in events, not interactive ones, and a hunt that only reviews interactive sign-ins will miss that activity entirely.</p>
+
+          <p>Within each sign-in record, a handful of fields carry most of the analytic weight. Status and failure reason identify whether the sign-in succeeded and, if not, why, using the same code system referenced earlier for password spray. Client app used distinguishes modern authentication from legacy protocols, and a spike in legacy client usage from an account that normally authenticates through a browser is worth investigating on its own. Location and IP data, cross-referenced against the user's normal pattern, surface impossible travel and unfamiliar geography. Device compliance state shows whether the sign-in came from a managed, compliant device or an unmanaged one. And the conditional access result field records whether policies were applied, satisfied, or not applicable to that specific sign-in, which is exactly where a policy scoping gap becomes visible after the fact.</p>
+
+          <p>Entra ID Protection adds a layer of automated risk scoring on top of the raw logs, surfacing risky sign-in detections (atypical travel, anonymized IP addresses, unfamiliar sign-in properties) and risky user detections that aggregate signals across a user's recent activity. These detections are a strong starting point for triage, but they should feed investigation rather than replace it, since risk scoring is probabilistic and both false positives and quiet true positives happen.</p>
+
+          <p>Audit logs cover the other half of this chapter's content: application consent grants and app role assignments. Any time a user or administrator approves an OAuth consent prompt, or an application is assigned a role, that action generates an audit log entry recording who approved it, what was granted, and to which application. A hunt for consent phishing, practically, means reviewing the audit log for consent-to-application events and flagging anything granted to an application the organization did not register itself, particularly where the granted scope includes mail or file access. Conceptually, an analyst building this hunt is pulling sign-in activity from the platform's SigninLogs table and consent or role-assignment events from AuditLogs, correlating by user and by application ID, and looking either for events tied to applications outside the organization's known-good registry or a burst of failure-reason activity matching the spray pattern described earlier in this chapter. The specific query language differs by SIEM, but the two log sources and the correlation logic stay the same regardless of where they're run.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>Entra ID is the trust anchor for Microsoft 365, Azure RBAC, and federated SaaS, so one compromised identity can cascade into access across every connected application.</li>
+            <li>Password spray relies on staying under per-account lockout thresholds; legacy authentication protocols bypass Smart Lockout and MFA because they predate modern auth challenges. Sign-in logs surface this through failure codes 50126 and 50053.</li>
+            <li>Consent phishing steals a permission grant, not a credential, which is why a password reset doesn't revoke it. Requiring admin consent for third-party applications is the most effective structural defense.</li>
+            <li>AiTM token theft defeats MFA by letting the victim complete a genuine authentication flow and then stealing the resulting session token. Pass-the-cookie and refresh token replay extend that access afterward.</li>
+            <li>Conditional access has coverage gaps: legacy auth endpoints, trusted-location assumptions an attacker can spoof from inside, and break-glass accounts that are deliberately excluded from the policies protecting everyone else.</li>
+            <li>Entra sign-in logs (interactive and non-interactive), Identity Protection risk detections, and audit logs for consent and app role changes together cover nearly every technique in this chapter, provided an analyst knows which field or event type to correlate.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Why does adversary-in-the-middle (AiTM) token theft defeat MFA when password spray typically does not?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Because AiTM attacks only target service accounts that don't have MFA enabled</button>
+              <button class="kc-option" data-correct="true">B. Because the attacker lets the victim complete a genuine authentication flow, including MFA, and then steals the resulting session token instead of trying to defeat MFA directly</button>
+              <button class="kc-option" data-correct="false">C. Because AiTM phishing kits only work against legacy authentication protocols</button>
+              <button class="kc-option" data-correct="false">D. Because MFA has no effect on any phishing technique</button>
+            </div>
+            <div class="kc-answer">AiTM phishing kits sit as a reverse proxy between the victim and the real login page, faithfully relaying every step of authentication, including the MFA challenge, so the victim genuinely authenticates. The attacker then captures the session token issued at the end of that legitimate flow. Since the token is indistinguishable from any other successfully authenticated session, MFA never gets a chance to stop the theft, it already succeeded before the token was taken.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">An organization enforces conditional access requiring MFA and device compliance for all browser-based sign-ins. Which of the following could still let an attacker authenticate without satisfying those policies?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. A brute-force attack against a single privileged account</button>
+              <button class="kc-option" data-correct="false">B. A phishing email containing a malicious attachment</button>
+              <button class="kc-option" data-correct="true">C. Legacy authentication protocols (IMAP, POP3, SMTP AUTH) that were not explicitly included in the conditional access policy's scope</button>
+              <button class="kc-option" data-correct="false">D. A self-service password reset request</button>
+            </div>
+            <div class="kc-answer">Legacy authentication protocols predate conditional access and authenticate with a single username/password request that has no interactive MFA challenge. Depending on how a tenant's policies are scoped, sign-ins through these protocols may bypass conditional access evaluation entirely, leaving a gap even when browser-based sign-in is well protected.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A user reports clicking a link in a phishing email and approving what looked like a normal Microsoft permission request, but insists they never entered a password anywhere. Which technique does this describe, and why doesn't resetting the user's password fully remediate it?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Password spray; the attacker will simply try the new password against the same account</button>
+              <button class="kc-option" data-correct="true">B. Consent phishing; the attacker obtained an OAuth access and refresh token tied to a permission grant, not a credential, so the grant persists until it is specifically revoked</button>
+              <button class="kc-option" data-correct="false">C. AiTM token theft; the stolen session cookie automatically expires after a password reset</button>
+              <button class="kc-option" data-correct="false">D. Legacy authentication abuse; MFA was never enforced on the account</button>
+            </div>
+            <div class="kc-answer">This describes consent phishing. The user's password was never entered or stolen, what they approved was a permission scope for a malicious application, which received an access token and a refresh token in return. Because no credential was compromised, a password reset does nothing to the grant. The application keeps working until an administrator or the user specifically reviews and revokes its permissions in Enterprise Applications.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="01-foundations.html" class="chapter-nav-prev">← Cloud Security Foundations</a>
+          <a href="03-aws-enumeration-attacks.html" class="chapter-nav-next">AWS Enumeration & Attacks →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('02', 6));</script>
+</body>
+</html>

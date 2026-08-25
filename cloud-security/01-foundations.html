@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="01">
+  <meta name="module-id" content="cloud-security">
+  <title>Cloud Security Foundations · Cloud Security · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">CLOUD SECURITY FOUNDATIONS</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">Cloud Security</a>
+        <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
+        <a href="../lolbas/index.html" class="nav-link">LOLBAS</a>
+        <a href="../threat-intel/index.html" class="nav-link">Threat Intel</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Cloud Security</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 01 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">25 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 01</span>
+            <span class="badge-time muted mono">25 MIN READ</span>
+            <span class="badge-diff badge-beginner">BEGINNER</span>
+          </div>
+          <h1 class="chapter-title">Cloud Security Foundations</h1>
+          <p class="chapter-intro">Moving a workload to the cloud does not remove your security responsibility, it redistributes it. The line moves depending on the service model, the provider draws it differently than you'd expect, and every incident this module covers traces back to someone misreading where their side of that line actually is. This chapter establishes the shared responsibility model, how the cloud attack surface differs from on-prem, and why identity replaces the network as the primary perimeter.</p>
+          <div class="chapter-tags">
+            <span class="tag">shared responsibility</span>
+            <span class="tag">cloud attack surface</span>
+            <span class="tag">IAM basics</span>
+            <span class="tag">service models</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="what-is-cloud-security">
+          <h2>What Is Cloud Security?</h2>
+          <p>Cloud security is the set of controls, practices, and detection capability applied to workloads, identities, and data that run on infrastructure you do not own. That last clause is the entire discipline in miniature. On-prem, your organization controls the hypervisor, the network fabric, the physical rack, and the patch cadence of every layer. In the cloud, a provider controls some of those layers and you control others, and the split is contractual, not technical. Get the split wrong and you either leave a gap nobody is watching or waste effort duplicating controls the provider already runs.</p>
+
+          <p>The mistake most teams make early is treating cloud security as "on-prem security, but the servers are somewhere else." That framing fails immediately. There is no physical perimeter to defend. There is no single network diagram that shows every asset. Resources are created and destroyed by API calls, often outside change control, often by automation nobody in the security team wrote. An S3 bucket or a storage account can be public the moment it's created if a template has the wrong default. None of that has a clean on-prem analogue.</p>
+
+          <p>What does carry over is the underlying goal: protect confidentiality, integrity, and availability of the workload and the data it touches. What changes is where the controls live, who is responsible for each one, and what "normal" looks like for detection purposes. A login from a new country is suspicious on a corporate laptop. In a cloud console with a globally distributed workforce and CI/CD runners spinning up in different regions, it might be Tuesday.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> Every chapter in this module assumes you're securing infrastructure you don't fully control. That single constraint is why cloud security has its own body of knowledge instead of being a subset of network security. Keep it in mind as you read: the question is never just "is this a threat," it's "whose job was it to prevent this."
+          </div>
+        </section>
+
+        <section class="content-section" id="shared-responsibility">
+          <h2>The Shared Responsibility Model</h2>
+          <p>Every major cloud provider publishes a shared responsibility model, and every one of them draws the same basic line: the provider secures the cloud, the customer secures what's in the cloud. AWS, Azure, and Google Cloud phrase it slightly differently, but the substance is identical. The provider is responsible for physical data center security, hardware, the virtualization layer, and the global network backbone. The customer is responsible for everything they configure on top of that: identity, data classification, network rules within their environment, and the guest OS if they're running unmanaged compute.</p>
+
+          <p>Where the line falls depends entirely on the service model, and this is the part teams get wrong most often. In Infrastructure as a Service (IaaS, think AWS EC2 or Azure Virtual Machines), the customer owns almost everything above the hypervisor: OS patching, network configuration, identity, application code, data. In Platform as a Service (PaaS, think Azure App Service or AWS Elastic Beanstalk), the provider manages the OS and runtime, and the customer is responsible for application configuration, identity, and data. In Software as a Service (SaaS, think Microsoft 365 or Salesforce), the provider manages nearly the entire stack, and the customer's remaining responsibility narrows down to identity, access configuration, and data governance.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Layer</th><th>IaaS</th><th>PaaS</th><th>SaaS</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Physical / hardware</td><td>Provider</td><td>Provider</td><td>Provider</td></tr>
+                <tr><td>Virtualization / hypervisor</td><td>Provider</td><td>Provider</td><td>Provider</td></tr>
+                <tr><td>OS patching</td><td>Customer</td><td>Provider</td><td>Provider</td></tr>
+                <tr><td>Network controls</td><td>Customer</td><td>Shared</td><td>Provider</td></tr>
+                <tr><td>Application config</td><td>Customer</td><td>Customer</td><td>Customer (limited)</td></tr>
+                <tr><td>Identity &amp; access</td><td>Customer</td><td>Customer</td><td>Customer</td></tr>
+                <tr><td>Data classification &amp; governance</td><td>Customer</td><td>Customer</td><td>Customer</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Notice the row that never changes ownership regardless of service model: identity and access, and data governance. That's not an accident. No matter how much of the stack a provider manages for you, they cannot know which of your employees should have access to which data, and they cannot classify your data for you. That's the one constant thread running through every breach postmortem this module will reference: the provider held up their side, and the customer misconfigured theirs.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> "The cloud got breached" is almost never an accurate description of a cloud incident. Provider-side breaches of the underlying infrastructure are rare and heavily reported when they happen. The overwhelming majority of cloud incidents are customer-side misconfigurations: an overly permissive IAM policy, a public storage bucket, a service principal with more privilege than the automation needed. Reading provider marketing as a security guarantee is how organizations end up with no logging on the layer that actually got compromised.
+          </div>
+        </section>
+
+        <section class="content-section" id="cloud-attack-surface">
+          <h2>The Cloud Attack Surface</h2>
+          <p>The cloud attack surface differs from on-prem in ways that reshape how you have to think about defense, not just where you draw the network diagram. Four properties matter most for a defender walking in from a traditional environment.</p>
+
+          <p>First, everything is API-driven. Every resource, every permission grant, every network rule exists because an API call created it. This is a strength for automation and a liability for security, because it means the entire environment can be reshaped by anyone holding the right credential, instantly, with no physical step involved. An attacker with a stolen access key doesn't need to be on your network. They need an internet connection and the API endpoint.</p>
+
+          <p>Second, resources are ephemeral by design. Auto-scaling groups spin instances up and tear them down based on load. Containers live for minutes. Serverless functions execute and vanish. Traditional detection built around "this host has been running for six months and we know its baseline" doesn't map cleanly onto infrastructure that may not exist an hour from now. Detection has to shift toward identity and API-call behavior, because that's what persists when the compute doesn't.</p>
+
+          <p>Third, misconfiguration is the vulnerability. On-prem, a large share of breaches trace back to an unpatched CVE. In the cloud, the dominant root cause is a permission or a network setting configured incorrectly: a storage bucket left public, a security group open to 0.0.0.0/0, an IAM role trusted by more principals than intended. These aren't bugs in the provider's software. They're customer-side configuration decisions, which is why the shared responsibility model matters so much for incident causation.</p>
+
+          <p>Fourth, there is no single perimeter. A traditional network has a small number of ingress points you can instrument. A cloud environment has as many entry points as it has identities, API endpoints, and trust relationships, including ones that cross account and tenant boundaries. A compromised third-party integration with delegated access into your tenant is now part of your attack surface, whether or not you ever evaluated its security posture directly.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> When you're building a mental threat model for a cloud environment, stop asking "what's on the network" first. Start by asking "what identities exist, what can each of them do, and what trusts what." That question set maps far more accurately to how cloud incidents actually unfold, and it's the question Chapters 2 and 3 build detection content around directly.
+          </div>
+        </section>
+
+        <section class="content-section" id="identity-as-perimeter">
+          <h2>Identity as the New Perimeter</h2>
+          <p>In an environment with no fixed network boundary, identity becomes the control plane that everything else depends on. This is the single most important mental shift for anyone moving from on-prem security into cloud security, and it's worth being explicit about the vocabulary before Chapters 2 and 3 go deep on Azure AD/Entra and AWS specifically.</p>
+
+          <p>A user identity is a human account, typically federated from an identity provider (Entra ID, Okta, Google Workspace) rather than created natively in the cloud platform. A service principal (Azure/Entra terminology) or IAM role/service account (AWS/GCP terminology) is a non-human identity used by applications, automation, and services to authenticate to cloud APIs. In most mature cloud environments, non-human identities outnumber human ones by a wide margin, and they are frequently over-privileged because it's easier to grant broad access once than to scope it precisely and revisit it later.</p>
+
+          <p>A role or policy is the object that actually defines what an identity can do. Azure uses role-based access control (RBAC) with built-in and custom role definitions assigned at a scope (subscription, resource group, resource). AWS uses IAM policies, which are JSON documents attached to users, groups, or roles, evaluated against an explicit-deny-wins model. The mechanics differ, but the underlying question is the same in every platform: what can this identity do, against what resources, and who granted that.</p>
+
+          <p>Trust relationships extend this further. A service principal in one tenant can be granted access into another tenant's resources. A role in one AWS account can be assumed by a principal in a different account. This is normal and often necessary for legitimate business integrations, but every trust relationship is also a potential lateral movement path, and most organizations cannot produce a complete list of who trusts what without tooling built specifically to answer that question.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Concept</th><th>Azure / Entra ID</th><th>AWS</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Human identity</td><td>User (Entra ID)</td><td>IAM User / federated identity</td></tr>
+                <tr><td>Non-human identity</td><td>Service Principal / Managed Identity</td><td>IAM Role / Service Account</td></tr>
+                <tr><td>Permission object</td><td>RBAC Role Definition</td><td>IAM Policy (JSON)</td></tr>
+                <tr><td>Grouping mechanism</td><td>Groups, Administrative Units</td><td>IAM Groups, Organizations OUs</td></tr>
+                <tr><td>Cross-boundary trust</td><td>Cross-tenant access settings, B2B</td><td>Cross-account role assumption (sts:AssumeRole)</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>This table is a preview, not a full reference. Chapter 2 covers Azure AD/Entra attack techniques against these objects in detail: password spray, consent phishing, and token theft. Chapter 3 does the same for AWS: IAM enumeration, S3 misconfiguration, and privilege escalation chains. What matters here is the shared underlying model, because it's what lets an analyst who learns one cloud platform transfer that reasoning to another.</p>
+        </section>
+
+        <section class="content-section" id="risk-by-service-model">
+          <h2>How Service Model Changes Your Risk</h2>
+          <p>The service model you're running doesn't just move the shared responsibility line, it changes what a realistic attack actually looks like and what telemetry you'll have available to catch it. Understanding this up front saves a lot of wasted effort chasing detection strategies that don't fit the environment you're actually defending.</p>
+
+          <p>In IaaS, you inherit OS-level risk. Unpatched VMs, exposed management ports, weak local credentials, all the traditional endpoint concerns still apply, layered on top of cloud-native identity risk. Your telemetry sources expand to include cloud control-plane logs (who created, modified, or deleted this VM) in addition to whatever host-level agent you deploy.</p>
+
+          <p>In PaaS, OS-level risk mostly disappears, but application misconfiguration risk increases, because the provider exposes a large number of settings the customer controls without necessarily understanding the security implications of each one. A misconfigured App Service authentication setting or an overly permissive PaaS-to-PaaS managed identity grant is now the dominant risk category.</p>
+
+          <p>In SaaS and serverless, the attack surface narrows to almost pure identity and configuration. There's no OS to patch and often no network boundary to speak of. The entire security posture rests on who has access, what that access allows, and whether the platform's audit logging is enabled and being collected. This is why OAuth consent phishing (covered in Chapter 2) is such an effective technique against SaaS-heavy environments: it bypasses the identity provider's authentication entirely and grants an attacker-controlled application persistent, delegated access.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> A practical consequence for detection engineers: your log source priority shifts as an organization moves up the service-model stack. Host-based EDR telemetry matters most for IaaS-heavy environments. Identity and API audit logs (Entra sign-in/audit logs, AWS CloudTrail) matter most everywhere, and become the primary or only signal once an environment is predominantly PaaS, SaaS, and serverless. Chapter 4 covers these telemetry sources in depth.
+          </div>
+        </section>
+
+        <section class="content-section" id="module-roadmap">
+          <h2>What This Module Covers</h2>
+          <p>Eight chapters build cloud security knowledge from the foundational concepts in this chapter through applied detection engineering. Chapter 1 (this chapter) established the shared responsibility model, the cloud attack surface, and identity as the new perimeter. Everything after this builds directly on those three ideas.</p>
+
+          <p>Chapter 2 covers Azure AD/Entra ID attacks in depth: password spray, consent phishing, token theft, and conditional access bypass techniques, along with the telemetry each one generates. Chapter 3 does the equivalent for AWS: IAM enumeration, S3 misconfiguration patterns, and common privilege escalation paths. Chapter 4 covers cloud-native telemetry and data sources: CloudTrail, Entra sign-in and audit logs, VPC flow logs, and what "normal" baselining looks like when infrastructure is ephemeral.</p>
+
+          <p>Chapter 5 applies threat hunting methodology specifically to cloud environments: hypothesis generation across identity, resource, and network layers, and how pivoting works when the asset you're investigating might not exist tomorrow. Chapter 6 covers detection query writing in KQL, SPL, and Sigma against Azure AD and AWS threat scenarios. Chapter 7 covers real-world cloud threat actor campaigns, including identity-focused groups like Scattered Spider and nation-state cloud tradecraft associated with groups like Nobelium/APT29. Chapter 8 closes the module with advanced defense: Zero Trust architecture, Cloud Infrastructure Entitlement Management (CIEM), Cloud Security Posture Management (CSPM), and hardening controls that address the root causes covered throughout the module.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> If you're coming from the Threat Hunting or Threat Intelligence modules, the frameworks transfer directly: ABLE hypothesis generation, the intelligence cycle, and IOC confidence scoring all apply to cloud investigations without modification. What's different is the terrain. This module exists to teach you that terrain so the frameworks you already know have something to stand on.
+          </div>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>The shared responsibility model splits security duties between provider and customer, and the split moves based on service model (IaaS, PaaS, SaaS). Identity and data governance stay the customer's responsibility in every model.</li>
+            <li>Most cloud incidents are customer-side misconfigurations, not provider-side infrastructure breaches. "The cloud got hacked" is almost always inaccurate framing.</li>
+            <li>The cloud attack surface is API-driven, ephemeral, misconfiguration-prone, and has no single network perimeter to instrument.</li>
+            <li>Identity replaces the network as the primary control plane. Non-human identities (service principals, IAM roles) usually outnumber human ones and are frequently over-privileged.</li>
+            <li>Cross-account and cross-tenant trust relationships are legitimate business necessities and potential lateral movement paths at the same time.</li>
+            <li>Telemetry priority shifts with service model: host-based signal matters most in IaaS-heavy environments, identity and API audit logs matter most everywhere and dominate in PaaS/SaaS/serverless environments.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">An organization runs entirely on Microsoft 365 (SaaS). Which of these is still their responsibility under the shared responsibility model?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Patching the underlying application servers</button>
+              <button class="kc-option" data-correct="false">B. Securing the physical data centers</button>
+              <button class="kc-option" data-correct="true">C. Identity and access configuration, and data governance</button>
+              <button class="kc-option" data-correct="false">D. Maintaining the hypervisor</button>
+            </div>
+            <div class="kc-answer">Identity and access, plus data classification and governance, remain the customer's responsibility regardless of service model. In SaaS, Microsoft manages the application, runtime, OS, and physical infrastructure. The customer still controls who has access to what, how conditional access is configured, and how sensitive data is classified and shared.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Why does traditional host-based baselining ("this server has run steadily for six months") often fail as a primary detection strategy in cloud environments?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Cloud providers don't allow host-based monitoring agents</button>
+              <button class="kc-option" data-correct="false">B. Cloud hosts never generate logs</button>
+              <button class="kc-option" data-correct="true">C. Compute resources are frequently ephemeral, so a stable long-running baseline may not exist</button>
+              <button class="kc-option" data-correct="false">D. Host-based detection is only useful for on-prem malware</button>
+            </div>
+            <div class="kc-answer">Auto-scaling instances, containers, and serverless functions are often short-lived by design. A detection strategy built around long-running host baselines doesn't map cleanly onto infrastructure that may be created and destroyed within the hour. This is why identity and API-call behavior become the primary detection signal in cloud environments, since those persist even when the underlying compute doesn't.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A vendor's third-party application has been granted delegated OAuth access into your Microsoft 365 tenant to enable an integration. From an attack surface perspective, this is best understood as:</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Irrelevant, since it's Microsoft's infrastructure that's actually exposed</button>
+              <button class="kc-option" data-correct="true">B. Part of your attack surface, regardless of whether you've evaluated the vendor's security posture</button>
+              <button class="kc-option" data-correct="false">C. A risk only if the vendor application runs on IaaS</button>
+              <button class="kc-option" data-correct="false">D. Not a concern as long as your own employee accounts use MFA</button>
+            </div>
+            <div class="kc-answer">Any identity or application with delegated access into your tenant extends your attack surface, because a compromise of that trusted party can be used to pivot into your environment without ever touching your own credentials or MFA. This is the mechanism behind consent phishing and third-party supply chain compromises, covered further in Chapter 2.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="index.html" class="chapter-nav-prev">← Cloud Security Overview</a>
+          <a href="02-azure-ad-entra-attacks.html" class="chapter-nav-next">Azure AD &amp; Entra ID Attacks →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('01', 6));</script>
+</body>
+</html>

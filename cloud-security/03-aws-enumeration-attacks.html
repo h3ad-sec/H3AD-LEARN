@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="03">
+  <meta name="module-id" content="cloud-security">
+  <title>AWS Enumeration and Attacks · Cloud Security · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">AWS ENUMERATION & ATTACKS</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">Cloud Security</a>
+        <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
+        <a href="../lolbas/index.html" class="nav-link">LOLBAS</a>
+        <a href="../threat-intel/index.html" class="nav-link">Threat Intel</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Cloud Security</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 03 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 03</span>
+            <span class="badge-time muted mono">35 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">AWS Enumeration and Attacks</h1>
+          <p class="chapter-intro">A single leaked access key rarely tells an attacker what it can do. AWS IAM was built to be composed from small, reusable policy documents attached across users, groups, and roles, and that same composability is what makes effective permissions so hard to reason about from the outside, or from the inside. This chapter walks through how attackers enumerate an AWS foothold, the misconfiguration patterns that keep making S3 headlines, the privilege escalation paths that turn a narrow key into an administrative one, and the CloudTrail signal analysts should be watching for all of it.</p>
+          <div class="chapter-tags">
+            <span class="tag">IAM enumeration</span>
+            <span class="tag">S3 misconfiguration</span>
+            <span class="tag">privilege escalation</span>
+            <span class="tag">GuardDuty</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="iam-vs-directory-services">
+          <h2>Why AWS IAM Is Different From Traditional Directory Services</h2>
+          <p>Anyone coming from an on-prem background has some model of how a directory service assigns permissions: users sit in groups, groups sit in an organizational unit hierarchy, and permissions largely flow from where an object sits in that tree. It's imperfect, but it's structurally simple enough to draw on a whiteboard. AWS Identity and Access Management (IAM) does not work that way, and assuming it does is one of the fastest ways to misjudge what an identity can actually reach.</p>
+
+          <p>IAM is policy-based rather than hierarchy-based. A policy is a JSON document that lists a set of actions (like <code>s3:GetObject</code> or <code>iam:CreateAccessKey</code>), the resources those actions apply to, and whether the statement allows or denies them. Policies get attached, not inherited down a tree. A single IAM user can have policies attached directly to their user object, inherited from every group they belong to, and picked up from a role they're permitted to assume, and all of those attachments are evaluated together to determine what that user can actually do at any given moment. There's no single object you can inspect to answer "what can this user do." You have to walk every attachment point and union the result.</p>
+
+          <p>The evaluation logic adds another wrinkle: explicit deny always wins, regardless of how many allow statements exist elsewhere. That sounds like a safety net, and in one sense it is, but it also means a security team can spend real effort writing a scoped-down policy only to have it fail to actually restrict access, because a broader policy attached somewhere else already grants an explicit allow and nothing anywhere denies it. Without a deny statement forcing the boundary, additional allow statements simply expand what's possible. Permissions in IAM are additive by default; nothing shrinks unless something explicitly says no.</p>
+
+          <p>This is why composability, IAM's biggest strength for infrastructure-as-code and automation, is also its most common source of unintended privilege. A developer attaches a broad managed policy to unblock a project, someone else attaches a second policy to a group that developer belongs to for an unrelated reason, and the union of those two documents grants something neither policy would grant alone. Nobody wrote a rule that says "this user can escalate to admin." The escalation exists as an emergent property of several policies that individually look reasonable. Reviewing IAM security means reviewing effective permissions, the union of everything attached directly and indirectly, not reading policy documents one at a time and assuming they're independent.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> A directory-service mental model tempts you to ask "who is this account, and where does it sit." IAM requires a different question: "what is the full set of policies that touch this identity, directly or through a role or group, and what does their union actually permit." Those are different questions with different answers, and the gap between them is where most IAM-related incidents live.
+          </div>
+        </section>
+
+        <section class="content-section" id="iam-enumeration">
+          <h2>IAM Enumeration Techniques</h2>
+          <p>An access key by itself carries no readable indication of scope. Unlike a username that hints at role ("svc-backup", "admin-jsmith"), an IAM access key ID is an opaque string. An attacker who obtains one, through a leaked GitHub repo, a misconfigured CI pipeline, a phished developer, or a compromised third-party integration, doesn't know what it can do until they test it, and that testing process is itself a distinct and well-understood phase of a cloud intrusion.</p>
+
+          <p>The first move is almost always confirming the key is live and learning whose it is. The <code>get-caller-identity</code> API call is the natural starting point: it requires essentially no permissions to succeed, and it returns the account ID, the ARN of the identity, and the user ID behind the key. This single low-privilege call tells an attacker which AWS account they've landed in and whether the credential belongs to a user or an assumed role, without touching anything that would look unusual in isolation.</p>
+
+          <p>From there, enumeration typically branches into two tracks. If the key has generous read permissions, an attacker can call the account structure directly: <code>list-users</code>, <code>list-roles</code>, <code>list-attached-user-policies</code>, and the especially valuable <code>get-account-authorization-details</code>, which can return a large snapshot of users, groups, roles, and their attached and inline policies in far fewer calls than enumerating each object individually. That single call, when permitted, hands an attacker most of the effective-permissions picture the previous section described as hard to reconstruct.</p>
+
+          <p>If direct enumeration APIs are denied, which is common when a key was scoped narrowly for a specific automation task, attackers fall back to trial and error: attempting a wide range of read-only API calls across many services and observing which ones succeed versus which return an access-denied error. This is sometimes called permission enumeration via error messages, and it works because a denied call still confirms the action exists and was evaluated, distinguishing "you don't have this permission" from "this resource doesn't exist," and because a successful call, even an unimportant one, narrows down which policies are likely attached. It's slow and noisy compared to a single authorization-details call, but it works against keys that were actually scoped down.</p>
+
+          <p>Cloud security assessors use purpose-built tooling to make this process systematic rather than manual, since it mirrors what an attacker does with a stolen key. Frameworks like Pacu automate the process of testing a credential against a broad range of AWS API calls to map out what it can do, and tools like ScoutSuite audit an account's configuration across services to surface risky settings at scale. Their value to a defender is conceptual as much as operational: they demonstrate exactly how mechanical and repeatable this reconnaissance phase is, which is why the CloudTrail signal it generates (a burst of list/describe/get calls, many of them denied, from an unfamiliar source) is a meaningful detection opportunity rather than background noise.</p>
+        </section>
+
+        <section class="content-section" id="s3-misconfiguration">
+          <h2>S3 Misconfiguration Patterns</h2>
+          <p>S3 misconfiguration has been one of the most common root causes of cloud data exposure for long enough that it's tempting to assume the problem has been solved by now. It hasn't, largely because the paths to public exposure are varied enough that closing one doesn't close the others, and because a bucket that was correctly configured on creation can drift into exposure later without anyone touching it directly.</p>
+
+          <p>The most direct path is a public bucket ACL, an access control list attached to the bucket or individual objects that grants read or write access to "Authenticated Users" (any AWS user, not just yours) or, worse, to "Everyone." ACLs are the older S3 access mechanism and are easy to set incorrectly through a console click or a permissive template, and their effect is immediate: anyone who finds or guesses the bucket name can read its contents.</p>
+
+          <p>The second path is a bucket policy with an overly permissive Principal, most commonly a wildcard (<code>"Principal": "*"</code>) combined with an Allow effect and no compensating condition. Bucket policies are JSON documents similar to IAM policies but attached to the bucket itself, and a wildcard principal with no IP, VPC, or organization condition attached means the policy grants access to any requester on the internet, not just principals inside the account. These often get written for a legitimate purpose, serving static website assets, sharing a dataset publicly, and then never get scoped down when the original need changes or the bucket's contents change from public-appropriate to sensitive.</p>
+
+          <p>The third path is Block Public Access, a setting AWS introduced specifically to stop the first two patterns from resulting in actual exposure. It can be enforced at the account level or the individual bucket level, and this is where a subtle and consequential misunderstanding creeps in: an account-level Block Public Access setting only protects buckets if it's actually applied and not overridden at the bucket level, and a bucket-level setting that's been explicitly disabled (intentionally or by an automation script run once and forgotten) reopens exposure even if the account-level default looks safe on a dashboard. Teams that check the account-level setting once and consider the problem solved miss the buckets where someone later flipped the bucket-level override.</p>
+
+          <p>The fourth path is third-party or cross-account access that outlives its purpose: a bucket policy or ACL grant added for a vendor integration, a data-sharing arrangement, or a one-time migration, that never gets revoked once the underlying business relationship ends. These grants are often narrower than a full public wildcard, but "narrower than public" is not the same as "appropriately scoped," and a stale cross-account grant is a standing access path that security review rarely revisits unless something prompts it.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> "Public by policy, not public by default" is the pattern that catches teams who did the obvious hardening step. Enabling account-level Block Public Access feels like closing the door, but if a bucket policy already grants a wildcard Principal and the specific Block Public Access sub-setting that would override bucket policies isn't also enabled, the bucket stays exposed. All four Block Public Access sub-settings need to be considered together, and at both the account and bucket level, not treated as a single switch.
+          </div>
+        </section>
+
+        <section class="content-section" id="iam-privilege-escalation">
+          <h2>IAM Privilege Escalation Paths</h2>
+          <p>IAM privilege escalation describes a category of situations where an identity's directly granted permissions look narrow and reasonable, but that permission set indirectly allows the identity to obtain broader privileges it was never supposed to have. The defining trait of this category is that no single permission looks dangerous on its own. The danger is in the combination.</p>
+
+          <p>The most frequently cited pattern involves <code>iam:PassRole</code>. This permission lets an identity attach an existing IAM role to a new resource, most commonly a Lambda function or an EC2 instance, so that resource can assume that role's permissions when it runs. On its own, PassRole is a normal and necessary permission for anyone deploying compute that needs to interact with other AWS services. The escalation path opens when that same identity also has permission to create a new Lambda function or launch a new EC2 instance: they can pass a role with far more privilege than their own onto a resource they control, then use that resource to execute actions under the broader role's permissions. The identity never had those permissions directly. It reached them by routing through compute it was allowed to create.</p>
+
+          <p>A related and simpler pattern is an identity that can attach a new policy to its own user or role, whether through <code>iam:AttachUserPolicy</code>, <code>iam:PutUserPolicy</code>, or the equivalent role-targeted actions. If nothing prevents self-modification of permissions, an identity with that single action can grant itself an administrator-equivalent managed policy directly, no intermediate compute resource required. It's the most direct version of the same underlying problem: a permission that looks like routine IAM administration doubles as a path to arbitrary escalation when the target of that administration is the requester's own identity.</p>
+
+          <p>Security researchers, most notably Rhino Security Labs, have catalogued a substantial and well-documented set of these escalation paths, combinations of permissions across IAM, Lambda, EC2, CloudFormation, Glue, and other services that individually look benign and combine into privilege escalation. This body of research matters to defenders less for its individual technique details and more for the reframing it forces: reviewing an identity's risk means asking not just what it can access directly, but what it can eventually reach by routing through other permissions it holds. A permission review that stops at direct access will miss every path in that catalogue.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> When scoping a new role or policy, treat <code>iam:PassRole</code>, any <code>iam:*Policy</code> action targeting the requester's own identity, and broad compute-creation permissions as a set that needs joint review, not three independent line items. Granting all three together to the same identity is frequently how a well-intentioned, narrowly-named policy turns into a de facto path to administrator.
+          </div>
+
+          <p>Written out as an actual policy document, the dangerous combination is easy to miss precisely because each statement reads as reasonable on its own:</p>
+
+          <div class="code-block">
+            <span class="lang-label">JSON</span>
+            <pre><code>{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowLambdaDeploy",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:CreateFunction",
+        "lambda:InvokeFunction"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "AllowPassRoleToLambda",
+      "Effect": "Allow",
+      "Action": "iam:PassRole",
+      "Resource": "arn:aws:iam::*:role/*"
+    }
+  ]
+}</code></pre>
+          </div>
+          <p class="muted" style="font-size:0.85rem;">Neither statement mentions administrator access. Together, they let the identity create a Lambda function, pass it any role in the account (the <code>Resource</code> is unscoped, which is the actual defect), and invoke code under that role's permissions. Scoping the <code>PassRole</code> resource to the specific role ARNs the identity is meant to use, instead of a wildcard, closes this path without touching the Lambda permissions at all.</p>
+        </section>
+
+        <section class="content-section" id="persistence-evasion">
+          <h2>Persistence and Defense Evasion in AWS</h2>
+          <p>Once an attacker has a working foothold and has mapped out what it can reach, the next priority is usually staying in without drawing attention, and AWS gives them several mechanisms that blend into normal operational activity if nobody is watching the right signal.</p>
+
+          <p>The quieter form of persistence is creating a new access key for an existing IAM user rather than creating a new IAM user outright. A brand new user account is a conspicuous object; someone reviewing the IAM console is likely to notice an unfamiliar name. A second access key on an existing, already-trusted user blends in far better, and IAM users are permitted up to two active keys simultaneously by design, so the action doesn't even hit a resource limit that might trigger a review. The user this key belongs to may not be a human at all; a shared service account or an automation user with broad permissions and infrequent human review is a favored target precisely because nobody is likely to notice an extra credential attached to it.</p>
+
+          <p>Reducing visibility is the other half of the evasion picture, and the single clearest signal here is any attempt to stop or delete CloudTrail logging: <code>StopLogging</code> or <code>DeleteTrail</code>. There are vanishingly few legitimate operational reasons to disable an organization's audit trail, and attackers who reach a privilege level that allows it will often do so specifically to blind the account before conducting more overt actions. Because the legitimate-use base rate for this action is so low, it deserves treatment as a near-certain indicator of malicious intent rather than one signal among many.</p>
+
+          <p>Beyond logging, attackers with sufficient write access sometimes backdoor existing Lambda functions or EventBridge rules rather than deploying obviously new infrastructure: modifying an existing function's code to add a beacon or a secondary access path, or adding a rule that triggers on a schedule or an event pattern the attacker controls. Both blend into resources that already exist and already have a change history, which makes anomalous-looking new infrastructure less necessary and legitimate-looking modification more attractive.</p>
+
+          <p>Finally, cross-account role trust is a legitimate and common feature of multi-account AWS organizations, and it's also a lateral movement path once an attacker has compromised an identity that's permitted to assume a role in another account. A trust relationship set up for a real business reason, a central logging account, a shared services account, a delegated administration account, becomes an attacker's route out of the account they first compromised and into every account that trusts it, without needing a second set of stolen credentials.</p>
+        </section>
+
+        <section class="content-section" id="detection-fundamentals">
+          <h2>Detection Fundamentals for AWS</h2>
+          <p>Most of the activity described in this chapter leaves a CloudTrail record, because CloudTrail logs the control-plane API calls that constitute nearly everything an attacker does in AWS: authenticate, enumerate, escalate, persist, evade. Detection engineering for AWS starts with knowing which event names carry the highest signal and building alerting logic around them rather than trying to review the full firehose of routine API activity.</p>
+
+          <p>A small set of event names deserve priority review whenever they appear from an unfamiliar source, at an unusual time, or in an unusual sequence: <code>ConsoleLogin</code> (especially without MFA, or from a geography inconsistent with the user's normal pattern), <code>CreateAccessKey</code> (particularly against a user that already has one, or a user that rarely gets new keys issued), <code>AttachUserPolicy</code> and <code>PutUserPolicy</code> (permission changes, especially self-targeted ones), <code>PutBucketAcl</code> and <code>PutBucketPolicy</code> (the exact calls behind the S3 misconfiguration patterns covered earlier), <code>StopLogging</code> and <code>DeleteTrail</code> (the CloudTrail evasion signal already discussed), and <code>AssumeRole</code> calls originating from a source, IP range, or account that doesn't match the role's expected trust pattern.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>CloudTrail Event</th><th>What It Indicates</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>ConsoleLogin</td><td>Interactive sign-in; watch for missing MFA or unfamiliar source</td></tr>
+                <tr><td>CreateAccessKey</td><td>New long-lived credential; common low-noise persistence step</td></tr>
+                <tr><td>AttachUserPolicy / PutUserPolicy</td><td>Permission grant; high risk when self-targeted</td></tr>
+                <tr><td>PutBucketAcl / PutBucketPolicy</td><td>Bucket exposure change; check for public principal or wildcard</td></tr>
+                <tr><td>StopLogging / DeleteTrail</td><td>Audit trail disabled or removed; rarely legitimate</td></tr>
+                <tr><td>AssumeRole (unusual source)</td><td>Cross-account or cross-role pivot outside expected trust pattern</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Manually reviewing CloudTrail for these patterns at scale is impractical, which is where Amazon GuardDuty fits in. GuardDuty is a managed threat detection service that continuously analyzes CloudTrail management and data events, VPC Flow Logs, and DNS query logs, without requiring the customer to deploy or maintain any detection infrastructure themselves, and surfaces findings when it identifies activity consistent with known malicious or suspicious patterns. It draws on AWS's own threat intelligence feeds as well as behavioral and anomaly-based models rather than relying solely on static signatures.</p>
+
+          <p>GuardDuty findings fall into broad categories that map reasonably well onto the topics this chapter has covered: credential exfiltration and compromise (an access key being used from an unusual location or in a way inconsistent with its normal behavior), reconnaissance (unusual patterns of list/describe API calls, port scanning against EC2 instances), and unusual API activity more broadly (API calls associated with disabling security services, unusual resource creation, or known attacker infrastructure). It's worth being direct about scope here: GuardDuty is a strong baseline signal, not an exhaustive detection strategy. It won't catch everything a determined attacker attempts, and it works best layered with the CloudTrail-based detection logic above, not as a replacement for it.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> GuardDuty findings and hand-built CloudTrail detections aren't competing approaches, they cover different gaps. GuardDuty's behavioral models catch patterns you didn't think to write a rule for. Custom CloudTrail alerting catches the specific, high-confidence signals (like StopLogging) that deserve a near-zero-tolerance response regardless of what any managed service concludes about them.
+          </div>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>AWS IAM is policy-based and additive by default, with explicit deny as the only thing that overrides an allow. Effective permissions are the union of everything attached directly and indirectly, which makes unintended privilege an emergent property of composition, not a single misconfigured document.</li>
+            <li>A stolen access key carries no visible scope. Attackers confirm identity with low-privilege calls like get-caller-identity, then enumerate directly (list-users, get-account-authorization-details) or, if denied, through trial-and-error calls across services.</li>
+            <li>S3 exposure comes from four recurring paths: public ACLs, wildcard-principal bucket policies, disabled or overridden Block Public Access settings, and stale third-party or cross-account grants. Account-level hardening alone doesn't guarantee a bucket is protected.</li>
+            <li>IAM privilege escalation paths (iam:PassRole plus compute creation, self-targeted policy attachment, and dozens of other cataloged combinations) let a narrow-looking permission set indirectly reach far broader privilege.</li>
+            <li>StopLogging and DeleteTrail are near-certain indicators of malicious intent given how rarely they occur legitimately. New access keys on existing users and backdoored Lambda/EventBridge resources are quieter persistence mechanisms that blend into normal change activity.</li>
+            <li>GuardDuty provides managed, behavior-based detection across CloudTrail, VPC Flow Logs, and DNS logs, but it complements custom CloudTrail-based alerting on high-signal events rather than replacing it.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Why does IAM's policy composability make unintended privilege so common, compared to a traditional directory-service permission model?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. IAM policies are encrypted, so administrators can't review them directly</button>
+              <button class="kc-option" data-correct="true">B. An identity's effective permissions are the union of every policy attached directly or through groups and roles, so combinations of individually reasonable policies can grant access nobody explicitly intended</button>
+              <button class="kc-option" data-correct="false">C. AWS resets IAM policies to default permissions every 90 days</button>
+              <button class="kc-option" data-correct="false">D. IAM does not support groups, so every permission must be granted individually</button>
+            </div>
+            <div class="kc-answer">IAM permissions are additive across every attachment point (user, group, role) unless an explicit deny overrides them. Two policies that each look reasonable on their own can combine into a permission set neither policy author intended, which is why reviewing IAM risk requires evaluating effective permissions rather than reading individual policy documents in isolation.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What does a public S3 bucket misconfiguration actually require to occur, given that AWS provides Block Public Access as a safeguard?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. AWS support must manually approve the bucket for public access</button>
+              <button class="kc-option" data-correct="false">B. The bucket must be in a region that doesn't support Block Public Access</button>
+              <button class="kc-option" data-correct="true">C. A public-granting ACL or bucket policy exists, and the relevant Block Public Access sub-setting isn't enabled at both the account and bucket level to override it</button>
+              <button class="kc-option" data-correct="false">D. The bucket must be older than 12 months</button>
+            </div>
+            <div class="kc-answer">Exposure requires an actual public-granting mechanism, a permissive ACL or a bucket policy with a wildcard Principal, combined with Block Public Access not being enforced in a way that overrides it. Enabling account-level Block Public Access alone doesn't guarantee protection if bucket-level settings have been overridden or the specific sub-setting that blocks policy-based public access wasn't enabled.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Which CloudTrail event most directly indicates an attacker attempting defense evasion rather than routine enumeration or persistence?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. ListUsers</button>
+              <button class="kc-option" data-correct="false">B. CreateAccessKey</button>
+              <button class="kc-option" data-correct="true">C. StopLogging or DeleteTrail</button>
+              <button class="kc-option" data-correct="false">D. GetCallerIdentity</button>
+            </div>
+            <div class="kc-answer">StopLogging and DeleteTrail disable or remove CloudTrail's audit record itself, and there are very few legitimate business reasons to do so. Unlike ListUsers or GetCallerIdentity (routine enumeration) or CreateAccessKey (which has many legitimate uses), an attempt to stop or delete logging should be treated as a near-certain evasion signal.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="02-azure-ad-entra-attacks.html" class="chapter-nav-prev">← Azure AD & Entra ID Attacks</a>
+          <a href="04-cloud-telemetry-data-sources.html" class="chapter-nav-next">Cloud Telemetry & Data Sources →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('03', 6));</script>
+</body>
+</html>

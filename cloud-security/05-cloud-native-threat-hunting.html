@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="05">
+  <meta name="module-id" content="cloud-security">
+  <title>Cloud-Native Threat Hunting · Cloud Security · H3AD-LEARN</title>
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo-link">
+          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
+        </a>
+        <div class="nav-pill">
+          <span class="nav-pill-name">H3AD-LEARN</span>
+          <span class="nav-pill-sep">·</span>
+          <span class="nav-pill-tagline">CLOUD-NATIVE THREAT HUNTING</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">Hub</a>
+        <a href="index.html" class="nav-link">Cloud Security</a>
+        <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
+        <a href="../lolbas/index.html" class="nav-link">LOLBAS</a>
+        <a href="../threat-intel/index.html" class="nav-link">Threat Intel</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Cloud Security</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 05 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 05</span>
+            <span class="badge-time muted mono">35 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Cloud-Native Threat Hunting</h1>
+          <p class="chapter-intro">Threat hunting doesn't change its purpose in the cloud, it changes its terrain. You're still generating hypotheses, testing them against evidence, and refining based on what comes back. What's different is where you look and what you're looking for. This chapter takes the hunting methodology you may already know and applies it to the identity, control-plane, and network layers established across Chapters 1 through 4, with particular attention to the problem that makes cloud hunting genuinely harder than on-prem: the thing you want to investigate might not exist anymore by the time you go looking for it.</p>
+          <div class="chapter-tags">
+            <span class="tag">hypothesis generation</span>
+            <span class="tag">identity pivoting</span>
+            <span class="tag">ephemeral infrastructure</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="hypothesis-model">
+          <h2>Why Cloud Hunting Needs a Different Hypothesis Model</h2>
+          <p>If you've worked through the Threat Hunting module, the ABLE framework (Actor, Behavior, Location, Evidence) is probably already how you structure a hunt: who might be doing this, what would they do, where would it show up, and what evidence would confirm or kill the hypothesis. That structure still works in the cloud. What breaks is the assumption baked into two of its four components, and if you carry those assumptions in unexamined, your hunts will point at the wrong logs and come back empty for the wrong reasons.</p>
+
+          <p>On-prem, "Location" usually means a network segment, a subnet, a specific host, or a piece of the topology you can draw on a diagram. In a cloud environment, that diagram mostly doesn't exist, and even where it does, it isn't where the interesting activity happens. Location in a cloud hunt is an identity: a specific user, a service principal, an IAM role, a tenant boundary, or an API caller. Chapter 1 made the case that identity replaces the network as the primary perimeter. Here, that same shift means identity replaces the network as the primary location construct a hunter reasons about. Asking "where would this behavior show up" now means asking "which identity or API surface would this behavior show up under," not "which subnet."</p>
+
+          <p>"Evidence" shifts just as directly. An on-prem hunt leans on host artifacts: process trees, registry keys, file system timestamps, memory. A cloud hunt leans on the telemetry Chapter 4 covered in depth: identity sign-in and audit logs, control-plane logs like CloudTrail, and network flow and DNS logs. That's not a smaller evidence set, it's a differently shaped one, and it means a hunt hypothesis that can't be phrased in terms of a query against one of those log sources isn't ready to run yet. Actor and Behavior carry over largely unchanged; you're still reasoning about who might attack you and what they'd plausibly do given their goals and access. This chapter is about rebuilding Location and Evidence for cloud terrain, then walking through concrete hunt hypotheses layer by layer.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> This chapter assumes you've read Chapter 4 and know roughly what Entra sign-in logs, audit logs, CloudTrail, and VPC flow logs each contain. If any of those terms are unfamiliar, that chapter is worth revisiting first; the hunt hypotheses below reference those sources by name rather than re-explaining them.
+          </div>
+        </section>
+
+        <section class="content-section" id="identity-layer-hunts">
+          <h2>Hunting Across the Identity Layer</h2>
+          <p>Identity is where most cloud hunts should start, because it's where the widest range of attacker goals converge: initial access, persistence, and privilege escalation all leave a trace somewhere in identity telemetry, even when the rest of the attack plays out in a service the identity layer doesn't directly instrument.</p>
+
+          <p>Impossible travel is the most familiar identity hunt hypothesis and a good starting point precisely because it's easy to state precisely: a single identity signs in from two locations geographically distant enough that the gap between the sign-in timestamps rules out physical travel between them. As a hypothesis, that's directly testable against sign-in logs. Pull successful sign-ins for a given identity, sort by timestamp, and compute the implied travel speed between consecutive geolocated sign-ins. Anything that would require travel faster than a commercial flight allows is worth a closer look, though this hypothesis has known false-positive sources worth ruling out before escalating: VPN egress points, cloud-hosted mail clients that authenticate on the user's behalf from a data center IP, and multi-national organizations with legitimate follow-the-sun access patterns.</p>
+
+          <p>Anomalous consent grants target a different attacker goal: persistent, MFA-independent access via a malicious or over-permissioned OAuth application. The hypothesis here is that a user approved an application requesting unusually broad delegated permissions, from a publisher not previously seen in the tenant, outside the hours that user normally works. Each of those three conditions narrows the search independently and they compound well together. Audit logs record the consent event, the requesting application, the permission scopes granted, and the granting user, which is enough to build a query that flags any grant where the requested scope includes mail read, file access, or directory-wide permissions and the publisher has no prior grant history in the tenant.</p>
+
+          <p>Privilege escalation chains are the hypothesis that ties the first two together into an attack narrative rather than an isolated event: an identity receives a new high-privilege role assignment shortly after a sign-in that already looked suspicious on its own, whether that's an impossible-travel sign-in, a sign-in that survived risky-sign-in flagging, or a sign-in immediately following a password reset the identity didn't seem to expect. The query pattern is a join across two log sources rather than one: sign-in events flagged as risky or anomalous, correlated by identity and a tight time window against role or policy assignment events in the audit log. A privilege grant in isolation is unremarkable; a privilege grant landing inside minutes of a suspicious authentication event is the kind of temporal correlation that turns a weak signal into a strong one.</p>
+        </section>
+
+        <section class="content-section" id="control-plane-hunts">
+          <h2>Hunting Across the Resource and Control-Plane Layer</h2>
+          <p>Once an identity has meaningful access, the next place attacker activity shows up is in what that identity does with it, and in a cloud environment that means the control plane: the API surface that creates, modifies, and deletes resources rather than the resources themselves.</p>
+
+          <p>The strongest hypothesis in this layer is also the simplest to state: a resource was created outside the organization's known infrastructure-as-code pipeline. In a mature cloud environment, the overwhelming majority of legitimate infrastructure changes flow through a CI/CD pipeline or a specific set of automation service principals, not through a human clicking through the console. That means the identity attribute on a resource-creation event is a strong discriminator on its own. A hunt query built around this hypothesis filters CloudTrail or the Azure Activity Log for resource-creation events, then excludes anything performed by the known pipeline identities, leaving a short list of console-driven or unrecognized-principal creations that deserve individual review. This won't catch an attacker who has compromised the pipeline identity itself, but it catches the far more common case of an attacker operating through a compromised human or a stolen access key, since that access rarely includes pipeline credentials.
+
+          </p>
+
+          <p>Reconnaissance inside the cloud API surface tends to look different from network scanning, but it leaves its own pattern: a burst of List, Describe, or Get calls spanning many different services in a short window, from an identity that doesn't normally touch that many services. A developer working a normal day calls a handful of APIs relevant to their project. An attacker who has landed in an environment and doesn't yet know what's there enumerates broadly, because they're building a map. The hypothesis translates into a query that counts distinct API operations and distinct services called per identity per short time window, and flags outliers against that identity's own historical baseline rather than a fixed threshold, since normal breadth varies enormously between an individual developer and an automation account.</p>
+
+          <p>The third hypothesis targets an attacker covering their tracks or widening their access rather than exploring it: changes to security-relevant configuration. Disabling a CloudTrail log stream, turning off an Entra diagnostic setting, loosening a security group to allow broader inbound access, or modifying an IAM trust policy to add a new trusted principal are all individually rare events in a stable environment, which makes them well suited to a low-volume, high-fidelity alert rather than a broad hunt query. Because these changes are also things legitimate administrators do occasionally, the useful hunting question isn't just "did this happen" but "did this happen and was it followed by activity consistent with the access it enabled."</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Layer</th><th>Example Hunt Hypothesis</th><th>Signal</th><th>Primary Log Source</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Identity</td><td>Impossible travel between sequential sign-ins</td><td>Geolocation gap exceeds plausible travel time</td><td>Entra sign-in logs</td></tr>
+                <tr><td>Identity</td><td>Anomalous OAuth consent grant</td><td>Broad delegated scope, new publisher, off-hours approval</td><td>Entra audit logs</td></tr>
+                <tr><td>Control-Plane</td><td>Resource created outside CI/CD</td><td>Creation event attributed to a non-pipeline identity</td><td>CloudTrail / Activity Log</td></tr>
+                <tr><td>Control-Plane</td><td>Reconnaissance-style API burst</td><td>High count of distinct List/Describe/Get calls across services in a short window</td><td>CloudTrail / Activity Log</td></tr>
+                <tr><td>Control-Plane</td><td>Security-relevant config change</td><td>Logging disabled, security group loosened, trust policy modified</td><td>CloudTrail / Activity Log</td></tr>
+                <tr><td>Network</td><td>Egress to a newly-seen destination</td><td>Outbound connection from a resource with no legitimate egress need</td><td>VPC / NSG flow logs</td></tr>
+                <tr><td>Network</td><td>DNS tunneling or beaconing pattern</td><td>High-entropy subdomains, high query frequency to one domain</td><td>DNS query logs</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="network-layer-hunts">
+          <h2>Hunting Across the Network Layer</h2>
+          <p>Network telemetry matters less in the cloud than it did on-prem, for the reasons Chapter 1 laid out, but it hasn't dropped out of the picture entirely. Flow logs and DNS logs still catch things identity and control-plane logs miss, particularly around data movement and command-and-control, and they're worth hunting even in an identity-first program.</p>
+
+          <p>The first hypothesis is egress to a newly-seen external destination from a resource that has no legitimate reason to make outbound connections at all. A database instance, an internal API backend, or a worker node that only ever talks to other resources inside the environment shouldn't suddenly initiate a connection to an external IP it's never contacted before. Building this hunt requires a baseline of each resource's normal egress destinations, which flow logs accumulate naturally over time, and then flagging any new destination that falls outside that baseline for resources tagged as having no legitimate external egress requirement. The value of this hypothesis is that it doesn't depend on the destination being a known-bad indicator; a brand-new, entirely unremarkable-looking IP is still worth a look if the calling resource has never had a reason to talk outbound before.</p>
+
+          <p>Data transfer volume anomalies test for exfiltration directly rather than inferring it from the destination. A resource that typically moves a few megabytes a day suddenly transferring gigabytes is a volume signal independent of where the traffic went, which makes it a useful complement to the destination-based hypothesis above; an attacker staging exfiltration through an otherwise unremarkable or even legitimate-looking endpoint will still show up on a volume baseline even when the destination itself gives no other signal.</p>
+
+          <p>DNS query patterns round out the network layer with a hypothesis aimed specifically at tunneling and beaconing. High-entropy subdomains, meaning subdomain labels that look like random or algorithmically generated strings rather than something a human or a normal application would construct, are a recognizable signature of DNS tunneling, since the tunnel encodes data into the query itself. A high frequency of queries to a single domain over a short window, particularly at regular intervals, is a signature more associated with beaconing command-and-control checking in on a schedule. Both patterns are detectable directly from DNS query logs without needing to inspect payload content, which makes DNS one of the more tractable network log sources to hunt against even in an environment where full packet capture isn't available.</p>
+        </section>
+
+        <section class="content-section" id="ephemeral-pivoting">
+          <h2>Pivoting When Infrastructure Is Ephemeral</h2>
+          <p>Here's the problem that separates cloud hunting from on-prem hunting more than any single hypothesis category above: the compute resource, container, or serverless function you want to investigate may simply no longer exist by the time you go looking at it. An auto-scaling instance that ran for eleven minutes and got torn down by the scaling policy isn't sitting there waiting for you to image it. A container that spun up, executed, and exited has no persistent disk to examine. A serverless function invocation lasted milliseconds and left behind nothing you can log into. On-prem hunting assumes the system under investigation is still reachable, or at minimum that a forensic image was taken before it changed state. Cloud hunting can't assume either.</p>
+
+          <p>The practical mitigation is to stop anchoring investigations on the resource and start anchoring them on identity and API-caller fields instead, because those persist in logs regardless of whether the resource they relate to still exists. The IAM role, service principal, or user identity that launched a compute resource, that resource's short-lived instance ID, container ID, or function invocation ID, and the API calls made under that identity's credentials are all recorded at the moment they happen, independent of the resource's lifecycle. A hunt that starts with "what did this instance do" runs into a dead end the moment the instance is gone. A hunt that starts with "what did this identity do, and what resources did it touch across their full lifecycle" keeps working long after any individual resource has been recycled.</p>
+
+          <p>Correlating short-lived resource identifiers across log sources is what lets you reconstruct a timeline without ever touching a live system. An instance ID appears in the resource-creation event in the control-plane log, in the flow logs for network activity while it was running, and potentially in application logs if the workload emitted any. None of those log sources require the instance to still exist; they were written at the time the activity happened and persist independently. Stitching them together by the shared identifier, and by the identity that owned the resource across its lifetime, produces a reconstructed timeline that's often just as useful as live access would have been, and sometimes more complete, since it captures the full window rather than a single point-in-time snapshot.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> This only works if the log sources are actually retained long enough to matter, and retention is a decision made well before any hunt starts. A short-lived function that executed and vanished six weeks ago is unrecoverable if the relevant CloudTrail or Activity Log data has already aged out of retention. Log retention policy is, in effect, a hunting capability decision, not just a cost or compliance one.
+          </div>
+        </section>
+
+        <section class="content-section" id="documenting-hunts">
+          <h2>Documenting Cloud Hunts</h2>
+          <p>If you know PEAK from the Threat Hunting module (Prepare, Execute, Act with Knowledge), the lifecycle itself doesn't need reinventing for cloud hunts. What needs adapting is what you capture at each stage, because the evidence a cloud hunt relies on is often less durable than what an on-prem investigation would produce.</p>
+
+          <p>A cloud hunt record should capture, at minimum, the exact query used, the log source it ran against, the time range covered, and the specific identity and resource identifiers involved in any findings, whether that's a user principal name, a service principal object ID, an instance ID, or a function invocation ID. That level of specificity matters more here than it might in an on-prem writeup, because reproducing the investigation later isn't guaranteed to be possible. A findings section should also record what was ruled out and why, not just what was confirmed, since a hunt that returns no findings still tells you something about coverage and should be documented as thoroughly as one that does.</p>
+
+          <p>Documentation matters more in cloud hunting specifically because the underlying evidence frequently isn't reproducible the way an on-prem forensic artifact is. An on-prem investigation can fall back on a disk image, a memory capture, or a physical machine that's still sitting in a rack if a question comes up three months later. A cloud hunt often can't fall back on anything: the resource that mattered was destroyed on schedule, the credential involved was rotated as a matter of routine hygiene, and the only surviving record of what happened is whatever was captured in logs during the retention window and whatever the hunter wrote down. Treat the hunt record itself as the artifact, because in a real sense, it's the only one that's going to still exist next quarter.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> Write down negative results with the same care as positive ones. A hunt that queried a specific identity across a specific window and found nothing anomalous is evidence of a clean period for that identity, and it's the kind of evidence you'll want on hand if that identity's activity becomes a question again later, especially once the underlying resources involved are long gone.
+          </div>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>ABLE still structures a cloud hunt, but Location becomes an identity, API caller, or tenant boundary rather than a network segment, and Evidence shifts to identity and control-plane logs rather than host artifacts.</li>
+            <li>Identity-layer hunts (impossible travel, anomalous consent grants, privilege escalation chains) catch the widest range of attacker goals because most cloud attacks touch identity at some point.</li>
+            <li>Resource creation outside a known CI/CD pipeline is one of the strongest control-plane signals available, since mature environments route legitimate changes through automation, not console clicks.</li>
+            <li>Network-layer hunting still matters for exfiltration and command-and-control detection: new egress destinations, volume anomalies, and DNS patterns consistent with tunneling or beaconing.</li>
+            <li>Ephemeral infrastructure breaks resource-centric investigation. Anchor hunts on identity and short-lived resource identifiers, which persist in logs after the resource itself is gone.</li>
+            <li>Cloud hunt documentation carries more weight than an on-prem writeup, because the underlying evidence, an ephemeral resource or a rotated credential, often can't be reproduced later.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Why does anchoring a cloud investigation on identity and API-caller fields work better than anchoring on the resource itself?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Identity fields are encrypted and therefore more trustworthy</button>
+              <button class="kc-option" data-correct="true">B. Identity and API-caller fields persist in logs even after an ephemeral resource has been destroyed</button>
+              <button class="kc-option" data-correct="false">C. Resources never appear in control-plane logs</button>
+              <button class="kc-option" data-correct="false">D. Identities cannot be shared across multiple resources</button>
+            </div>
+            <div class="kc-answer">A compute resource, container, or serverless function may be gone by the time you investigate, since cloud infrastructure is often ephemeral by design. The identity that created or used the resource, along with API-caller fields recorded at the time of each action, persists in logs independent of the resource's lifecycle, which is what makes a timeline reconstructable after the fact.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">What makes a resource-creation event outside the organization's known CI/CD pipeline a strong hunt signal?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. CI/CD pipelines are incapable of creating cloud resources</button>
+              <button class="kc-option" data-correct="true">B. In mature environments, legitimate changes usually flow through automation, so a non-pipeline identity creating a resource is unusual by default</button>
+              <button class="kc-option" data-correct="false">C. Console-driven changes are always malicious</button>
+              <button class="kc-option" data-correct="false">D. CloudTrail and Activity Logs don't record console-driven creation events</button>
+            </div>
+            <div class="kc-answer">Because most legitimate infrastructure changes in a mature cloud environment flow through CI/CD or specific automation service principals, the identity attribute on a resource-creation event is a strong discriminator: filtering out known pipeline identities from creation events leaves a short list of console-driven or unrecognized-principal changes worth individual review. It's not proof of compromise on its own, but it's an efficient way to narrow a large event stream down to what deserves attention.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Which combination of conditions makes an OAuth consent grant worth hunting on as a potential identity-layer attack?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Any consent grant to any application, regardless of scope or publisher</button>
+              <button class="kc-option" data-correct="false">B. Only grants that occur during normal business hours</button>
+              <button class="kc-option" data-correct="true">C. Unusually broad delegated permissions, an unfamiliar publisher, and approval outside normal business hours</button>
+              <button class="kc-option" data-correct="false">D. Grants approved by an administrator account specifically</button>
+            </div>
+            <div class="kc-answer">Each condition narrows the search independently and they compound well together: broad delegated scope (mail, files, directory access) indicates high potential impact, an unfamiliar publisher removes the trust an established vendor relationship would provide, and off-hours approval is inconsistent with a user consciously evaluating and approving a business integration during their normal workflow. Audit logs capture the requesting application, granted scopes, and granting user needed to build this query.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="04-cloud-telemetry-data-sources.html" class="chapter-nav-prev">← Cloud Telemetry &amp; Data Sources</a>
+          <a href="06-detection-queries.html" class="chapter-nav-next">Detection Queries →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('05', 6));</script>
+</body>
+</html>
