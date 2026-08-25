@@ -18,6 +18,7 @@
       <a href="index.html" class="nav-link">LOLBAS</a>
       <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
       <a href="../threat-intel/index.html" class="nav-link">Threat Intel</a>
+      <a href="../cloud-security/index.html" class="nav-link">Cloud Security</a>
     </nav>
     <div class="header-actions">
       <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
@@ -60,7 +61,7 @@
       </header>
 
       <!-- SECTION 1 -->
-      <section class="chapter-section" id="amsi-bypass">
+      <section class="content-section" id="amsi-bypass">
         <h2>AMSI Bypass Techniques</h2>
         <p>AMSI (Antimalware Scan Interface) is a Windows API that hooks into PowerShell, JScript, VBScript, and .NET to scan code before execution. Endpoint security products register as AMSI providers, receiving each script block for analysis before it runs.</p>
 
@@ -78,7 +79,7 @@
       </section>
 
       <!-- SECTION 2 -->
-      <section class="chapter-section" id="applocker-wdac-bypass">
+      <section class="content-section" id="applocker-wdac-bypass">
         <h2>AppLocker and WDAC Bypass</h2>
         <p>AppLocker and Windows Defender Application Control (WDAC) are application allowlisting controls. They block unsigned or non-whitelisted executables from running. The theory is sound. The problem is that LOLBins already pass both controls by default.</p>
 
@@ -98,7 +99,7 @@
       </section>
 
       <!-- SECTION 3 -->
-      <section class="chapter-section" id="edr-evasion">
+      <section class="content-section" id="edr-evasion">
         <h2>EDR Evasion via LOLBins</h2>
         <p>EDR products monitor process creation, network connections, file operations, and registry writes through kernel callbacks and user-mode hooks. LOLBins help attackers operate under reduced EDR scrutiny through three mechanisms.</p>
 
@@ -112,7 +113,7 @@
       </section>
 
       <!-- SECTION 4 -->
-      <section class="chapter-section" id="hardening-controls">
+      <section class="content-section" id="hardening-controls">
         <h2>Defensive Hardening Controls</h2>
         <p>Seven controls ordered by impact on LOTL attack surface reduction. These are not theoretical -- each has documented effectiveness against the techniques in this module.</p>
 
@@ -193,7 +194,7 @@
       </section>
 
       <!-- SECTION 5 -->
-      <section class="chapter-section" id="detection-testing">
+      <section class="content-section" id="detection-testing">
         <h2>Testing Your Detection Coverage</h2>
         <p>Writing detection rules without testing them provides false confidence. Validation closes the loop between building coverage and knowing the coverage works.</p>
 
@@ -218,7 +219,7 @@ Invoke-AtomicTest T1218.001 -TestNumbers 1</code></pre>
       </section>
 
       <!-- SECTION 6 -->
-      <section class="chapter-section" id="threat-informed-defense">
+      <section class="content-section" id="threat-informed-defense">
         <h2>Threat-Informed Defense for LOLBins</h2>
         <p>Threat-informed defense prioritizes defensive investment based on actual threat actor behavior rather than hypothetical scenarios or vendor marketing. Applied to LOLBin coverage, it means building detection based on techniques that actors targeting your industry actually use.</p>
 
@@ -238,7 +239,7 @@ Invoke-AtomicTest T1218.001 -TestNumbers 1</code></pre>
       </section>
 
       <!-- SECTION 7 -->
-      <section class="chapter-section" id="module-summary">
+      <section class="content-section" id="module-summary">
         <h2>Module Summary and Next Steps</h2>
         <p>Eight chapters covered the full LOLBAS detection engineering curriculum:</p>
         <ul>
@@ -261,7 +262,7 @@ Invoke-AtomicTest T1218.001 -TestNumbers 1</code></pre>
       </section>
 
       <div class="chapter-summary">
-        <h3>Key Takeaways</h3>
+        <h3 class="chapter-summary-label">Key Takeaways</h3>
         <ul>
           <li>AMSI bypass via reflection is detected by Script Block Logging when strings like "AmsiUtils" or "amsiInitFailed" appear in a script block. The bypass attempt itself is a high-confidence escalation signal.</li>
           <li>AppLocker alone does not stop LOLBin attacks. LOLBins are on the allowlist by default. WDAC with explicit deny rules for specific unused LOLBins provides meaningful mitigation.</li>
@@ -320,41 +321,4 @@ Invoke-AtomicTest T1218.001 -TestNumbers 1</code></pre>
 
   <script src="../js/learn.js"></script>
   <script>document.addEventListener('DOMContentLoaded', () => initChapter('08', 7));</script>
-  <div id="h3gc" style="position:fixed;bottom:16px;right:16px;display:flex;align-items:center;gap:6px;background:rgba(8,10,18,.9);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.45);z-index:9500;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);pointer-events:none;">
-    <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3.5" stroke="rgba(74,222,128,.7)" stroke-width="1"/><circle cx="4" cy="4" r="1.5" fill="rgba(74,222,128,.8)"/></svg>
-    <span id="h3gc-n" style="color:rgba(74,222,128,.9);font-weight:600">—</span>
-    <span style="opacity:.5">VISITORS</span>
-  </div>
-  <div id="h3gc" style="position:fixed;bottom:16px;right:16px;display:flex;align-items:center;gap:6px;background:rgba(8,10,18,.9);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.45);z-index:9500;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);pointer-events:none;">
-    <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3.5" stroke="rgba(74,222,128,.7)" stroke-width="1"/><circle cx="4" cy="4" r="1.5" fill="rgba(74,222,128,.8)"/></svg>
-    <span id="h3gc-n" style="color:rgba(74,222,128,.9);font-weight:600">—</span>
-    <span style="opacity:.5">VISITORS</span>
-  </div>
-  <!-- h3gc-v3 -->
-  <script>
-    (function(){
-      var key = (location.pathname.split('/').join('') || 'hub').toLowerCase();
-      var base = 'https://api.counterapi.dev/v1/h3ad-sec/' + key;
-      var lk = 'h3gc_c_' + key;
-      var sk = 'h3gc_s_' + key;
-      var el = document.getElementById('h3gc-n');
-      function store(k,v){try{localStorage.setItem(k,v);}catch(e){}}
-      function session(k){try{return sessionStorage.getItem(k);}catch(e){return null;}}
-      function sessionSet(k,v){try{sessionStorage.setItem(k,v);}catch(e){}}
-      try{ var cached=localStorage.getItem(lk); if(el&&cached) el.textContent=Number(cached).toLocaleString(); }catch(e){}
-      var seen = session(sk);
-      if (!seen) sessionSet(sk,'1');
-      fetch(seen ? base + '/' : base + '/up')
-        .then(function(r){ if(!r.ok) throw r; return r.json(); })
-        .then(function(d){
-          if(d.count!=null){ store(lk,d.count); if(el) el.textContent=Number(d.count).toLocaleString(); }
-        })
-        .catch(function(){});
-      var gsk = 'h3gc_s_total';
-      if (!session(gsk)) {
-        sessionSet(gsk,'1');
-        fetch('https://api.counterapi.dev/v1/h3ad-sec/total/up').catch(function(){});
-      }
-    })();
-  </script>
 </body></html>

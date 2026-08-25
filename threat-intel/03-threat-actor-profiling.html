@@ -31,6 +31,7 @@
         <a href="index.html" class="nav-link">Threat Intel</a>
         <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
         <a href="../lolbas/index.html" class="nav-link">LOLBAS</a>
+        <a href="../cloud-security/index.html" class="nav-link">Cloud Security</a>
       </nav>
       <div class="header-actions">
         <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
@@ -175,7 +176,7 @@
         </section>
 
         <div class="chapter-summary">
-          <h3>Key Takeaways</h3>
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
           <ul>
             <li>Major CTI vendors use different naming systems: Mandiant uses APT numbers, CrowdStrike uses country-animal pairs, Microsoft uses weather themes. ATT&CK Groups are the best cross-vendor reference.</li>
             <li>Actor motivation categories: nation-state espionage (patient, persistent, data theft), financially motivated (fast, monetization-focused), hacktivist (ideological), destructive (damage-oriented). Motivation determines targeting and response priority.</li>
@@ -215,10 +216,10 @@
           <div class="kc-question">
             <p class="kc-prompt">In the Diamond Model, which vertex is most useful for prospective hunting before an intrusion is confirmed?</p>
             <div class="kc-options">
-              <button class="kc-option" data-correct="false">A. Victim — because you can identify who else they are targeting</button>
-              <button class="kc-option" data-correct="false">B. Infrastructure — because you can block known IPs and domains proactively</button>
-              <button class="kc-option" data-correct="true">C. Capability — because TTP-based detections fire on actor behavior regardless of infrastructure changes</button>
-              <button class="kc-option" data-correct="false">D. Adversary — because knowing who is attacking tells you what to expect</button>
+              <button class="kc-option" data-correct="false">A. Victim: because you can identify who else they are targeting</button>
+              <button class="kc-option" data-correct="false">B. Infrastructure: because you can block known IPs and domains proactively</button>
+              <button class="kc-option" data-correct="true">C. Capability: because TTP-based detections fire on actor behavior regardless of infrastructure changes</button>
+              <button class="kc-option" data-correct="false">D. Adversary: because knowing who is attacking tells you what to expect</button>
             </div>
             <div class="kc-answer">Capability, specifically TTP-level behavioral patterns, is the most durable basis for proactive detection. Infrastructure (IPs, domains) rotates frequently. Victim information helps with targeting assessment but does not directly produce detections. Knowing the adversary identity is useful but does not generate search queries or detection rules by itself. TTP-level behavioral detections based on the capability vertex fire on actor behavior across infrastructure changes, tool recompilations, and campaign pivots.</div>
           </div>
@@ -233,26 +234,5 @@
   </div>
   <script src="../js/learn.js"></script>
   <script>document.addEventListener('DOMContentLoaded', () => initChapter('03', 6));</script>
-  <div id="h3gc" style="position:fixed;bottom:16px;right:16px;display:flex;align-items:center;gap:6px;background:rgba(8,10,18,.9);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.45);z-index:9500;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);pointer-events:none;">
-    <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3.5" stroke="rgba(74,222,128,.7)" stroke-width="1"/><circle cx="4" cy="4" r="1.5" fill="rgba(74,222,128,.8)"/></svg>
-    <span id="h3gc-n" style="color:rgba(74,222,128,.9);font-weight:600">—</span>
-    <span style="opacity:.5">VISITORS</span>
-  </div>
-  <!-- h3gc-v3 -->
-  <script>
-    (function(){
-      var key = (location.pathname.split('/').join('') || 'hub').toLowerCase();
-      var base = 'https://api.counterapi.dev/v1/h3ad-sec/' + key;
-      var lk = 'h3gc_c_' + key; var sk = 'h3gc_s_' + key;
-      var el = document.getElementById('h3gc-n');
-      function store(k,v){try{localStorage.setItem(k,v);}catch(e){}}
-      function session(k){try{return sessionStorage.getItem(k);}catch(e){return null;}}
-      function sessionSet(k,v){try{sessionStorage.setItem(k,v);}catch(e){}}
-      try{ var cached=localStorage.getItem(lk); if(el&&cached) el.textContent=Number(cached).toLocaleString(); }catch(e){}
-      var seen = session(sk); if (!seen) sessionSet(sk,'1');
-      fetch(seen ? base + '/' : base + '/up').then(function(r){ if(!r.ok) throw r; return r.json(); }).then(function(d){ if(d.count!=null){ store(lk,d.count); if(el) el.textContent=Number(d.count).toLocaleString(); } }).catch(function(){});
-      var gsk = 'h3gc_s_total'; if (!session(gsk)) { sessionSet(gsk,'1'); fetch('https://api.counterapi.dev/v1/h3ad-sec/total/up').catch(function(){}); }
-    })();
-  </script>
 </body>
 </html>

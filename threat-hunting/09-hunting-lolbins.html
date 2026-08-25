@@ -31,6 +31,7 @@
         <a href="index.html" class="nav-link">Threat Hunting</a>
         <a href="../lolbas/index.html" class="nav-link">LOLBAS</a>
         <a href="../threat-intel/index.html" class="nav-link">Threat Intel</a>
+        <a href="../cloud-security/index.html" class="nav-link">Cloud Security</a>
       </nav>
       <div class="header-actions">
         <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
@@ -111,7 +112,7 @@
             </table>
           </div>
 
-          <p>The ATT&CK anchor is T1218 Signed Binary Proxy Execution, which covers 12 subtechniques: T1218.001 (InstallUtil), T1218.003 (CMSTP), T1218.004 (InstallUtil), T1218.005 (Mshta), T1218.007 (Msiexec), T1218.008 (Odbcconf), T1218.009 (Regasm/Regsvcs), T1218.010 (Regsvr32), T1218.011 (Rundll32), T1218.012 (Verclsid), T1218.013 (Mavinject), and T1218.014 (MMC). Each subtechnique has a distinct behavior profile and requires its own detection approach.</p>
+          <p>The ATT&CK anchor is T1218 System Binary Proxy Execution (formerly named Signed Binary Proxy Execution), which covers 12 subtechniques: T1218.001 (Compiled HTML File), T1218.003 (CMSTP), T1218.004 (InstallUtil), T1218.005 (Mshta), T1218.007 (Msiexec), T1218.008 (Odbcconf), T1218.009 (Regasm/Regsvcs), T1218.010 (Regsvr32), T1218.011 (Rundll32), T1218.012 (Verclsid), T1218.013 (Mavinject), and T1218.014 (MMC). Each subtechnique has a distinct behavior profile and requires its own detection approach.</p>
 
           <p>The community catalog is the <strong>LOLBAS Project</strong> at lolbas-project.github.io. It documents 150+ LOLBins with function tags (execute, download, upload, compile, decode), command-line examples, and ATT&CK mappings. Treat it as a required reference alongside ATT&CK Navigator for hunt hypothesis generation.</p>
 
@@ -248,7 +249,7 @@
                 </tr>
                 <tr>
                   <td>T1218.010<br>Regsvr32 Squiblydoo</td>
-                  <td>regsvr32.exe with /s /u /i http[s]://... — AppLocker bypass active since 2016, may spawn child processes</td>
+                  <td>regsvr32.exe with /s /u /i http[s]://..., AppLocker bypass active since 2016, may spawn child processes</td>
                   <td>Sysmon EID 1 (CommandLine contains http), optionally EID 1 for child process</td>
                   <td>Critical</td>
                 </tr>
@@ -443,10 +444,10 @@ tags:
         </section>
 
         <div class="chapter-summary">
-          <h3>Key Takeaways</h3>
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
           <ul>
             <li>LOLBins are legitimate Windows binaries. The binary is never the indicator. Execution context -- parent process, command line, network behavior, and execution path -- is the indicator.</li>
-            <li>T1218 Signed Binary Proxy Execution covers 12+ subtechniques including certutil (T1218.001), mshta (T1218.005), regsvr32 (T1218.010), rundll32 (T1218.011), and installutil (T1218.004).</li>
+            <li>T1218 System Binary Proxy Execution covers 12+ subtechniques including mshta (T1218.005), regsvr32 (T1218.010), rundll32 (T1218.011), and installutil (T1218.004).</li>
             <li>Full command line logging is non-negotiable. Windows 4688 without the command line audit policy or Sysmon EID 1 cannot distinguish certutil -hashfile from certutil -urlcache.</li>
             <li>Sysmon EID 1 correlated with EID 3 (process creation and network connection from the same binary and PID) is the most reliable LOLBin detection primitive available without EDR.</li>
             <li>The ABLE framework maps directly: Behavior captures the binary plus flag pattern; Evidence captures the required Sysmon event ID and field; Location narrows the asset scope to reduce FP volume.</li>
@@ -475,7 +476,7 @@ tags:
             <div class="kc-options">
               <button class="kc-option" data-correct="false">A. T1059.001 -- PowerShell</button>
               <button class="kc-option" data-correct="false">B. T1197 -- BITS Jobs</button>
-              <button class="kc-option" data-correct="true">C. T1218.010 -- Signed Binary Proxy Execution: Regsvr32</button>
+              <button class="kc-option" data-correct="true">C. T1218.010 -- System Binary Proxy Execution: Regsvr32</button>
               <button class="kc-option" data-correct="false">D. T1105 -- Ingress Tool Transfer</button>
             </div>
             <div class="kc-answer">T1218.010 covers the Squiblydoo technique: regsvr32 /s /u /i:URL scrobj.dll loads a remote COM scriptlet. This technique is notable because regsvr32 is trusted by application whitelisting tools including AppLocker. It was first documented publicly in 2016 and remained consistently observed in the wild for years because the detection gap it exploited was not widely understood.</div>
@@ -502,42 +503,5 @@ tags:
   </div>
   <script src="../js/learn.js"></script>
   <script>document.addEventListener('DOMContentLoaded', () => initChapter('09', 7));</script>
-  <div id="h3gc" style="position:fixed;bottom:16px;right:16px;display:flex;align-items:center;gap:6px;background:rgba(8,10,18,.9);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.45);z-index:9500;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);pointer-events:none;">
-    <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3.5" stroke="rgba(74,222,128,.7)" stroke-width="1"/><circle cx="4" cy="4" r="1.5" fill="rgba(74,222,128,.8)"/></svg>
-    <span id="h3gc-n" style="color:rgba(74,222,128,.9);font-weight:600">—</span>
-    <span style="opacity:.5">VISITORS</span>
-  </div>
-  <div id="h3gc" style="position:fixed;bottom:16px;right:16px;display:flex;align-items:center;gap:6px;background:rgba(8,10,18,.9);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.45);z-index:9500;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);pointer-events:none;">
-    <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3.5" stroke="rgba(74,222,128,.7)" stroke-width="1"/><circle cx="4" cy="4" r="1.5" fill="rgba(74,222,128,.8)"/></svg>
-    <span id="h3gc-n" style="color:rgba(74,222,128,.9);font-weight:600">—</span>
-    <span style="opacity:.5">VISITORS</span>
-  </div>
-  <!-- h3gc-v3 -->
-  <script>
-    (function(){
-      var key = (location.pathname.split('/').join('') || 'hub').toLowerCase();
-      var base = 'https://api.counterapi.dev/v1/h3ad-sec/' + key;
-      var lk = 'h3gc_c_' + key;
-      var sk = 'h3gc_s_' + key;
-      var el = document.getElementById('h3gc-n');
-      function store(k,v){try{localStorage.setItem(k,v);}catch(e){}}
-      function session(k){try{return sessionStorage.getItem(k);}catch(e){return null;}}
-      function sessionSet(k,v){try{sessionStorage.setItem(k,v);}catch(e){}}
-      try{ var cached=localStorage.getItem(lk); if(el&&cached) el.textContent=Number(cached).toLocaleString(); }catch(e){}
-      var seen = session(sk);
-      if (!seen) sessionSet(sk,'1');
-      fetch(seen ? base + '/' : base + '/up')
-        .then(function(r){ if(!r.ok) throw r; return r.json(); })
-        .then(function(d){
-          if(d.count!=null){ store(lk,d.count); if(el) el.textContent=Number(d.count).toLocaleString(); }
-        })
-        .catch(function(){});
-      var gsk = 'h3gc_s_total';
-      if (!session(gsk)) {
-        sessionSet(gsk,'1');
-        fetch('https://api.counterapi.dev/v1/h3ad-sec/total/up').catch(function(){});
-      }
-    })();
-  </script>
 </body>
 </html>

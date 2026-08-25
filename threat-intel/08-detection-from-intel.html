@@ -31,6 +31,7 @@
         <a href="index.html" class="nav-link">Threat Intel</a>
         <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
         <a href="../lolbas/index.html" class="nav-link">LOLBAS</a>
+        <a href="../cloud-security/index.html" class="nav-link">Cloud Security</a>
       </nav>
       <div class="header-actions">
         <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
@@ -95,7 +96,7 @@
 
           <p>Actor overlay layers are available directly from ATT&CK for documented threat groups. The G0016 layer (APT29) shows all techniques attributed to APT29 in ATT&CK. You can download this layer from Navigator's built-in threat group library and overlay it against your coverage layer. The combined view shows exactly which APT29 techniques you do and do not currently detect. This is the most data-driven way to prioritize detection engineering work against a specific threat.</p>
 
-          <div class="code-block"><code>// ATT&CK Navigator layer workflow — command line approach
+          <div class="code-block"><code>// ATT&CK Navigator layer workflow: command line approach
 // 1. Export current Sentinel analytics rules as ATT&CK JSON
 //    (available via Microsoft Sentinel → Analytics → Export)
 
@@ -162,7 +163,7 @@ tags:
 
           <p>The watchlist approach in Microsoft Sentinel allows large numbers of indicators to be managed outside of individual analytics rules. A watchlist of IOCs can be updated programmatically via STIX/TAXII ingestion or CSV upload, and a single analytics rule queries the watchlist rather than hardcoding specific values. This separation of rule logic from indicator data allows the indicator list to be updated independently of the rule itself.</p>
 
-          <div class="code-block"><code>// KQL — Sentinel watchlist-based IOC matching
+          <div class="code-block"><code>// KQL: Sentinel watchlist-based IOC matching
 // Assumes a watchlist named "CTI_IOCs" with columns: IOCType, IOCValue, Confidence, Source, TLP
 
 let HighConfidenceIPs = (
@@ -180,7 +181,7 @@ DeviceNetworkEvents
 
           <p>Behavioral KQL built from TTP descriptions is more durable than indicator-based detection. A behavioral rule that captures the technique survives infrastructure rotation; an IP indicator rule fires exactly once for each IP and is defeated the moment the actor changes IPs. The most effective detection architecture combines both: indicator matching for fast, high-confidence IOC hits, and behavioral rules for durable TTP-level coverage that persists across campaign cycles.</p>
 
-          <div class="code-block"><code>// KQL — Behavioral detection for data staging before exfiltration
+          <div class="code-block"><code>// KQL: Behavioral detection for data staging before exfiltration
 // Derived from CTI reports documenting actor staging to unusual temp paths
 
 DeviceFileEvents
@@ -232,7 +233,7 @@ DeviceFileEvents
         </section>
 
         <div class="chapter-summary">
-          <h3>Key Takeaways</h3>
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
           <ul>
             <li>The TI-to-detection pipeline: intake, TTP extraction, query drafting, testing against known-good and clean data, deployment with documentation. Each stage has failure modes that reduce detection quality.</li>
             <li>ATT&CK Navigator coverage mapping overlays your detection coverage against actor TTP profiles to make gaps visible. Gaps in high-frequency actor techniques are highest priority for new rule development.</li>
@@ -272,7 +273,7 @@ DeviceFileEvents
           <div class="kc-question">
             <p class="kc-prompt">A detection rule derived from CTI generates 50 alerts per day, all on SCCM software deployment operations. The correct response is:</p>
             <div class="kc-options">
-              <button class="kc-option" data-correct="false">A. Suppress the rule entirely — it is too noisy to be useful</button>
+              <button class="kc-option" data-correct="false">A. Suppress the rule entirely: it is too noisy to be useful</button>
               <button class="kc-option" data-correct="false">B. Raise the rule's alert threshold until it stops firing</button>
               <button class="kc-option" data-correct="true">C. Add targeted exclusions for the SCCM process and specific command line patterns that match the legitimate deployment workflow, preserving coverage for the adversary behavior pattern</button>
               <button class="kc-option" data-correct="false">D. Replace the behavioral rule with an IOC-based rule that only fires on known-malicious IPs</button>
@@ -290,26 +291,5 @@ DeviceFileEvents
   </div>
   <script src="../js/learn.js"></script>
   <script>document.addEventListener('DOMContentLoaded', () => initChapter('08', 6));</script>
-  <div id="h3gc" style="position:fixed;bottom:16px;right:16px;display:flex;align-items:center;gap:6px;background:rgba(8,10,18,.9);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.45);z-index:9500;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);pointer-events:none;">
-    <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3.5" stroke="rgba(74,222,128,.7)" stroke-width="1"/><circle cx="4" cy="4" r="1.5" fill="rgba(74,222,128,.8)"/></svg>
-    <span id="h3gc-n" style="color:rgba(74,222,128,.9);font-weight:600">—</span>
-    <span style="opacity:.5">VISITORS</span>
-  </div>
-  <!-- h3gc-v3 -->
-  <script>
-    (function(){
-      var key = (location.pathname.split('/').join('') || 'hub').toLowerCase();
-      var base = 'https://api.counterapi.dev/v1/h3ad-sec/' + key;
-      var lk = 'h3gc_c_' + key; var sk = 'h3gc_s_' + key;
-      var el = document.getElementById('h3gc-n');
-      function store(k,v){try{localStorage.setItem(k,v);}catch(e){}}
-      function session(k){try{return sessionStorage.getItem(k);}catch(e){return null;}}
-      function sessionSet(k,v){try{sessionStorage.setItem(k,v);}catch(e){}}
-      try{ var cached=localStorage.getItem(lk); if(el&&cached) el.textContent=Number(cached).toLocaleString(); }catch(e){}
-      var seen = session(sk); if (!seen) sessionSet(sk,'1');
-      fetch(seen ? base + '/' : base + '/up').then(function(r){ if(!r.ok) throw r; return r.json(); }).then(function(d){ if(d.count!=null){ store(lk,d.count); if(el) el.textContent=Number(d.count).toLocaleString(); } }).catch(function(){});
-      var gsk = 'h3gc_s_total'; if (!session(gsk)) { sessionSet(gsk,'1'); fetch('https://api.counterapi.dev/v1/h3ad-sec/total/up').catch(function(){}); }
-    })();
-  </script>
 </body>
 </html>

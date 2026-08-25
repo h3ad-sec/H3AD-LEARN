@@ -33,7 +33,8 @@
         <a href="index.html" class="nav-link">Threat Hunting</a>
         <a href="../lolbas/index.html" class="nav-link">LOLBAS</a>
         <a href="../threat-intel/index.html" class="nav-link">Threat Intel</a>
-        <a href="https://h3ad-sec.github.io/HYPOS/" class="nav-link" target="_blank" rel="noopener">HYPOS</a>
+        <a href="../cloud-security/index.html" class="nav-link">Cloud Security</a>
+                <a href="https://h3ad-sec.github.io/HYPOS/" class="nav-link" target="_blank" rel="noopener">HYPOS</a>
       </nav>
       <div class="header-actions">
         <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
@@ -128,7 +129,7 @@
             <br><br>
             <strong>Time window:</strong> Last 30 days. Justification: APT29's known operational tempo in recent campaigns suggests activity within 30-day windows after initial compromise.
             <br><br>
-            <strong>Data sources:</strong> Sysmon Event 3 (network connections to port 5985/5986, all endpoints — confirmed present and quality-checked 2026-06-01), Windows Security Event 4624 Type 3 (network logons — confirmed), WinRM Operational log (confirmed on DCs only; gap on standard workstations — documented).
+            <strong>Data sources:</strong> Sysmon Event 3 (network connections to port 5985/5986, all endpoints, confirmed present and quality-checked 2026-06-01), Windows Security Event 4624 Type 3 (network logons, confirmed), WinRM Operational log (confirmed on DCs only; gap on standard workstations, documented).
             <br><br>
             <strong>Out of scope:</strong> Linux and macOS hosts, cloud infrastructure, known IT admin machines using WinRM for authorized management (documented list from IT ops team).
             <br><br>
@@ -156,28 +157,28 @@
 **Hypothesis:** APT29 WinRM lateral movement (T1021.006)
 **Analyst:** [name] | **Date:** 2026-06-02
 
-### 09:15 — Initial scope query
+### 09:15 · Initial scope query
 Query: DeviceNetworkEvents
 | where RemotePort in (5985, 5986)
 | summarize count() by DeviceName, RemoteIP
 Result: 847 connection events across 23 hosts
 Action: Filtering to connections between non-server hosts (workstation-to-workstation)
 
-### 09:32 — Refined: workstation-to-workstation WinRM
+### 09:32 · Refined: workstation-to-workstation WinRM
 Query: [refined with asset type filter using device classification]
 Result: 12 events across 3 host pairs
 Action: Reviewing host pairs individually
-  - Pair 1: IT-ADMIN-01 to FILESERVER-03 — known admin activity, documented. FP.
-  - Pair 2: LAPTOP-128 to WORKSTATION-44 — unusual. No admin activity documented.
-  - Pair 3: LAPTOP-128 to FILESERVER-03 — same source host as pair 2.
+  - Pair 1: IT-ADMIN-01 to FILESERVER-03, known admin activity, documented. FP.
+  - Pair 2: LAPTOP-128 to WORKSTATION-44, unusual. No admin activity documented.
+  - Pair 3: LAPTOP-128 to FILESERVER-03, same source host as pair 2.
 
-### 09:55 — Suspicious finding: LAPTOP-128 lateral movement
+### 09:55 · Suspicious finding: LAPTOP-128 lateral movement
 Both connections originated from LAPTOP-128 at 02:17 on 2026-05-28.
 Connection to WORKSTATION-44 (standard endpoint) and FILESERVER-03 (file server).
 Time is outside business hours. User account associated is a standard user.
 Action: Pivot to Sysmon Event 1 on target hosts for timestamp. Check what process spawned.
 
-### 10:12 — EDR process tree pivot on FILESERVER-03
+### 10:12 · EDR process tree pivot on FILESERVER-03
 FILESERVER-03 shows wsmprovhost.exe spawning cmd.exe at 02:18.
 cmd.exe executes: net user /domain and net localgroup administrators.
 Enumeration commands. This is post-exploitation behavior.
@@ -274,11 +275,11 @@ New hypothesis for backlog: Hunt for other WinRM sessions from LAPTOP-128 in las
 Hypothesis: [ABLE format: Actor, Behavior, Location, Evidence]
 Hunt Dates: [start date] to [end date]
 Analyst: [name]
-ATT&CK Technique: [e.g., T1021.006 — Remote Services: Windows Remote Management]
+ATT&CK Technique: [e.g., T1021.006, Remote Services: Windows Remote Management]
 
 ─── SCOPE ───────────────────────────────────
 Target Systems: [all endpoints / specific segments / cloud / identity]
-Time Window: [start] to [end] — [justification for window length]
+Time Window: [start] to [end]: [justification for window length]
 Data Sources:
   - [source 1]: [available / quality confirmed / gap noted]
   - [source 2]: [available / quality confirmed / gap noted]
@@ -287,19 +288,19 @@ Out of Scope: [explicit exclusions with rationale]
 ─── EXECUTION SUMMARY ───────────────────────
 Queries Run: [count]
 Records Analyzed: [approximate count]
-Data Quality Issues: [none — OR — specific issue and impact on hunt coverage]
+Data Quality Issues: [none / specific issue and impact on hunt coverage]
 
 ─── FINDINGS ────────────────────────────────
 Result Classification: [TP / FP / Coverage Gap / No-Find]
 Finding Summary: [2-3 sentences describing what was found or confirmed absent]
-Evidence Quality: [Admiralty rating, e.g., A2 — own EDR, probably true]
+Evidence Quality: [Admiralty rating, e.g., A2, own EDR, probably true]
 Confidence Score: [0-100 with brief rationale]
 Severity: [Critical / High / Medium / Low with rationale]
 
 ─── ACTIONS TAKEN ───────────────────────────
-Escalated to IR: [Yes — Ticket #IR-XXXX-XXXX / No]
-Detection Rules Created: [Yes — TRACERULES link / No]
-Data Source Improvement Requests: [Yes — description / No]
+Escalated to IR: [Yes, Ticket #IR-XXXX-XXXX / No]
+Detection Rules Created: [Yes, TRACERULES link / No]
+Data Source Improvement Requests: [Yes, description / No]
 New Hypotheses Added to Backlog: [list with brief context for each]
 
 ─── LESSONS LEARNED ─────────────────────────
@@ -318,7 +319,7 @@ What to improve: [scope too broad, missing data, query logic issues, etc.]</code
             <br><br>
             <strong>Finding Summary:</strong> LAPTOP-128 made WinRM connections to WORKSTATION-44 and FILESERVER-03 at 02:17 on 2026-05-28, outside business hours using a standard user account. EDR process tree on FILESERVER-03 confirmed wsmprovhost.exe spawning cmd.exe executing domain enumeration commands. Escalated to IR as ticket #IR-2026-0547.
             <br><br>
-            <strong>Evidence Quality:</strong> A1 — Own EDR telemetry, confirmed in environment. Confidence: 85. Severity: HIGH (file server with domain credentials).
+            <strong>Evidence Quality:</strong> A1, own EDR telemetry, confirmed in environment. Confidence: 85. Severity: HIGH (file server with domain credentials).
             <br><br>
             <strong>Actions Taken:</strong> Escalated to IR. Detection rule created for WinRM connections from non-admin workstations to servers outside business hours (TRACERULES entry #TR-20260602-001). New hypothesis added: "Hunt WinRM activity from LAPTOP-128 in prior 60 days for earlier lateral movement."
             <br><br>
@@ -407,7 +408,7 @@ What to improve: [scope too broad, missing data, query logic issues, etc.]</code
 
         <!-- SUMMARY -->
         <div class="chapter-summary">
-          <h3>Key Takeaways</h3>
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
           <ul>
             <li>PEAK's three phases have distinct time allocations: PREPARE (20-30%), EXECUTE (50-60%), ACT (20-30%). Most analysts invest too little in PREPARE and ACT.</li>
             <li>A structured hunt differs from an ad hoc investigation by three things: a written plan, an execution log, and an ACT phase output. All three are required.</li>
@@ -438,10 +439,10 @@ What to improve: [scope too broad, missing data, query logic issues, etc.]</code
           <div class="kc-question">
             <p class="kc-prompt">A hunter tests a hypothesis and finds no evidence. The data quality was confirmed good. Which outcome classification applies?</p>
             <div class="kc-options">
-              <button class="kc-option" data-correct="false">Coverage Gap — the logs do not support the hypothesis</button>
-              <button class="kc-option" data-correct="false">False Positive — the hypothesis was incorrect</button>
-              <button class="kc-option" data-correct="true">No-Find — hypothesis tested against good data, no evidence found</button>
-              <button class="kc-option" data-correct="false">True Positive — the clean result confirms detection is working</button>
+              <button class="kc-option" data-correct="false">Coverage Gap: the logs do not support the hypothesis</button>
+              <button class="kc-option" data-correct="false">False Positive: the hypothesis was incorrect</button>
+              <button class="kc-option" data-correct="true">No-Find: hypothesis tested against good data, no evidence found</button>
+              <button class="kc-option" data-correct="false">True Positive: the clean result confirms detection is working</button>
             </div>
             <div class="kc-answer"><strong>No-Find</strong> applies when the hypothesis was tested against confirmed good-quality data and no evidence was found. This is a positive result: it means either the adversary has not used the technique in your environment, or your detection coverage for this technique is working. Coverage Gap applies only when the data needed to test the hypothesis does not exist or is insufficient quality.</div>
           </div>
@@ -491,42 +492,5 @@ What to improve: [scope too broad, missing data, query logic issues, etc.]</code
 
   <script src="../js/learn.js"></script>
   <script>document.addEventListener('DOMContentLoaded', () => initChapter('07', 7));</script>
-  <div id="h3gc" style="position:fixed;bottom:16px;right:16px;display:flex;align-items:center;gap:6px;background:rgba(8,10,18,.9);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.45);z-index:9500;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);pointer-events:none;">
-    <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3.5" stroke="rgba(74,222,128,.7)" stroke-width="1"/><circle cx="4" cy="4" r="1.5" fill="rgba(74,222,128,.8)"/></svg>
-    <span id="h3gc-n" style="color:rgba(74,222,128,.9);font-weight:600">—</span>
-    <span style="opacity:.5">VISITORS</span>
-  </div>
-  <div id="h3gc" style="position:fixed;bottom:16px;right:16px;display:flex;align-items:center;gap:6px;background:rgba(8,10,18,.9);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.45);z-index:9500;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);pointer-events:none;">
-    <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3.5" stroke="rgba(74,222,128,.7)" stroke-width="1"/><circle cx="4" cy="4" r="1.5" fill="rgba(74,222,128,.8)"/></svg>
-    <span id="h3gc-n" style="color:rgba(74,222,128,.9);font-weight:600">—</span>
-    <span style="opacity:.5">VISITORS</span>
-  </div>
-  <!-- h3gc-v3 -->
-  <script>
-    (function(){
-      var key = (location.pathname.split('/').join('') || 'hub').toLowerCase();
-      var base = 'https://api.counterapi.dev/v1/h3ad-sec/' + key;
-      var lk = 'h3gc_c_' + key;
-      var sk = 'h3gc_s_' + key;
-      var el = document.getElementById('h3gc-n');
-      function store(k,v){try{localStorage.setItem(k,v);}catch(e){}}
-      function session(k){try{return sessionStorage.getItem(k);}catch(e){return null;}}
-      function sessionSet(k,v){try{sessionStorage.setItem(k,v);}catch(e){}}
-      try{ var cached=localStorage.getItem(lk); if(el&&cached) el.textContent=Number(cached).toLocaleString(); }catch(e){}
-      var seen = session(sk);
-      if (!seen) sessionSet(sk,'1');
-      fetch(seen ? base + '/' : base + '/up')
-        .then(function(r){ if(!r.ok) throw r; return r.json(); })
-        .then(function(d){
-          if(d.count!=null){ store(lk,d.count); if(el) el.textContent=Number(d.count).toLocaleString(); }
-        })
-        .catch(function(){});
-      var gsk = 'h3gc_s_total';
-      if (!session(gsk)) {
-        sessionSet(gsk,'1');
-        fetch('https://api.counterapi.dev/v1/h3ad-sec/total/up').catch(function(){});
-      }
-    })();
-  </script>
 </body>
 </html>

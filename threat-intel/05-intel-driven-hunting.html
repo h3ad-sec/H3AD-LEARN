@@ -31,6 +31,7 @@
         <a href="index.html" class="nav-link">Threat Intel</a>
         <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
         <a href="../lolbas/index.html" class="nav-link">LOLBAS</a>
+        <a href="../cloud-security/index.html" class="nav-link">Cloud Security</a>
       </nav>
       <div class="header-actions">
         <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
@@ -131,7 +132,7 @@
 
           <p>Consider a report describing an actor that establishes persistence by creating a scheduled task that executes a PowerShell one-liner with an encoded command at user logon. The telemetry target is Windows Event ID 4698 (scheduled task created) and/or Sysmon Event ID 1 (process create for schtasks.exe or PowerShell with encoded content). The query structure is: look for scheduled task creation (Event ID 4698 or schtasks.exe process) where the command contains -enc or -EncodedCommand, created outside of known-good administrative tools, in the last 30 days.</p>
 
-          <div class="code-block"><code>// KQL (Microsoft Sentinel / MDE) — Intel-driven scheduled task hunt
+          <div class="code-block"><code>// KQL (Microsoft Sentinel / MDE): Intel-driven scheduled task hunt
 DeviceProcessEvents
 | where Timestamp > ago(30d)
 | where FileName =~ "schtasks.exe"
@@ -142,7 +143,7 @@ DeviceProcessEvents
 
           <p>For a report describing C2 beaconing with a specific User-Agent string or beaconing interval, the query targets network telemetry: proxy logs, DNS query logs, or network flow data. The pattern to search for is the specific User-Agent in web proxy logs, or domains matching the described naming convention, or connections at regular intervals (beaconing detection) to external IPs outside of known services.</p>
 
-          <div class="code-block"><code>// KQL — Hunt for suspicious beaconing pattern (regular intervals to external IP)
+          <div class="code-block"><code>// KQL: Hunt for suspicious beaconing pattern (regular intervals to external IP)
 // Adapts to any actor using periodic C2 check-ins
 DeviceNetworkEvents
 | where Timestamp > ago(7d)
@@ -186,7 +187,7 @@ DeviceNetworkEvents
         </section>
 
         <div class="chapter-summary">
-          <h3>Key Takeaways</h3>
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
           <ul>
             <li>CTI reports contain three types of huntable content: direct IOCs, TTP descriptions translatable to behavioral searches, and infrastructure patterns for pivot analysis.</li>
             <li>Structured hypotheses using the ABLE framework (Actor, Behavior, Location, Evidence) bridge the gap between a CTI report and an executable search query.</li>
@@ -228,7 +229,7 @@ DeviceNetworkEvents
             <div class="kc-options">
               <button class="kc-option" data-correct="false">A. The actor is definitely not present in your environment</button>
               <button class="kc-option" data-correct="false">B. The CTI report was wrong about the actor's techniques</button>
-              <button class="kc-option" data-correct="true">C. Either the actor is not present, the actor has adapted since the report, or your telemetry has a gap that prevents detection — each requires investigation</button>
+              <button class="kc-option" data-correct="true">C. Either the actor is not present, the actor has adapted since the report, or your telemetry has a gap that prevents detection: each requires investigation</button>
               <button class="kc-option" data-correct="false">D. Discard the report and focus on other intelligence sources</button>
             </div>
             <div class="kc-answer">A negative result can mean three different things, and distinguishing between them matters. If the telemetry coverage is confirmed complete (you would see this technique if it occurred), then absence of results is evidence the actor is not using this technique in your environment. If telemetry coverage is incomplete (the log source doesn't capture this event type, or retention is insufficient), the result is a gap finding rather than a negative. If significant time has passed since the report, the actor may have changed TTPs. Document which explanation applies and act accordingly.</div>
@@ -244,26 +245,5 @@ DeviceNetworkEvents
   </div>
   <script src="../js/learn.js"></script>
   <script>document.addEventListener('DOMContentLoaded', () => initChapter('05', 6));</script>
-  <div id="h3gc" style="position:fixed;bottom:16px;right:16px;display:flex;align-items:center;gap:6px;background:rgba(8,10,18,.9);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.45);z-index:9500;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);pointer-events:none;">
-    <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3.5" stroke="rgba(74,222,128,.7)" stroke-width="1"/><circle cx="4" cy="4" r="1.5" fill="rgba(74,222,128,.8)"/></svg>
-    <span id="h3gc-n" style="color:rgba(74,222,128,.9);font-weight:600">—</span>
-    <span style="opacity:.5">VISITORS</span>
-  </div>
-  <!-- h3gc-v3 -->
-  <script>
-    (function(){
-      var key = (location.pathname.split('/').join('') || 'hub').toLowerCase();
-      var base = 'https://api.counterapi.dev/v1/h3ad-sec/' + key;
-      var lk = 'h3gc_c_' + key; var sk = 'h3gc_s_' + key;
-      var el = document.getElementById('h3gc-n');
-      function store(k,v){try{localStorage.setItem(k,v);}catch(e){}}
-      function session(k){try{return sessionStorage.getItem(k);}catch(e){return null;}}
-      function sessionSet(k,v){try{sessionStorage.setItem(k,v);}catch(e){}}
-      try{ var cached=localStorage.getItem(lk); if(el&&cached) el.textContent=Number(cached).toLocaleString(); }catch(e){}
-      var seen = session(sk); if (!seen) sessionSet(sk,'1');
-      fetch(seen ? base + '/' : base + '/up').then(function(r){ if(!r.ok) throw r; return r.json(); }).then(function(d){ if(d.count!=null){ store(lk,d.count); if(el) el.textContent=Number(d.count).toLocaleString(); } }).catch(function(){});
-      var gsk = 'h3gc_s_total'; if (!session(gsk)) { sessionSet(gsk,'1'); fetch('https://api.counterapi.dev/v1/h3ad-sec/total/up').catch(function(){}); }
-    })();
-  </script>
 </body>
 </html>

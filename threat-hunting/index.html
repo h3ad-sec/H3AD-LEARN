@@ -36,7 +36,13 @@
     .chapters-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
     @media (max-width: 768px) { .chapters-grid { grid-template-columns: 1fr; } }
 
-    .chapter-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; text-decoration: none; color: inherit; transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s; cursor: pointer; position: relative; }
+    .chapter-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; text-decoration: none; color: inherit; transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s; cursor: pointer; position: relative; animation: fadeIn 0.35s ease backwards; }
+    .chapter-card:nth-child(1) { animation-delay: 0s; }
+    .chapter-card:nth-child(2) { animation-delay: 0.04s; }
+    .chapter-card:nth-child(3) { animation-delay: 0.08s; }
+    .chapter-card:nth-child(4) { animation-delay: 0.12s; }
+    .chapter-card:nth-child(5) { animation-delay: 0.16s; }
+    .chapter-card:nth-child(n+6) { animation-delay: 0.2s; }
     .chapter-card:hover { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(0,212,255,0.1), 0 4px 20px rgba(0,212,255,0.05); transform: translateY(-1px); }
     .chapter-card-top { display: flex; align-items: center; justify-content: space-between; }
     .chapter-num { font-family: 'Share Tech Mono', monospace; font-size: 1.4rem; color: var(--accent); font-weight: 700; opacity: 0.7; line-height: 1; }
@@ -90,6 +96,7 @@
         <a href="../index.html" class="nav-link">Hub</a>
         <a href="../lolbas/index.html" class="nav-link">LOLBAS</a>
         <a href="../threat-intel/index.html" class="nav-link">Threat Intel</a>
+        <a href="../cloud-security/index.html" class="nav-link">Cloud Security</a>
       </nav>
       <div class="header-actions">
         <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme" title="Toggle theme">
@@ -411,7 +418,7 @@
         <div class="prereq-card">
           <p class="prereq-card-title">WHAT YOU SHOULD KNOW</p>
           <ul class="prereq-list">
-            <li>Basic Windows OS concepts — processes, registry, file system structure</li>
+            <li>Basic Windows OS concepts: processes, registry, file system structure</li>
             <li>Familiarity with log concepts: event IDs, timestamps, field structure</li>
             <li>Some exposure to a SIEM or query language (KQL, SPL, or similar)</li>
             <li>General understanding of the cyber kill chain or ATT&amp;CK framework</li>
@@ -423,7 +430,7 @@
           <ul class="prereq-list">
             <li>The full threat hunting lifecycle from scoping to after-action reporting</li>
             <li>How to write testable hypotheses using ABLE and ATT&amp;CK data sources</li>
-            <li>PEAK, TaHiTI, and Sqrrl Loop — when and how to apply each</li>
+            <li>PEAK, TaHiTI, and Sqrrl Loop: when and how to apply each</li>
             <li>Hunting query writing in KQL, SPL, and Sigma</li>
             <li>Evidence scoring using Admiralty, Diamond Model, and Pyramid of Pain</li>
             <li>How to build and measure a hunt program using KPIs</li>

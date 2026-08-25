@@ -206,7 +206,8 @@
       overflow: hidden;
     }
 
-    .nav-item:hover .nav-dropdown {
+    .nav-item:hover .nav-dropdown,
+    .nav-item:focus-within .nav-dropdown {
       display: block;
     }
 
@@ -383,7 +384,7 @@
     .hero-stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:1.75rem;}
     .stat-chip{display:flex;flex-direction:column;padding:10px 16px;background:var(--panel);border:1px solid var(--border);border-radius:4px;min-width:88px;}
     .stat-val{font-family:'Exo 2',sans-serif;font-weight:700;font-size:1.05rem;color:var(--accent);letter-spacing:0.04em;line-height:1.2;}
-    .stat-label{font-size:0.53rem;letter-spacing:0.18em;color:var(--muted);margin-top:4px;}
+    .stat-label{font-family:'Share Tech Mono',monospace;font-size:0.53rem;letter-spacing:0.18em;color:var(--muted);margin-top:4px;}
 
     .manifesto-strip{border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:2rem 0;margin:2.5rem 0 3rem;}
     .manifesto-text{font-size:clamp(0.82rem,2vw,1.05rem);color:var(--text);line-height:1.9;letter-spacing:0.02em;}
@@ -425,7 +426,13 @@
     .card-badge { font-size:0.55rem; letter-spacing:0.18em; padding:3px 8px; border-radius:2px; text-transform:uppercase; white-space:nowrap; }
     .badge-live { background:rgba(0, 212, 255, 0.1); color:#00d4ff; border:1px solid rgba(0, 212, 255, 0.25); }
     .badge-soon { background:rgba(98,128,156,0.12); color:var(--muted); border:1px solid var(--border); }
-    .tool-feature { background:var(--panel); border:1px solid var(--border); border-radius:6px; padding:28px 28px 22px; margin-bottom:14px; display:flex; flex-direction:column; gap:12px; position:relative; overflow:hidden; transition:border-color 0.2s,background 0.2s; }
+    .tool-feature { background:var(--panel); border:1px solid var(--border); border-radius:6px; padding:28px 28px 22px; margin-bottom:14px; display:flex; flex-direction:column; gap:12px; position:relative; overflow:hidden; transition:border-color 0.2s,background 0.2s; animation:fadeIn 0.35s ease backwards; }
+    .tool-feature:nth-of-type(3) { animation-delay:0s; }
+    .tool-feature:nth-of-type(4) { animation-delay:0.04s; }
+    .tool-feature:nth-of-type(5) { animation-delay:0.08s; }
+    .tool-feature:nth-of-type(6) { animation-delay:0.12s; }
+    .tool-feature:nth-of-type(7) { animation-delay:0.16s; }
+    .tool-feature:nth-of-type(n+8) { animation-delay:0.2s; }
     .tool-feature::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--accent),transparent); opacity:0.55; }
     .tool-feature:hover { border-color:rgba(0,212,255,0.35); background:rgba(0,212,255,0.02); }
     .tf-soon.tool-feature:hover { border-color:var(--border); background:var(--panel); }
@@ -528,7 +535,7 @@
     }
 
     .hero-chips{display:flex;flex-wrap:wrap;gap:5px;margin:1.5rem 0 1.75rem;}
-    .hero-chip{font-size:0.52rem;letter-spacing:0.22em;color:var(--muted);border:1px solid var(--border-dim);border-radius:2px;padding:3px 9px;white-space:nowrap;}
+    .hero-chip{font-family:'Share Tech Mono',monospace;font-size:0.52rem;letter-spacing:0.22em;color:var(--muted);border:1px solid var(--border-dim);border-radius:2px;padding:3px 9px;white-space:nowrap;}
 
     .cap-strip {
       display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -595,7 +602,7 @@
   <div id="scroll-sentinel" aria-hidden="true"></div>
 
   <nav class="nav">
-    <div class="hamburger" id="hamburger" onclick="toggleDrawer()"><span></span><span></span><span></span></div>
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
     <a class="nav-brand" href="https://h3ad-sec.github.io/">
       <img id="logoImg" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
     </a>
@@ -615,11 +622,12 @@
             <a href="threat-hunting/index.html">THREAT HUNTING</a>
             <a href="lolbas/index.html">LOLBAS</a>
             <a href="threat-intel/index.html">THREAT INTEL</a>
+            <a href="cloud-security/index.html">CLOUD SECURITY</a>
           </div>
         </div>
       </div>
     </div>
-    <div class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+    <div class="theme-toggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" onclick="toggleTheme()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleTheme();}" title="Toggle theme">
       <div class="toggle-track">
         <div class="toggle-thumb"></div>
       </div>
@@ -634,6 +642,7 @@
     <a href="threat-hunting/index.html" onclick="closeDrawer()" class="drawer-sub">↳ THREAT HUNTING</a>
     <a href="lolbas/index.html" onclick="closeDrawer()" class="drawer-sub">↳ LOLBAS</a>
     <a href="threat-intel/index.html" onclick="closeDrawer()" class="drawer-sub">↳ THREAT INTEL</a>
+    <a href="cloud-security/index.html" onclick="closeDrawer()" class="drawer-sub">↳ CLOUD SECURITY</a>
   </div>
 
   <div class="page">
@@ -650,9 +659,9 @@
       </div>
       <div class="hero-stats">
         <div class="stat-chip"><span class="stat-val">6</span><span class="stat-label">DOMAINS PLANNED</span></div>
-        <div class="stat-chip"><span class="stat-val">3</span><span class="stat-label">LIVE NOW</span></div>
-        <div class="stat-chip"><span class="stat-val">25</span><span class="stat-label">CHAPTERS LIVE</span></div>
-        <div class="stat-chip"><span class="stat-val">34 HRS</span><span class="stat-label">TRAINING CONTENT</span></div>
+        <div class="stat-chip"><span class="stat-val">4</span><span class="stat-label">LIVE NOW</span></div>
+        <div class="stat-chip"><span class="stat-val">33</span><span class="stat-label">CHAPTERS LIVE</span></div>
+        <div class="stat-chip"><span class="stat-val">45 HRS</span><span class="stat-label">TRAINING CONTENT</span></div>
       </div>
     </div>
 
@@ -660,7 +669,7 @@
       <p class="manifesto-text">An analyst who understands the hunt lifecycle catches what the ruleset misses. Every domain here starts where detection ends and works forward from adversary behavior to structured evidence.<br><span style="font-size:0.65rem;color:var(--muted);letter-spacing:0.06em;">No backend. No account. No certificate. Just the methodology, in your browser.</span></p>
     </div>
 
-    <div class="section-label">LEARNING DOMAINS</div>
+    <h2 class="section-label">LEARNING DOMAINS</h2>
 
     <div class="cap-strip">
       <div class="cap-item">
@@ -669,15 +678,15 @@
       </div>
       <div class="cap-item">
         <span class="cap-label">Live Now</span>
-        <span class="cap-value"><span>3</span> Live</span>
+        <span class="cap-value"><span>4</span> Live</span>
       </div>
       <div class="cap-item">
         <span class="cap-label">Chapters Live</span>
-        <span class="cap-value"><span>25</span> Chapters</span>
+        <span class="cap-value"><span>33</span> Chapters</span>
       </div>
       <div class="cap-item">
         <span class="cap-label">Training Content</span>
-        <span class="cap-value"><span>34 HRS</span> Est.</span>
+        <span class="cap-value"><span>45 HRS</span> Est.</span>
       </div>
     </div>
 
@@ -735,6 +744,18 @@
       <span class="tf-link tf-link-soon">COMING SOON</span>
     </div>
 
+    <!-- CLOUD SECURITY — LIVE -->
+    <div class="tool-feature">
+      <div class="tf-header">
+        <div class="tf-name">CLOUD SECURITY</div>
+        <span class="card-badge badge-live">LIVE</span>
+      </div>
+      <div class="tf-tagline">Hunting in Azure, AWS, and Entra.</div>
+      <div class="tf-body">Eight chapters from the shared responsibility model through applied detection engineering. Azure AD/Entra ID and AWS IAM attack techniques, cloud telemetry, cloud-native threat hunting, KQL/Sigma/SPL detection queries, real threat actor campaigns, and Zero Trust/CIEM/CSPM defense.</div>
+      <div class="tf-meta" style="margin-top:1.25rem;">8 CHAPTERS · ~11 HRS · BEGINNER → ADVANCED · AZURE AD · AWS IAM · ZERO TRUST</div>
+      <a class="tf-link" href="cloud-security/index.html">OPEN CLOUD SECURITY →</a>
+    </div>
+
     <!-- MALWARE ANALYSIS — PLANNED -->
     <div class="tool-feature tf-soon" style="opacity:0.65;">
       <div class="tf-header">
@@ -747,19 +768,7 @@
       <span class="tf-link tf-link-soon">COMING SOON</span>
     </div>
 
-    <!-- CLOUD SECURITY — PLANNED -->
-    <div class="tool-feature tf-soon" style="opacity:0.65;">
-      <div class="tf-header">
-        <div class="tf-name">CLOUD SECURITY</div>
-        <span class="card-badge badge-soon">PLANNED</span>
-      </div>
-      <div class="tf-tagline">Hunting in Azure, AWS, and Entra.</div>
-      <div class="tf-body">Azure AD attacks, AWS enumeration, cloud-native threat hunting, and CloudTrail/Entra analysis. Structured for detection engineers who need to extend coverage beyond the endpoint.</div>
-      <div class="tf-meta" style="margin-top:1.25rem;">AZURE AD · AWS ENUMERATION · CLOUD-NATIVE HUNTING · CLOUDTRAIL · ENTRA ANALYSIS</div>
-      <span class="tf-link tf-link-soon">COMING SOON</span>
-    </div>
-
-    <div class="section-label" style="margin-top:3rem;">BUILT FOR PRACTITIONERS</div>
+    <h2 class="section-label" style="margin-top:3rem;">BUILT FOR PRACTITIONERS</h2>
 
     <div class="pillars">
       <div class="pillar">
@@ -779,7 +788,7 @@
       </div>
     </div>
 
-    <div class="section-label">PLATFORM</div>
+    <h2 class="section-label">PLATFORM</h2>
 
     <div class="compliance-row">
       <div class="compliance-cell">
@@ -795,12 +804,8 @@
         <div class="compliance-label">localStorage ONLY</div>
       </div>
       <div class="compliance-cell">
-        <div class="compliance-val">9 CHAPTERS</div>
-        <div class="compliance-label">THREAT HUNTING</div>
-      </div>
-      <div class="compliance-cell">
-        <div class="compliance-val">8 CHAPTERS</div>
-        <div class="compliance-label">LOLBAS</div>
+        <div class="compliance-val">33 CHAPTERS</div>
+        <div class="compliance-label">ACROSS 4 MODULES</div>
       </div>
       <div class="compliance-cell">
         <div class="compliance-val">OPEN ACCESS</div>
@@ -822,8 +827,18 @@
   </footer>
 
   <script>
-    function toggleDrawer() { document.getElementById('navDrawer').classList.toggle('open'); }
-    function closeDrawer() { document.getElementById('navDrawer').classList.remove('open'); }
+    function toggleDrawer() {
+      const open = document.getElementById('navDrawer').classList.toggle('open');
+      const h = document.getElementById('hamburger');
+      h.setAttribute('aria-expanded', open);
+      h.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
+    }
+    function closeDrawer() {
+      document.getElementById('navDrawer').classList.remove('open');
+      const h = document.getElementById('hamburger');
+      h.setAttribute('aria-expanded', 'false');
+      h.setAttribute('aria-label', 'Open navigation menu');
+    }
     document.addEventListener('click', e => {
       const d = document.getElementById('navDrawer'), h = document.getElementById('hamburger');
       if (d.classList.contains('open') && !d.contains(e.target) && !h.contains(e.target)) closeDrawer();

@@ -31,6 +31,7 @@
         <a href="index.html" class="nav-link">LOLBAS</a>
         <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
         <a href="../threat-intel/index.html" class="nav-link">Threat Intel</a>
+        <a href="../cloud-security/index.html" class="nav-link">Cloud Security</a>
       </nav>
       <div class="header-actions">
         <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
@@ -78,10 +79,10 @@
           <p>LOLScripts are scripting engines shipped with Windows that attackers repurpose to run attacker-controlled code. The script file itself can be entirely malicious, but the engine executing it is a trusted, signed Windows component. That distinction matters: process-based allowlisting blocks unknown binaries, but it cannot block a trusted scripting engine running a hostile script.</p>
           <p>The four core LOLScript engines are:</p>
           <ul>
-            <li><strong>PowerShell</strong> (.ps1 files via powershell.exe) — the most powerful, with full .NET API access and a built-in module ecosystem.</li>
-            <li><strong>VBScript</strong> (.vbs files via wscript.exe or cscript.exe) — widely deployed in corporate environments, historically the dominant phishing dropper format.</li>
-            <li><strong>JScript</strong> (.js files via wscript.exe or cscript.exe) — JavaScript for Windows Script Host, also executable through Internet Explorer and Edge Legacy via ActiveX.</li>
-            <li><strong>HTA</strong> (.hta files via mshta.exe) — HTML Application, a hybrid format combining HTML markup with VBScript or JScript, executed outside browser security zones.</li>
+            <li><strong>PowerShell</strong> (.ps1 files via powershell.exe): the most powerful, with full .NET API access and a built-in module ecosystem.</li>
+            <li><strong>VBScript</strong> (.vbs files via wscript.exe or cscript.exe): widely deployed in corporate environments, historically the dominant phishing dropper format.</li>
+            <li><strong>JScript</strong> (.js files via wscript.exe or cscript.exe): JavaScript for Windows Script Host, also executable through Internet Explorer and Edge Legacy via ActiveX.</li>
+            <li><strong>HTA</strong> (.hta files via mshta.exe): HTML Application, a hybrid format combining HTML markup with VBScript or JScript, executed outside browser security zones.</li>
           </ul>
           <p>What makes scripting engines particularly powerful for attackers is the runtime environment they provide. Unlike a simple LOLBin that invokes one fixed function, a scripting engine accepts multi-line programs. PowerShell scripts can make HTTP requests, write registry keys, load .NET assemblies, and spawn child processes, all from inside a trusted Windows runtime. The attacker brings the code; Windows brings the execution environment.</p>
           <p>The key distinction from traditional LOLBins: with a LOLBin, the binary does the malicious work. With a LOLScript, the binary is just a runtime. The payload is the script file or inline command passed to it. That payload can be entirely in memory, fetched from a remote URL, or embedded as an encoded string in a command-line argument.</p>
@@ -243,7 +244,7 @@ $method.Invoke($null, $null)</code></pre>
     &lt;Task&gt;
       &lt;Code Type="Class" Language="cs"&gt;
         &lt;![CDATA[
-          // Malicious C# code here — compiled and executed at runtime
+          // Malicious C# code here, compiled and executed at runtime
           using Microsoft.Build.Framework;
           using Microsoft.Build.Utilities;
           public class ClassExample : Task {
@@ -320,19 +321,19 @@ $method.Invoke($null, $null)</code></pre>
                   <td>Script Block Logging</td>
                   <td>4104</td>
                   <td>Full deobfuscated code at execution time</td>
-                  <td>Highest — catches encoded and obfuscated payloads</td>
+                  <td>Highest, catches encoded and obfuscated payloads</td>
                 </tr>
                 <tr>
                   <td>Module Logging</td>
                   <td>4103</td>
                   <td>Pipeline execution details, module output</td>
-                  <td>High — supplements script block logs</td>
+                  <td>High, supplements script block logs</td>
                 </tr>
                 <tr>
                   <td>Transcription</td>
                   <td>(file output)</td>
                   <td>All input and output written to log file</td>
-                  <td>Forensic — useful post-incident</td>
+                  <td>Forensic, useful post-incident</td>
                 </tr>
                 <tr>
                   <td>Protected Event Logging</td>
@@ -369,7 +370,7 @@ $method.Invoke($null, $null)</code></pre>
         </section>
 
         <div class="chapter-summary">
-          <h3>Key Takeaways</h3>
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
           <ul>
             <li>LOLScripts are scripting engines (PowerShell, VBScript, JScript, WSH) that run attacker-controlled code inside trusted Windows runtimes, with no additional binary required.</li>
             <li>PowerShell provides download-in-memory execution, full .NET API access, and AMSI bypass capabilities, making it the most capable and commonly abused LOLScript.</li>
@@ -410,7 +411,7 @@ $method.Invoke($null, $null)</code></pre>
             <p class="kc-prompt">Which PowerShell technique executes a remote script in memory without writing a file to disk?</p>
             <div class="kc-options">
               <button class="kc-option" data-correct="false">A. powershell.exe -File C:\script.ps1</button>
-              <button class="kc-option" data-correct="true">B. IEX (New-Object Net.WebClient).DownloadString('http://url') — in-memory download cradle</button>
+              <button class="kc-option" data-correct="true">B. IEX (New-Object Net.WebClient).DownloadString('http://url'): in-memory download cradle</button>
               <button class="kc-option" data-correct="false">C. powershell.exe -enc BASE64_COMMAND</button>
               <button class="kc-option" data-correct="false">D. Import-Module C:\module.psm1</button>
             </div>
@@ -427,42 +428,5 @@ $method.Invoke($null, $null)</code></pre>
   </div>
   <script src="../js/learn.js"></script>
   <script>document.addEventListener('DOMContentLoaded', () => initChapter('03', 6));</script>
-  <div id="h3gc" style="position:fixed;bottom:16px;right:16px;display:flex;align-items:center;gap:6px;background:rgba(8,10,18,.9);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.45);z-index:9500;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);pointer-events:none;">
-    <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3.5" stroke="rgba(74,222,128,.7)" stroke-width="1"/><circle cx="4" cy="4" r="1.5" fill="rgba(74,222,128,.8)"/></svg>
-    <span id="h3gc-n" style="color:rgba(74,222,128,.9);font-weight:600">—</span>
-    <span style="opacity:.5">VISITORS</span>
-  </div>
-  <div id="h3gc" style="position:fixed;bottom:16px;right:16px;display:flex;align-items:center;gap:6px;background:rgba(8,10,18,.9);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.45);z-index:9500;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);pointer-events:none;">
-    <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3.5" stroke="rgba(74,222,128,.7)" stroke-width="1"/><circle cx="4" cy="4" r="1.5" fill="rgba(74,222,128,.8)"/></svg>
-    <span id="h3gc-n" style="color:rgba(74,222,128,.9);font-weight:600">—</span>
-    <span style="opacity:.5">VISITORS</span>
-  </div>
-  <!-- h3gc-v3 -->
-  <script>
-    (function(){
-      var key = (location.pathname.split('/').join('') || 'hub').toLowerCase();
-      var base = 'https://api.counterapi.dev/v1/h3ad-sec/' + key;
-      var lk = 'h3gc_c_' + key;
-      var sk = 'h3gc_s_' + key;
-      var el = document.getElementById('h3gc-n');
-      function store(k,v){try{localStorage.setItem(k,v);}catch(e){}}
-      function session(k){try{return sessionStorage.getItem(k);}catch(e){return null;}}
-      function sessionSet(k,v){try{sessionStorage.setItem(k,v);}catch(e){}}
-      try{ var cached=localStorage.getItem(lk); if(el&&cached) el.textContent=Number(cached).toLocaleString(); }catch(e){}
-      var seen = session(sk);
-      if (!seen) sessionSet(sk,'1');
-      fetch(seen ? base + '/' : base + '/up')
-        .then(function(r){ if(!r.ok) throw r; return r.json(); })
-        .then(function(d){
-          if(d.count!=null){ store(lk,d.count); if(el) el.textContent=Number(d.count).toLocaleString(); }
-        })
-        .catch(function(){});
-      var gsk = 'h3gc_s_total';
-      if (!session(gsk)) {
-        sessionSet(gsk,'1');
-        fetch('https://api.counterapi.dev/v1/h3ad-sec/total/up').catch(function(){});
-      }
-    })();
-  </script>
 </body>
 </html>

@@ -31,6 +31,7 @@
         <a href="index.html" class="nav-link">Threat Intel</a>
         <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
         <a href="../lolbas/index.html" class="nav-link">LOLBAS</a>
+        <a href="../cloud-security/index.html" class="nav-link">Cloud Security</a>
       </nav>
       <div class="header-actions">
         <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
@@ -179,7 +180,7 @@
         </section>
 
         <div class="chapter-summary">
-          <h3>Key Takeaways</h3>
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
           <ul>
             <li>Intelligence is analyzed, contextualized information that supports a specific decision. A hash list is data. A finished analysis about an actor campaign is intelligence.</li>
             <li>The intelligence cycle has six phases: direction, collection, processing, analysis, dissemination, and feedback. Each phase can fail independently.</li>
@@ -219,7 +220,7 @@
           <div class="kc-question">
             <p class="kc-prompt">An incident responder sends you a TLP:AMBER report about an active campaign and asks you to share it with a vendor partner for their input. What should you do?</p>
             <div class="kc-options">
-              <button class="kc-option" data-correct="false">A. Share it immediately — the vendor is a trusted partner</button>
+              <button class="kc-option" data-correct="false">A. Share it immediately: the vendor is a trusted partner</button>
               <button class="kc-option" data-correct="false">B. Share it only if the vendor signs an NDA first</button>
               <button class="kc-option" data-correct="true">C. Contact the originating source and request permission to share externally</button>
               <button class="kc-option" data-correct="false">D. Redact the IOCs and then share the report</button>
@@ -237,26 +238,5 @@
   </div>
   <script src="../js/learn.js"></script>
   <script>document.addEventListener('DOMContentLoaded', () => initChapter('01', 6));</script>
-  <div id="h3gc" style="position:fixed;bottom:16px;right:16px;display:flex;align-items:center;gap:6px;background:rgba(8,10,18,.9);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.45);z-index:9500;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);pointer-events:none;">
-    <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3.5" stroke="rgba(74,222,128,.7)" stroke-width="1"/><circle cx="4" cy="4" r="1.5" fill="rgba(74,222,128,.8)"/></svg>
-    <span id="h3gc-n" style="color:rgba(74,222,128,.9);font-weight:600">—</span>
-    <span style="opacity:.5">VISITORS</span>
-  </div>
-  <!-- h3gc-v3 -->
-  <script>
-    (function(){
-      var key = (location.pathname.split('/').join('') || 'hub').toLowerCase();
-      var base = 'https://api.counterapi.dev/v1/h3ad-sec/' + key;
-      var lk = 'h3gc_c_' + key; var sk = 'h3gc_s_' + key;
-      var el = document.getElementById('h3gc-n');
-      function store(k,v){try{localStorage.setItem(k,v);}catch(e){}}
-      function session(k){try{return sessionStorage.getItem(k);}catch(e){return null;}}
-      function sessionSet(k,v){try{sessionStorage.setItem(k,v);}catch(e){}}
-      try{ var cached=localStorage.getItem(lk); if(el&&cached) el.textContent=Number(cached).toLocaleString(); }catch(e){}
-      var seen = session(sk); if (!seen) sessionSet(sk,'1');
-      fetch(seen ? base + '/' : base + '/up').then(function(r){ if(!r.ok) throw r; return r.json(); }).then(function(d){ if(d.count!=null){ store(lk,d.count); if(el) el.textContent=Number(d.count).toLocaleString(); } }).catch(function(){});
-      var gsk = 'h3gc_s_total'; if (!session(gsk)) { sessionSet(gsk,'1'); fetch('https://api.counterapi.dev/v1/h3ad-sec/total/up').catch(function(){}); }
-    })();
-  </script>
 </body>
 </html>

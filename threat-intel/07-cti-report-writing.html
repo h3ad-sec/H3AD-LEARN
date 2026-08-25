@@ -31,6 +31,7 @@
         <a href="index.html" class="nav-link">Threat Intel</a>
         <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
         <a href="../lolbas/index.html" class="nav-link">LOLBAS</a>
+        <a href="../cloud-security/index.html" class="nav-link">Cloud Security</a>
       </nav>
       <div class="header-actions">
         <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
@@ -129,7 +130,7 @@
           <h2>Executive vs Technical Reports</h2>
           <p>The same intelligence event should produce different products for different audiences. An IR manager needs the technical IOC list and behavioral indicators to direct the investigation. The CISO needs the business impact, the attribution confidence, and the recommended organizational response. A board member needs one paragraph on the nature of the threat and one paragraph on what is being done about it. None of these audiences reads the same document effectively.</p>
 
-          <p>Writing for executives requires the following adaptations. Eliminate technical jargon: "the actor used T1059.001 PowerShell IEX cradle to load a reflective DLL" becomes "the attacker used legitimate Windows scripting tools to execute malicious code in memory, bypassing traditional file-based detection." Quantify impact wherever possible: "five systems compromised" is more useful than "moderate intrusion scope." Lead with relevance: "This campaign is targeting companies with annual revenue above $500M in the US financial sector — we match both criteria" tells the CISO immediately why this matters to them.</p>
+          <p>Writing for executives requires the following adaptations. Eliminate technical jargon: "the actor used T1059.001 PowerShell IEX cradle to load a reflective DLL" becomes "the attacker used legitimate Windows scripting tools to execute malicious code in memory, bypassing traditional file-based detection." Quantify impact wherever possible: "five systems compromised" is more useful than "moderate intrusion scope." Lead with relevance: "This campaign is targeting companies with annual revenue above $500M in the US financial sector. We match both criteria" tells the CISO immediately why this matters to them.</p>
 
           <p>Writing for technical audiences requires the opposite adaptations. Precision over simplicity: use ATT&CK technique IDs, specific tool names, exact command line patterns, and precise log source references. Include everything the analyst needs to search for the behavior: the exact SIEM query or its components, the specific Event IDs to check, the exact file paths and registry keys to examine. Do not summarize; include the raw data in appendices so analysts can work from primary sources rather than a filtered abstraction.</p>
 
@@ -152,12 +153,12 @@
         </section>
 
         <div class="chapter-summary">
-          <h3>Key Takeaways</h3>
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
           <ul>
             <li>Intelligence products must match the consumer: flash reports (hours, everyone), tactical bulletins (days, SOC/IR), campaign reports (weeks, technical teams), strategic assessments (months, executives/CISO).</li>
             <li>Every product should trace to a PIR or RFI. Products without a mapped requirement have no guaranteed consumer and waste analytical resources.</li>
             <li>BLUF structure: conclusion first, support second. Key judgments are precise, stated with explicit confidence levels, with reasoning visible to the reader.</li>
-            <li>Confidence language should be consistent and calibrated: "almost certainly," "likely," "roughly even chance," "unlikely," "remote." Hedging is not uncertainty expression — it avoids making any claim at all.</li>
+            <li>Confidence language should be consistent and calibrated: "almost certainly," "likely," "roughly even chance," "unlikely," "remote." Hedging is not uncertainty expression: it avoids making any claim at all.</li>
             <li>Executive reports eliminate jargon, quantify impact, lead with relevance. Technical reports use precise ATT&CK language, exact log sources, and raw indicator appendices. Both can live in the same document with clear structure.</li>
             <li>Dissemination metrics that matter are outcomes: was it acted on, did it change a decision, did it produce a detection? Delivery confirmation is not a quality metric.</li>
           </ul>
@@ -183,7 +184,7 @@
             <div class="kc-options">
               <button class="kc-option" data-correct="false">A. Nation-state attribution should never appear in written reports</button>
               <button class="kc-option" data-correct="false">B. "Could potentially" is grammatically redundant</button>
-              <button class="kc-option" data-correct="true">C. This is a hedge, not a calibrated assessment — it makes no actionable claim and cannot inform any decision</button>
+              <button class="kc-option" data-correct="true">C. This is a hedge, not a calibrated assessment: it makes no actionable claim and cannot inform any decision</button>
               <button class="kc-option" data-correct="false">D. It should include a specific nation-state name to be useful</button>
             </div>
             <div class="kc-answer">"It is possible that this could potentially be" expresses near-zero information. It is consistent with any level of confidence from 1% to 99%. A calibrated intelligence assessment would say something like: "We assess with low confidence that this activity is consistent with nation-state tradecraft based on the level of operational security and the absence of financially motivated behavior in the observed actions." That statement makes a specific claim, states the confidence level, and provides the basis. A reader can decide whether to act on it. No reader can decide anything from a phrase that could mean anything.</div>
@@ -210,26 +211,5 @@
   </div>
   <script src="../js/learn.js"></script>
   <script>document.addEventListener('DOMContentLoaded', () => initChapter('07', 5));</script>
-  <div id="h3gc" style="position:fixed;bottom:16px;right:16px;display:flex;align-items:center;gap:6px;background:rgba(8,10,18,.9);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.45);z-index:9500;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);pointer-events:none;">
-    <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3.5" stroke="rgba(74,222,128,.7)" stroke-width="1"/><circle cx="4" cy="4" r="1.5" fill="rgba(74,222,128,.8)"/></svg>
-    <span id="h3gc-n" style="color:rgba(74,222,128,.9);font-weight:600">—</span>
-    <span style="opacity:.5">VISITORS</span>
-  </div>
-  <!-- h3gc-v3 -->
-  <script>
-    (function(){
-      var key = (location.pathname.split('/').join('') || 'hub').toLowerCase();
-      var base = 'https://api.counterapi.dev/v1/h3ad-sec/' + key;
-      var lk = 'h3gc_c_' + key; var sk = 'h3gc_s_' + key;
-      var el = document.getElementById('h3gc-n');
-      function store(k,v){try{localStorage.setItem(k,v);}catch(e){}}
-      function session(k){try{return sessionStorage.getItem(k);}catch(e){return null;}}
-      function sessionSet(k,v){try{sessionStorage.setItem(k,v);}catch(e){}}
-      try{ var cached=localStorage.getItem(lk); if(el&&cached) el.textContent=Number(cached).toLocaleString(); }catch(e){}
-      var seen = session(sk); if (!seen) sessionSet(sk,'1');
-      fetch(seen ? base + '/' : base + '/up').then(function(r){ if(!r.ok) throw r; return r.json(); }).then(function(d){ if(d.count!=null){ store(lk,d.count); if(el) el.textContent=Number(d.count).toLocaleString(); } }).catch(function(){});
-      var gsk = 'h3gc_s_total'; if (!session(gsk)) { sessionSet(gsk,'1'); fetch('https://api.counterapi.dev/v1/h3ad-sec/total/up').catch(function(){}); }
-    })();
-  </script>
 </body>
 </html>

@@ -18,6 +18,7 @@
       <a href="index.html" class="nav-link">LOLBAS</a>
       <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
       <a href="../threat-intel/index.html" class="nav-link">Threat Intel</a>
+      <a href="../cloud-security/index.html" class="nav-link">Cloud Security</a>
     </nav>
     <div class="header-actions">
       <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
@@ -60,7 +61,7 @@
       </header>
 
       <!-- SECTION 1 -->
-      <section class="chapter-section" id="why-actors-use-lolbins">
+      <section class="content-section" id="why-actors-use-lolbins">
         <h2>Why Threat Actors Choose Living Off the Land</h2>
         <p>Nation-state APTs and ransomware operators converged on LOLBin tradecraft independently. The convergence happened because both groups optimized for the same thing: remaining undetected long enough to complete their objectives.</p>
         <p>Three operational reasons actors choose LOLBins over custom malware:</p>
@@ -69,7 +70,7 @@
           <li><strong>Reduce tooling cost.</strong> LOLBins are pre-installed and signed. Attackers do not need to develop, compile, sign, or maintain a custom dropper. The payload is already on the target system before the attack begins.</li>
           <li><strong>Reduce dwell detection risk.</strong> Custom malware triggers more alerts. LOLBin executions trigger alerts only when context anomalies exist. Less experienced SOCs miss the context and triage the alert as benign.</li>
         </ol>
-        <p>The term "LOTL" (Living Off The Land) appears throughout threat intelligence reports to describe this pattern. MITRE ATT&CK labels it T1218 (Signed Binary Proxy Execution) and a cluster of related subtechniques. Every T1218 subtechnique has a corresponding LOLBin at the center.</p>
+        <p>The term "LOTL" (Living Off The Land) appears throughout threat intelligence reports to describe this pattern. MITRE ATT&CK labels it T1218 (System Binary Proxy Execution) and a cluster of related subtechniques. Every T1218 subtechnique has a corresponding LOLBin at the center.</p>
 
         <div class="table-wrap">
           <table>
@@ -102,7 +103,7 @@
       </section>
 
       <!-- SECTION 2 -->
-      <section class="chapter-section" id="apt-campaigns">
+      <section class="content-section" id="apt-campaigns">
         <h2>APT Campaign Examples</h2>
         <p>Three nation-state actors illustrate how LOLBin preferences vary by group and inform attribution.</p>
 
@@ -132,7 +133,7 @@
       </section>
 
       <!-- SECTION 3 -->
-      <section class="chapter-section" id="ransomware-campaigns">
+      <section class="content-section" id="ransomware-campaigns">
         <h2>Ransomware Operator LOLBin Patterns</h2>
         <p>Ransomware operators adopted LOTL tradecraft in the 2020s to defeat endpoint security deployed after WannaCry and NotPetya. The pattern emerged because endpoint controls improved: operators who continued using custom malware were getting caught. LOLBins provided a path around improved defenses without requiring malware redevelopment.</p>
 
@@ -187,7 +188,7 @@
       </section>
 
       <!-- SECTION 4 -->
-      <section class="chapter-section" id="cobalt-strike-lotl">
+      <section class="content-section" id="cobalt-strike-lotl">
         <h2>Cobalt Strike and LOTL Integration</h2>
         <p>Cobalt Strike is a legitimate adversary simulation tool widely abused by ransomware operators and nation-state actors alike. Every common Cobalt Strike beacon delivery method relies on a LOLBin. This is not coincidence -- the framework was designed for red team engagements where avoiding detection is the goal, and LOLBins are the best available delivery mechanism.</p>
 
@@ -225,7 +226,7 @@
       </section>
 
       <!-- SECTION 5 -->
-      <section class="chapter-section" id="campaign-attribution">
+      <section class="content-section" id="campaign-attribution">
         <h2>Attribution Signals in LOLBin Campaigns</h2>
         <p>Not all LOTL usage is the same. Actor-specific patterns exist that persist across campaigns and can support attribution before formal intelligence reporting arrives.</p>
 
@@ -241,7 +242,7 @@
       </section>
 
       <!-- SECTION 6 -->
-      <section class="chapter-section" id="hunting-actor-patterns">
+      <section class="content-section" id="hunting-actor-patterns">
         <h2>Hunting for Actor-Specific LOLBin Patterns</h2>
         <p>Published threat intelligence translates directly into hunt hypotheses. The process is mechanical: take an actor's documented LOLBin technique, state it as a conditional ("if this actor has access, we expect to see..."), and build a query from the expected artifact. Three examples:</p>
 
@@ -261,7 +262,7 @@
       </section>
 
       <div class="chapter-summary">
-        <h3>Key Takeaways</h3>
+        <h3 class="chapter-summary-label">Key Takeaways</h3>
         <ul>
           <li>Nation-state APTs and ransomware operators both chose LOTL tradecraft to reduce dwell detection risk and blend LOLBin executions into baseline noise.</li>
           <li>APT34 used certutil to download payloads disguised as benign file extensions. APT32 used regsvr32 Squiblydoo. Lazarus used PowerShell IEX cradles. Each group has consistent LOLBin preferences across campaigns.</li>
@@ -319,41 +320,4 @@
 
   <script src="../js/learn.js"></script>
   <script>document.addEventListener('DOMContentLoaded', () => initChapter('07', 6));</script>
-  <div id="h3gc" style="position:fixed;bottom:16px;right:16px;display:flex;align-items:center;gap:6px;background:rgba(8,10,18,.9);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.45);z-index:9500;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);pointer-events:none;">
-    <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3.5" stroke="rgba(74,222,128,.7)" stroke-width="1"/><circle cx="4" cy="4" r="1.5" fill="rgba(74,222,128,.8)"/></svg>
-    <span id="h3gc-n" style="color:rgba(74,222,128,.9);font-weight:600">—</span>
-    <span style="opacity:.5">VISITORS</span>
-  </div>
-  <div id="h3gc" style="position:fixed;bottom:16px;right:16px;display:flex;align-items:center;gap:6px;background:rgba(8,10,18,.9);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.45);z-index:9500;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);pointer-events:none;">
-    <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3.5" stroke="rgba(74,222,128,.7)" stroke-width="1"/><circle cx="4" cy="4" r="1.5" fill="rgba(74,222,128,.8)"/></svg>
-    <span id="h3gc-n" style="color:rgba(74,222,128,.9);font-weight:600">—</span>
-    <span style="opacity:.5">VISITORS</span>
-  </div>
-  <!-- h3gc-v3 -->
-  <script>
-    (function(){
-      var key = (location.pathname.split('/').join('') || 'hub').toLowerCase();
-      var base = 'https://api.counterapi.dev/v1/h3ad-sec/' + key;
-      var lk = 'h3gc_c_' + key;
-      var sk = 'h3gc_s_' + key;
-      var el = document.getElementById('h3gc-n');
-      function store(k,v){try{localStorage.setItem(k,v);}catch(e){}}
-      function session(k){try{return sessionStorage.getItem(k);}catch(e){return null;}}
-      function sessionSet(k,v){try{sessionStorage.setItem(k,v);}catch(e){}}
-      try{ var cached=localStorage.getItem(lk); if(el&&cached) el.textContent=Number(cached).toLocaleString(); }catch(e){}
-      var seen = session(sk);
-      if (!seen) sessionSet(sk,'1');
-      fetch(seen ? base + '/' : base + '/up')
-        .then(function(r){ if(!r.ok) throw r; return r.json(); })
-        .then(function(d){
-          if(d.count!=null){ store(lk,d.count); if(el) el.textContent=Number(d.count).toLocaleString(); }
-        })
-        .catch(function(){});
-      var gsk = 'h3gc_s_total';
-      if (!session(gsk)) {
-        sessionSet(gsk,'1');
-        fetch('https://api.counterapi.dev/v1/h3ad-sec/total/up').catch(function(){});
-      }
-    })();
-  </script>
 </body></html>

@@ -23,7 +23,8 @@ const CHAPTER_IDS = ['01', '02', '03', '04', '05', '06', '07', '08', '09'];
 const MODULES = {
   'threat-hunting': { chapters: ['01','02','03','04','05','06','07','08','09'], totalHours: 13 },
   'lolbas':         { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 10 },
-  'threat-intel':   { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 11 }
+  'threat-intel':   { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 11 },
+  'cloud-security': { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 11 }
 };
 
 /* ---------------------------------------------------------
@@ -396,6 +397,13 @@ function initReadingProgress() {
    CHAPTER PAGE — SECTION OBSERVER
    Highlights active TOC link, marks sections seen, updates progress.
    --------------------------------------------------------- */
+function updateChapterProgressWidget(seenCount, total) {
+  const fill  = document.getElementById('chapterProgressFill');
+  const label = document.getElementById('chapterProgressLabel');
+  if (fill)  fill.style.width = (total > 0 ? Math.round((seenCount / total) * 100) : 0) + '%';
+  if (label) label.textContent = seenCount + ' of ' + total + ' section' + (total === 1 ? '' : 's');
+}
+
 function initSectionObserver(chapterId, moduleId) {
   const sections = document.querySelectorAll('.chapter-body .content-section');
   if (!sections.length) return;
@@ -403,6 +411,8 @@ function initSectionObserver(chapterId, moduleId) {
   const mod      = moduleId || detectModuleId();
   const tocLinks = document.querySelectorAll('.toc-link[data-target]');
   const seenSet  = new Set();
+
+  updateChapterProgressWidget(0, sections.length);
 
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
@@ -418,6 +428,7 @@ function initSectionObserver(chapterId, moduleId) {
         if (chapterId && !seenSet.has(id)) {
           seenSet.add(id);
           markSectionSeen(chapterId, id, mod);
+          updateChapterProgressWidget(seenSet.size, sections.length);
 
           const progress = initProgress();
           const ch       = progress.modules[mod]?.chapters[chapterId];
@@ -440,38 +451,45 @@ function initSectionObserver(chapterId, moduleId) {
 /* ---------------------------------------------------------
    CHAPTER PAGE — COPY BUTTONS
    --------------------------------------------------------- */
+function wireCopyButton(btn, code, defaultLabel) {
+  btn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(code.innerText);
+      btn.textContent = '✓ COPIED';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = defaultLabel;
+        btn.classList.remove('copied');
+      }, 1600);
+    } catch (_) {
+      const sel   = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(code);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      btn.textContent = '✓ COPIED';
+      setTimeout(() => { btn.textContent = defaultLabel; }, 1600);
+    }
+  });
+}
+
 function initCopyButtons() {
   document.querySelectorAll('.code-block').forEach(block => {
-    if (block.querySelector('.copy-btn')) return;
-
     const code = block.querySelector('code');
     if (!code) return;
+
+    // Header-bar variant: a hardcoded .code-copy-btn already exists, just wire it.
+    const existingBtn = block.querySelector('.copy-btn, .code-copy-btn');
+    if (existingBtn) {
+      wireCopyButton(existingBtn, code, existingBtn.textContent.trim() || 'Copy');
+      return;
+    }
 
     const btn = document.createElement('button');
     btn.className   = 'copy-btn';
     btn.textContent = 'COPY';
     btn.setAttribute('aria-label', 'Copy code to clipboard');
-
-    btn.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(code.innerText);
-        btn.textContent = '✓ COPIED';
-        btn.classList.add('copied');
-        setTimeout(() => {
-          btn.textContent = 'COPY';
-          btn.classList.remove('copied');
-        }, 1600);
-      } catch (_) {
-        const sel   = window.getSelection();
-        const range = document.createRange();
-        range.selectNodeContents(code);
-        sel.removeAllRanges();
-        sel.addRange(range);
-        btn.textContent = '✓ COPIED';
-        setTimeout(() => { btn.textContent = 'COPY'; }, 1600);
-      }
-    });
-
+    wireCopyButton(btn, code, 'COPY');
     block.appendChild(btn);
   });
 }
@@ -625,6 +643,14 @@ function initIndexPage() {
   initModuleCards();
   initResetButton();
 }
+
+/* ---------------------------------------------------------
+   LEGACY COMPAT — every chapter page's inline script calls
+   initChapter(id, sectionCount) on DOMContentLoaded. Real init
+   already runs automatically via the boot listener below, so
+   this is a no-op kept only to avoid a ReferenceError.
+   --------------------------------------------------------- */
+function initChapter() {}
 
 /* ---------------------------------------------------------
    INIT — CHAPTER
