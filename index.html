@@ -6,19 +6,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>H3AD-LEARN — Security Training Platform // H3AD-SEC</title>
   <meta name="description"
-    content="H3AD-LEARN by H3AD-SEC — six field-focused security training domains for SOC analysts, threat hunters, and detection engineers. Threat Hunting, LOLBAS, Threat Intelligence, SOC Operations, Malware Analysis, Cloud Security. No account. No subscription. Browser-native.">
+    content="H3AD-LEARN by H3AD-SEC — seven field-focused security training domains for SOC analysts, threat hunters, and detection engineers. Threat Hunting, LOLBAS, Threat Intelligence, SOC Operations, Cloud Security, Malware Analysis, Interview Prep. No account. No subscription. Browser-native.">
   <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="H3AD-SEC">
   <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/">
   <meta property="og:title" content="H3AD-LEARN — Security Training Platform // H3AD-SEC">
-  <meta property="og:description" content="H3AD-LEARN by H3AD-SEC — six field-focused security training domains for SOC analysts, threat hunters, and detection engineers. Threat Hunting, LOLBAS, Threat Intelligence, SOC Operations, Malware Analysis, Cloud Security. No account. No subscription. Browser-native.">
+  <meta property="og:description" content="H3AD-LEARN by H3AD-SEC — seven field-focused security training domains for SOC analysts, threat hunters, and detection engineers. Threat Hunting, LOLBAS, Threat Intelligence, SOC Operations, Cloud Security, Malware Analysis, Interview Prep. No account. No subscription. Browser-native.">
   <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="H3AD-LEARN — Security Training Platform // H3AD-SEC">
-  <meta name="twitter:description" content="H3AD-LEARN by H3AD-SEC — six field-focused security training domains for SOC analysts, threat hunters, and detection engineers. Threat Hunting, LOLBAS, Threat Intelligence, SOC Operations, Malware Analysis, Cloud Security. No account. No subscription. Browser-native.">
+  <meta name="twitter:description" content="H3AD-LEARN by H3AD-SEC — seven field-focused security training domains for SOC analysts, threat hunters, and detection engineers. Threat Hunting, LOLBAS, Threat Intelligence, SOC Operations, Cloud Security, Malware Analysis, Interview Prep. No account. No subscription. Browser-native.">
   <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
 
   <meta name="theme-color" content="#080c14">
@@ -143,13 +143,7 @@
     }
 
     .nav-links {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
-      gap: 2px;
-      overflow: visible;
+      display: none;
     }
 
     .nav-links a {
@@ -278,7 +272,7 @@
     }
 
     .hamburger {
-      display: none;
+      display: flex;
       flex-direction: column;
       justify-content: center;
       gap: 4px;
@@ -348,9 +342,9 @@
     .page {
       position: relative;
       z-index: 1;
-      max-width: 860px;
+      max-width: 1700px;
       margin: 0 auto;
-      padding: calc(var(--nav-h) + 3rem) 2rem 7rem;
+      padding: calc(var(--nav-h) + 3rem) 1.75rem 7rem;
     }
 
     .hero {
@@ -402,7 +396,7 @@
     .stat-label{font-family:'Share Tech Mono',monospace;font-size:0.53rem;letter-spacing:0.18em;color:var(--muted);margin-top:4px;}
 
     .manifesto-strip{border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:2rem 0;margin:2.5rem 0 3rem;}
-    .manifesto-text{font-size:clamp(0.82rem,2vw,1.05rem);color:var(--text);line-height:1.9;letter-spacing:0.02em;}
+    .manifesto-text{font-size:clamp(0.82rem,2vw,1.05rem);color:var(--text);line-height:1.9;letter-spacing:0.02em;max-width:900px;}
 
     .section-label {
       font-family: 'Share Tech Mono', monospace;
@@ -484,11 +478,12 @@
       position: relative;
       z-index: 1;
       border-top: 1px solid var(--border);
-      padding: 1.2rem 2rem;
-      max-width: 860px;
+      padding: 1.2rem 1.75rem;
+      max-width: 1700px;
       margin: 0 auto;
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 10px;
       font-size: 0.6rem;
       color: var(--muted);
@@ -534,12 +529,7 @@
       .xv-nav-pill{opacity:1;transform:none;pointer-events:auto;transition:none;}
     }
 
-    body.nav-compact .nav-links { display: none; }
-    body.nav-compact .hamburger { display: flex; }
-
     @media (max-width: 640px) {
-      .nav-links { display: none; }
-      .hamburger { display: flex; }
       .page {
         padding: calc(var(--nav-h) + 1rem) 1.1rem 4rem;
       }
@@ -625,7 +615,7 @@
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "H3AD-LEARN",
-    "description": "H3AD-LEARN by H3AD-SEC — six field-focused security training domains for SOC analysts, threat hunters, and detection engineers. Threat Hunting, LOLBAS, Threat Intelligence, SOC Operations, Malware Analysis, Cloud Security. No account. No subscription. Browser-native.",
+    "description": "H3AD-LEARN by H3AD-SEC — seven field-focused security training domains for SOC analysts, threat hunters, and detection engineers. Threat Hunting, LOLBAS, Threat Intelligence, SOC Operations, Cloud Security, Malware Analysis, Interview Prep. No account. No subscription. Browser-native.",
     "url": "https://h3ad-sec.github.io/H3AD-LEARN/",
     "publisher": {
       "@type": "Organization",
@@ -661,6 +651,7 @@
             <a href="lolbas/index.html">LOLBAS</a>
             <a href="threat-intel/index.html">THREAT INTEL</a>
             <a href="cloud-security/index.html">CLOUD SECURITY</a>
+            <a href="interview-prep/index.html">INTERVIEW PREP</a>
           </div>
         </div>
       </div>
@@ -681,13 +672,14 @@
     <a href="lolbas/index.html" onclick="closeDrawer()" class="drawer-sub">↳ LOLBAS</a>
     <a href="threat-intel/index.html" onclick="closeDrawer()" class="drawer-sub">↳ THREAT INTEL</a>
     <a href="cloud-security/index.html" onclick="closeDrawer()" class="drawer-sub">↳ CLOUD SECURITY</a>
+    <a href="interview-prep/index.html" onclick="closeDrawer()" class="drawer-sub">↳ INTERVIEW PREP</a>
   </div>
 
   <div class="page">
     <div class="hero">
       <span class="hero-tag">H3AD-SEC · SECURITY TRAINING PLATFORM</span>
-      <h1 class="hero-title">Six Learning Domains Built for<br><span>Security Practitioners.</span></h1>
-      <p class="hero-sub">Threat Hunting, Living Off the Land, Threat Intelligence, SOC Operations, Malware Analysis, Cloud Security. Field-focused material sourced from CrowdStrike, Red Canary, Mandiant, SANS, and MITRE. No certification fluff. No account. No vendor lock-in.</p>
+      <h1 class="hero-title">Seven Learning Domains Built for<br><span>Security Practitioners.</span></h1>
+      <p class="hero-sub">Threat Hunting, Living Off the Land, Threat Intelligence, SOC Operations, Cloud Security, Malware Analysis, Interview Prep. Field-focused material sourced from CrowdStrike, Red Canary, Mandiant, SANS, and MITRE. No certification fluff. No account. No vendor lock-in.</p>
       <div class="hero-chips">
         <span class="hero-chip">FIELD-SOURCED METHODOLOGY</span>
         <span class="hero-chip">BROWSER-NATIVE</span>
@@ -696,8 +688,8 @@
         <span class="hero-chip">KQL · SPL · SIGMA EXAMPLES</span>
       </div>
       <div class="hero-stats">
-        <div class="stat-chip"><span class="stat-val">6</span><span class="stat-label">DOMAINS PLANNED</span></div>
-        <div class="stat-chip"><span class="stat-val">4</span><span class="stat-label">LIVE NOW</span></div>
+        <div class="stat-chip"><span class="stat-val">7</span><span class="stat-label">DOMAINS PLANNED</span></div>
+        <div class="stat-chip"><span class="stat-val">5</span><span class="stat-label">LIVE NOW</span></div>
         <div class="stat-chip"><span class="stat-val">33</span><span class="stat-label">CHAPTERS LIVE</span></div>
         <div class="stat-chip"><span class="stat-val">45 HRS</span><span class="stat-label">TRAINING CONTENT</span></div>
       </div>
@@ -712,11 +704,11 @@
     <div class="cap-strip">
       <div class="cap-item">
         <span class="cap-label">Domains Planned</span>
-        <span class="cap-value"><span>6</span> Domains</span>
+        <span class="cap-value"><span>7</span> Domains</span>
       </div>
       <div class="cap-item">
         <span class="cap-label">Live Now</span>
-        <span class="cap-value"><span>4</span> Live</span>
+        <span class="cap-value"><span>5</span> Live</span>
       </div>
       <div class="cap-item">
         <span class="cap-label">Chapters Live</span>
@@ -794,6 +786,18 @@
       <a class="tf-link" href="cloud-security/index.html">OPEN CLOUD SECURITY →</a>
     </div>
 
+    <!-- INTERVIEW PREP — LIVE -->
+    <div class="tool-feature">
+      <div class="tf-header">
+        <div class="tf-name">INTERVIEW PREP</div>
+        <span class="card-badge badge-live">LIVE</span>
+      </div>
+      <div class="tf-tagline">Reasoning Shown, Not Just the Answer.</div>
+      <div class="tf-body">Enterprise-grade, interview-style scenario questions with model answers for SOC analysts. Starts with SOC Operations and Incident Response: alert triage, investigation, containment, escalation, post-incident maturity, and real attack scenarios grounded in documented tradecraft. Built to grow into other domains and general interview prep over time.</div>
+      <div class="tf-meta" style="margin-top:1.25rem;">43 SCENARIOS · L1 → L3 · FILTERABLE Q&amp;A BANK · SOC &amp; IR</div>
+      <a class="tf-link" href="interview-prep/index.html">OPEN INTERVIEW PREP →</a>
+    </div>
+
     <!-- MALWARE ANALYSIS — PLANNED -->
     <div class="tool-feature tf-soon" style="opacity:0.65;">
       <div class="tf-header">
@@ -843,7 +847,7 @@
       </div>
       <div class="compliance-cell">
         <div class="compliance-val">33 CHAPTERS</div>
-        <div class="compliance-label">ACROSS 4 MODULES</div>
+        <div class="compliance-label">ACROSS 5 LIVE MODULES</div>
       </div>
       <div class="compliance-cell">
         <div class="compliance-val">OPEN ACCESS</div>
@@ -904,7 +908,6 @@
     else { document.body.classList.add('dark'); document.body.classList.remove('light'); setLogo('dark'); }
 
     (function(){var s=document.getElementById('scroll-sentinel');if(!s)return;new IntersectionObserver(function(e){document.body.classList.toggle('hero-hidden',!e[0].isIntersecting);},{threshold:0}).observe(s);})();
-    (function(){var pill=document.getElementById('xv-nav-pill'),links=document.querySelector('.nav-links'),toggle=document.querySelector('.theme-toggle'),G=20;function check(){if(!links)return;document.body.classList.remove('nav-compact');links.style.visibility='hidden';var lr=links.getBoundingClientRect(),pr=pill?pill.getBoundingClientRect().right:60,tl=toggle?toggle.getBoundingClientRect().left:window.innerWidth-60;links.style.visibility='';document.body.classList.toggle('nav-compact',(pr+G>lr.left)||(lr.right+G>tl));}check();window.addEventListener('resize',check);})();
   </script>
 </body>
 

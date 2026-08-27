@@ -581,6 +581,55 @@ function initMobileSidebar() {
 }
 
 /* ---------------------------------------------------------
+   NAV DRAWER (hamburger, always-on per IOC-VERDIKT nav pattern)
+   --------------------------------------------------------- */
+function toggleDrawer() {
+  const drawer = document.getElementById('navDrawer');
+  const btn    = document.getElementById('hamburger');
+  if (!drawer) return;
+  const open = drawer.classList.toggle('open');
+  if (btn) {
+    btn.setAttribute('aria-expanded', open);
+    btn.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
+  }
+}
+
+function closeDrawer() {
+  const drawer = document.getElementById('navDrawer');
+  const btn    = document.getElementById('hamburger');
+  if (!drawer) return;
+  drawer.classList.remove('open');
+  if (btn) {
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-label', 'Open navigation menu');
+  }
+}
+
+function initNavDrawer() {
+  const drawer = document.getElementById('navDrawer');
+  const btn    = document.getElementById('hamburger');
+  if (!drawer || !btn) return;
+
+  document.addEventListener('click', e => {
+    if (drawer.classList.contains('open') && !drawer.contains(e.target) && !btn.contains(e.target)) {
+      closeDrawer();
+    }
+  });
+
+  drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', closeDrawer));
+}
+
+/* ---------------------------------------------------------
+   FOOTER YEAR
+   --------------------------------------------------------- */
+function initFooterYear() {
+  const year = new Date().getFullYear();
+  document.querySelectorAll('.footer-copyright').forEach(el => {
+    el.textContent = '© ' + year + ' H3AD-SEC';
+  });
+}
+
+/* ---------------------------------------------------------
    THEME TOGGLE
    --------------------------------------------------------- */
 function initTheme() {
@@ -678,6 +727,8 @@ function initChapterPage() {
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initThemeToggle();
+  initNavDrawer();
+  initFooterYear();
 
   if (isIndexPage()) {
     initIndexPage();

