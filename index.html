@@ -477,34 +477,35 @@
     footer {
       position: relative;
       z-index: 1;
-      border-top: 1px solid var(--border);
-      padding: 1.2rem 1.75rem;
-      max-width: 1700px;
-      margin: 0 auto;
+      border-top: 1px solid var(--border-dim);
+      padding: 1.5rem 2.5rem;
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 10px;
-      font-size: 0.6rem;
-      color: var(--muted);
+      justify-content: space-between;
       flex-wrap: wrap;
+      gap: 0.5rem;
     }
 
-    footer a {
-      color: var(--accent);
+    .footer-left {
+      color: var(--muted);
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
     }
 
-    footer .sep {
-      color: var(--border);
+    .footer-right {
+      color: var(--muted);
+      font-size: 0.63rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.85;
     }
 
-    .footer-credit-row { display:flex; align-items:center; justify-content:center; gap:10px; margin-top:16px; flex-wrap:wrap; }
-    .footer-credit-pill { display:inline-flex; flex-wrap:nowrap; align-items:center; gap:6px; padding:4px 12px; border:1px solid var(--border); border-radius:999px; text-decoration:none; font-family:'Exo 2',sans-serif; font-weight:500; font-size:0.65rem; white-space:nowrap; transition:border-color .15s; }
+    .footer-credit-row { display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; }
+    .footer-credit-pill { display:inline-flex; flex-wrap:nowrap; align-items:center; gap:6px; padding:4px 12px; border:1px solid var(--border); border-radius:999px; text-decoration:none; font-family:'Exo 2',sans-serif; font-weight:500; font-size:0.65rem; white-space:nowrap; color: var(--muted); transition:border-color .15s; }
     .footer-credit-pill:hover { border-color:var(--accent); }
-    .footer-credit-pill .credit-tool { font-weight:700; letter-spacing:2px; }
+    .footer-credit-pill .credit-tool { font-weight:700; letter-spacing:2px; color: var(--text); }
     .footer-credit-pill .credit-by { color:var(--muted); }
     .footer-credit-pill .credit-name { color:var(--accent); font-weight:700; letter-spacing:.5px; }
-    .footer-copyright { color:var(--muted); font-family:'Exo 2',sans-serif; font-size:0.65rem; }
 
     ::-webkit-scrollbar {
       width: 3px;
@@ -859,20 +860,14 @@
   </div>
 
   <footer>
-    <a href="https://h3ad-sec.github.io">H3AD-SEC</a>
-    <span class="sep">/</span>
-    <span>H3AD-LEARN</span>
-    <span class="sep">//</span>
-    <span>Security Training Platform</span>
-    <span class="sep">//</span>
-    <span>Intelligence. Detection. Response.</span>
+    <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+    <span class="footer-right">Intelligence. Detection. Response.</span>
     <div class="footer-credit-row">
       <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
         <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
         <span class="credit-by">created by</span>
         <span class="credit-name">H3AD</span>
       </a>
-      <span class="footer-copyright">© 2026 H3AD-SEC</span>
     </div>
   </footer>
 
