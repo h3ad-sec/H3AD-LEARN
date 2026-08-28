@@ -124,7 +124,7 @@
 
         <section class="content-section" id="pivot-chains">
           <h2>Pivot Chains</h2>
-          <p>A pivot chain is a sequence of analytic steps in which the output of one step becomes the input to the next, progressively expanding your view of an actor's infrastructure or operation. Starting from a single IOC, a skilled analyst can frequently map a significant portion of an actor's active infrastructure within a few hours of open-source research. This is one of the highest-value activities in CTI because it converts a single data point into a comprehensive picture that survives infrastructure rotation.</p>
+          <p>A pivot chain is a sequence of analytic steps in which the output of one step becomes the input to the next, progressively expanding your view of an actor's infrastructure or operation. Starting from a single IOC, a skilled analyst can frequently map a significant portion of an actor's active infrastructure within a few hours of open-source research. This is one of the highest-value activities in CTI because it converts a single data point into a full picture that survives infrastructure rotation.</p>
 
           <p>The classic pivot chain starts with a domain. Take the domain and query passive DNS: what IPs has this domain historically resolved to? Each of those IPs is a pivot point. Query each IP for co-hosted domains: what other domains have resolved to this IP? Look for naming patterns: if one malicious domain is "cdn-update-service[.]com", other domains on the same IP that follow similar naming conventions are likely part of the same infrastructure. Check registration data: same registrar, same registration date window, same privacy service, same payment email are all signals of shared ownership.</p>
 
