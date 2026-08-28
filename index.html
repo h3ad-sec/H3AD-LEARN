@@ -486,7 +486,21 @@
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
-      gap: 0.5rem;
+      gap: 0.5rem 1.5rem;
+    }
+
+    @media (max-width: 860px) {
+      footer {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        gap: 0.6rem;
+      }
+
+      .footer-credit-row {
+        justify-content: center;
+      }
     }
 
     .footer-left {
@@ -593,7 +607,11 @@
       }
       footer {
         padding: 1rem;
+        gap: 0.5rem;
       }
+      .footer-left { font-size: 0.6rem; }
+      .footer-right { font-size: 0.58rem; }
+      .footer-credit-pill { font-size: 0.6rem; padding: 4px 10px; }
       .tool-feature { padding: 18px 16px 14px; }
       .tf-meta { word-break: break-word; white-space: normal; }
       .hero-chips { gap: 4px; }
@@ -797,8 +815,8 @@
         <span class="card-badge badge-live">LIVE</span>
       </div>
       <div class="tf-tagline">Reasoning Shown, Not Just the Answer.</div>
-      <div class="tf-body">Enterprise-grade interview questions with model answers, reasoning shown rather than just an answer. Covers cybersecurity fundamentals, SOC Operations (MITRE ATT&amp;CK, the Pyramid of Pain, detection engineering), and Incident Response (NIST vs SANS models, IR team roles, containment, ransomware playbooks) alongside real attack scenarios grounded in documented tradecraft. Building out domain by domain: Threat Hunting, Threat Intel, Digital Forensics, Red Team, VAPT, Malware Analysis.</div>
-      <div class="tf-meta" style="margin-top:1.25rem;">236 QUESTIONS · L1 → L3 · FILTERABLE Q&amp;A BANK · 3 DOMAINS LIVE</div>
+      <div class="tf-body">Enterprise-grade interview questions with model answers, reasoning shown rather than just an answer. Covers cybersecurity fundamentals, SOC Operations, Incident Response, Threat Hunting (TaHiTI, PEAK, the Hunting Maturity Model), and Threat Intelligence (attribution, STIX/TAXII, the Admiralty Code) alongside real attack scenarios grounded in documented tradecraft. Building out domain by domain: Digital Forensics, Red Team, VAPT, Malware Analysis.</div>
+      <div class="tf-meta" style="margin-top:1.25rem;">340 QUESTIONS · L1 → L3 · FILTERABLE Q&amp;A BANK · 5 DOMAINS LIVE</div>
       <a class="tf-link" href="interview-prep/index.html">OPEN INTERVIEW PREP →</a>
     </div>
 
