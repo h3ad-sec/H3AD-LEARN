@@ -510,7 +510,7 @@
         </div>
 
         <div class="filter-panel">
-          <input class="filter-search" id="scenarioSearch" type="search" placeholder="Search questions and tags (e.g. &quot;TLS&quot;, &quot;PsExec&quot;, &quot;ransomware&quot;)&hellip;" aria-label="Search questions and tags">
+          <input class="filter-search" id="scenarioSearch" type="search" placeholder="Search questions, answers, and tags (e.g. &quot;TLS&quot;, &quot;PsExec&quot;, &quot;ransomware&quot;)&hellip;" aria-label="Search questions, answers, and tags">
           <div class="filter-row" id="domainFilters" role="group" aria-label="Filter by domain">
             <span class="filter-row-label">DOMAIN</span>
             <button class="filter-chip is-active" data-filter-domain="all" type="button" aria-pressed="true">ALL</button>
@@ -13274,7 +13274,14 @@
 
     function matchesSearch(s) {
       if (!searchTerm) return true;
-      const haystack = (s.question + ' ' + (s.tags || []).join(' ') + ' ' + (s.attack_ids || []).join(' ')).toLowerCase();
+      const haystack = (
+        s.question + ' ' +
+        s.answer + ' ' +
+        (s.tags || []).join(' ') + ' ' +
+        (s.attack_ids || []).join(' ') + ' ' +
+        (s.eli5 || '') + ' ' +
+        (s.what_good_looks_like || s.why_it_works || '')
+      ).toLowerCase();
       return haystack.includes(searchTerm);
     }
 
