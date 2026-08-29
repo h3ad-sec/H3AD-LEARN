@@ -26,7 +26,7 @@
 
   <meta name="theme-color" content="#080c14">
   <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=20260828" type="image/png">
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #080c14;
@@ -41,6 +41,8 @@
       --accent2: #58a6ff;
       --border: #1c2333;
       --border-dim: #111827;
+      --ui: 'IBM Plex Sans', sans-serif;
+      --fs-xs: 11px;
       --primary:        #00d4ff;
       --primary-dim:    rgba(0, 212, 255, 0.08);
       --primary-glow:   rgba(0, 212, 255, 0.18);
@@ -505,20 +507,22 @@
 
     .footer-left {
       color: var(--muted);
-      font-size: 0.65rem;
+      font-family: var(--ui);
+      font-size: var(--fs-xs);
       letter-spacing: 0.06em;
     }
 
     .footer-right {
       color: var(--muted);
-      font-size: 0.63rem;
+      font-family: var(--ui);
+      font-size: var(--fs-xs);
       letter-spacing: 0.12em;
       text-transform: uppercase;
       opacity: 0.85;
     }
 
     .footer-credit-row { display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; }
-    .footer-credit-pill { display:inline-flex; flex-wrap:nowrap; align-items:center; gap:6px; padding:4px 12px; border:1px solid var(--border); border-radius:999px; text-decoration:none; font-family:'Exo 2',sans-serif; font-weight:500; font-size:0.65rem; white-space:nowrap; color: var(--muted); transition:border-color .15s; }
+    .footer-credit-pill { display:inline-flex; flex-wrap:nowrap; align-items:center; gap:6px; padding:4px 12px; border:1px solid var(--border); border-radius:999px; text-decoration:none; font-family:'Exo 2',sans-serif; font-weight:500; font-size:var(--fs-xs); white-space:nowrap; color: var(--muted); transition:border-color .15s; }
     .footer-credit-pill:hover { border-color:var(--accent); }
     .footer-credit-pill .credit-tool { font-weight:700; letter-spacing:2px; color: var(--text); }
     .footer-credit-pill .credit-by { color:var(--muted); }
@@ -815,8 +819,8 @@
         <span class="card-badge badge-live">LIVE</span>
       </div>
       <div class="tf-tagline">Reasoning Shown, Not Just the Answer.</div>
-      <div class="tf-body">Enterprise-grade interview questions with model answers, reasoning shown rather than just an answer. Covers cybersecurity fundamentals, SOC Operations, Incident Response, Threat Hunting (TaHiTI, PEAK, the Hunting Maturity Model), and Threat Intelligence (attribution, STIX/TAXII, the Admiralty Code) alongside real attack scenarios grounded in documented tradecraft. Building out domain by domain: Digital Forensics, Red Team, VAPT, Malware Analysis.</div>
-      <div class="tf-meta" style="margin-top:1.25rem;">340 QUESTIONS · L1 → L3 · FILTERABLE Q&amp;A BANK · 5 DOMAINS LIVE</div>
+      <div class="tf-body">Enterprise-grade interview questions with model answers, reasoning shown rather than just an answer. Covers cybersecurity fundamentals, SOC Operations, Incident Response, Threat Hunting (TaHiTI, PEAK, the Hunting Maturity Model), Threat Intelligence (attribution, STIX/TAXII, the Admiralty Code), and Digital Forensics (chain of custody, memory/network/mobile/cloud forensics, anti-forensics) alongside real attack scenarios grounded in documented tradecraft. Building out domain by domain: Red Team, VAPT, Malware Analysis.</div>
+      <div class="tf-meta" style="margin-top:1.25rem;">445 QUESTIONS · L1 → L3 · FILTERABLE Q&amp;A BANK · 6 DOMAINS LIVE</div>
       <a class="tf-link" href="interview-prep/index.html">OPEN INTERVIEW PREP →</a>
     </div>
 
