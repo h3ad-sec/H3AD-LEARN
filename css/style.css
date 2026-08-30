@@ -239,9 +239,13 @@ body.light .nav {
 /* Nav drawer (the only nav surface, at every screen width) */
 .nav-drawer {
   display: none;
-  position: fixed; top: var(--header-h); left: 0; right: 0;
-  background: var(--panel); border-bottom: 1px solid var(--border);
-  z-index: 99; padding: 0.75rem 1.25rem 1rem;
+  position: fixed; top: var(--header-h); left: 0;
+  width: min(300px, 86vw);
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 6px 0 28px rgba(0, 0, 0, 0.35);
+  z-index: 99; padding: 0.75rem 1rem 1rem;
   flex-direction: column; gap: 2px;
   max-height: calc(100vh - var(--header-h));
   overflow-y: auto;

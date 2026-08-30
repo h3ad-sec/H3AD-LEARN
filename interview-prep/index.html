@@ -99,9 +99,12 @@
     .filter-chip:hover { color: var(--text); border-color: var(--secondary); }
     .filter-chip.is-active { color: var(--on-accent); background: var(--accent); border-color: var(--accent); font-weight: 600; }
     .filter-chip:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
-    .filter-search { width: 100%; font-family: var(--font-sans); font-size: 0.82rem; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.55em 0.8em; outline: none; transition: border-color 0.15s; }
+    .filter-search { width: 100%; font-family: var(--font-sans); font-size: 0.82rem; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.55em 2.6em 0.55em 0.8em; outline: none; transition: border-color 0.15s; }
     .filter-search:focus { border-color: var(--secondary); }
     .filter-search::placeholder { color: var(--muted); }
+    .search-wrap { position: relative; }
+    .search-kbd { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; color: var(--muted); background: var(--panel-alt); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; pointer-events: none; }
+    .search-wrap:focus-within .search-kbd { display: none; }
     .scenario-count { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--muted); letter-spacing: 0.06em; }
     .expand-toggle { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 999px; padding: 0.3em 0.8em; cursor: pointer; transition: color 0.15s, border-color 0.15s; margin-left: auto; }
     .expand-toggle:hover { color: var(--text); border-color: var(--secondary); }
@@ -246,6 +249,27 @@
   </nav>
   <div class="nav-drawer" id="navDrawer">
     <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD/">H3AD &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-X/">H3AD-X &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/IOC-VERDIKT/" target="_blank" rel="noopener" class="drawer-sub">&#8623; IOC-VERDIKT &#8599;</a>
+    <a href="https://h3ad-sec.github.io/PARSE-X/" target="_blank" rel="noopener" class="drawer-sub">&#8623; PARSE-X &#8599;</a>
+    <a href="https://h3ad-sec.github.io/DNSCOPE/" target="_blank" rel="noopener" class="drawer-sub">&#8623; DNSCOPE &#8599;</a>
+    <a href="https://h3ad-sec.github.io/X-VERDIKT/" target="_blank" rel="noopener" class="drawer-sub">&#8623; X-VERDIKT &#8599;</a>
+    <a href="https://h3ad-sec.github.io/MAILSCOPE/" target="_blank" rel="noopener" class="drawer-sub">&#8623; MAILSCOPE &#8599;</a>
+    <a href="https://h3ad-sec.github.io/INFRA-SCOPE/" target="_blank" rel="noopener" class="drawer-sub">&#8623; INFRA-SCOPE &#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-AI/">H3AD-AI &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/PROMPTVAULT/" target="_blank" rel="noopener" class="drawer-sub">&#8623; PROMPTVAULT &#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-DETECT/">H3AD-DETECT &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/TRACERULES/" target="_blank" rel="noopener" class="drawer-sub">&#8623; TRACERULES &#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-HUNT/">H3AD-HUNT &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/HYPOS/" target="_blank" rel="noopener" class="drawer-sub">&#8623; HYPOS &#8599;</a>
+    <a href="https://h3ad-sec.github.io/PIVEX/" target="_blank" rel="noopener" class="drawer-sub">&#8623; PIVEX &#8599;</a>
+    <a href="https://h3ad-sec.github.io/TRACEPULSE/" target="_blank" rel="noopener" class="drawer-sub">&#8623; TRACEPULSE &#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-OPS/">H3AD-OPS &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/QUICKTRACE/" target="_blank" rel="noopener" class="drawer-sub">&#8623; QUICKTRACE &#8599;</a>
+    <a href="https://h3ad-sec.github.io/PHISHOPS/" target="_blank" rel="noopener" class="drawer-sub">&#8623; PHISHOPS &#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-DF/">H3AD-DF &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-IR/">H3AD-IR &nbsp;&#8599;</a>
     <a href="../index.html">H3AD-LEARN</a>
     <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
     <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
@@ -506,7 +530,10 @@
         </div>
 
         <div class="filter-panel">
-          <input class="filter-search" id="scenarioSearch" type="search" placeholder="Search questions, answers, and tags (e.g. &quot;TLS&quot;, &quot;PsExec&quot;, &quot;ransomware&quot;)&hellip;" aria-label="Search questions, answers, and tags">
+          <div class="search-wrap">
+            <input class="filter-search" id="scenarioSearch" type="search" placeholder="Search questions, answers, and tags (e.g. &quot;TLS&quot;, &quot;PsExec&quot;, &quot;ransomware&quot;)&hellip;" aria-label="Search questions, answers, and tags">
+            <kbd class="search-kbd">/</kbd>
+          </div>
           <div class="filter-row" id="domainFilters" role="group" aria-label="Filter by domain">
             <span class="filter-row-label">DOMAIN</span>
             <button class="filter-chip is-active" data-filter-domain="all" type="button" aria-pressed="true">ALL</button>
@@ -13343,6 +13370,21 @@
         search.addEventListener('input', () => {
           searchTerm = search.value.trim().toLowerCase();
           applyFilters();
+        });
+        search.addEventListener('keydown', e => {
+          if (e.key === 'Escape') {
+            search.value = '';
+            searchTerm = '';
+            applyFilters();
+            search.blur();
+          }
+        });
+        document.addEventListener('keydown', e => {
+          if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return;
+          const active = document.activeElement;
+          if (active === search || /^(INPUT|TEXTAREA|SELECT)$/.test(active && active.tagName)) return;
+          e.preventDefault();
+          search.focus();
         });
       }
 

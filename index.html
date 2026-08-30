@@ -9,19 +9,19 @@
   <meta http-equiv="Expires" content="0">
   <title>H3AD-LEARN: Security Training Platform // H3AD-SEC</title>
   <meta name="description"
-    content="H3AD-LEARN by H3AD-SEC: seven field-focused security training domains for SOC analysts, threat hunters, and detection engineers. Threat Hunting, LOLBAS, Threat Intelligence, SOC Operations, Cloud Security, Malware Analysis, Interview Prep. No account. No subscription. Browser-native.">
+    content="H3AD-LEARN by H3AD-SEC: fifteen field-focused security training domains for SOC analysts, threat hunters, and detection engineers. Fundamentals, Networking, Windows, Linux, SOC Operations, Threat Intelligence, Detection Engineering, Threat Hunting, LOLBAS, Cloud Security, Incident Response, Digital Forensics, Malware Analysis, AI in Security, Interview Prep. No account. No subscription. Browser-native.">
   <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="H3AD-SEC">
   <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/">
   <meta property="og:title" content="H3AD-LEARN: Security Training Platform // H3AD-SEC">
-  <meta property="og:description" content="H3AD-LEARN by H3AD-SEC: seven field-focused security training domains for SOC analysts, threat hunters, and detection engineers. Threat Hunting, LOLBAS, Threat Intelligence, SOC Operations, Cloud Security, Malware Analysis, Interview Prep. No account. No subscription. Browser-native.">
+  <meta property="og:description" content="H3AD-LEARN by H3AD-SEC: fifteen field-focused security training domains for SOC analysts, threat hunters, and detection engineers. Fundamentals, Networking, Windows, Linux, SOC Operations, Threat Intelligence, Detection Engineering, Threat Hunting, LOLBAS, Cloud Security, Incident Response, Digital Forensics, Malware Analysis, AI in Security, Interview Prep. No account. No subscription. Browser-native.">
   <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="H3AD-LEARN: Security Training Platform // H3AD-SEC">
-  <meta name="twitter:description" content="H3AD-LEARN by H3AD-SEC: seven field-focused security training domains for SOC analysts, threat hunters, and detection engineers. Threat Hunting, LOLBAS, Threat Intelligence, SOC Operations, Cloud Security, Malware Analysis, Interview Prep. No account. No subscription. Browser-native.">
+  <meta name="twitter:description" content="H3AD-LEARN by H3AD-SEC: fifteen field-focused security training domains for SOC analysts, threat hunters, and detection engineers. Fundamentals, Networking, Windows, Linux, SOC Operations, Threat Intelligence, Detection Engineering, Threat Hunting, LOLBAS, Cloud Security, Incident Response, Digital Forensics, Malware Analysis, AI in Security, Interview Prep. No account. No subscription. Browser-native.">
   <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
 
   <meta name="theme-color" content="#080c14">
@@ -148,7 +148,21 @@
     }
 
     .nav-links {
-      display: none;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      overflow: visible;
+    }
+
+    .nav-right {
+      margin-left: auto;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 14px;
     }
 
     .nav-links a {
@@ -277,7 +291,7 @@
     }
 
     .hamburger {
-      display: flex;
+      display: none;
       flex-direction: column;
       justify-content: center;
       gap: 4px;
@@ -286,6 +300,9 @@
       margin-right: 8px;
       flex-shrink: 0;
     }
+
+    body.nav-compact .nav-links { display: none; }
+    body.nav-compact .hamburger { display: flex; }
 
     .hamburger span {
       display: block;
@@ -301,11 +318,13 @@
       position: fixed;
       top: var(--nav-h);
       left: 0;
-      right: 0;
+      width: min(300px, 86vw);
       background: var(--panel);
+      border-right: 1px solid var(--border);
       border-bottom: 1px solid var(--border);
+      box-shadow: 6px 0 28px rgba(0, 0, 0, 0.35);
       z-index: 49;
-      padding: 0.75rem 1.25rem 1rem;
+      padding: 0.75rem 1rem 1rem;
       flex-direction: column;
       gap: 2px;
       max-height: calc(100vh - var(--nav-h));
@@ -347,24 +366,13 @@
     .page {
       position: relative;
       z-index: 1;
-      max-width: 1700px;
+      max-width: 1120px;
       margin: 0 auto;
-      padding: calc(var(--nav-h) + 3rem) 1.75rem 7rem;
+      padding: calc(var(--nav-h) + 1.5rem) 1.75rem 7rem;
     }
 
     .hero {
-      padding: 3rem 0 2rem;
-    }
-
-    .hero-tag {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: var(--accent);
-      opacity: 0.75;
-      display: block;
-      margin-bottom: 1rem;
+      padding: 0.5rem 0 2rem;
     }
 
     .hero-title {
@@ -395,13 +403,11 @@
       max-width: 620px;
     }
 
-    .hero-stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:1.75rem;}
-    .stat-chip{display:flex;flex-direction:column;padding:10px 16px;background:var(--panel);border:1px solid var(--border);border-radius:4px;min-width:88px;}
-    .stat-val{font-family:'Exo 2',sans-serif;font-weight:700;font-size:1.05rem;color:var(--accent);letter-spacing:0.04em;line-height:1.2;}
-    .stat-label{font-family:'Share Tech Mono',monospace;font-size:0.53rem;letter-spacing:0.18em;color:var(--muted);margin-top:4px;}
-
-    .manifesto-strip{border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:2rem 0;margin:2.5rem 0 3rem;}
-    .manifesto-text{font-size:clamp(0.82rem,2vw,1.05rem);color:var(--text);line-height:1.9;letter-spacing:0.02em;max-width:900px;}
+    .hero-banner{display:flex;justify-content:center;align-items:baseline;gap:2px;font-family:'Exo 2',sans-serif;font-weight:700;font-size:clamp(26px,5vw,42px);letter-spacing:4px;}
+    .hero-banner-tagline{text-align:center;font-family:'Exo 2',sans-serif;font-size:0.6rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:-6px;}
+    .hero-banner-by{text-align:center;font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:0.8rem;color:var(--accent);letter-spacing:1px;margin-bottom:18px;}
+    .hero-intro{display:flex;flex-direction:column;align-items:center;text-align:center;max-width:700px;margin:0 auto;}
+    .hero-intro .hero-title,.hero-intro .hero-sub{margin-left:auto;margin-right:auto;}
 
     .section-label {
       font-family: 'Share Tech Mono', monospace;
@@ -423,6 +429,14 @@
       background: var(--border);
     }
 
+    .search-wrap { position: relative; margin-bottom: 1.25rem; max-width: 420px; }
+    .quick-search { width: 100%; font-family: 'Exo 2', sans-serif; font-size: 0.78rem; color: var(--text); background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 0.6em 2.5em 0.6em 0.9em; outline: none; transition: border-color 0.15s; }
+    .quick-search:focus { border-color: var(--accent); }
+    .quick-search::placeholder { color: var(--muted); }
+    .search-kbd { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; color: var(--muted); background: var(--panel-alt); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; pointer-events: none; }
+    .search-wrap:focus-within .search-kbd { display: none; }
+    .search-empty { font-size: 0.72rem; color: var(--muted); margin: 0 0 1.5rem; }
+
     a:focus-visible,
     button:focus-visible,
     [tabindex]:focus-visible {
@@ -431,34 +445,37 @@
       border-radius: 3px;
     }
 
-    .approach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:3rem;}
-    .approach-card{background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:8px;}
-    .ap-num{font-size:0.53rem;letter-spacing:0.25em;color:var(--accent);opacity:0.6;}
-    .ap-title{font-size:0.72rem;letter-spacing:0.1em;color:var(--text);}
-    .ap-desc{font-size:0.64rem;color:var(--muted);line-height:1.65;}
-
     .card-badge { font-size:0.55rem; letter-spacing:0.18em; padding:3px 8px; border-radius:2px; text-transform:uppercase; white-space:nowrap; }
     .badge-live { background:rgba(0, 212, 255, 0.1); color:#00d4ff; border:1px solid rgba(0, 212, 255, 0.25); }
     .badge-soon { background:rgba(98,128,156,0.12); color:var(--muted); border:1px solid var(--border); }
-    .tool-feature { background:var(--panel); border:1px solid var(--border); border-radius:6px; padding:28px 28px 22px; margin-bottom:14px; display:flex; flex-direction:column; gap:12px; position:relative; overflow:hidden; transition:border-color 0.2s,background 0.2s; animation:fadeIn 0.35s ease backwards; }
-    .tool-feature:nth-of-type(3) { animation-delay:0s; }
-    .tool-feature:nth-of-type(4) { animation-delay:0.04s; }
-    .tool-feature:nth-of-type(5) { animation-delay:0.08s; }
-    .tool-feature:nth-of-type(6) { animation-delay:0.12s; }
-    .tool-feature:nth-of-type(7) { animation-delay:0.16s; }
-    .tool-feature:nth-of-type(n+8) { animation-delay:0.2s; }
-    .tool-feature::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--accent),transparent); opacity:0.55; }
-    .tool-feature:hover { border-color:rgba(0,212,255,0.35); background:rgba(0,212,255,0.02); }
-    .tf-soon.tool-feature:hover { border-color:var(--border); background:var(--panel); }
-    .tf-header { display:flex; align-items:center; justify-content:space-between; gap:8px; }
-    .tf-name { font-family:'Exo 2',sans-serif; font-weight:700; font-size:1rem; letter-spacing:0.14em; color:var(--text); }
-    .tf-tagline { font-family:'Exo 2',sans-serif; font-weight:300; font-size:0.8rem; color:var(--accent); letter-spacing:0.03em; }
-    .tf-body { font-family:'Exo 2',sans-serif; font-weight:400; font-size:0.71rem; color:var(--text-dim); line-height:1.8; max-width:600px; }
-    .tf-meta { font-family:'Share Tech Mono',monospace; font-size:0.65rem; letter-spacing:0.2em; color:var(--muted); border-top:1px solid var(--border-dim); padding-top:10px; margin-top:2px; }
-    .tf-link { font-family:'Exo 2',sans-serif; font-weight:600; display:inline-flex; align-items:center; gap:6px; font-size:0.63rem; letter-spacing:0.14em; color:var(--accent); padding:7px 14px; border:1px solid rgba(0,212,255,0.3); border-radius:3px; transition:0.15s; align-self:flex-start; margin-top:2px; }
-    .tf-link:hover { background:rgba(0,212,255,0.08); }
+
+    .tool-features{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:2.5rem;}
+    .tool-feature{--tf-rgb:0,212,255;background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:24px 24px 20px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden;transition:border-color 0.2s,background 0.2s;animation:fadeIn 0.35s ease backwards;}
+    .tool-features .tool-feature:nth-child(1){animation-delay:0s;}
+    .tool-features .tool-feature:nth-child(2){animation-delay:.03s;}
+    .tool-features .tool-feature:nth-child(3){animation-delay:.06s;}
+    .tool-features .tool-feature:nth-child(4){animation-delay:.09s;}
+    .tool-features .tool-feature:nth-child(5){animation-delay:.12s;}
+    .tool-features .tool-feature:nth-child(n+6){animation-delay:.15s;}
+    .tool-feature::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,rgb(var(--tf-rgb)),transparent); opacity:0.6; }
+    .tool-feature:hover { border-color:rgb(var(--tf-rgb)); background:rgba(var(--tf-rgb),0.02); }
+    .tool-feature.tf-soon { opacity: 0.65; }
+    .tool-feature.tf-soon:hover { border-color:var(--border); background:var(--panel); }
+    .tf-header { display:flex; align-items:center; gap:12px; }
+    .tf-header .card-badge { margin-left:auto; flex-shrink:0; }
+    .tf-icon { flex-shrink:0; width:38px; height:38px; border-radius:7px; display:flex; align-items:center; justify-content:center; background:rgba(var(--tf-rgb),0.14); border:1px solid rgba(var(--tf-rgb),0.4); color:rgb(var(--tf-rgb)); font-family:'Exo 2',sans-serif; font-weight:700; font-size:0.72rem; letter-spacing:0.02em; }
+    .tf-header-text { flex:1; min-width:0; }
+    .tf-name { font-family:'Exo 2',sans-serif; font-weight:700; font-size:0.95rem; letter-spacing:0.1em; color:var(--text); }
+    .tf-tagline { font-family:'Exo 2',sans-serif; font-weight:400; font-size:0.72rem; color:rgb(var(--tf-rgb)); letter-spacing:0.02em; margin-top:2px; }
+    .tf-body { font-family:'Exo 2',sans-serif; font-weight:400; font-size:0.71rem; color:var(--text-dim); line-height:1.8; }
+    .tf-meta { font-family:'Share Tech Mono',monospace; font-size:0.6rem; letter-spacing:0.14em; color:var(--muted); border-top:1px solid var(--border-dim); padding-top:10px; margin-top:2px; }
+    .tf-link { font-family:'Exo 2',sans-serif; font-weight:600; display:inline-flex; align-items:center; gap:6px; font-size:0.63rem; letter-spacing:0.14em; color:rgb(var(--tf-rgb)); padding:7px 14px; border:1px solid rgba(var(--tf-rgb),0.35); border-radius:3px; transition:0.15s; align-self:flex-start; margin-top:2px; }
+    .tf-link:hover { background:rgba(var(--tf-rgb),0.1); }
     .tf-link-soon { color:var(--muted); border-color:var(--border); cursor:default; pointer-events:none; }
     .tf-link-soon:hover { background:transparent; }
+
+    @media(max-width:900px){ .tool-features{grid-template-columns:repeat(2,minmax(0,1fr));} }
+    @media(max-width:640px){ .tool-features{grid-template-columns:1fr;} }
 
     .back-link {
       display: inline-flex;
@@ -558,6 +575,9 @@
     }
 
     @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+
       .page {
         padding: calc(var(--nav-h) + 1rem) 1.1rem 4rem;
       }
@@ -565,50 +585,6 @@
       footer {
         padding: 1.2rem 1.25rem;
       }
-
-      .approach-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .stat-chip {
-        min-width: 72px;
-      }
-    }
-
-    .hero-chips{display:flex;flex-wrap:wrap;gap:5px;margin:1.5rem 0 1.75rem;}
-    .hero-chip{font-family:'Share Tech Mono',monospace;font-size:0.52rem;letter-spacing:0.22em;color:var(--muted);border:1px solid var(--border-dim);border-radius:2px;padding:3px 9px;white-space:nowrap;}
-
-    .cap-strip {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 1px; background: var(--border); border: 1px solid var(--border);
-      border-radius: 6px; overflow: hidden; margin-bottom: 2.5rem;
-    }
-    .cap-strip .cap-item {
-      background: var(--panel); padding: 14px 18px;
-      display: flex; flex-direction: column; gap: 5px;
-      align-items: flex-start; font-size: unset; color: unset; line-height: unset;
-    }
-    .cap-label { font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; }
-    .cap-value { font-family: 'Exo 2', sans-serif; font-weight: 600; font-size: 0.75rem; color: var(--text); letter-spacing: 0.04em; }
-    .cap-value span { color: var(--accent); }
-
-    .source-strip{display:flex;gap:6px;flex-wrap:wrap;margin-top:1.25rem;}
-    .src-tag{font-size:0.54rem;letter-spacing:0.16em;color:var(--muted);border:1px solid var(--border);border-radius:2px;padding:4px 10px;}
-
-    .pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:3rem;}
-    .pillar{background:var(--panel);padding:24px 20px;}
-    .pillar-num{font-size:0.5rem;letter-spacing:0.28em;color:var(--accent);opacity:0.55;margin-bottom:12px;}
-    .pillar-title{font-size:0.68rem;letter-spacing:0.14em;color:var(--text);margin-bottom:8px;}
-    .pillar-desc{font-size:0.62rem;color:var(--muted);line-height:1.75;}
-
-    .compliance-row{display:flex;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:3rem;}
-    .compliance-cell{background:var(--panel);padding:14px 18px;flex:1;display:flex;flex-direction:column;gap:5px;}
-    .compliance-val{font-size:0.72rem;color:var(--text);letter-spacing:0.06em;}
-    .compliance-label{font-size:0.52rem;letter-spacing:0.18em;color:var(--muted);}
-
-    @media(max-width:700px){
-      .pillars{grid-template-columns:1fr;}
-      .compliance-row{flex-direction:column;}
     }
 
     @media(max-width:480px){
@@ -623,21 +599,12 @@
       .footer-credit-pill { font-size: 0.62rem; padding: 4px 10px; }
       .tool-feature { padding: 18px 16px 14px; }
       .tf-meta { word-break: break-word; white-space: normal; }
-      .hero-chips { gap: 4px; }
-      .hero-chip { font-size: 0.48rem; }
-      .cap-strip { grid-template-columns: repeat(2, 1fr); }
-      .stat-chip { min-width: 68px; }
-      .source-strip { gap: 4px; }
-      .src-tag { font-size: 0.5rem; padding: 3px 7px; }
     }
 
     @media(max-width:768px) {
       .page { padding-left: 1.25rem; padding-right: 1.25rem; }
       .hero-title { font-size: clamp(1.4rem, 4vw, 2.2rem); }
       .tool-feature { padding: 22px 20px 16px; }
-      .pillars { grid-template-columns: repeat(2, 1fr); }
-      .compliance-row { flex-wrap: wrap; }
-      .compliance-cell { flex: 1 1 45%; }
     }
   </style>
 
@@ -646,7 +613,7 @@
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "H3AD-LEARN",
-    "description": "H3AD-LEARN by H3AD-SEC: seven field-focused security training domains for SOC analysts, threat hunters, and detection engineers. Threat Hunting, LOLBAS, Threat Intelligence, SOC Operations, Cloud Security, Malware Analysis, Interview Prep. No account. No subscription. Browser-native.",
+    "description": "H3AD-LEARN by H3AD-SEC: fifteen field-focused security training domains for SOC analysts, threat hunters, and detection engineers. Fundamentals, Networking, Windows, Linux, SOC Operations, Threat Intelligence, Detection Engineering, Threat Hunting, LOLBAS, Cloud Security, Incident Response, Digital Forensics, Malware Analysis, AI in Security, Interview Prep. No account. No subscription. Browser-native.",
     "url": "https://h3ad-sec.github.io/H3AD-LEARN/",
     "publisher": {
       "@type": "Organization",
@@ -671,11 +638,50 @@
     </a>
     <div class="nav-links">
       <div class="nav-divider"></div>
-      <a href="https://h3ad-sec.github.io/">HOME</a>
-      <a href="https://h3ad-sec.github.io/H3AD-HUNT/">H3AD-HUNT</a>
-      <a href="https://h3ad-sec.github.io/HYPOS/" target="_blank" rel="noopener">HYPOS</a>
+      <a href="https://h3ad-sec.github.io/H3AD/">H3AD</a>
+      <div class="nav-divider"></div>
       <div class="nav-item">
-        <a class="nav-current" href="#">H3AD-LEARN</a>
+        <a href="https://h3ad-sec.github.io/H3AD-X/">H3AD-X</a>
+        <div class="nav-dropdown"><div class="nav-dropdown-inner">
+          <a href="https://h3ad-sec.github.io/IOC-VERDIKT/" target="_blank" rel="noopener">IOC-VERDIKT</a>
+          <a href="https://h3ad-sec.github.io/PARSE-X/" target="_blank" rel="noopener">PARSE-X</a>
+          <a href="https://h3ad-sec.github.io/DNSCOPE/" target="_blank" rel="noopener">DNSCOPE</a>
+          <a href="https://h3ad-sec.github.io/X-VERDIKT/" target="_blank" rel="noopener">X-VERDIKT</a>
+          <a href="https://h3ad-sec.github.io/MAILSCOPE/" target="_blank" rel="noopener">MAILSCOPE</a>
+          <a href="https://h3ad-sec.github.io/INFRA-SCOPE/" target="_blank" rel="noopener">INFRA-SCOPE</a>
+        </div></div>
+      </div>
+      <div class="nav-item">
+        <a href="https://h3ad-sec.github.io/H3AD-AI/">H3AD-AI</a>
+        <div class="nav-dropdown"><div class="nav-dropdown-inner">
+          <a href="https://h3ad-sec.github.io/PROMPTVAULT/" target="_blank" rel="noopener">PROMPTVAULT</a>
+        </div></div>
+      </div>
+      <div class="nav-item">
+        <a href="https://h3ad-sec.github.io/H3AD-DETECT/">H3AD-DETECT</a>
+        <div class="nav-dropdown"><div class="nav-dropdown-inner">
+          <a href="https://h3ad-sec.github.io/TRACERULES/" target="_blank" rel="noopener">TRACERULES</a>
+        </div></div>
+      </div>
+      <div class="nav-item">
+        <a href="https://h3ad-sec.github.io/H3AD-HUNT/">H3AD-HUNT</a>
+        <div class="nav-dropdown"><div class="nav-dropdown-inner">
+          <a href="https://h3ad-sec.github.io/HYPOS/" target="_blank" rel="noopener">HYPOS</a>
+          <a href="https://h3ad-sec.github.io/PIVEX/" target="_blank" rel="noopener">PIVEX</a>
+          <a href="https://h3ad-sec.github.io/TRACEPULSE/" target="_blank" rel="noopener">TRACEPULSE</a>
+        </div></div>
+      </div>
+      <div class="nav-item">
+        <a href="https://h3ad-sec.github.io/H3AD-OPS/">H3AD-OPS</a>
+        <div class="nav-dropdown"><div class="nav-dropdown-inner">
+          <a href="https://h3ad-sec.github.io/QUICKTRACE/" target="_blank" rel="noopener">QUICKTRACE</a>
+          <a href="https://h3ad-sec.github.io/PHISHOPS/" target="_blank" rel="noopener">PHISHOPS</a>
+        </div></div>
+      </div>
+      <a href="https://h3ad-sec.github.io/H3AD-DF/">H3AD-DF</a>
+      <a href="https://h3ad-sec.github.io/H3AD-IR/">H3AD-IR</a>
+      <div class="nav-item">
+        <a class="nav-current" href="index.html">H3AD-LEARN</a>
         <div class="nav-dropdown">
           <div class="nav-dropdown-inner">
             <a href="threat-hunting/index.html">THREAT HUNTING</a>
@@ -686,203 +692,293 @@
           </div>
         </div>
       </div>
+      <div class="nav-divider"></div>
+      <a href="mailto:h3adsec@gmail.com">CONTACT</a>
     </div>
-    <div class="theme-toggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" onclick="toggleTheme()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleTheme();}" title="Toggle theme">
-      <div class="toggle-track">
-        <div class="toggle-thumb"></div>
+    <div class="nav-right">
+      <div class="theme-toggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" onclick="toggleTheme()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleTheme();}" title="Toggle theme">
+        <div class="toggle-track">
+          <div class="toggle-thumb"></div>
+        </div>
       </div>
     </div>
   </nav>
 
   <div class="nav-drawer" id="navDrawer">
-    <a href="https://h3ad-sec.github.io/" onclick="closeDrawer()">HOME &nbsp;↗</a>
-    <a href="https://h3ad-sec.github.io/H3AD-HUNT/" onclick="closeDrawer()">H3AD-HUNT</a>
-    <a href="https://h3ad-sec.github.io/HYPOS/" target="_blank" rel="noopener" onclick="closeDrawer()">HYPOS &nbsp;↗</a>
-    <a class="nav-current" href="#" onclick="closeDrawer()">H3AD-LEARN</a>
-    <a href="threat-hunting/index.html" onclick="closeDrawer()" class="drawer-sub">↳ THREAT HUNTING</a>
-    <a href="lolbas/index.html" onclick="closeDrawer()" class="drawer-sub">↳ LOLBAS</a>
-    <a href="threat-intel/index.html" onclick="closeDrawer()" class="drawer-sub">↳ THREAT INTEL</a>
-    <a href="cloud-security/index.html" onclick="closeDrawer()" class="drawer-sub">↳ CLOUD SECURITY</a>
-    <a href="interview-prep/index.html" onclick="closeDrawer()" class="drawer-sub">↳ INTERVIEW PREP</a>
+    <a href="https://h3ad-sec.github.io/" onclick="closeDrawer()">HOME &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD/" onclick="closeDrawer()">H3AD &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-X/" onclick="closeDrawer()">H3AD-X &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/IOC-VERDIKT/" target="_blank" rel="noopener" onclick="closeDrawer()" class="drawer-sub">&#8623; IOC-VERDIKT &#8599;</a>
+    <a href="https://h3ad-sec.github.io/PARSE-X/" target="_blank" rel="noopener" onclick="closeDrawer()" class="drawer-sub">&#8623; PARSE-X &#8599;</a>
+    <a href="https://h3ad-sec.github.io/DNSCOPE/" target="_blank" rel="noopener" onclick="closeDrawer()" class="drawer-sub">&#8623; DNSCOPE &#8599;</a>
+    <a href="https://h3ad-sec.github.io/X-VERDIKT/" target="_blank" rel="noopener" onclick="closeDrawer()" class="drawer-sub">&#8623; X-VERDIKT &#8599;</a>
+    <a href="https://h3ad-sec.github.io/MAILSCOPE/" target="_blank" rel="noopener" onclick="closeDrawer()" class="drawer-sub">&#8623; MAILSCOPE &#8599;</a>
+    <a href="https://h3ad-sec.github.io/INFRA-SCOPE/" target="_blank" rel="noopener" onclick="closeDrawer()" class="drawer-sub">&#8623; INFRA-SCOPE &#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-AI/" onclick="closeDrawer()">H3AD-AI &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/PROMPTVAULT/" target="_blank" rel="noopener" onclick="closeDrawer()" class="drawer-sub">&#8623; PROMPTVAULT &#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-DETECT/" onclick="closeDrawer()">H3AD-DETECT &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/TRACERULES/" target="_blank" rel="noopener" onclick="closeDrawer()" class="drawer-sub">&#8623; TRACERULES &#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-HUNT/" onclick="closeDrawer()">H3AD-HUNT &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/HYPOS/" target="_blank" rel="noopener" onclick="closeDrawer()" class="drawer-sub">&#8623; HYPOS &#8599;</a>
+    <a href="https://h3ad-sec.github.io/PIVEX/" target="_blank" rel="noopener" onclick="closeDrawer()" class="drawer-sub">&#8623; PIVEX &#8599;</a>
+    <a href="https://h3ad-sec.github.io/TRACEPULSE/" target="_blank" rel="noopener" onclick="closeDrawer()" class="drawer-sub">&#8623; TRACEPULSE &#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-OPS/" onclick="closeDrawer()">H3AD-OPS &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/QUICKTRACE/" target="_blank" rel="noopener" onclick="closeDrawer()" class="drawer-sub">&#8623; QUICKTRACE &#8599;</a>
+    <a href="https://h3ad-sec.github.io/PHISHOPS/" target="_blank" rel="noopener" onclick="closeDrawer()" class="drawer-sub">&#8623; PHISHOPS &#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-DF/" onclick="closeDrawer()">H3AD-DF &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-IR/" onclick="closeDrawer()">H3AD-IR &nbsp;&#8599;</a>
+    <a class="nav-current" href="index.html" onclick="closeDrawer()">H3AD-LEARN</a>
+    <a href="threat-hunting/index.html" onclick="closeDrawer()" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="lolbas/index.html" onclick="closeDrawer()" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="threat-intel/index.html" onclick="closeDrawer()" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="cloud-security/index.html" onclick="closeDrawer()" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="interview-prep/index.html" onclick="closeDrawer()" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+    <a href="mailto:h3adsec@gmail.com" onclick="closeDrawer()">CONTACT</a>
   </div>
 
   <div class="page">
     <div class="hero">
-      <span class="hero-tag">H3AD-SEC · SECURITY TRAINING PLATFORM</span>
-      <h1 class="hero-title">Seven Learning Domains Built for<br><span>Security Practitioners.</span></h1>
-      <p class="hero-sub">Threat Hunting, Living Off the Land, Threat Intelligence, SOC Operations, Cloud Security, Malware Analysis, Interview Prep. Field-focused material sourced from CrowdStrike, Red Canary, Mandiant, SANS, and MITRE. No certification fluff. No account. No vendor lock-in.</p>
-      <div class="hero-chips">
-        <span class="hero-chip">FIELD-SOURCED METHODOLOGY</span>
-        <span class="hero-chip">BROWSER-NATIVE</span>
-        <span class="hero-chip">NO ACCOUNT REQUIRED</span>
-        <span class="hero-chip">KNOWLEDGE CHECKS</span>
-        <span class="hero-chip">KQL · SPL · SIGMA EXAMPLES</span>
-      </div>
-      <div class="hero-stats">
-        <div class="stat-chip"><span class="stat-val">7</span><span class="stat-label">DOMAINS PLANNED</span></div>
-        <div class="stat-chip"><span class="stat-val">5</span><span class="stat-label">LIVE NOW</span></div>
-        <div class="stat-chip"><span class="stat-val">33</span><span class="stat-label">CHAPTERS LIVE</span></div>
-        <div class="stat-chip"><span class="stat-val">45 HRS</span><span class="stat-label">TRAINING CONTENT</span></div>
+      <div class="hero-banner"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></div>
+      <div class="hero-banner-tagline">SECURITY TRAINING PLATFORM</div>
+      <div class="hero-banner-by">by H3AD</div>
+      <div class="hero-intro">
+        <h1 class="hero-title">Learn the Methodology<br><span>Behind the Detection.</span></h1>
+        <p class="hero-sub">Field-focused curricula for SOC analysts, threat hunters, and detection engineers, sourced from CrowdStrike, Red Canary, Mandiant, SANS, and MITRE. No account. No subscription. Browser-native.</p>
       </div>
     </div>
 
-    <div class="manifesto-strip">
-      <p class="manifesto-text">An analyst who understands the hunt lifecycle catches what the ruleset misses. Every domain here starts where detection ends and works forward from adversary behavior to structured evidence.<br><span style="font-size:0.65rem;color:var(--muted);letter-spacing:0.06em;">No backend. No account. No certificate. Just the methodology, in your browser.</span></p>
+    <div class="section-label">LEARNING DOMAINS</div>
+
+    <div class="search-wrap">
+      <input class="quick-search" id="domainSearch" type="search" placeholder="Search domains&hellip; (topics, tags)" aria-label="Search learning domains">
+      <kbd class="search-kbd">/</kbd>
     </div>
+    <p class="search-empty" id="domainSearchEmpty" hidden>No domains match &ldquo;<span id="domainSearchEmptyTerm"></span>&rdquo;.</p>
 
-    <h2 class="section-label">LEARNING DOMAINS</h2>
+    <div class="tool-features" id="domainGrid">
+      <!-- FUNDAMENTALS — PLANNED -->
+      <div class="tool-feature tf-soon" style="--tf-rgb:107,114,128;">
+        <div class="tf-header">
+          <div class="tf-icon">FD</div>
+          <div class="tf-header-text">
+            <div class="tf-name">FUNDAMENTALS</div>
+            <div class="tf-tagline">Where Every Analyst Starts.</div>
+          </div>
+          <span class="card-badge badge-soon">PLANNED</span>
+        </div>
+        <div class="tf-body">Core security concepts: the CIA triad, common attack types, the OSI model, and cryptography basics, the vocabulary every other domain builds on.</div>
+        <div class="tf-meta">CIA TRIAD · OSI MODEL · CRYPTO BASICS · ATTACK TYPES</div>
+        <span class="tf-link tf-link-soon">COMING SOON</span>
+      </div>
 
-    <div class="cap-strip">
-      <div class="cap-item">
-        <span class="cap-label">Domains Planned</span>
-        <span class="cap-value"><span>7</span> Domains</span>
+      <!-- NETWORKING — PLANNED -->
+      <div class="tool-feature tf-soon" style="--tf-rgb:107,114,128;">
+        <div class="tf-header">
+          <div class="tf-icon">NW</div>
+          <div class="tf-header-text">
+            <div class="tf-name">NETWORKING</div>
+            <div class="tf-tagline">Packets, Protocols, and Where Attacks Live.</div>
+          </div>
+          <span class="card-badge badge-soon">PLANNED</span>
+        </div>
+        <div class="tf-body">TCP/IP fundamentals, routing and switching, DNS and TLS internals, and packet analysis, the networking foundation every detection is built on.</div>
+        <div class="tf-meta">TCP/IP · DNS · TLS · PACKET ANALYSIS · WIRESHARK</div>
+        <span class="tf-link tf-link-soon">COMING SOON</span>
       </div>
-      <div class="cap-item">
-        <span class="cap-label">Live Now</span>
-        <span class="cap-value"><span>5</span> Live</span>
-      </div>
-      <div class="cap-item">
-        <span class="cap-label">Chapters Live</span>
-        <span class="cap-value"><span>33</span> Chapters</span>
-      </div>
-      <div class="cap-item">
-        <span class="cap-label">Training Content</span>
-        <span class="cap-value"><span>45 HRS</span> Est.</span>
-      </div>
-    </div>
 
-    <!-- THREAT HUNTING — LIVE -->
-    <div class="tool-feature">
-      <div class="tf-header">
-        <div class="tf-name">THREAT HUNTING</div>
-        <span class="card-badge badge-live">LIVE</span>
+      <!-- WINDOWS — PLANNED -->
+      <div class="tool-feature tf-soon" style="--tf-rgb:107,114,128;">
+        <div class="tf-header">
+          <div class="tf-icon">WN</div>
+          <div class="tf-header-text">
+            <div class="tf-name">WINDOWS</div>
+            <div class="tf-tagline">Internals for Attackers and Defenders.</div>
+          </div>
+          <span class="card-badge badge-soon">PLANNED</span>
+        </div>
+        <div class="tf-body">Active Directory, process and token internals, the registry, and Windows event logging, the OS-level knowledge behind most enterprise attacks.</div>
+        <div class="tf-meta">ACTIVE DIRECTORY · REGISTRY · EVENT LOGS · TOKENS</div>
+        <span class="tf-link tf-link-soon">COMING SOON</span>
       </div>
-      <div class="tf-tagline">Hunt Smarter. Miss Nothing.</div>
-      <div class="tf-body">A field-focused curriculum built from CrowdStrike OverWatch, Red Canary, Elastic Security, and Mandiant methodologies. Eight chapters covering the complete hunt lifecycle: hypothesis generation, PEAK, TaHiTI, data sources, KQL/Sigma/SPL, evidence scoring with the Admiralty System, and advanced ML-assisted techniques.</div>
-      <div class="source-strip">
-        <span class="src-tag">CROWDSTRIKE OVERWATCH</span>
-        <span class="src-tag">RED CANARY</span>
-        <span class="src-tag">MANDIANT</span>
-        <span class="src-tag">MITRE ATT&amp;CK</span>
-      </div>
-      <div class="tf-meta" style="margin-top:1.25rem;">9 CHAPTERS · ~13 HRS · BEGINNER → ADVANCED · PEAK · TAHITI · ADMIRALTY SYSTEM</div>
-      <a class="tf-link" href="threat-hunting/index.html">OPEN THREAT HUNTING →</a>
-    </div>
 
-    <!-- LIVING OFF THE LAND — LIVE -->
-    <div class="tool-feature">
-      <div class="tf-header">
-        <div class="tf-name">LIVING OFF THE LAND</div>
-        <span class="card-badge badge-live">LIVE</span>
+      <!-- LINUX — PLANNED -->
+      <div class="tool-feature tf-soon" style="--tf-rgb:107,114,128;">
+        <div class="tf-header">
+          <div class="tf-icon">LX</div>
+          <div class="tf-header-text">
+            <div class="tf-name">LINUX</div>
+            <div class="tf-tagline">Auth, Logs, and Persistence on Unix.</div>
+          </div>
+          <span class="card-badge badge-soon">PLANNED</span>
+        </div>
+        <div class="tf-body">Filesystem and process internals, auth and syslog analysis, cron/systemd persistence, and the shell-level tradecraft attackers use on Linux servers and containers.</div>
+        <div class="tf-meta">AUTH LOGS · SYSLOG · CRON/SYSTEMD · SHELL TRADECRAFT</div>
+        <span class="tf-link tf-link-soon">COMING SOON</span>
       </div>
-      <div class="tf-tagline">Abuse the Tools Windows Ships With.</div>
-      <div class="tf-body">How attackers weaponize legitimate Windows binaries, scripts, and services. Covers LOLBAS taxonomy, certutil, mshta, regsvr32, bitsadmin abuse patterns, WMI/PowerShell LOL techniques, defense evasion strategies, and behavioral detection approaches.</div>
-      <div class="tf-meta" style="margin-top:1.25rem;">8 CHAPTERS · ~10 HRS · INTERMEDIATE → ADVANCED · LOLBAS · WINDOWS · DEFENSE EVASION</div>
-      <a class="tf-link" href="lolbas/index.html">OPEN LOLBAS →</a>
-    </div>
 
-    <!-- THREAT INTELLIGENCE — LIVE -->
-    <div class="tool-feature">
-      <div class="tf-header">
-        <div class="tf-name">THREAT INTELLIGENCE</div>
-        <span class="card-badge badge-live">LIVE</span>
+      <!-- SOC OPERATIONS — PLANNED -->
+      <div class="tool-feature tf-soon" style="--tf-rgb:107,114,128;">
+        <div class="tf-header">
+          <div class="tf-icon">SO</div>
+          <div class="tf-header-text">
+            <div class="tf-name">SOC OPERATIONS</div>
+            <div class="tf-tagline">Triage. Escalate. Contain.</div>
+          </div>
+          <span class="card-badge badge-soon">PLANNED</span>
+        </div>
+        <div class="tf-body">Alert triage methodology, escalation frameworks, shift management, and playbook creation, for analysts moving from intake to resolution.</div>
+        <div class="tf-meta">ALERT TRIAGE · ESCALATION · SHIFT MANAGEMENT</div>
+        <span class="tf-link tf-link-soon">COMING SOON</span>
       </div>
-      <div class="tf-tagline">From Raw IOCs to Finished Intel.</div>
-      <div class="tf-body">The complete CTI practitioner curriculum. Eight chapters covering the intelligence cycle, IOC confidence scoring, threat actor profiling with the Diamond Model, STIX 2.1 and TAXII sharing infrastructure, intel-driven hunting, malware and campaign analysis, CTI report writing, and converting intelligence into detection rules.</div>
-      <div class="tf-meta" style="margin-top:1.25rem;">8 CHAPTERS · ~11 HRS · BEGINNER → ADVANCED · DIAMOND MODEL · STIX/TAXII · SIGMA · PYRAMID OF PAIN</div>
-      <a class="tf-link" href="threat-intel/index.html">OPEN THREAT INTELLIGENCE →</a>
-    </div>
 
-    <!-- SOC OPERATIONS — PLANNED -->
-    <div class="tool-feature tf-soon" style="opacity:0.65;">
-      <div class="tf-header">
-        <div class="tf-name">SOC OPERATIONS</div>
-        <span class="card-badge badge-soon">PLANNED</span>
+      <!-- THREAT INTELLIGENCE — LIVE -->
+      <div class="tool-feature" style="--tf-rgb:20,184,166;">
+        <div class="tf-header">
+          <div class="tf-icon">TI</div>
+          <div class="tf-header-text">
+            <div class="tf-name">THREAT INTELLIGENCE</div>
+            <div class="tf-tagline">From Raw IOCs to Finished Intel.</div>
+          </div>
+          <span class="card-badge badge-live">LIVE</span>
+        </div>
+        <div class="tf-body">The intelligence cycle, IOC confidence scoring, Diamond Model actor profiling, STIX/TAXII sharing, intel-driven hunting, and CTI report writing.</div>
+        <div class="tf-meta">8 CHAPTERS · ~11 HRS · BEGINNER → ADVANCED</div>
+        <a class="tf-link" href="threat-intel/index.html">OPEN THREAT INTELLIGENCE →</a>
       </div>
-      <div class="tf-tagline">Triage. Escalate. Contain.</div>
-      <div class="tf-body">Alert triage methodology, escalation frameworks, shift management, and playbook creation. Built for analysts who need to move from alert intake to resolution without second-guessing the process.</div>
-      <div class="tf-meta" style="margin-top:1.25rem;">ALERT TRIAGE · ESCALATION FRAMEWORKS · SHIFT MANAGEMENT · PLAYBOOK CREATION</div>
-      <span class="tf-link tf-link-soon">COMING SOON</span>
-    </div>
 
-    <!-- CLOUD SECURITY — LIVE -->
-    <div class="tool-feature">
-      <div class="tf-header">
-        <div class="tf-name">CLOUD SECURITY</div>
-        <span class="card-badge badge-live">LIVE</span>
+      <!-- DETECTION ENGINEERING — PLANNED -->
+      <div class="tool-feature tf-soon" style="--tf-rgb:107,114,128;">
+        <div class="tf-header">
+          <div class="tf-icon">DE</div>
+          <div class="tf-header-text">
+            <div class="tf-name">DETECTION ENGINEERING</div>
+            <div class="tf-tagline">From Hypothesis to Production Rule.</div>
+          </div>
+          <span class="card-badge badge-soon">PLANNED</span>
+        </div>
+        <div class="tf-body">Writing and tuning Sigma/KQL/SPL detections, reducing false positives, coverage mapping against ATT&amp;CK, and the full rule lifecycle from draft to production.</div>
+        <div class="tf-meta">SIGMA · KQL · SPL · FALSE POSITIVE TUNING · ATT&amp;CK COVERAGE</div>
+        <span class="tf-link tf-link-soon">COMING SOON</span>
       </div>
-      <div class="tf-tagline">Hunting in Azure, AWS, and Entra.</div>
-      <div class="tf-body">Eight chapters from the shared responsibility model through applied detection engineering. Azure AD/Entra ID and AWS IAM attack techniques, cloud telemetry, cloud-native threat hunting, KQL/Sigma/SPL detection queries, real threat actor campaigns, and Zero Trust/CIEM/CSPM defense.</div>
-      <div class="tf-meta" style="margin-top:1.25rem;">8 CHAPTERS · ~11 HRS · BEGINNER → ADVANCED · AZURE AD · AWS IAM · ZERO TRUST</div>
-      <a class="tf-link" href="cloud-security/index.html">OPEN CLOUD SECURITY →</a>
-    </div>
 
-    <!-- INTERVIEW PREP — LIVE -->
-    <div class="tool-feature">
-      <div class="tf-header">
-        <div class="tf-name">INTERVIEW PREP</div>
-        <span class="card-badge badge-live">LIVE</span>
+      <!-- THREAT HUNTING — LIVE -->
+      <div class="tool-feature" style="--tf-rgb:0,212,255;">
+        <div class="tf-header">
+          <div class="tf-icon">TH</div>
+          <div class="tf-header-text">
+            <div class="tf-name">THREAT HUNTING</div>
+            <div class="tf-tagline">Hunt Smarter. Miss Nothing.</div>
+          </div>
+          <span class="card-badge badge-live">LIVE</span>
+        </div>
+        <div class="tf-body">The complete hunt lifecycle: hypothesis generation, PEAK, TaHiTI, data sources, KQL/Sigma/SPL, and evidence scoring with the Admiralty System.</div>
+        <div class="tf-meta">9 CHAPTERS · ~13 HRS · BEGINNER → ADVANCED</div>
+        <a class="tf-link" href="threat-hunting/index.html">OPEN THREAT HUNTING →</a>
       </div>
-      <div class="tf-tagline">Reasoning Shown, Not Just the Answer.</div>
-      <div class="tf-body">Enterprise-grade interview questions with model answers, reasoning shown rather than just an answer. Covers cybersecurity fundamentals, SOC Operations, Incident Response, Threat Hunting (TaHiTI, PEAK, the Hunting Maturity Model), Threat Intelligence (attribution, STIX/TAXII, the Admiralty Code), and Digital Forensics (chain of custody, memory/network/mobile/cloud forensics, anti-forensics) alongside real attack scenarios grounded in documented tradecraft. Building out domain by domain: Red Team, VAPT, Malware Analysis.</div>
-      <div class="tf-meta" style="margin-top:1.25rem;">445 QUESTIONS · L1 → L3 · FILTERABLE Q&amp;A BANK · 6 DOMAINS LIVE</div>
-      <a class="tf-link" href="interview-prep/index.html">OPEN INTERVIEW PREP →</a>
-    </div>
 
-    <!-- MALWARE ANALYSIS — PLANNED -->
-    <div class="tool-feature tf-soon" style="opacity:0.65;">
-      <div class="tf-header">
-        <div class="tf-name">MALWARE ANALYSIS</div>
-        <span class="card-badge badge-soon">PLANNED</span>
+      <!-- LIVING OFF THE LAND — LIVE -->
+      <div class="tool-feature" style="--tf-rgb:139,92,246;">
+        <div class="tf-header">
+          <div class="tf-icon">LO</div>
+          <div class="tf-header-text">
+            <div class="tf-name">LIVING OFF THE LAND</div>
+            <div class="tf-tagline">Abuse the Tools Windows Ships With.</div>
+          </div>
+          <span class="card-badge badge-live">LIVE</span>
+        </div>
+        <div class="tf-body">LOLBAS taxonomy, certutil/mshta/regsvr32/bitsadmin abuse, WMI and PowerShell techniques, and behavioral detection for defense evasion.</div>
+        <div class="tf-meta">8 CHAPTERS · ~10 HRS · INTERMEDIATE → ADVANCED</div>
+        <a class="tf-link" href="lolbas/index.html">OPEN LOLBAS →</a>
       </div>
-      <div class="tf-tagline">Static. Dynamic. Behavioral.</div>
-      <div class="tf-body">Static analysis, dynamic behavior, sandbox output interpretation, and YARA rule writing. Covers the full analysis workflow from first-pass triage through detection signature authorship.</div>
-      <div class="tf-meta" style="margin-top:1.25rem;">STATIC ANALYSIS · DYNAMIC BEHAVIOR · SANDBOX OUTPUT · YARA WRITING · DETECTION SIGNATURES</div>
-      <span class="tf-link tf-link-soon">COMING SOON</span>
-    </div>
 
-    <h2 class="section-label" style="margin-top:3rem;">BUILT FOR PRACTITIONERS</h2>
+      <!-- CLOUD SECURITY — LIVE -->
+      <div class="tool-feature" style="--tf-rgb:245,158,11;">
+        <div class="tf-header">
+          <div class="tf-icon">CS</div>
+          <div class="tf-header-text">
+            <div class="tf-name">CLOUD SECURITY</div>
+            <div class="tf-tagline">Hunting in Azure, AWS, and Entra.</div>
+          </div>
+          <span class="card-badge badge-live">LIVE</span>
+        </div>
+        <div class="tf-body">The shared responsibility model through applied detection engineering: Azure AD/Entra ID and AWS IAM attacks, cloud telemetry, and Zero Trust/CIEM/CSPM defense.</div>
+        <div class="tf-meta">8 CHAPTERS · ~11 HRS · BEGINNER → ADVANCED</div>
+        <a class="tf-link" href="cloud-security/index.html">OPEN CLOUD SECURITY →</a>
+      </div>
 
-    <div class="pillars">
-      <div class="pillar">
-        <div class="pillar-num">01</div>
-        <div class="pillar-title">FIELD-SOURCED</div>
-        <div class="pillar-desc">Every chapter cites real methodology. CrowdStrike OverWatch interrupted 41,000 intrusions with these techniques. Red Canary analyzed 329 billion records a day to produce these patterns. This is not hypothetical.</div>
+      <!-- INCIDENT RESPONSE — PLANNED -->
+      <div class="tool-feature tf-soon" style="--tf-rgb:107,114,128;">
+        <div class="tf-header">
+          <div class="tf-icon">IR</div>
+          <div class="tf-header-text">
+            <div class="tf-name">INCIDENT RESPONSE</div>
+            <div class="tf-tagline">Contain. Eradicate. Recover.</div>
+          </div>
+          <span class="card-badge badge-soon">PLANNED</span>
+        </div>
+        <div class="tf-body">The full IR lifecycle: preparation, containment strategy, eradication, recovery, and post-incident review, built around NIST and SANS PICERL.</div>
+        <div class="tf-meta">NIST · PICERL · CONTAINMENT · POST-INCIDENT REVIEW</div>
+        <span class="tf-link tf-link-soon">COMING SOON</span>
       </div>
-      <div class="pillar">
-        <div class="pillar-num">02</div>
-        <div class="pillar-title">LEARN BY DOING</div>
-        <div class="pillar-desc">Every chapter ends with a knowledge check and real query examples in KQL, SPL, or Sigma. Concepts are not described. They are demonstrated with working code.</div>
-      </div>
-      <div class="pillar">
-        <div class="pillar-num">03</div>
-        <div class="pillar-title">FREE AND OPEN</div>
-        <div class="pillar-desc">No account. No subscription. No certificate. The material is here because the community benefits when analysts are better trained. Browser-native, no tracking.</div>
-      </div>
-    </div>
 
-    <h2 class="section-label">PLATFORM</h2>
+      <!-- DIGITAL FORENSICS — PLANNED -->
+      <div class="tool-feature tf-soon" style="--tf-rgb:107,114,128;">
+        <div class="tf-header">
+          <div class="tf-icon">DF</div>
+          <div class="tf-header-text">
+            <div class="tf-name">DIGITAL FORENSICS</div>
+            <div class="tf-tagline">Chain of Custody to Courtroom.</div>
+          </div>
+          <span class="card-badge badge-soon">PLANNED</span>
+        </div>
+        <div class="tf-body">Chain of custody, disk and memory forensics, network and mobile forensics, and anti-forensics techniques attackers use to cover their tracks.</div>
+        <div class="tf-meta">DISK · MEMORY · NETWORK · MOBILE · ANTI-FORENSICS</div>
+        <span class="tf-link tf-link-soon">COMING SOON</span>
+      </div>
 
-    <div class="compliance-row">
-      <div class="compliance-cell">
-        <div class="compliance-val">BROWSER-NATIVE</div>
-        <div class="compliance-label">ALL CONTENT</div>
+      <!-- MALWARE ANALYSIS — PLANNED -->
+      <div class="tool-feature tf-soon" style="--tf-rgb:107,114,128;">
+        <div class="tf-header">
+          <div class="tf-icon">MA</div>
+          <div class="tf-header-text">
+            <div class="tf-name">MALWARE ANALYSIS</div>
+            <div class="tf-tagline">Static. Dynamic. Behavioral.</div>
+          </div>
+          <span class="card-badge badge-soon">PLANNED</span>
+        </div>
+        <div class="tf-body">Static and dynamic analysis, sandbox output interpretation, and YARA rule writing, from first-pass triage through signature authorship.</div>
+        <div class="tf-meta">STATIC · DYNAMIC · SANDBOX · YARA</div>
+        <span class="tf-link tf-link-soon">COMING SOON</span>
       </div>
-      <div class="compliance-cell">
-        <div class="compliance-val">NO ACCOUNT</div>
-        <div class="compliance-label">REQUIRED</div>
+
+      <!-- AI IN SECURITY — PLANNED -->
+      <div class="tool-feature tf-soon" style="--tf-rgb:107,114,128;">
+        <div class="tf-header">
+          <div class="tf-icon">AI</div>
+          <div class="tf-header-text">
+            <div class="tf-name">AI IN SECURITY</div>
+            <div class="tf-tagline">LLMs for Triage, Hunting, and Detection.</div>
+          </div>
+          <span class="card-badge badge-soon">PLANNED</span>
+        </div>
+        <div class="tf-body">Using LLMs for alert triage, hunt hypothesis generation, and detection engineering, plus the prompt injection and AI-abuse risks defenders now have to cover.</div>
+        <div class="tf-meta">LLM TRIAGE · PROMPT ENGINEERING · AI-ASSISTED DETECTION</div>
+        <span class="tf-link tf-link-soon">COMING SOON</span>
       </div>
-      <div class="compliance-cell">
-        <div class="compliance-val">PROGRESS TRACKING</div>
-        <div class="compliance-label">localStorage ONLY</div>
-      </div>
-      <div class="compliance-cell">
-        <div class="compliance-val">33 CHAPTERS</div>
-        <div class="compliance-label">ACROSS 5 LIVE MODULES</div>
-      </div>
-      <div class="compliance-cell">
-        <div class="compliance-val">OPEN ACCESS</div>
-        <div class="compliance-label">FREE FOREVER</div>
+
+      <!-- INTERVIEW PREP — LIVE -->
+      <div class="tool-feature" style="--tf-rgb:99,102,241;">
+        <div class="tf-header">
+          <div class="tf-icon">IP</div>
+          <div class="tf-header-text">
+            <div class="tf-name">INTERVIEW PREP</div>
+            <div class="tf-tagline">Reasoning Shown, Not Just the Answer.</div>
+          </div>
+          <span class="card-badge badge-live">LIVE</span>
+        </div>
+        <div class="tf-body">445 enterprise-grade questions with model answers across SOC Ops, IR, Threat Hunting, CTI, and Digital Forensics, grounded in real attack scenarios.</div>
+        <div class="tf-meta">445 QUESTIONS · L1 → L3 · 6 DOMAINS LIVE</div>
+        <a class="tf-link" href="interview-prep/index.html">OPEN INTERVIEW PREP →</a>
       </div>
     </div>
 
@@ -933,6 +1029,40 @@
     else { document.body.classList.add('dark'); document.body.classList.remove('light'); setLogo('dark'); }
 
     (function(){var s=document.getElementById('scroll-sentinel');if(!s)return;new IntersectionObserver(function(e){document.body.classList.toggle('hero-hidden',!e[0].isIntersecting);},{threshold:0}).observe(s);})();
+    (function(){var pill=document.getElementById('xv-nav-pill'),links=document.querySelector('.nav-links'),toggle=document.querySelector('.theme-toggle'),G=20;function check(){if(!links)return;document.body.classList.remove('nav-compact');links.style.visibility='hidden';var lr=links.getBoundingClientRect(),pr=pill?pill.getBoundingClientRect().right:60,tl=toggle?toggle.getBoundingClientRect().left:window.innerWidth-60;links.style.visibility='';document.body.classList.toggle('nav-compact',(pr+G>lr.left)||(lr.right+G>tl));}check();window.addEventListener('resize',check);})();
+
+    (function(){
+      var input = document.getElementById('domainSearch');
+      var grid = document.getElementById('domainGrid');
+      var empty = document.getElementById('domainSearchEmpty');
+      var emptyTerm = document.getElementById('domainSearchEmptyTerm');
+      if (!input || !grid) return;
+      var cards = Array.prototype.slice.call(grid.querySelectorAll('.tool-feature'));
+      function filter(){
+        var q = input.value.trim().toLowerCase();
+        var visible = 0;
+        cards.forEach(function(card){
+          var match = !q || card.textContent.toLowerCase().indexOf(q) > -1;
+          card.style.display = match ? '' : 'none';
+          if (match) visible++;
+        });
+        if (empty) {
+          empty.hidden = visible !== 0;
+          if (emptyTerm) emptyTerm.textContent = input.value.trim();
+        }
+      }
+      input.addEventListener('input', filter);
+      input.addEventListener('keydown', function(e){
+        if (e.key === 'Escape') { input.value = ''; filter(); input.blur(); }
+      });
+      document.addEventListener('keydown', function(e){
+        if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return;
+        var active = document.activeElement;
+        if (active === input || /^(INPUT|TEXTAREA|SELECT)$/.test(active && active.tagName)) return;
+        e.preventDefault();
+        input.focus();
+      });
+    })();
   </script>
 </body>
 
