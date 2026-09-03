@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="05">
+  <meta name="module-id" content="networking">
+  <title>Packet Analysis with Wireshark · Networking · H3AD-LEARN</title>
+  <meta name="description" content="Explains Wireshark display filters, following TCP streams, spotting traffic anomalies, and a repeatable PCAP triage workflow for analyzing captures.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/networking/05-packet-analysis-wireshark.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/networking/05-packet-analysis-wireshark.html">
+  <meta property="og:title" content="Packet Analysis with Wireshark · Networking · H3AD-LEARN">
+  <meta property="og:description" content="Explains Wireshark display filters, following TCP streams, spotting traffic anomalies, and a repeatable PCAP triage workflow for analyzing captures.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Packet Analysis with Wireshark · Networking · H3AD-LEARN">
+  <meta name="twitter:description" content="Explains Wireshark display filters, following TCP streams, spotting traffic anomalies, and a repeatable PCAP triage workflow for analyzing captures.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Packet Analysis with Wireshark",
+    "description": "Explains Wireshark display filters, following TCP streams, spotting traffic anomalies, and a repeatable PCAP triage workflow for analyzing captures.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/networking/05-packet-analysis-wireshark.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Networking",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/networking/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://h3ad-sec.github.io/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "H3AD-LEARN",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Networking",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/networking/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "Packet Analysis with Wireshark",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/networking/05-packet-analysis-wireshark.html"
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">PACKET ANALYSIS WITH WIRESHARK</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub nav-current">&#8623; NETWORKING</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Networking</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 05 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">40 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 05</span>
+            <span class="badge-time muted mono">40 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Packet Analysis with Wireshark</h1>
+          <p class="chapter-intro">The last four chapters gave you the theory: how frames are built, how TCP negotiates and tears down a session, how DNS resolves a name, how TLS wraps a conversation in ciphertext. That theory is what makes a capture readable instead of a wall of hex. This chapter is where it becomes a hands-on skill. You will open an unfamiliar PCAP, apply the right filters, follow a conversation end to end, and actually pull answers out of it rather than just staring at packets scrolling past. By the end, you should be able to sit down with a capture you have never seen and know exactly where to start looking.</p>
+          <div class="chapter-tags">
+            <span class="tag">Wireshark</span>
+            <span class="tag">display filters</span>
+            <span class="tag">PCAP triage</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="wireshark-interface">
+          <h2>The Wireshark Interface</h2>
+          <p>Wireshark's main window is built around three panes, and understanding how they relate to each other is the first real skill in packet analysis. The packet list at the top shows one row per captured frame: number, timestamp, source, destination, protocol, length, and a summary column that Wireshark generates from the highest-layer protocol it recognizes. This is where you scan for patterns, sort by column, and click into anything that looks interesting.</p>
+
+          <p>The packet detail pane, in the middle, shows the selected packet broken into its protocol layers as a collapsible tree: Frame, Ethernet, IP, TCP or UDP, and then whatever application protocol sits on top. Expanding each layer reveals the actual field values, flags, and options that made Wireshark classify the packet the way it did. This is where you confirm what you suspect from the summary line, and where you find fields that never appear in the packet list at all, like TCP window size or a specific HTTP header.</p>
+
+          <p>The packet bytes pane at the bottom shows the raw hex and ASCII for the packet, and it stays synchronized with whatever you have selected in the detail pane above it. Click a field in the detail tree and the corresponding bytes highlight below. This is useful for confirming exactly how a value is encoded on the wire, and for spotting cleartext strings that Wireshark's dissectors did not surface as a named field, such as a credential embedded in a custom application protocol.</p>
+
+          <p>The distinction that trips up almost every beginner is capture filter versus display filter, and the confusion is understandable because both narrow down packets and both use a text box near the top of the window. A capture filter is applied before any packet is captured, using Berkeley Packet Filter (BPF) syntax, the same syntax tcpdump uses: <code>host 10.0.0.5</code>, <code>port 443</code>, <code>tcp and port 80</code>. Anything that does not match a capture filter is discarded at the network interface and never written to the capture file at all, which means you cannot get it back later no matter what display filter you write.</p>
+
+          <p>A display filter, by contrast, is applied after capture, to packets that are already sitting in memory or in a saved PCAP file. It uses Wireshark's own filter language, which looks similar to BPF but is not the same syntax and is far more expressive, since it can reference any field that any dissector has parsed, not just the handful of fields BPF understands. In practice, when you are handed a PCAP someone else already captured, you are always working with display filters, because the capture already happened and there is nothing left to discard. Beginners who type BPF syntax like <code>port 443</code> into the display filter bar are often surprised when Wireshark rejects it or interprets it unexpectedly, since the display filter equivalent is <code>tcp.port == 443</code>.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> If you are capturing live traffic yourself, using a capture filter to discard obviously irrelevant traffic (a busy backup job, unrelated broadcast noise) keeps the capture file small and the analysis machine responsive. But when in doubt, capture broadly and filter on display instead. A capture filter mistake is unrecoverable; a display filter mistake just needs to be rewritten.
+          </div>
+        </section>
+
+        <section class="content-section" id="display-filters">
+          <h2>Display Filters That Matter</h2>
+          <p>A small set of display filters covers the overwhelming majority of real analyst work, and learning them fluently is worth more than memorizing the full filter grammar. The most basic is an address filter: <code>ip.addr == 10.0.0.5</code> shows every packet where that address appears as either source or destination, which is almost always what you want when you are following one host's activity. Narrow it further with a port filter, <code>tcp.port == 443</code>, to isolate one conversation type, or combine both to pin down a specific host-to-service relationship.</p>
+
+          <p>Application-layer filters let you skip straight to protocol events instead of scrolling through every packet in a stream. <code>http.request</code> shows only HTTP request lines, which is far more useful than wading through TCP ACKs to find the handful of packets that actually carry a GET or POST. <code>dns.qry.name contains "evil"</code> searches DNS query names for a substring, useful for spotting a suspicious domain fragment across an entire capture without knowing the exact FQDN in advance. <code>tls.handshake.type == 1</code> isolates Client Hello messages, which is where you would look for SNI values before the rest of the session is encrypted.</p>
+
+          <p>Flag-based filters are how you find specific TCP behaviors rather than specific hosts or ports. <code>tcp.flags.syn==1 and tcp.flags.ack==0</code> isolates SYN packets with no ACK set, meaning connection attempts rather than responses, which is exactly what a port scan looks like: one source sending SYNs to many ports or many hosts with few or no completed handshakes. <code>tcp.flags.reset==1</code> finds resets, useful when you suspect a firewall or an overwhelmed service is tearing down connections abnormally often.</p>
+
+          <p>Filters chain with <code>and</code>, <code>or</code>, and parentheses the same way you would expect from boolean logic in any language, and getting comfortable combining them is what turns Wireshark from a packet viewer into an investigation tool. <code>ip.addr==10.0.0.5 and tcp.port==443</code> narrows to one host's HTTPS traffic. <code>(ip.src==10.0.0.5 or ip.src==10.0.0.6) and tcp.flags.syn==1</code> isolates connection attempts from either of two suspect hosts. Negation uses <code>!</code> or <code>not</code>, so <code>!(arp or icmp)</code> hides the broadcast chatter that clutters most captures and is rarely relevant to an investigation.</p>
+
+          <p>Wireshark's filter bar also autocompletes and color-codes as you type: green means valid syntax, red means it will not parse. Right-clicking any field in the packet detail pane and choosing "Apply as Filter" or "Prepare as Filter" is often faster than typing from memory, especially for less common fields, and it is a good way to learn the underlying field names for protocols you do not use every day.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Filter</th><th>What It Finds</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>ip.addr==x.x.x.x</code></td><td>All traffic to or from a specific host</td></tr>
+                <tr><td><code>tcp.port==x</code></td><td>Traffic on a specific TCP port, either direction</td></tr>
+                <tr><td><code>http.request</code></td><td>HTTP request lines only, skips responses and ACKs</td></tr>
+                <tr><td><code>dns.qry.name contains "x"</code></td><td>DNS queries containing a substring in the name</td></tr>
+                <tr><td><code>tcp.flags.syn==1 and tcp.flags.ack==0</code></td><td>Connection attempts, a signature of port scanning</td></tr>
+                <tr><td><code>tcp.analysis.retransmission</code></td><td>Packets Wireshark identified as retransmissions</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="following-streams">
+          <h2>Following a TCP Stream</h2>
+          <p>Right-clicking any TCP packet and choosing Follow &gt; TCP Stream is one of the highest-value moves in Wireshark, and it is easy to overlook when you are focused on filtering the packet list. Instead of showing you individual segments, it reassembles the entire conversation, both directions, in the order the application layer actually sent and received the data, stripping away the TCP mechanics of sequence numbers, ACKs, and segmentation that obscure what was actually said.</p>
+
+          <p>The result is presented as a single scrollable transcript, conventionally colored red for one direction and blue for the other, so you can read a request and its matching response as continuous text rather than reconstructing it yourself from a dozen scattered packets. For an HTTP exchange, this means you see the full request line, headers, and body, followed immediately by the full response, headers, and body, exactly as an application would have assembled it. Wireshark automatically applies a display filter for that specific stream when you close the window, so the packet list narrows to just the packets in that conversation.</p>
+
+          <p>This is often the fastest way to understand what actually happened in an exchange, faster than reading packet by packet, because most analysis questions are really questions about content, not about individual segments. Did the client send credentials in the clear? What exact URL was requested? What did the server actually return, an error page, a redirect, a file? Follow TCP Stream answers these in seconds where manually clicking through twenty packets and reassembling payload bytes in your head would take much longer and invite mistakes.</p>
+
+          <p>The technique works on any cleartext TCP protocol, not just HTTP. FTP control channels, Telnet sessions, unencrypted SMTP, and plenty of legacy or misconfigured application protocols all read cleanly as a follow stream transcript. For UDP-based protocols there is an equivalent Follow &gt; UDP Stream, and Wireshark also offers Follow &gt; TLS Stream, which will show decrypted content only if you have supplied the session keys or a private key, since TLS is specifically designed to prevent a passive observer from reading the stream without them.</p>
+
+          <p>One caveat worth internalizing early: stream reassembly depends on Wireshark seeing the full conversation. A capture that starts mid-session, drops packets due to capture loss, or only captured one direction of an asymmetric routing path will produce a partial or garbled follow stream. When the reconstructed text looks broken or out of order, check Statistics &gt; Conversations for that stream to confirm you actually have both directions and no obvious gaps before concluding the application behaved strangely.</p>
+        </section>
+
+        <section class="content-section" id="spotting-anomalies">
+          <h2>Spotting Anomalies in a Conversation</h2>
+          <p>Recognizing normal traffic by sight is what makes abnormal traffic jump out, and that pattern recognition is built through repetition, but there are specific signals worth training yourself to notice deliberately. Excessive retransmissions are one of the clearest: Wireshark marks them automatically in black with red text, and its <code>tcp.analysis.retransmission</code> filter will surface every one in a capture. A handful of retransmissions on a long-haul or wireless link is normal network behavior. A dense cluster of retransmissions concentrated on one host or one service usually points to packet loss, an overloaded server, or a middlebox interfering with the connection.</p>
+
+          <p>Unexpected resets deserve the same attention. A TCP RST is a normal way to end a connection when there is no listener on a port or when an application decides to abort abruptly, but a pattern of many RSTs immediately after SYN-ACK, especially spread across many destination ports from one source, is a classic signature of a host being scanned or a scanner actively probing your network. RSTs appearing mid-conversation on connections that were previously healthy can indicate a firewall or IPS intervening, or an application crashing under load.</p>
+
+          <p>Traffic on unusual ports is worth flagging even when the payload looks benign at first glance. A service that should only ever speak on its well-known port suddenly showing up on a high, ephemeral-looking port, or a host making outbound connections to port 4444, 8080, or another commonly abused port with no legitimate business reason on your network, both warrant a closer look at the actual payload rather than trusting the port number as reliable identification. Attackers deliberately choose ports to blend in or evade simple port-based filtering, and Wireshark's protocol dissectors will still correctly identify many protocols regardless of the port they run on, which is a useful cross-check.</p>
+
+          <p>Cleartext credentials showing up in a protocol that should not carry them in the clear is one of the most consequential findings a packet analyst can make. Following an FTP or Telnet stream and seeing a plaintext username and password is unsurprising, since those protocols were never designed with confidentiality. Seeing the same thing inside a protocol that is supposed to be encrypted, such as HTTP Basic Auth over plain port 80 where HTTPS should have been enforced, or an application sending credentials inside an HTTP POST body without TLS, is a real finding worth escalating immediately, not just a curiosity.</p>
+
+          <p>Unusually large or frequent DNS queries are a signal analysts sometimes miss because DNS traffic is so voluminous it becomes background noise. A single host issuing hundreds of DNS queries per minute, queries for long or high-entropy subdomain labels, or DNS responses far larger than a typical A or AAAA record can indicate DNS tunneling, a DGA-based malware family cycling through candidate domains, or data exfiltration encoded into query names. Statistics &gt; DNS or a targeted <code>dns</code> filter combined with sorting by query name length is usually enough to surface this pattern quickly.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> None of these signals is conclusive on its own. Retransmissions can mean bad Wi-Fi, not an attack. Unusual ports can mean a misconfigured but legitimate service. Treat each anomaly as a lead that earns further investigation, not as a verdict, and corroborate with other evidence, such as endpoint logs or threat intel, before drawing a conclusion.
+          </div>
+        </section>
+
+        <section class="content-section" id="pcap-triage-workflow">
+          <h2>A Repeatable PCAP Triage Workflow</h2>
+          <p>Opening an unfamiliar capture and scrolling through the packet list from the top is the least efficient way to start, and it is exactly what beginners tend to do. A repeatable triage workflow gets you from an unknown file to a working hypothesis in a fraction of the time, and it starts at the statistics menu rather than the packet list.</p>
+
+          <p>Statistics &gt; Protocol Hierarchy is the first stop. It breaks down every protocol present in the capture as a percentage of total packets and bytes, nested by layer, so you immediately see the shape of the traffic: is this mostly HTTP, mostly TLS, a lot of DNS relative to its size, any protocols present that seem out of place for the environment the capture came from. A capture that is supposedly internal LAN traffic but shows a meaningful percentage of an unfamiliar or unexpected protocol is worth investigating before anything else.</p>
+
+          <p>Statistics &gt; Conversations comes next, giving you a sortable table of every unique communication pairing, by IP, TCP, or UDP, with packet counts, byte counts, and duration for each. Sorting by bytes or packets descending surfaces your top talkers immediately: the handful of conversations that dominate the capture. Statistics &gt; Endpoints gives the same idea from a single-host perspective rather than a pairwise one, useful for quickly answering "which hosts are even present in this capture" before you start filtering on any of them specifically.</p>
+
+          <p>With top talkers and an overall protocol shape in hand, the next step is drilling into anything that looked anomalous in either view using targeted display filters. If Protocol Hierarchy showed unexpected DNS volume, filter on <code>dns</code> and sort by query name. If Conversations showed one host dominating byte count, filter to that host with <code>ip.addr==</code> and check what protocol is carrying that volume. If a top talker pairing looks like a suspicious scan pattern, apply the SYN-without-ACK filter scoped to that host and count how many distinct destination ports it touched.</p>
+
+          <p>This sequence, overview first, then top talkers, then targeted drill-down, works because it moves from the broadest possible signal to the narrowest as fast as possible, instead of guessing where to look first. It also produces a natural audit trail: you can document exactly which statistics view surfaced the anomaly and which filter confirmed it, which matters when the triage needs to be written up or handed off.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> Save the display filters that led you to a finding as filter buttons (the plus icon at the right of the filter bar) before you move on. Re-running the same triage sequence on the next capture becomes much faster once your most useful filters are one click away instead of retyped from memory.
+          </div>
+        </section>
+
+        <section class="content-section" id="wireshark-vs-other-tools">
+          <h2>Wireshark vs tshark vs tcpdump vs Zeek</h2>
+          <p>Wireshark's GUI is the right tool when you need to explore, when you do not yet know what you are looking for and need to pivot between statistics views, filters, and stream reconstruction interactively. That exploratory strength is also its limitation: it does not scale to automation, to processing hundreds of captures unattended, or to running the same check across a fleet of collected PCAPs without a human clicking through each one.</p>
+
+          <p>tshark is Wireshark's command-line sibling, built on the exact same dissection engine, which means any display filter you have already learned in the GUI works identically in tshark. It is the tool to reach for once you know what you are looking for and need to script it: extracting every DNS query name from a directory of captures, running the same anomaly filter against files pulled from an automated collection pipeline, or feeding filtered fields into another tool as CSV or JSON. What tshark trades away is the interactive exploration; you are typically writing the filter and field extraction up front rather than discovering it by clicking around.</p>
+
+          <p>tcpdump sits a level below both. It is a capture tool first, a display tool second, using the same BPF capture filter syntax discussed earlier in this chapter, and it is available by default on nearly every Linux and Unix system without installing anything extra. It is the tool you reach for when you need to grab traffic quickly on a box that does not have Wireshark installed, or when you need the lightest possible footprint for a live capture on a production system. Its own output formatting is far less rich than Wireshark's, and in practice a common pattern is capturing with tcpdump on a remote or resource-constrained host and then transferring the resulting PCAP file to a workstation for full analysis in Wireshark.</p>
+
+          <p>All three of these tools share one fundamental characteristic: they work with full packet captures, meaning every byte of every packet, which gives maximum fidelity but also means storage and processing cost scale directly with traffic volume. Chapter 7 introduces Zeek, which takes a genuinely different approach to network visibility: instead of storing raw packets, it observes traffic in real time and generates structured, protocol-aware log files, a connection log, an HTTP log, a DNS log, and more, each just the fields that matter for that protocol. That shift, from packets to logs, is what makes Zeek practical at a scale where retaining full PCAP for everything is not feasible, and it is worth previewing here because the two approaches are complementary rather than competing: Zeek logs tell you where to look, and a packet capture of that specific window is what you would open in Wireshark to confirm it.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>Wireshark's three panes, packet list, packet detail, and packet bytes, work together: scan the list, confirm in the detail tree, verify raw encoding in the bytes pane.</li>
+            <li>Capture filters (BPF syntax) discard packets before they are ever written to disk and cannot be undone. Display filters (Wireshark's own syntax) narrow an already-captured file and can always be rewritten.</li>
+            <li>A small core of display filters, address, port, protocol event, and TCP flag filters, chained with and/or, covers most real analyst work.</li>
+            <li>Follow TCP Stream reconstructs a full two-way conversation as readable text and is often the fastest way to understand what actually happened in an exchange.</li>
+            <li>Retransmissions, unexpected resets, traffic on unusual ports, cleartext credentials in the wrong protocol, and abnormal DNS query volume are the anomaly signals worth training yourself to spot.</li>
+            <li>A repeatable triage workflow, Protocol Hierarchy for overview, Conversations and Endpoints for top talkers, then targeted filters to drill in, beats scrolling the packet list from the top.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">You want to capture only traffic to or from 10.0.0.5 on a live interface, and you type <code>ip.addr == 10.0.0.5</code> into the capture filter field before starting the capture. Wireshark rejects it. Why?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. The IP address is formatted incorrectly</button>
+              <button class="kc-option" data-correct="true">B. Capture filters use BPF syntax, not Wireshark's display filter syntax</button>
+              <button class="kc-option" data-correct="false">C. Capture filters cannot filter on IP address, only ports</button>
+              <button class="kc-option" data-correct="false">D. The interface needs to be in promiscuous mode first</button>
+            </div>
+            <div class="kc-answer">Capture filters use Berkeley Packet Filter (BPF) syntax, the same syntax as tcpdump, where the equivalent expression is <code>host 10.0.0.5</code>. The <code>field==value</code> style with double equals and dotted field names is display filter syntax, applied after capture, and is not valid in the capture filter field. This mismatch is one of the most common beginner mistakes.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">You are handed a PCAP and, using Statistics &gt; Conversations, notice one internal host sent SYN packets with no ACK to over 400 distinct destination ports on the same external IP within a few seconds. What does this most likely indicate, and what filter would confirm it?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. A normal HTTPS session; use http.request to confirm</button>
+              <button class="kc-option" data-correct="true">B. A port scan; use tcp.flags.syn==1 and tcp.flags.ack==0 to confirm</button>
+              <button class="kc-option" data-correct="false">C. A DNS tunnel; use dns.qry.name contains to confirm</button>
+              <button class="kc-option" data-correct="false">D. A TLS handshake failure; use tls.alert_message to confirm</button>
+            </div>
+            <div class="kc-answer">Many SYNs with no completed handshake against a large number of distinct ports on one destination in a short window is the textbook signature of a port scan. Filtering on <code>tcp.flags.syn==1 and tcp.flags.ack==0</code> scoped to that host pairing isolates exactly these connection attempts and lets you count the distinct ports touched to confirm the pattern.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">You need to check DNS query patterns across 300 PCAP files collected overnight from multiple sensors, looking for any host issuing an abnormal volume of queries. What is the most practical approach?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Open each file in the Wireshark GUI one at a time and check Statistics &gt; DNS</button>
+              <button class="kc-option" data-correct="true">B. Script the extraction with tshark using the same dns filter logic, run across all files</button>
+              <button class="kc-option" data-correct="false">C. Use tcpdump to re-capture the same traffic with a DNS-only capture filter</button>
+              <button class="kc-option" data-correct="false">D. Switch entirely to Zeek and discard the PCAP files</button>
+            </div>
+            <div class="kc-answer">tshark shares Wireshark's dissection engine and display filter syntax, so a DNS query filter already validated in the GUI can be scripted against 300 files without a human opening each one. Opening each file manually does not scale. tcpdump cannot re-capture traffic that already happened. Zeek is a legitimate long-term visibility strategy but does not help with PCAP files you already have in hand right now.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="04-tls-in-practice.html" class="chapter-nav-prev">← TLS in Practice</a>
+          <a href="06-abused-protocols.html" class="chapter-nav-next">Protocols Attackers Abuse →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Networking</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('05', 6));</script>
+</body>
+</html>

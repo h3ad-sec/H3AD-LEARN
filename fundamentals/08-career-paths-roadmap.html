@@ -209,9 +209,9 @@
           <h2>Suggested Study Order Through H3AD-LEARN</h2>
           <p>You do not need to pick exactly one track today and never look at the others. Most people entering this field sample two or three tracks in their first couple of years before settling into one, and the fundamentals plus a broad first pass through the live modules is what makes that sampling possible without starting over each time. What follows is a recommended order, not a rigid requirement: adjust it based on which track from this chapter pulled at you the most.</p>
 
-          <p>After finishing this Fundamentals module, the most efficient next step for almost everyone is the <a href="../threat-hunting/index.html">Threat Hunting module</a>, because hunting methodology reinforces and extends the kill chain and attack-pattern thinking you just built, and it is useful regardless of which track you eventually land in. From there, <a href="../threat-intel/index.html">Threat Intelligence</a> deepens the actor and campaign context that makes hunts and detections sharper, and <a href="../lolbas/index.html">LOLBAS</a> gives you a deep, practical reference for one of the most common blind spots in both hunting and detection. <a href="../cloud-security/index.html">Cloud Security</a>, also live, is worth prioritizing early if your target environment or target employer is cloud-first, since on-prem assumptions baked into classic SOC training do not transfer cleanly.</p>
+          <p>After finishing this Fundamentals module, the most efficient next step for almost everyone is the <a href="../networking/index.html">Networking module</a>: it is foundational in the same way this one is, and nearly every other domain on this platform assumes the packet-level and protocol literacy it builds. From there, <a href="../threat-hunting/index.html">Threat Hunting</a> reinforces and extends the kill chain and attack-pattern thinking you just built, and it is useful regardless of which track you eventually land in. <a href="../threat-intel/index.html">Threat Intelligence</a> deepens the actor and campaign context that makes hunts and detections sharper, and <a href="../lolbas/index.html">LOLBAS</a> gives you a deep, practical reference for one of the most common blind spots in both hunting and detection. <a href="../cloud-security/index.html">Cloud Security</a>, also live, is worth prioritizing early if your target environment or target employer is cloud-first, since on-prem assumptions baked into classic SOC training do not transfer cleanly.</p>
 
-          <p>Beyond the five modules currently live, H3AD-LEARN has a set of additional domains planned: Networking, Windows Internals, Linux, SOC Operations (a deeper standalone module beyond the basics chapter you just read), Detection Engineering, Incident Response, Digital Forensics, Malware Analysis, and AI in Security. Watch for these as they ship; several of them, especially Networking and Windows Internals, are prerequisite-adjacent for almost every track above even though they are not framed as prerequisites here.</p>
+          <p>Beyond the six modules currently live, H3AD-LEARN has a set of additional domains planned: Windows Internals, Linux, SOC Operations (a deeper standalone module beyond the basics chapter you just read), Detection Engineering, Incident Response, Digital Forensics, Malware Analysis, and AI in Security. Watch for these as they ship; several of them, especially Windows Internals, are prerequisite-adjacent for almost every track above even though they are not framed as prerequisites here.</p>
 
           <p>One module deserves a separate mention regardless of which track you are aiming for: <a href="../interview-prep/index.html">Interview Prep</a> is live now and is worth using once you are actually preparing to interview, not before. It is built around scenario-based questions across domains rather than trivia recall, which mirrors how security interviews are actually run at most competent employers.</p>
 
@@ -223,11 +223,11 @@
                 <tr><th>If you want to become</th><th>Study these modules, in order</th></tr>
               </thead>
               <tbody>
-                <tr><td>SOC Analyst</td><td>Fundamentals → SOC Operations (planned) → <a href="../threat-hunting/index.html">Threat Hunting</a> → <a href="../threat-intel/index.html">Threat Intelligence</a></td></tr>
-                <tr><td>Threat Hunter / Detection Engineer</td><td>Fundamentals → <a href="../threat-hunting/index.html">Threat Hunting</a> → <a href="../lolbas/index.html">LOLBAS</a> → Detection Engineering (planned)</td></tr>
-                <tr><td>CTI Analyst</td><td>Fundamentals → <a href="../threat-intel/index.html">Threat Intelligence</a> → <a href="../threat-hunting/index.html">Threat Hunting</a> → <a href="../lolbas/index.html">LOLBAS</a></td></tr>
-                <tr><td>Incident Responder / Forensics</td><td>Fundamentals → <a href="../threat-hunting/index.html">Threat Hunting</a> → Incident Response (planned) → Digital Forensics (planned)</td></tr>
-                <tr><td>Cloud Security Analyst</td><td>Fundamentals → <a href="../cloud-security/index.html">Cloud Security</a> → <a href="../threat-hunting/index.html">Threat Hunting</a> → <a href="../threat-intel/index.html">Threat Intelligence</a></td></tr>
+                <tr><td>SOC Analyst</td><td>Fundamentals → <a href="../networking/index.html">Networking</a> → SOC Operations (planned) → <a href="../threat-hunting/index.html">Threat Hunting</a> → <a href="../threat-intel/index.html">Threat Intelligence</a></td></tr>
+                <tr><td>Threat Hunter / Detection Engineer</td><td>Fundamentals → <a href="../networking/index.html">Networking</a> → <a href="../threat-hunting/index.html">Threat Hunting</a> → <a href="../lolbas/index.html">LOLBAS</a> → Detection Engineering (planned)</td></tr>
+                <tr><td>CTI Analyst</td><td>Fundamentals → <a href="../networking/index.html">Networking</a> → <a href="../threat-intel/index.html">Threat Intelligence</a> → <a href="../threat-hunting/index.html">Threat Hunting</a> → <a href="../lolbas/index.html">LOLBAS</a></td></tr>
+                <tr><td>Incident Responder / Forensics</td><td>Fundamentals → <a href="../networking/index.html">Networking</a> → <a href="../threat-hunting/index.html">Threat Hunting</a> → Incident Response (planned) → Digital Forensics (planned)</td></tr>
+                <tr><td>Cloud Security Analyst</td><td>Fundamentals → <a href="../networking/index.html">Networking</a> → <a href="../cloud-security/index.html">Cloud Security</a> → <a href="../threat-hunting/index.html">Threat Hunting</a> → <a href="../threat-intel/index.html">Threat Intelligence</a></td></tr>
               </tbody>
             </table>
           </div>
@@ -245,7 +245,7 @@
             <li>Threat hunting and detection engineering are proactive: hunters test hypotheses about what would slip past existing alerts, and detection engineers turn findings into durable rules.</li>
             <li>CTI analysts research actors and campaigns and produce reporting that other teams act on; writing and communication matter as much as technical research.</li>
             <li>Incident response and forensics are reactive by nature, focused on containment, eradication, recovery, and evidence handling; H3AD-LEARN's dedicated modules for this track are planned but not yet live.</li>
-            <li>A reasonable next step after this module is Threat Hunting, followed by Threat Intelligence, LOLBAS, and Cloud Security, with Interview Prep used once you are actually preparing to interview.</li>
+            <li>A reasonable next step after this module is Networking, followed by Threat Hunting, Threat Intelligence, LOLBAS, and Cloud Security, with Interview Prep used once you are actually preparing to interview.</li>
           </ul>
         </div>
 
@@ -276,14 +276,14 @@
           </div>
 
           <div class="kc-question">
-            <p class="kc-prompt">Based on the study order table, an analyst who wants to become a CTI Analyst should study which module immediately after Fundamentals?</p>
+            <p class="kc-prompt">Based on the study order table, an analyst who wants to become a CTI Analyst should study which module right after Fundamentals and Networking?</p>
             <div class="kc-options">
               <button class="kc-option" data-correct="false">A. LOLBAS</button>
               <button class="kc-option" data-correct="false">B. Cloud Security</button>
               <button class="kc-option" data-correct="true">C. Threat Intelligence</button>
               <button class="kc-option" data-correct="false">D. Interview Prep</button>
             </div>
-            <div class="kc-answer">The table maps the CTI Analyst track as Fundamentals, then Threat Intelligence, then Threat Hunting, then LOLBAS. Threat Intelligence is the direct next step because it builds on the intelligence-cycle and actor-profiling concepts this chapter already introduced. Interview Prep comes last, once the analyst is actually preparing to interview.</div>
+            <div class="kc-answer">The table maps the CTI Analyst track as Fundamentals, then Networking, then Threat Intelligence, then Threat Hunting, then LOLBAS. Threat Intelligence comes right after the two foundational modules because it builds on the intelligence-cycle and actor-profiling concepts this chapter already introduced. Interview Prep comes last, once the analyst is actually preparing to interview.</div>
           </div>
         </div>
 

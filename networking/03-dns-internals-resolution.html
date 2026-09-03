@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="03">
+  <meta name="module-id" content="networking">
+  <title>DNS Internals &amp; Resolution · Networking · H3AD-LEARN</title>
+  <meta name="description" content="Walks through the DNS resolution path, the record types security teams rely on, and why DNS remains one of the most abused protocols on any network.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/networking/03-dns-internals-resolution.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/networking/03-dns-internals-resolution.html">
+  <meta property="og:title" content="DNS Internals &amp; Resolution · Networking · H3AD-LEARN">
+  <meta property="og:description" content="Walks through the DNS resolution path, the record types security teams rely on, and why DNS remains one of the most abused protocols on any network.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="DNS Internals &amp; Resolution · Networking · H3AD-LEARN">
+  <meta name="twitter:description" content="Walks through the DNS resolution path, the record types security teams rely on, and why DNS remains one of the most abused protocols on any network.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "DNS Internals & Resolution",
+    "description": "Walks through the DNS resolution path, the record types security teams rely on, and why DNS remains one of the most abused protocols on any network.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/networking/03-dns-internals-resolution.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Networking",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/networking/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://h3ad-sec.github.io/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "H3AD-LEARN",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Networking",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/networking/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "DNS Internals & Resolution",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/networking/03-dns-internals-resolution.html"
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">DNS INTERNALS & RESOLUTION</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub nav-current">&#8623; NETWORKING</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Networking</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 03 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 03</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-beginner">BEGINNER</span>
+          </div>
+          <h1 class="chapter-title">DNS Internals & Resolution</h1>
+          <p class="chapter-intro">DNS is the network's phone book, and like a phone book nobody thinks about it until it stops working. Every browser tab, every API call, every piece of malware phoning home starts with a name that has to be turned into an address. That translation happens dozens of times a minute on any given host, almost always unnoticed and almost never inspected. Attackers know this. A protocol that runs constantly, gets waved through most firewalls, and is rarely logged in detail is exactly the kind of protocol worth abusing, which is why DNS shows up in reconnaissance, delivery, command and control, and exfiltration in roughly equal measure.</p>
+          <div class="chapter-tags">
+            <span class="tag">DNS</span>
+            <span class="tag">resolution</span>
+            <span class="tag">record types</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="dns-hierarchy">
+          <h2>The DNS Namespace Hierarchy</h2>
+          <p>The DNS namespace is a tree, not a flat list, and that structure is what lets a single global system manage billions of names without any one party owning all of them. At the top of the tree sits the root, represented by an empty, unwritten label. Every fully qualified domain name technically ends in a trailing dot that stands for that root, even though almost nobody types it: <code>www.example.com.</code> is the strict form of <code>www.example.com</code>. Below the root come the top-level domains (TLDs): generic ones like <code>.com</code>, <code>.org</code>, and <code>.net</code>, country-code ones like <code>.uk</code> or <code>.in</code>, and newer sponsored or specialty TLDs like <code>.bank</code> or <code>.cloud</code>.</p>
+
+          <p>Read a domain name right to left and you are walking down the tree. In <code>mail.example.com</code>, <code>com</code> is the TLD, <code>example</code> is the second-level domain registered by an organization, and <code>mail</code> is a subdomain (technically a host name within that domain, though the terms get used loosely). An organization that controls <code>example.com</code> can create as many subdomains as it wants underneath it, delegate parts of that space to other teams or providers, and none of that requires touching the TLD registry again. This is delegation, and it is the mechanism that makes DNS scale: authority for a piece of the namespace is handed down the tree, level by level.</p>
+
+          <p>Root servers sit at the very top of that delegation chain. There are 13 logical root server identities, lettered A through M, operated by a mix of universities, companies, and government-affiliated organizations. In practice each identity is served from hundreds of physical machines worldwide using anycast routing, so a query to a root server usually lands on a nearby instance rather than crossing an ocean. Root servers do not know the IP address for any given domain. What they know is which servers are authoritative for each TLD, and that is the only answer they hand back.</p>
+
+          <p>TLD servers are the next link. A TLD server for <code>.com</code> does not know the address for <code>example.com</code> either, but it knows which name servers are authoritative for <code>example.com</code> specifically, because that information was registered when the domain was purchased. This is where NS records come into play: the registrar publishes NS records at the TLD level pointing to the domain's authoritative name servers, which is what makes the final hop of delegation possible. Get those NS records wrong and the domain becomes unreachable, regardless of how correctly everything below it is configured.</p>
+
+          <p>Authoritative name servers for the domain itself sit at the bottom of the delegation chain and hold the actual answers: the A record for the web server, the MX record for mail, the TXT records for verification and policy. This is the only tier in the whole hierarchy that has ground truth. Everything above it, root and TLD, exists purely to point a resolver toward the next server down, one level at a time, until it reaches the zone that actually knows the answer.</p>
+        </section>
+
+        <section class="content-section" id="resolution-path">
+          <h2>The Full DNS Resolution Path</h2>
+          <p>Walk through what happens when a laptop looks up <code>www.h3ad-sec.com</code> for the first time with an empty cache. The application asks the operating system's stub resolver, a lightweight client with no real intelligence of its own, to resolve the name. The stub resolver does not talk to the internet directly. It forwards the query to a recursive resolver, which might be the organization's internal DNS server, an ISP resolver, or a public service like 1.1.1.1 or 8.8.8.8. From here on, the recursive resolver does all the real work on the client's behalf.</p>
+
+          <p>The recursive resolver first checks its own cache. Nothing there, so it starts at the top: it asks a root server where to find answers for <code>.com</code>. The root server does not know the address for <code>www.h3ad-sec.com</code>, but it returns a referral: the addresses of the TLD servers responsible for <code>.com</code>. The recursive resolver then queries one of those TLD servers, asking about <code>h3ad-sec.com</code>. The TLD server also does not have the final answer, but it returns the NS records for <code>h3ad-sec.com</code>, pointing to the domain's authoritative name servers.</p>
+
+          <p>Finally the recursive resolver queries one of those authoritative servers directly, asking for the A record of <code>www.h3ad-sec.com</code>. This time it gets a real answer: an IP address, along with a Time To Live (TTL) value telling the resolver how long that answer is valid, commonly somewhere between five minutes and a day depending on how the zone is configured. The recursive resolver caches the answer for that TTL, hands the IP address back to the stub resolver, and the stub resolver hands it to the application, which finally opens a connection.</p>
+
+          <p>Every subsequent lookup for the same name, from any client using that same recursive resolver, is served straight from cache until the TTL expires, with no round trip to root, TLD, or authoritative servers at all. This is why a full walk down the hierarchy, sometimes called an iterative or referral chain, is the exception rather than the rule in day-to-day traffic. Most queries an analyst sees in logs are cache hits, and the ones that trigger a fresh recursive lookup are disproportionately interesting: first contact with a new domain, or a domain deliberately configured with a very short TTL.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> Short TTLs are not inherently suspicious; CDNs and load-balanced services use them legitimately to shift traffic quickly. But a very short TTL combined with an IP address that changes on every lookup is a pattern worth recognizing, because it is also how fast-flux C2 infrastructure behaves. Context, not the TTL value alone, is what separates the two.
+          </div>
+        </section>
+
+        <section class="content-section" id="record-types">
+          <h2>Record Types That Matter for Security Work</h2>
+          <p>A DNS zone is a collection of resource records, and while there are dozens of record types defined, a small set of them account for almost everything an analyst will encounter during investigations. Knowing what each type is for, and what it reveals when it shows up somewhere unexpected, is basic DNS literacy for anyone doing detection or IR work.</p>
+
+          <p>A and AAAA records map a name to an IPv4 or IPv6 address respectively and are the most common record an analyst pivots on: given a suspicious domain, resolving its A record is usually the first step toward blocklisting or further infrastructure analysis. CNAME records alias one name to another rather than to an address, and are frequently abused in phishing infrastructure, where a lookalike domain is CNAMEd to infrastructure hosted somewhere else entirely, letting the attacker rotate backend hosting without touching the domain the victim sees.</p>
+
+          <p>MX records specify which mail servers accept email for a domain and are a standard early step in email-based investigations: confirming where a domain's mail actually routes helps validate or debunk a spoofed sender. NS records, already covered in the hierarchy discussion, matter for a different reason during investigations: a domain's NS records reveal which DNS provider or hosting infrastructure is behind it, which is often a stronger pivot point than the IP address itself, since attackers reuse providers and patterns across campaigns more consistently than they reuse infrastructure.</p>
+
+          <p>PTR records do reverse lookups, mapping an IP address back to a name, and are stored in the special <code>in-addr.arpa</code> (IPv4) or <code>ip6.arpa</code> (IPv6) zones. PTR records are useful in investigations for sanity-checking whether an IP has a legitimate-looking hostname attached to it, though their absence is common and not itself a red flag, since PTR records are optional and many legitimate hosts do not have one configured. TXT records are free-form text fields originally meant for arbitrary notes, and have since become the backbone of email authentication and domain verification: SPF records list which servers are authorized to send mail for a domain, DKIM public keys live in TXT records under a selector subdomain, and DMARC policy is published as a TXT record at <code>_dmarc.domain.com</code>. TXT records also get abused for DNS tunneling, covered later in this chapter, because they can carry more arbitrary data than most other record types.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Record Type</th><th>Purpose</th><th>Security Relevance</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>A</td><td>Maps a name to an IPv4 address</td><td>Primary pivot point for blocklisting and infrastructure lookups</td></tr>
+                <tr><td>AAAA</td><td>Maps a name to an IPv6 address</td><td>Often under-monitored; IPv6-only C2 can evade IPv4-focused tooling</td></tr>
+                <tr><td>CNAME</td><td>Aliases one name to another</td><td>Used to front phishing infrastructure behind lookalike domains</td></tr>
+                <tr><td>MX</td><td>Specifies mail servers for a domain</td><td>Validates or debunks spoofed sender infrastructure claims</td></tr>
+                <tr><td>NS</td><td>Delegates authority to name servers</td><td>Reveals hosting/DNS provider; a stronger campaign pivot than IPs</td></tr>
+                <tr><td>PTR</td><td>Reverse-maps an IP to a name</td><td>Sanity-checks IP legitimacy; absence is common and not conclusive</td></tr>
+                <tr><td>TXT</td><td>Free-form text data</td><td>Hosts SPF/DKIM/DMARC policy; also abused for DNS tunneling</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="dns-security-mechanisms">
+          <h2>Why Plain DNS Is Unauthenticated and Unencrypted</h2>
+          <p>Classic DNS, as designed in the early 1980s, has no built-in authentication and no built-in encryption. A resolver has no cryptographic way to verify that a response actually came from the authoritative server it asked, and no way to tell whether the response was altered in transit. Queries and answers travel over plain UDP on port 53 by default, in the clear, readable by anything positioned on the network path. This was a reasonable tradeoff for a protocol built for speed on a much smaller, more trusted internet. It is a serious liability on today's internet.</p>
+
+          <p>The lack of authentication enables cache poisoning and spoofing attacks: an attacker who can guess or intercept a query in time can inject a forged response before the legitimate authoritative answer arrives, causing the resolver to cache a malicious IP address for a legitimate name. DNSSEC (DNS Security Extensions) was built to close this specific gap. It adds a chain of cryptographic signatures, RRSIG records signing the actual data and DNSKEY records publishing the public keys, anchored by DS records at each parent zone that vouch for the child zone's key. A resolver that validates DNSSEC can confirm a response genuinely came from the authoritative source and was not tampered with in transit.</p>
+
+          <p>It is worth being precise about what DNSSEC does and does not do. It provides origin authentication and data integrity. It does not provide confidentiality. A DNSSEC-signed query is still sent in plaintext; anyone monitoring the wire can still see exactly which domain was requested, they just cannot forge the answer undetected. Confidentiality is a separate problem, addressed by a different set of protocols.</p>
+
+          <p>DNS-over-HTTPS (DoH) and DNS-over-TLS (DoT) encrypt the query and response in transit, wrapping DNS traffic inside TLS so that a network observer can no longer read which domain is being requested. DoT runs on its own dedicated port, 853, which makes it straightforward to identify and, if a network operator chooses, block at the perimeter. DoH is deliberately harder to distinguish: it rides over standard HTTPS on port 443, often to the same infrastructure that serves ordinary web traffic, which means it blends into traffic that cannot be blocked wholesale without breaking the internet for that host.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> DoH's blend-in-with-HTTPS design is a genuine security tradeoff, not just a privacy feature. Enterprise DNS monitoring, filtering, and sinkholing largely depend on being able to see and intercept plaintext DNS traffic on port 53. A browser or piece of malware configured to use a public DoH resolver directly can route around all of that visibility, which is why many organizations explicitly block known public DoH endpoints or force DNS through an internal resolver at the network layer.
+          </div>
+        </section>
+
+        <section class="content-section" id="dns-abuse">
+          <h2>How Attackers Abuse DNS</h2>
+          <p>DNS tunneling encodes arbitrary data inside DNS queries and responses, using the protocol as a covert channel rather than for name resolution. A compromised host encodes stolen data into a long subdomain label, for example <code>c2guhq83jd.tunnel.attacker-domain.com</code>, and queries it. The attacker's authoritative name server for <code>attacker-domain.com</code> receives that query, decodes the payload from the subdomain, and can respond with instructions encoded in a TXT or NULL record. Tools like iodine and dnscat2 automate this into a full two-way tunnel capable of carrying C2 traffic or exfiltrating files, entirely over what looks, at a glance, like ordinary DNS resolution. It works because DNS is almost universally permitted outbound through firewalls, even in networks that lock down nearly everything else.</p>
+
+          <p>Domain generation algorithms (DGAs) solve a different problem for attackers: resilience against domain blocklisting and takedown. Rather than hardcoding a single C2 domain that defenders can identify and block, malware runs an algorithm, often seeded by the current date, to generate a large list of pseudo-random candidate domain names each day. The malware tries resolving each candidate in sequence; the attacker only needs to register one of them ahead of time for that day's C2 channel to come alive. Families like Conficker popularized this technique, and it remains common because it defeats static blocklists: defenders would need to predict and pre-register or block thousands of unregistered candidate domains to fully neutralize it.</p>
+
+          <p>Fast-flux DNS rotates the infrastructure behind a domain name rapidly to resist takedown and blocklisting at the IP layer. In single-flux, the A record for a malicious domain is set with a very short TTL and returns a different IP address, often from a large pool of compromised hosts acting as reverse proxies, every few minutes. In double-flux, the attacker rotates the authoritative NS records too, so even the name servers answering for the domain keep changing. The effect is the same either way: by the time a defender identifies and blocks one IP or name server, the domain has already moved on to another, keeping the actual backend C2 infrastructure hidden behind a constantly shifting front layer.</p>
+        </section>
+
+        <section class="content-section" id="dns-in-detection">
+          <h2>DNS as High-Value Telemetry</h2>
+          <p>DNS query logs are one of the best trades in a SOC's data budget: cheap to collect relative to full packet capture, present on essentially every network segment, and touched by nearly every stage of an intrusion. Reconnaissance often starts with DNS enumeration. Delivery frequently resolves a malicious domain before a payload lands. C2 beacons resolve their callback domain on a schedule. Exfiltration over DNS tunneling is, by definition, entirely DNS traffic. A single well-instrumented DNS log source gives visibility into behavior that would otherwise require correlating several other data sources.</p>
+
+          <p>High entropy subdomains are one of the clearest signals to hunt for. Legitimate subdomains tend to be short, readable, and purposeful: <code>mail</code>, <code>api</code>, <code>vpn</code>. A subdomain that looks like <code>x7f2kq9zpqm3n.evil-domain.com</code> is a strong indicator of either DGA-generated C2 or DNS tunneling encoding data into the label, and entropy scoring over subdomain strings is a standard, relatively cheap detection technique.</p>
+
+          <p>NXDOMAIN spikes deserve attention for a related reason. When a DGA cycles through hundreds of candidate domains looking for the one the attacker actually registered, nearly all of those lookups fail with NXDOMAIN (no such domain). A single host generating an unusual burst of NXDOMAIN responses, especially for machine-looking names, is a textbook DGA fingerprint that is much harder for malware to disguise than the eventual successful C2 connection itself.</p>
+
+          <p>Newly registered domains (NRDs) are disproportionately represented in phishing and C2 infrastructure, simply because attackers frequently register infrastructure shortly before using it rather than maintaining aged domains. A domain queried by an internal host within days or hours of its registration date is worth extra scrutiny even if nothing else about it looks obviously malicious yet, since reputation-based blocklists have not had time to catch up with brand-new registrations.</p>
+
+          <p>Finally, unusual query volume from a single host is a coarse but effective signal. A workstation that normally issues a few hundred DNS queries a day suddenly issuing tens of thousands to the same domain is either broken software or a tunneling channel moving data out in small, steady chunks. None of these four signals is conclusive on its own, and each produces false positives in isolation, but layered together and tuned against a baseline of normal traffic, they turn a cheap log source into one of the more reliable early-warning systems available to a SOC.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>DNS is a hierarchical tree: root, then TLDs, then second-level domains, then subdomains, with authority delegated one level at a time via NS records.</li>
+            <li>A full resolution walks stub resolver to recursive resolver to root to TLD to authoritative server, but caching and TTLs mean most real-world queries are served from cache without that full chain running.</li>
+            <li>A, AAAA, CNAME, MX, NS, PTR, and TXT each carry distinct security relevance; TXT in particular hosts SPF, DKIM, and DMARC and is also abused for tunneling.</li>
+            <li>Plain DNS has no authentication or encryption. DNSSEC adds origin authentication and integrity, not confidentiality; DoH and DoT add encryption but DoH's blend into HTTPS undermines enterprise-level monitoring.</li>
+            <li>DNS tunneling, DGAs, and fast-flux are three distinct abuse techniques serving exfiltration/C2, blocklist evasion, and infrastructure resilience respectively.</li>
+            <li>High entropy subdomains, NXDOMAIN spikes, newly registered domains, and unusual per-host query volume are four cheap, high-value signals to hunt in DNS logs.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A recursive resolver queries a root server for <code>www.example.com</code>. What does the root server return?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. The A record for www.example.com</button>
+              <button class="kc-option" data-correct="true">B. A referral to the TLD servers authoritative for .com</button>
+              <button class="kc-option" data-correct="false">C. The NS records for example.com directly</button>
+              <button class="kc-option" data-correct="false">D. A cached answer from a previous lookup</button>
+            </div>
+            <div class="kc-answer">Root servers do not hold answers for individual domains. They hold referrals pointing to the TLD servers responsible for each top-level domain. The recursive resolver takes that referral, queries the appropriate TLD server next, and only reaches the domain's own authoritative servers after that second hop.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A SOC analyst notices a single host generating thousands of NXDOMAIN responses for machine-generated-looking domain names within an hour. This is most consistent with:</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. A misconfigured MX record</button>
+              <button class="kc-option" data-correct="false">B. Normal DNSSEC validation traffic</button>
+              <button class="kc-option" data-correct="true">C. Malware running a domain generation algorithm</button>
+              <button class="kc-option" data-correct="false">D. A fast-flux authoritative name server rotating IPs</button>
+            </div>
+            <div class="kc-answer">A DGA generates many pseudo-random candidate domains and queries them in sequence, and since the attacker has only registered one, the overwhelming majority resolve to NXDOMAIN. This burst pattern, especially paired with high entropy, machine-looking names, is a classic DGA fingerprint and is generally easier to catch than the single successful C2 connection that eventually goes through.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">An organization wants to preserve its ability to monitor and filter DNS traffic at the network perimeter while still adopting encrypted DNS internally. Which statement best reflects the relevant tradeoff?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. DNSSEC alone fully solves this by encrypting all query traffic</button>
+              <button class="kc-option" data-correct="false">B. DoT and DoH are functionally identical for monitoring purposes</button>
+              <button class="kc-option" data-correct="true">C. DoT runs on a distinct port and is easier to identify and control than DoH, which blends into ordinary HTTPS traffic</button>
+              <button class="kc-option" data-correct="false">D. Plain DNS on port 53 is already encrypted by default in modern resolvers</button>
+            </div>
+            <div class="kc-answer">DNSSEC provides authentication and integrity, not encryption, so it does not affect monitoring at all. DoT uses dedicated port 853, making it comparatively easy to identify and, if desired, block or force through an internal resolver. DoH deliberately rides over standard HTTPS on port 443, often to the same endpoints as regular web traffic, making it far harder to distinguish and control without breaking other HTTPS traffic.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="02-routing-switching-vlans.html" class="chapter-nav-prev">← Routing, Switching & VLANs</a>
+          <a href="04-tls-in-practice.html" class="chapter-nav-next">TLS in Practice →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Networking</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('03', 6));</script>
+</body>
+</html>

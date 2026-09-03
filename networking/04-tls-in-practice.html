@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="04">
+  <meta name="module-id" content="networking">
+  <title>TLS in Practice: Handshakes, Certificates & Interception · Networking · H3AD-LEARN</title>
+  <meta name="description" content="TLS on the wire: what a handshake looks like in a packet capture, SNI exposure, certificate validation, TLS interception, and spotting downgrade attacks.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/networking/04-tls-in-practice.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/networking/04-tls-in-practice.html">
+  <meta property="og:title" content="TLS in Practice: Handshakes, Certificates & Interception · Networking · H3AD-LEARN">
+  <meta property="og:description" content="TLS on the wire: what a handshake looks like in a packet capture, SNI exposure, certificate validation, TLS interception, and spotting downgrade attacks.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="TLS in Practice: Handshakes, Certificates & Interception · Networking · H3AD-LEARN">
+  <meta name="twitter:description" content="TLS on the wire: what a handshake looks like in a packet capture, SNI exposure, certificate validation, TLS interception, and spotting downgrade attacks.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "TLS in Practice: Handshakes, Certificates & Interception",
+    "description": "TLS on the wire: what a handshake looks like in a packet capture, SNI exposure, certificate validation, TLS interception, and spotting downgrade attacks.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/networking/04-tls-in-practice.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Networking",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/networking/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://h3ad-sec.github.io/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "H3AD-LEARN",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Networking",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/networking/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "TLS in Practice: Handshakes, Certificates & Interception",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/networking/04-tls-in-practice.html"
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">TLS IN PRACTICE</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub nav-current">&#8623; NETWORKING</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Networking</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 04 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 04</span>
+            <span class="badge-time muted mono">35 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">TLS in Practice: Handshakes, Certificates & Interception</h1>
+          <p class="chapter-intro">If you have worked through the <a href="../fundamentals/index.html">Fundamentals module</a>, you already know how symmetric and asymmetric encryption work, what a hash function does, and roughly how a TLS handshake establishes a shared key. That is the math. This chapter is not about the math. It is about what TLS actually looks like when you open a packet capture: which fields are visible, which are opaque, and what an analyst can pull out of a TLS session without ever touching a private key. That distinction, reading TLS from the wire rather than deriving it from first principles, is a different skill and one you will use constantly in triage, threat hunting, and network monitoring.</p>
+          <div class="chapter-tags">
+            <span class="tag">TLS handshake</span>
+            <span class="tag">SNI</span>
+            <span class="tag">interception</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="tls-handshake-on-wire">
+          <h2>The TLS 1.3 Handshake as Captured Packets</h2>
+          <p>Open a packet capture of an HTTPS connection and the first thing you will see, before any encryption applies, is a ClientHello. This message travels in plaintext and it is unusually information-rich for something sent before any key agreement has happened. It carries the TLS versions the client supports, the list of cipher suites it is willing to negotiate, a client-generated random value, the elliptic curve groups it supports, and critically, a key_share extension containing the client's ephemeral public key for the key exchange. It also carries the Server Name Indication field, which names the exact hostname the client is trying to reach. All of this is readable in Wireshark with zero decryption.</p>
+
+          <p>The server answers with a ServerHello, also sent in plaintext in TLS 1.3, which is smaller than the ClientHello. It confirms the negotiated TLS version, selects one cipher suite from the client's offered list, sends its own random value, and returns its own key_share so both sides can derive the same handshake secret independently. At this exact point in the capture, both endpoints can compute the handshake traffic keys, and every TLS record from here forward changes character.</p>
+
+          <p>This is the detail that trips up analysts moving from TLS 1.2 capture habits to TLS 1.3: in TLS 1.2, the server's certificate travels in a clearly labeled, plaintext Certificate message you can click open in Wireshark. In TLS 1.3, the Certificate, CertificateVerify, and server Finished messages are encrypted under the handshake traffic secret immediately after ServerHello, and for privacy reasons their outer record header is deliberately mislabeled as type 23, the same type used for application data. Without the session keys loaded into Wireshark, every one of these records just shows up as "Application Data," and you cannot tell a handshake-finish message from actual payload by looking at the record type alone.</p>
+
+          <p>Once both sides send their Finished messages, the handshake is complete and the connection moves into the application data phase proper, using a separate set of application traffic keys derived from the handshake. From this point, every record on the wire is opaque ciphertext unless you have the keys, whether through a server-side key log file, a debugging build of the browser, or a TLS-terminating proxy. A full 1-RTT TLS 1.3 handshake, ClientHello, ServerHello plus the encrypted flight, and both Finished messages, typically completes in a single round trip, which is why TLS 1.3 connections establish visibly faster in a capture than TLS 1.2 ones did.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Message</th><th>Sender</th><th>Visible in a Capture Without Keys</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>ClientHello</td><td>Client</td><td>Yes, fully plaintext including SNI and cipher list</td></tr>
+                <tr><td>ServerHello</td><td>Server</td><td>Yes, fully plaintext including selected cipher</td></tr>
+                <tr><td>EncryptedExtensions, Certificate, CertificateVerify</td><td>Server</td><td>No, shown only as "Application Data"</td></tr>
+                <tr><td>Finished (server and client)</td><td>Both</td><td>No, shown only as "Application Data"</td></tr>
+                <tr><td>Application data records</td><td>Both</td><td>No, opaque ciphertext</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="sni-certificate-validation">
+          <h2>SNI and Certificate Validation</h2>
+          <p>Server Name Indication exists because a single IP address routinely hosts many different HTTPS sites behind a load balancer or CDN. Before the server can pick which certificate to present, it needs to know which hostname the client is trying to reach, and it needs that information before the TLS session key exists to encrypt anything. The result is a genuinely awkward property of an otherwise encrypted protocol: the exact domain name a user is connecting to sits in the clear in the very first packet of the handshake. Encrypted Client Hello, a newer extension still gaining deployment, hides SNI behind an additional layer of encryption, but it is not yet the default on most of the web, so for the majority of traffic today, SNI remains one of the most reliable plaintext fields a network defender has.</p>
+
+          <p>That plaintext visibility cuts both ways operationally. A proxy, firewall, or DNS-based filtering product can enforce policy on SNI alone, blocking a category of sites without ever decrypting the session. A SOC analyst reviewing full packet capture can pivot on SNI to see every TLS connection made to a suspicious domain, correlate it against DNS logs, and build a timeline, all without needing decryption keys. The tradeoff is that anyone else on the network path, an ISP, a coffee shop hotspot operator, a nation-state intercept point, gets the same visibility into which sites a user visits, even though the content of those visits stays encrypted.</p>
+
+          <p>Certificate validation is the client-side check that determines whether to trust the identity the server just presented. Chain validation walks from the server's leaf certificate up through any intermediate certificates to a root certificate the client already trusts, verifying each signature in the chain along the way. If that chain does not terminate at a certificate already sitting in the client's trust store, validation fails outright, which is exactly what happens with a self-signed certificate nobody has explicitly trusted.</p>
+
+          <p>Beyond the signature chain, the client checks that the certificate's validity window, its notBefore and notAfter dates, covers the current time. It checks that the hostname the client requested (the same one that went out in SNI) appears in the certificate's Subject Alternative Name extension; the older practice of matching against the Common Name field is deprecated and modern browsers ignore CN entirely. And it checks revocation status, either by querying a Certificate Revocation List, checking with an OCSP responder in real time, or reading an OCSP staple the server attached during the handshake so the client does not have to make a separate revocation query itself. A certificate can pass every other check and still be rejected if the issuing CA has revoked it.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> Because SNI is plaintext by default, treat it as one of the highest-value fields in any TLS-heavy packet capture. It gives you domain-level visibility into encrypted traffic for free, and it is the field most SNI-based web filters and many detection rules key off directly.
+          </div>
+        </section>
+
+        <section class="content-section" id="cipher-suites-negotiation">
+          <h2>Cipher Suite Negotiation</h2>
+          <p>Cipher suite negotiation happens entirely inside the two plaintext messages you already saw in the handshake walkthrough. The ClientHello lists every cipher suite the client is willing to use, ordered by the client's own preference, and the ServerHello picks exactly one from that list. Neither side proposes anything the other did not already advertise support for, which means the negotiated cipher suite is always the intersection of what both endpoints support, filtered through whichever side's preference policy wins.</p>
+
+          <p>TLS 1.3 narrowed the field considerably compared to TLS 1.2. Instead of the sprawling combinations of key exchange, authentication, bulk cipher, and MAC algorithm that TLS 1.2 cipher suite names encoded, TLS 1.3 cipher suites only describe the bulk encryption and hash algorithm, things like TLS_AES_128_GCM_SHA256 or TLS_CHACHA20_POLY1305_SHA256, because every TLS 1.3 suite is required to use an AEAD cipher and every handshake is required to provide forward secrecy through ephemeral key exchange. Key exchange group and signature algorithm are negotiated separately through their own extensions.</p>
+
+          <p>When a vulnerability scanner flags "weak cipher suite supported" or "deprecated TLS version enabled," it is reporting that the server's ServerHello logic is still willing to select something from an unsafe portion of its supported list if a client asks for it, not that every connection to that server is necessarily insecure. A server that still accepts TLS 1.0 or TLS 1.1 is exposing itself to protocol-level weaknesses those versions carry, including susceptibility to attacks like POODLE and BEAST that exploited specific block-cipher-mode weaknesses no longer present in TLS 1.2 and 1.3. A server still offering RC4 or 3DES is offering ciphers with known cryptographic weaknesses. A server offering static RSA key exchange, common in older TLS 1.2 configurations, means that connection has no forward secrecy: if that server's private key is ever compromised, every past session captured and stored can retroactively be decrypted.</p>
+
+          <p>Operationally, these findings usually trace back to compatibility decisions rather than negligence: an organization keeps TLS 1.0 enabled because a legacy payment terminal or an old API client still requires it, and disabling it breaks that integration. The fix is rarely "just disable it" without checking who still depends on it, but the finding is real. Every legacy cipher or protocol version left enabled is an option an attacker performing a downgrade attempt, or a passive collector hoping to decrypt traffic later, can try to steer a connection toward.</p>
+        </section>
+
+        <section class="content-section" id="mutual-tls">
+          <h2>Mutual TLS</h2>
+          <p>Standard TLS is one-way by default. The server proves its identity to the client through its certificate chain, but the client proves nothing about its own identity at the TLS layer; authentication of the human or application on the client side, if it happens at all, is handled afterward at the application layer, usually with a password or a token. Mutual TLS, mTLS, adds a second identity check in the other direction: the server also demands and verifies a certificate from the client before the session is considered established.</p>
+
+          <p>Mechanically, this shows up in the handshake as an extra pair of messages. After the server sends its own certificate, it sends a CertificateRequest message telling the client it needs to authenticate too. The client responds with its own Certificate message and a CertificateVerify message, a signature proving it holds the private key matching that certificate. The server validates the client's chain exactly the way the client validated the server's: signature chain to a trusted root, valid dates, and whatever identity match policy the server enforces. Only after both directions check out does the connection proceed.</p>
+
+          <p>mTLS shows up wherever both sides of a connection need cryptographic proof of who they are talking to, not just encryption. Service mesh architectures in microservices deployments, tools like Istio and Linkerd, issue every workload a short-lived certificate and enforce mTLS on every service-to-service call inside the cluster, so a compromised pod cannot simply call an internal API by reaching the right IP address. Zero Trust network architectures lean on the same mechanism at a larger scale: instead of trusting a request because it originated inside a corporate network perimeter, the architecture demands a valid client certificate as one of several factors before granting access, regardless of network location.</p>
+
+          <p>The operational cost of mTLS is certificate lifecycle management on both sides instead of one. Every client that needs to connect requires its own certificate, which means issuance, rotation, and revocation infrastructure has to scale to every service or device involved, not just to the handful of public-facing servers a standard TLS deployment needs to manage. That overhead is exactly why mTLS tends to appear inside trust boundaries an organization fully controls, rather than on public-facing consumer traffic.</p>
+        </section>
+
+        <section class="content-section" id="tls-interception">
+          <h2>TLS Interception</h2>
+          <p>A TLS interception proxy, sometimes called a TLS inspection or SSL inspection appliance, sits in the network path and does something that sounds contradictory: it decrypts and inspects encrypted traffic without breaking the connection from the user's point of view. It manages this by splitting one TLS session into two. The client's TLS connection terminates at the proxy, not at the real destination, and the proxy presents its own certificate for that domain, signed by an internal CA the organization has pushed into every managed endpoint's trust store ahead of time. The proxy then opens a second, separate TLS connection to the actual destination server, decrypts the client's traffic, inspects or logs it in plaintext, and re-encrypts it going out.</p>
+
+          <p>From the endpoint's perspective, the browser padlock still shows a valid certificate, because the browser trusts the organization's internal CA the same way it trusts a public one. From the proxy's perspective, it now has full visibility into content that would otherwise be opaque: it can run malware scanning against downloaded files, apply data loss prevention rules against outbound uploads, and enforce content filtering based on the actual page content rather than just the SNI hostname. Organizations deploy this specifically because SNI-only visibility, the kind covered earlier in this chapter, is not enough to catch malware delivered over HTTPS or sensitive data leaving inside an encrypted upload.</p>
+
+          <p>The privacy and trust cost is real and worth naming directly. Every connection passing through the proxy has its content exposed to whatever logging, retention, or human review policy the organization has in place, including traffic to banking sites, healthcare portals, or personal accounts an employee happens to access from a managed device. The interception CA's private key becomes an extremely high-value target: anyone who compromises it can mint trusted certificates for any domain as far as that organization's endpoints are concerned. Certificate pinning, where an application hardcodes or tightly restricts which certificate it will accept for a given service, breaks under interception by design, since the pinned app rejects the proxy's substituted certificate; this is a common cause of specific apps mysteriously failing only on the corporate network.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> TLS interception is a real man-in-the-middle from a purely technical standpoint, deployed deliberately and with the endpoint's trust store cooperating. Its legitimacy rests entirely on the organization owning the endpoint, disclosing the practice, and scoping what gets inspected and retained. The same mechanism used maliciously, without a legitimately trusted CA on the victim's device, is exactly how adversary-in-the-middle attacks against TLS work.
+          </div>
+        </section>
+
+        <section class="content-section" id="tls-downgrade-detection">
+          <h2>Spotting TLS Anomalies in Traffic</h2>
+          <p>A TLS downgrade attack tries to force a connection into using an older protocol version or a weaker cipher suite than both endpoints would actually prefer, specifically so the attacker can exploit a known weakness that only exists in the downgraded configuration. The classic pattern involves an on-path attacker interfering with the handshake, stripping out the extensions or version indicators a modern client sends, so the server falls back to a legacy negotiation path it still supports for compatibility. This is precisely why the cipher suite and protocol version findings covered earlier matter operationally: every legacy option a server still accepts is a downgrade target, not just a theoretical weakness.</p>
+
+          <p>Because a downgrade attack manipulates the plaintext portion of the handshake, ClientHello and ServerHello, before any encryption applies, it is detectable directly from a packet capture without decrypting anything. An analyst watching for downgrade activity looks for anomalies like a negotiated TLS version lower than what the client's ClientHello indicated it supports, repeated handshake failures followed by a retry at a lower version, or a cipher suite selection that falls well outside what a legitimate, up-to-date server for that domain would normally offer.</p>
+
+          <p>JA3 fingerprinting takes a different but related approach: instead of looking for an attack in progress, it identifies what software actually generated a given ClientHello. JA3 builds a fingerprint from the ordered list of values in the ClientHello: TLS version, cipher suites offered, extensions present, elliptic curves supported, and elliptic curve point formats, then MD5-hashes that concatenated string into a single fixed-length value. Because different TLS libraries construct their ClientHello messages with subtly different field orderings and option sets, a JA3 hash reliably identifies the client software generating the connection, a specific browser version, a specific Python TLS library, a specific malware family's custom TLS stack, independent of what domain it is connecting to or what content it sends.</p>
+
+          <p>JA3S does the same thing from the server side, fingerprinting the ServerHello to identify server-side TLS stack behavior. The pairing becomes genuinely useful for detection when the two signals disagree with the story the traffic is trying to tell: a connection whose SNI claims to be a mainstream browser reaching a common cloud service, but whose JA3 hash matches a known malware C2 framework's TLS library rather than any real browser, is a strong behavioral tell. Malware authors can and do randomize or spoof individual handshake fields to evade a specific JA3 hash, which is why JA3 works best as one signal correlated with others, SNI reputation, connection timing, destination ASN, rather than a standalone verdict.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>ClientHello and ServerHello travel in plaintext even in TLS 1.3, exposing SNI, offered cipher suites, and the negotiated cipher suite to anyone watching the wire, no decryption required.</li>
+            <li>In TLS 1.3, the certificate and both Finished messages are encrypted and disguised as generic "Application Data" records, unlike TLS 1.2 where the certificate was a clearly labeled plaintext message.</li>
+            <li>Certificate validation checks four things: a trusted signature chain to a root CA, current validity dates, a hostname match against the Subject Alternative Name field, and revocation status via CRL or OCSP.</li>
+            <li>A weak-cipher or deprecated-TLS-version scanner finding means the server's ServerHello logic will still select an unsafe option if a client requests it, not that every connection to it is currently compromised.</li>
+            <li>mTLS adds a CertificateRequest and client Certificate/CertificateVerify exchange so both sides authenticate, common in service mesh and Zero Trust architectures where network location alone is not trusted.</li>
+            <li>JA3/JA3S fingerprint the TLS stack generating a handshake from field ordering and options; a mismatch between a connection's claimed identity and its JA3 hash is a strong signal worth correlating with other data.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">An analyst reviewing a TLS 1.3 packet capture without decryption keys wants to identify the certificate the server presented. What will they find?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. A plaintext Certificate message, exactly like TLS 1.2</button>
+              <button class="kc-option" data-correct="false">B. The certificate is never sent over the wire in TLS 1.3</button>
+              <button class="kc-option" data-correct="true">C. An "Application Data" record; the certificate is encrypted and cannot be read without keys</button>
+              <button class="kc-option" data-correct="false">D. The certificate appears inside the ClientHello</button>
+            </div>
+            <div class="kc-answer">TLS 1.3 encrypts the Certificate, CertificateVerify, and Finished messages under the handshake traffic secret immediately after ServerHello, and their record header is deliberately labeled as application data for privacy. Without session keys loaded into the analysis tool, these records are opaque, unlike TLS 1.2 where the certificate traveled in a clearly labeled plaintext message.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A network security team wants to block access to a category of websites without deploying a full TLS interception proxy. Which field lets them do this while the traffic stays encrypted?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. The TLS Finished message</button>
+              <button class="kc-option" data-correct="true">B. The Server Name Indication field in the ClientHello</button>
+              <button class="kc-option" data-correct="false">C. The application data payload</button>
+              <button class="kc-option" data-correct="false">D. The client's key_share value</button>
+            </div>
+            <div class="kc-answer">SNI travels in plaintext in the ClientHello by default, before any encryption keys exist, because the server needs it to select the correct certificate. That plaintext hostname is exactly what SNI-based filtering products key off, letting them enforce domain-level policy without ever decrypting the session's content.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A connection's SNI claims to be reaching a well-known cloud storage provider, but its JA3 hash does not match any known browser or standard library and instead matches a hash previously associated with a malware family. What does this most strongly suggest?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. The TLS session is misconfigured and should be ignored</button>
+              <button class="kc-option" data-correct="false">B. The cloud provider has rotated its certificate recently</button>
+              <button class="kc-option" data-correct="true">C. The traffic may be malware mimicking legitimate destination traffic while using a distinct, fingerprintable TLS stack</button>
+              <button class="kc-option" data-correct="false">D. The client is using TLS 1.3 instead of TLS 1.2</button>
+            </div>
+            <div class="kc-answer">A mismatch between a claimed destination and the JA3 fingerprint of the client generating the handshake is a classic indicator of malware attempting to blend into legitimate-looking traffic, since the underlying TLS library still leaves a distinguishable fingerprint in how it builds its ClientHello. It is a strong signal, not a standalone verdict, and should be correlated with other data before drawing a final conclusion.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="03-dns-internals-resolution.html" class="chapter-nav-prev">← DNS Internals & Resolution</a>
+          <a href="05-packet-analysis-wireshark.html" class="chapter-nav-next">Packet Analysis with Wireshark →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Networking</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('04', 6));</script>
+</body>
+</html>

@@ -22,6 +22,7 @@ const CHAPTER_IDS = ['01', '02', '03', '04', '05', '06', '07', '08', '09'];
  */
 const MODULES = {
   'fundamentals':   { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 10 },
+  'networking':     { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 10 },
   'threat-hunting': { chapters: ['01','02','03','04','05','06','07','08','09'], totalHours: 13 },
   'lolbas':         { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 10 },
   'threat-intel':   { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 11 },

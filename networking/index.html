@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>H3AD-LEARN: Networking · Packets to Protocols</title>
+  <meta name="description" content="Networking curriculum: TCP/IP, OSI model, routing and switching, DNS internals, TLS in practice, packet analysis, abused protocols, and network detection." />
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/networking/" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="H3AD-SEC" />
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/networking/" />
+  <meta property="og:title" content="H3AD-LEARN: Networking · Packets to Protocols" />
+  <meta property="og:description" content="Networking curriculum: TCP/IP, OSI model, routing and switching, DNS internals, TLS in practice, packet analysis, abused protocols, and network detection." />
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="H3AD-LEARN: Networking · Packets to Protocols" />
+  <meta name="twitter:description" content="Networking curriculum: TCP/IP, OSI model, routing and switching, DNS internals, TLS in practice, packet analysis, abused protocols, and network detection." />
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" />
+
+  <meta name="theme-color" content="#080c14" />
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    .module-hero { padding: 3.5rem 0 2.5rem; }
+    .module-hero-inner { display: flex; flex-direction: column; gap: 1.25rem; }
+    .back-link { display: inline-flex; align-items: center; gap: 0.4rem; font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .back-link:hover { color: var(--accent); }
+    .back-link::before { content: '\2190'; }
+    .module-badge { display: inline-block; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; letter-spacing: 0.14em; color: var(--accent); background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.25); border-radius: 4px; padding: 0.25em 0.75em; }
+    .module-hero-title { font-size: clamp(1.75rem, 4vw, 2.75rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; margin: 0; }
+    .module-hero-desc { color: var(--muted); font-size: 0.95rem; line-height: 1.7; max-width: 680px; }
+    .module-stats-strip { display: flex; flex-wrap: wrap; gap: 2rem; padding: 1.25rem 1.5rem; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; }
+    .module-stat { display: flex; flex-direction: column; gap: 0.2rem; }
+    .module-stat-value { font-family: 'Share Tech Mono', monospace; font-size: 1rem; color: var(--text); font-weight: 600; }
+    .module-stat-label { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; color: var(--muted); }
+    .module-progress-wrap { display: flex; flex-direction: column; gap: 0.5rem; }
+    .module-progress-bar-outer { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .module-progress-bar-inner { height: 100%; background: linear-gradient(90deg, var(--accent), var(--secondary)); border-radius: 3px; transition: width 0.6s ease; width: 0%; }
+    .module-progress-meta { display: flex; justify-content: space-between; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+    .module-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .module-tag { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--secondary); background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.15); border-radius: 3px; padding: 0.2em 0.55em; }
+
+    .chapters-section { padding: 3rem 0; }
+    .chapters-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+    @media (max-width: 768px) { .chapters-grid { grid-template-columns: 1fr; } }
+
+    .search-wrap { position: relative; max-width: 420px; margin-bottom: 1.5rem; }
+    .quick-search { width: 100%; font-family: 'Share Tech Mono', monospace; font-size: 0.78rem; color: var(--text); background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 0.6em 2.5em 0.6em 0.9em; outline: none; transition: border-color 0.15s; }
+    .quick-search:focus { border-color: var(--accent); }
+    .quick-search::placeholder { color: var(--muted); }
+    .search-kbd { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; color: var(--muted); background: var(--panel-alt); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; pointer-events: none; }
+    .search-wrap:focus-within .search-kbd { display: none; }
+    .search-empty { font-size: 0.8rem; color: var(--muted); }
+
+    .chapter-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; text-decoration: none; color: inherit; transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s; cursor: pointer; position: relative; animation: fadeIn 0.35s ease backwards; }
+    .chapter-card:nth-child(1) { animation-delay: 0s; }
+    .chapter-card:nth-child(2) { animation-delay: 0.04s; }
+    .chapter-card:nth-child(3) { animation-delay: 0.08s; }
+    .chapter-card:nth-child(4) { animation-delay: 0.12s; }
+    .chapter-card:nth-child(5) { animation-delay: 0.16s; }
+    .chapter-card:nth-child(n+6) { animation-delay: 0.2s; }
+    .chapter-card:hover { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(0,212,255,0.1), 0 4px 20px rgba(0,212,255,0.05); transform: translateY(-1px); }
+    .chapter-card-top { display: flex; align-items: center; justify-content: space-between; }
+    .chapter-num { font-family: 'Share Tech Mono', monospace; font-size: 1.4rem; color: var(--accent); font-weight: 700; opacity: 0.7; line-height: 1; }
+    .chapter-badges { display: flex; gap: 0.5rem; align-items: center; }
+    .chapter-time { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--muted); background: var(--panel-alt); border: 1px solid var(--border); border-radius: 3px; padding: 0.2em 0.55em; }
+    .chapter-diff-beginner { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; color: var(--secondary); background: rgba(88,166,255,0.1); border: 1px solid rgba(88,166,255,0.2); border-radius: 3px; padding: 0.2em 0.55em; }
+    .chapter-diff-intermediate { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; color: var(--amber); background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); border-radius: 3px; padding: 0.2em 0.55em; }
+    .chapter-diff-advanced { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; color: var(--accent); background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2); border-radius: 3px; padding: 0.2em 0.55em; }
+    .chapter-title { font-size: 1rem; font-weight: 600; color: var(--text); margin: 0; line-height: 1.3; }
+    .chapter-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.55; margin: 0; }
+    .chapter-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .chapter-tag { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; color: var(--muted); background: var(--panel-alt); border: 1px solid var(--border); border-radius: 3px; padding: 0.15em 0.45em; }
+    .chapter-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+    .chapter-status { display: flex; align-items: center; gap: 0.4rem; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; }
+    .chapter-status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+    .chapter-status-dot.is-reading { background: var(--amber); }
+    .chapter-status-dot.is-complete { background: var(--accent); }
+    .chapter-status-text { color: var(--muted); }
+    .chapter-arrow { font-size: 1rem; color: var(--accent); opacity: 0; transition: opacity 0.2s; }
+    .chapter-card:hover .chapter-arrow { opacity: 1; }
+
+    .prereq-section { padding: 3rem 0; background: var(--panel-alt); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .prereq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 768px) { .prereq-grid { grid-template-columns: 1fr; } }
+    .prereq-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; }
+    .prereq-card-title { font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; letter-spacing: 0.1em; color: var(--accent); margin: 0 0 1rem; }
+    .prereq-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+    .prereq-list li { font-size: 0.88rem; color: var(--muted); line-height: 1.45; padding-left: 1.1rem; position: relative; }
+    .prereq-list li::before { content: '\00B7'; position: absolute; left: 0; color: var(--accent); font-size: 1rem; line-height: 1.3; }
+    .prereq-card.is-outcomes .prereq-list li::before { color: var(--secondary); }
+  </style>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "Networking",
+    "description": "Networking curriculum: TCP/IP, OSI model, routing and switching, DNS internals, TLS in practice, packet analysis, abused protocols, and network detection.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/networking/",
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://h3ad-sec.github.io/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "H3AD-LEARN",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Networking",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/networking/"
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">NETWORKING</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD/">H3AD &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-X/">H3AD-X &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/IOC-VERDIKT/" target="_blank" rel="noopener" class="drawer-sub">&#8623; IOC-VERDIKT &#8599;</a>
+    <a href="https://h3ad-sec.github.io/PARSE-X/" target="_blank" rel="noopener" class="drawer-sub">&#8623; PARSE-X &#8599;</a>
+    <a href="https://h3ad-sec.github.io/DNSCOPE/" target="_blank" rel="noopener" class="drawer-sub">&#8623; DNSCOPE &#8599;</a>
+    <a href="https://h3ad-sec.github.io/X-VERDIKT/" target="_blank" rel="noopener" class="drawer-sub">&#8623; X-VERDIKT &#8599;</a>
+    <a href="https://h3ad-sec.github.io/MAILSCOPE/" target="_blank" rel="noopener" class="drawer-sub">&#8623; MAILSCOPE &#8599;</a>
+    <a href="https://h3ad-sec.github.io/INFRA-SCOPE/" target="_blank" rel="noopener" class="drawer-sub">&#8623; INFRA-SCOPE &#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-AI/">H3AD-AI &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/PROMPTVAULT/" target="_blank" rel="noopener" class="drawer-sub">&#8623; PROMPTVAULT &#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-DETECT/">H3AD-DETECT &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/TRACERULES/" target="_blank" rel="noopener" class="drawer-sub">&#8623; TRACERULES &#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-HUNT/">H3AD-HUNT &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/HYPOS/" target="_blank" rel="noopener" class="drawer-sub">&#8623; HYPOS &#8599;</a>
+    <a href="https://h3ad-sec.github.io/PIVEX/" target="_blank" rel="noopener" class="drawer-sub">&#8623; PIVEX &#8599;</a>
+    <a href="https://h3ad-sec.github.io/TRACEPULSE/" target="_blank" rel="noopener" class="drawer-sub">&#8623; TRACEPULSE &#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-OPS/">H3AD-OPS &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/QUICKTRACE/" target="_blank" rel="noopener" class="drawer-sub">&#8623; QUICKTRACE &#8599;</a>
+    <a href="https://h3ad-sec.github.io/PHISHOPS/" target="_blank" rel="noopener" class="drawer-sub">&#8623; PHISHOPS &#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-DF/">H3AD-DF &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-IR/">H3AD-IR &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub nav-current">&#8623; NETWORKING</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+
+  <div class="container" style="padding-top: 1.25rem; padding-bottom: 0;">
+    <nav aria-label="Breadcrumb" style="font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; color: var(--muted); display: flex; align-items: center; gap: 0.5rem;">
+      <a href="../index.html" style="color: var(--muted); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">Home</a>
+      <span aria-hidden="true">&#8250;</span>
+      <span style="color: var(--text);">Networking</span>
+    </nav>
+  </div>
+
+  <section class="module-hero">
+    <div class="container">
+      <div class="module-hero-inner">
+        <a href="../index.html" class="back-link">All Modules</a>
+        <span class="module-badge">NETWORKING</span>
+        <h1 class="module-hero-title">Networking &middot; Complete Guide</h1>
+        <p class="module-hero-desc">Eight chapters covering the networking foundation every detection is built on: TCP/IP and the OSI model, routing and switching, DNS internals, TLS in practice, hands-on packet analysis with Wireshark, the protocols attackers abuse most, and how network telemetry becomes a detection. Built for analysts who can use a network but have never had to explain why it works.</p>
+
+        <div class="module-stats-strip">
+          <div class="module-stat">
+            <span class="module-stat-value">8</span>
+            <span class="module-stat-label">CHAPTERS</span>
+          </div>
+          <div class="module-stat">
+            <span class="module-stat-value">~10 HRS</span>
+            <span class="module-stat-label">CONTENT</span>
+          </div>
+          <div class="module-stat">
+            <span class="module-stat-value">BEGINNER to ADVANCED</span>
+            <span class="module-stat-label">SKILL RANGE</span>
+          </div>
+          <div class="module-stat">
+            <span class="module-stat-value">SEP 2026</span>
+            <span class="module-stat-label">LAST UPDATED</span>
+          </div>
+        </div>
+
+        <div class="module-progress-wrap">
+          <div class="module-progress-meta">
+            <span>MODULE PROGRESS</span>
+            <span id="networking-progress-label">0 / 8 chapters complete</span>
+          </div>
+          <div class="module-progress-bar-outer">
+            <div class="module-progress-bar-inner" id="networking-progress-bar"></div>
+          </div>
+        </div>
+
+        <div class="module-tags">
+          <span class="module-tag">TCP/IP</span>
+          <span class="module-tag">OSI model</span>
+          <span class="module-tag">DNS</span>
+          <span class="module-tag">TLS</span>
+          <span class="module-tag">Wireshark</span>
+          <span class="module-tag">NetFlow</span>
+          <span class="module-tag">Zeek</span>
+          <span class="module-tag">packet analysis</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapters-section" aria-labelledby="chapters-heading">
+    <div class="container">
+      <div class="section-header" style="margin-bottom: 2rem;">
+        <span class="section-label">CURRICULUM</span>
+        <h2 class="section-title" id="chapters-heading">ALL CHAPTERS</h2>
+      </div>
+      <div class="search-wrap">
+        <input class="quick-search" id="chapterSearch" type="search" placeholder="Search chapters&hellip; (titles, tags)" aria-label="Search chapters">
+        <kbd class="search-kbd">/</kbd>
+      </div>
+      <p class="search-empty" id="chapterSearchEmpty" hidden>No chapters match &ldquo;<span id="chapterSearchEmptyTerm"></span>&rdquo;.</p>
+      <div class="chapters-grid" id="chaptersGrid">
+
+        <a class="chapter-card" href="./01-tcpip-osi-fundamentals.html" aria-label="Chapter 1: TCP/IP Fundamentals and the OSI Model">
+          <div class="chapter-card-top">
+            <span class="chapter-num">01</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-beginner">BEGINNER</span>
+              <span class="chapter-time">30 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">TCP/IP Fundamentals &amp; the OSI Model</h3>
+          <p class="chapter-desc">The OSI and TCP/IP models layer by layer, how encapsulation actually works, IP addressing and subnetting, and the TCP three-way handshake that underlies almost everything else in this module.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">OSI model</span>
+            <span class="chapter-tag">TCP/IP</span>
+            <span class="chapter-tag">subnetting</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="01">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <a class="chapter-card" href="./02-routing-switching-vlans.html" aria-label="Chapter 2: Routing, Switching and VLANs">
+          <div class="chapter-card-top">
+            <span class="chapter-num">02</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-beginner">BEGINNER</span>
+              <span class="chapter-time">30 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Routing, Switching &amp; VLANs</h3>
+          <p class="chapter-desc">How switches forward frames and routers forward packets, ARP and MAC tables, VLAN segmentation, and why flat networks make lateral movement trivial for an attacker.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">routing</span>
+            <span class="chapter-tag">switching</span>
+            <span class="chapter-tag">VLANs</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="02">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <a class="chapter-card" href="./03-dns-internals-resolution.html" aria-label="Chapter 3: DNS Internals and Resolution">
+          <div class="chapter-card-top">
+            <span class="chapter-num">03</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-beginner">BEGINNER</span>
+              <span class="chapter-time">30 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">DNS Internals &amp; Resolution</h3>
+          <p class="chapter-desc">The full DNS resolution path from stub resolver to authoritative server, record types that matter for security work, and why DNS is one of the most abused protocols on any network.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">DNS</span>
+            <span class="chapter-tag">resolution</span>
+            <span class="chapter-tag">record types</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="03">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <a class="chapter-card" href="./04-tls-in-practice.html" aria-label="Chapter 4: TLS in Practice">
+          <div class="chapter-card-top">
+            <span class="chapter-num">04</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
+              <span class="chapter-time">35 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">TLS in Practice: Handshakes, Certificates &amp; Interception</h3>
+          <p class="chapter-desc">TLS on the wire: the handshake as captured packets, SNI and certificate validation, where mutual TLS and TLS interception fit, and what a TLS downgrade actually looks like in traffic.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">TLS handshake</span>
+            <span class="chapter-tag">SNI</span>
+            <span class="chapter-tag">interception</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="04">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <a class="chapter-card" href="./05-packet-analysis-wireshark.html" aria-label="Chapter 5: Packet Analysis with Wireshark">
+          <div class="chapter-card-top">
+            <span class="chapter-num">05</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
+              <span class="chapter-time">40 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Packet Analysis with Wireshark</h3>
+          <p class="chapter-desc">Reading a capture with intent: display filters that matter, following a TCP stream, spotting anomalies in a conversation, and building a repeatable workflow for triaging a PCAP.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">Wireshark</span>
+            <span class="chapter-tag">display filters</span>
+            <span class="chapter-tag">PCAP triage</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="05">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <a class="chapter-card" href="./06-abused-protocols.html" aria-label="Chapter 6: Protocols Attackers Abuse">
+          <div class="chapter-card-top">
+            <span class="chapter-num">06</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
+              <span class="chapter-time">35 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Protocols Attackers Abuse</h3>
+          <p class="chapter-desc">How HTTP, SMB, and RDP get abused for delivery, lateral movement, and remote access, and how DNS tunneling smuggles data through a protocol almost nobody blocks.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">SMB</span>
+            <span class="chapter-tag">RDP</span>
+            <span class="chapter-tag">DNS tunneling</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="06">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <a class="chapter-card" href="./07-network-detection.html" aria-label="Chapter 7: Network Detection with NetFlow, Zeek and IDS/IPS">
+          <div class="chapter-card-top">
+            <span class="chapter-num">07</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
+              <span class="chapter-time">35 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Network Detection: NetFlow, Zeek &amp; IDS/IPS</h3>
+          <p class="chapter-desc">Flow data versus full packet capture, what Zeek logs actually contain, signature-based IDS versus behavioral detection, and where each telemetry source earns its storage cost.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">NetFlow</span>
+            <span class="chapter-tag">Zeek</span>
+            <span class="chapter-tag">IDS/IPS</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="07">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <a class="chapter-card" href="./08-vpns-proxies-nat-pcap.html" aria-label="Chapter 8: Advanced Topics: VPNs, Proxies, NAT and Full-PCAP Analysis">
+          <div class="chapter-card-top">
+            <span class="chapter-num">08</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-advanced">ADVANCED</span>
+              <span class="chapter-time">40 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Advanced Topics: VPNs, Proxies, NAT &amp; Full-PCAP Analysis</h3>
+          <p class="chapter-desc">How VPN tunnels and forward/reverse proxies reshape what you can see, NAT traversal and why it complicates attribution, and a full walkthrough of an incident from a captured PCAP.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">VPN</span>
+            <span class="chapter-tag">NAT</span>
+            <span class="chapter-tag">full-PCAP</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="08">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="prereq-section" aria-labelledby="prereq-heading">
+    <div class="container">
+      <div class="section-header" style="margin-bottom: 2rem;">
+        <span class="section-label">BEFORE YOU START</span>
+        <h2 class="section-title" id="prereq-heading">PREREQUISITES &amp; OUTCOMES</h2>
+      </div>
+      <div class="prereq-grid">
+
+        <div class="prereq-card">
+          <p class="prereq-card-title">WHAT YOU SHOULD KNOW</p>
+          <ul class="prereq-list">
+            <li>The Fundamentals module, or equivalent comfort with core security vocabulary (threat, vulnerability, attack surface)</li>
+            <li>General comfort using a computer on a network; you do not need prior networking or IT experience</li>
+            <li>No prior Wireshark, CLI, or scripting experience required, this module builds it from zero</li>
+          </ul>
+        </div>
+
+        <div class="prereq-card is-outcomes">
+          <p class="prereq-card-title">WHAT YOU WILL KNOW AFTER</p>
+          <ul class="prereq-list">
+            <li>How data actually moves across a network, from OSI layers to a captured TCP handshake</li>
+            <li>How DNS resolution and TLS negotiation look in real traffic, not just in theory</li>
+            <li>How to open a PCAP in Wireshark and triage it with a repeatable workflow</li>
+            <li>Which protocols attackers abuse most, and what that abuse looks like on the wire</li>
+            <li>The difference between flow data, full packet capture, and IDS/IPS, and when to reach for each</li>
+            <li>Enough network fluency to read almost any other H3AD-LEARN module's traffic examples without translation</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="resources-section" aria-labelledby="tools-heading">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">TOOLS</span>
+        <h2 class="section-title" id="tools-heading">RECOMMENDED TOOLS</h2>
+        <p class="section-subtitle">H3AD-SEC tools that pair directly with this module's content.</p>
+      </div>
+      <div class="resources-grid">
+
+        <a class="resource-card" href="https://h3ad-sec.github.io/DNSCOPE/" target="_blank" rel="noopener noreferrer">
+          <div class="resource-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          </div>
+          <div class="resource-card-body">
+            <span class="resource-card-name mono">DNSCOPE</span>
+            <p class="resource-card-desc">Passive DNS history, subdomain enumeration, and WHOIS in one place. The direct hands-on companion to Chapter 3's DNS internals.</p>
+          </div>
+          <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
+        </a>
+
+        <a class="resource-card" href="https://h3ad-sec.github.io/INFRA-SCOPE/" target="_blank" rel="noopener noreferrer">
+          <div class="resource-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <div class="resource-card-body">
+            <span class="resource-card-name mono">INFRA-SCOPE</span>
+            <p class="resource-card-desc">Infrastructure and certificate intelligence. Useful for seeing TLS and PKI concepts from Chapter 4 applied to real internet-facing hosts.</p>
+          </div>
+          <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
+        </a>
+
+        <a class="resource-card" href="https://h3ad-sec.github.io/TRACERULES/" target="_blank" rel="noopener noreferrer">
+          <div class="resource-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          </div>
+          <div class="resource-card-body">
+            <span class="resource-card-name mono">TRACERULES</span>
+            <p class="resource-card-desc">Real detection rules for network-based threats. See how the abused protocols and telemetry sources from Chapters 6 and 7 become production queries.</p>
+          </div>
+          <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
+        </a>
+
+        <a class="resource-card" href="https://h3ad-sec.github.io/PIVEX/" target="_blank" rel="noopener noreferrer">
+          <div class="resource-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          </div>
+          <div class="resource-card-body">
+            <span class="resource-card-name mono">PIVEX</span>
+            <p class="resource-card-desc">Visual pivot graph for investigations. Map infrastructure relationships once you can read the traffic that connects them.</p>
+          </div>
+          <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Networking</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const pct   = getModuleProgress('networking');
+      const bar   = document.getElementById('networking-progress-bar');
+      const label = document.getElementById('networking-progress-label');
+      if (bar)   bar.style.width = pct + '%';
+      if (label) {
+        const progress  = initProgress();
+        const chapters  = progress.modules?.['networking']?.chapters || {};
+        const completed = Object.values(chapters).filter(c => c.status === 'complete').length;
+        label.textContent = completed + ' / 8 chapters complete';
+      }
+
+      const progress = initProgress();
+      const chapters = progress.modules?.['networking']?.chapters || {};
+      document.querySelectorAll('.chapter-status[data-chapter-id]').forEach(el => {
+        const id  = el.dataset.chapterId;
+        const ch  = chapters[id];
+        if (!ch) return;
+        const dot  = el.querySelector('.chapter-status-dot');
+        const text = el.querySelector('.chapter-status-text');
+        if (ch.status === 'complete') {
+          dot.classList.add('is-complete');
+          text.textContent = 'COMPLETE';
+        } else if (ch.status === 'reading') {
+          dot.classList.add('is-reading');
+          text.textContent = 'IN PROGRESS';
+        }
+      });
+    });
+
+    (function(){
+      var input = document.getElementById('chapterSearch');
+      var grid = document.getElementById('chaptersGrid');
+      var empty = document.getElementById('chapterSearchEmpty');
+      var emptyTerm = document.getElementById('chapterSearchEmptyTerm');
+      if (!input || !grid) return;
+      var cards = Array.prototype.slice.call(grid.querySelectorAll('.chapter-card'));
+      function filter(){
+        var q = input.value.trim().toLowerCase();
+        var visible = 0;
+        cards.forEach(function(card){
+          var match = !q || card.textContent.toLowerCase().indexOf(q) > -1;
+          card.style.display = match ? '' : 'none';
+          if (match) visible++;
+        });
+        if (empty) {
+          empty.hidden = visible !== 0;
+          if (emptyTerm) emptyTerm.textContent = input.value.trim();
+        }
+      }
+      input.addEventListener('input', filter);
+      input.addEventListener('keydown', function(e){
+        if (e.key === 'Escape') { input.value = ''; filter(); input.blur(); }
+      });
+      document.addEventListener('keydown', function(e){
+        if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return;
+        var active = document.activeElement;
+        if (active === input || /^(INPUT|TEXTAREA|SELECT)$/.test(active && active.tagName)) return;
+        e.preventDefault();
+        input.focus();
+      });
+    })();
+  </script>
+</body>
+</html>

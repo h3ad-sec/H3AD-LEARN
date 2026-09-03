@@ -63,6 +63,61 @@
   </url>
 
   <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/networking/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/networking/01-tcpip-osi-fundamentals.html</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/networking/02-routing-switching-vlans.html</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/networking/03-dns-internals-resolution.html</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/networking/04-tls-in-practice.html</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/networking/05-packet-analysis-wireshark.html</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/networking/06-abused-protocols.html</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/networking/07-network-detection.html</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/networking/08-vpns-proxies-nat-pcap.html</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
     <loc>https://h3ad-sec.github.io/H3AD-LEARN/cloud-security/</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>

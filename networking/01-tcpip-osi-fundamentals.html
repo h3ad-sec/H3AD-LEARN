@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="01">
+  <meta name="module-id" content="networking">
+  <title>TCP/IP Fundamentals & the OSI Model · Networking · H3AD-LEARN</title>
+  <meta name="description" content="The OSI and TCP/IP models, encapsulation, IP addressing and subnetting, and the TCP three-way handshake that underlies almost everything else in networking.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/networking/01-tcpip-osi-fundamentals.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/networking/01-tcpip-osi-fundamentals.html">
+  <meta property="og:title" content="TCP/IP Fundamentals & the OSI Model · Networking · H3AD-LEARN">
+  <meta property="og:description" content="The OSI and TCP/IP models, encapsulation, IP addressing and subnetting, and the TCP three-way handshake that underlies almost everything else in networking.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="TCP/IP Fundamentals & the OSI Model · Networking · H3AD-LEARN">
+  <meta name="twitter:description" content="The OSI and TCP/IP models, encapsulation, IP addressing and subnetting, and the TCP three-way handshake that underlies almost everything else in networking.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "TCP/IP Fundamentals & the OSI Model",
+    "description": "The OSI and TCP/IP models, encapsulation, IP addressing and subnetting, and the TCP three-way handshake that underlies almost everything else in networking.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/networking/01-tcpip-osi-fundamentals.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Networking",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/networking/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://h3ad-sec.github.io/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "H3AD-LEARN",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Networking",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/networking/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "TCP/IP Fundamentals & the OSI Model",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/networking/01-tcpip-osi-fundamentals.html"
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">TCP/IP FUNDAMENTALS & THE OSI MODEL</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub nav-current">&#8623; NETWORKING</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Networking</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 01 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 01</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-beginner">BEGINNER</span>
+          </div>
+          <h1 class="chapter-title">TCP/IP Fundamentals & the OSI Model</h1>
+          <p class="chapter-intro">Every alert you triage, every packet capture you open, and every detection rule you write sits on top of a stack of layers that mostly go unnoticed. A phishing email travels over TCP. A beaconing C2 channel rides on DNS or HTTP, which rides on TCP, which rides on IP. Analysts use this stack every single day without ever having to explain why a SYN packet looks the way it does or why a /24 network holds 254 usable hosts. This chapter makes that stack explicit, because the moment something breaks it, or an attacker abuses it, you need the mechanics, not just the vocabulary.</p>
+          <div class="chapter-tags">
+            <span class="tag">OSI model</span>
+            <span class="tag">TCP/IP</span>
+            <span class="tag">subnetting</span>
+          </div>
+        </header>
+
+        <div class="callout-tip">
+          <strong>New to security?</strong> This module assumes you already know core security vocabulary (threat, vulnerability, attack surface) from the CIA triad. If any of that is unfamiliar, start with the <a href="../fundamentals/index.html">Fundamentals module</a> first.
+        </div>
+
+        <section class="content-section" id="osi-model">
+          <h2>The OSI Model, Layer by Layer</h2>
+          <p>The Open Systems Interconnection (OSI) model is a seven-layer reference framework published by the ISO in 1984 to describe how network communication should be broken into independent, replaceable functions. No production network implements OSI directly, but it remains the shared vocabulary the entire industry uses to talk about where a problem or a protocol lives. When someone says "that's a layer 3 issue" or "this is a layer 7 attack," they are pointing at a specific, well-defined slice of the stack, and knowing which slice matters because the tools and fixes differ completely between layers.</p>
+
+          <p>Layer 1, Physical, covers the actual transmission of raw bits as electrical signals, light pulses, or radio waves. This is cabling, connectors, NICs, hubs, and the electrical specifications that define how a 1 or a 0 gets represented on the wire. A cut fiber line or a failed transceiver is a layer 1 problem, and no amount of routing configuration will fix it.</p>
+
+          <p>Layer 2, Data Link, handles node-to-node delivery across a single local segment using physical addressing. This is where Ethernet frames and MAC addresses live, along with switches that forward frames based on MAC address tables and protocols like ARP that resolve an IP address to a MAC address on the local segment. Layer 3, Network, is responsible for logical addressing and routing packets across multiple networks. This is where IP addresses, routers, and routing protocols like OSPF and BGP operate, deciding the best path for a packet to reach a destination that may be many hops away.</p>
+
+          <p>Layer 4, Transport, provides end-to-end communication with the reliability and flow control characteristics an application needs. TCP and UDP live here, along with the concept of port numbers that identify which application on a host should receive the data. Layer 5, Session, manages the establishment, maintenance, and termination of a communication session between two hosts, tracking things like which requests belong to the same logical conversation. Layer 6, Presentation, translates data between the application format and the network format, handling tasks like encryption, compression, and character encoding, such as TLS negotiation or converting text to a consistent character set. Layer 7, Application, is the layer closest to the user, where protocols like HTTP, DNS, and SMTP define how specific applications structure their requests and responses.</p>
+
+          <p>In practice, layers 5 through 7 blur together in most modern implementations, since a single library often handles session state, encryption, and application formatting in one pass. But the separation still matters analytically. A DNS tunneling detection is a layer 7 problem. A VLAN hopping attack is a layer 2 problem. A BGP hijack is a layer 3 problem. Framing an incident by its correct layer tells you immediately which logs, which tools, and which team should be involved.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Layer</th><th>Name</th><th>What It Does</th><th>Example Protocol or Device</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>7</td><td>Application</td><td>User-facing protocols and data formats</td><td>HTTP, DNS, SMTP</td></tr>
+                <tr><td>6</td><td>Presentation</td><td>Encryption, compression, encoding</td><td>TLS, JPEG, ASCII</td></tr>
+                <tr><td>5</td><td>Session</td><td>Establishes and manages conversations</td><td>NetBIOS, RPC session state</td></tr>
+                <tr><td>4</td><td>Transport</td><td>End-to-end delivery, ports, reliability</td><td>TCP, UDP</td></tr>
+                <tr><td>3</td><td>Network</td><td>Logical addressing and routing between networks</td><td>IP, routers</td></tr>
+                <tr><td>2</td><td>Data Link</td><td>Node-to-node delivery on a local segment</td><td>Ethernet, switches, MAC addresses</td></tr>
+                <tr><td>1</td><td>Physical</td><td>Raw bit transmission over a medium</td><td>Cabling, NICs, hubs</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="tcpip-model">
+          <h2>The TCP/IP Model and How It Maps to OSI</h2>
+          <p>While OSI is the teaching model, the TCP/IP model is the one actually running on every network you will ever work on. It predates OSI, having grown directly out of ARPANET research in the 1970s, and it collapses the seven-layer theoretical structure into four practical layers: Link, Internet, Transport, and Application. Where OSI was designed top-down as a specification, TCP/IP was designed bottom-up from working protocols, which is a large part of why it won in the real world. It described what already worked rather than what should theoretically work.</p>
+
+          <p>The Link layer (sometimes called Network Access) absorbs OSI's Physical and Data Link layers into one. It covers everything needed to move a frame across a single local link, including Ethernet, Wi-Fi, and ARP. The Internet layer maps directly to OSI Layer 3, handling logical addressing and routing through IP, ICMP, and related protocols. The Transport layer likewise maps directly to OSI Layer 4, with TCP and UDP as its two dominant protocols.</p>
+
+          <p>The Application layer is where the real collapsing happens. TCP/IP merges OSI's Session, Presentation, and Application layers into a single layer, because in practice a single protocol implementation, like an HTTP library, typically owns session tracking, TLS handling, and message formatting together rather than as three cleanly separable modules. This is not a shortcut, it reflects how software engineers actually built the internet: application developers do not usually reason about "session" and "presentation" as distinct concerns, they reason about "the HTTP request" as one unit of work.</p>
+
+          <p>The practical upshot is that you will hear both models used interchangeably in security work, and you need to translate fluently between them. A vendor advisory describing a "layer 7 DDoS attack" is using OSI numbering to describe an attack against the TCP/IP Application layer. A firewall rule set filtering by port number is operating at what OSI calls Layer 4 and TCP/IP calls the Transport layer. Neither model is wrong, they are just different levels of granularity for describing the same running system, and analysts move between them constantly without thinking about it.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>TCP/IP Layer</th><th>Corresponding OSI Layers</th><th>Key Protocols</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Application</td><td>Application, Presentation, Session (7, 6, 5)</td><td>HTTP, DNS, TLS, SMTP</td></tr>
+                <tr><td>Transport</td><td>Transport (4)</td><td>TCP, UDP</td></tr>
+                <tr><td>Internet</td><td>Network (3)</td><td>IP, ICMP</td></tr>
+                <tr><td>Link</td><td>Data Link, Physical (2, 1)</td><td>Ethernet, ARP, Wi-Fi</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="encapsulation">
+          <h2>Encapsulation: How Data Actually Moves</h2>
+          <p>Encapsulation is the process by which data gets wrapped in successive layers of header information as it moves down the stack from application to physical medium, and unwrapped in reverse order as it moves up the stack on the receiving end. Every layer adds its own header (and occasionally a trailer) in front of whatever it received from the layer above, treating that entire chunk as an opaque payload it does not need to understand. This is what makes the layered model actually work in practice: each layer only has to know how to talk to the layer directly above and below it.</p>
+
+          <p>Start at the top. An application generates data, say an HTTP request. The Transport layer wraps that data in a TCP header containing source and destination ports, sequence numbers, and flags, producing a segment. The Internet layer wraps the segment in an IP header containing source and destination IP addresses, producing a packet. The Link layer wraps the packet in an Ethernet header and trailer containing source and destination MAC addresses and a frame check sequence, producing a frame. Finally the Physical layer converts that frame into raw bits and transmits them across the medium as electrical signals, light, or radio waves.</p>
+
+          <p>Each stage has specific terminology for its Protocol Data Unit, and using the right term precisely tells other analysts exactly which layer you are talking about. At the Physical layer, the unit is bits. At the Data Link layer, it is frames. At the Network layer, it is packets. At the Transport layer, it is segments (for TCP) or datagrams (for UDP). Saying "I captured the packet" when you actually mean the full Ethernet frame is a small imprecision that adds up in incident reports and can genuinely confuse someone reading a Wireshark capture description.</p>
+
+          <p>On the receiving end, the process runs in reverse: de-encapsulation. The NIC receives bits and reconstructs a frame. The Link layer strips the Ethernet header, checks the destination MAC address, and passes the remaining payload up as a packet. The Internet layer strips the IP header, checks the destination IP address, and passes the payload up as a segment. The Transport layer strips the TCP or UDP header, uses the destination port to determine which application should receive the data, and passes the payload up. The application finally receives the original HTTP request, unchanged by the trip.</p>
+
+          <p>This matters directly for packet analysis. When you open a capture in Wireshark, what you are looking at is a stack of nested headers, and understanding encapsulation is what lets you read that nesting correctly: an Ethernet frame containing an IP packet containing a TCP segment containing an HTTP request. Malware analysis and network forensics both depend on being able to peel that stack apart layer by layer and understand what each header is actually telling you.</p>
+        </section>
+
+        <section class="content-section" id="ip-addressing-subnetting">
+          <h2>IP Addressing and Subnetting</h2>
+          <p>An IPv4 address is a 32-bit number, conventionally written as four decimal octets separated by dots, such as 192.168.1.10. Each octet represents 8 bits and ranges from 0 to 255. The address is split conceptually into a network portion and a host portion, and it is the subnet mask that determines exactly where that split happens. A subnet mask like 255.255.255.0 says the first 24 bits identify the network and the remaining 8 bits identify the host within that network.</p>
+
+          <p>CIDR (Classless Inter-Domain Routing) notation expresses that same split more compactly by appending a slash and the number of network bits directly to the address, so 192.168.1.10/24 means the same thing as pairing that address with a 255.255.255.0 mask. CIDR replaced the older classful addressing system (Class A, B, C) in the 1990s because classful boundaries wasted enormous numbers of addresses; CIDR lets the network boundary fall anywhere, not just on octet lines.</p>
+
+          <p>Subnetting is the practice of dividing a larger network into smaller ones by borrowing bits from the host portion and giving them to the network portion. Take a 192.168.1.0/24 network, which has 24 network bits and 8 host bits, giving 256 total addresses and 254 usable host addresses (the first address is the network address, the last is the broadcast address). Borrowing 2 more bits to make it a /26 leaves only 6 host bits, producing 4 subnets of 64 addresses each: 192.168.1.0/26, 192.168.1.64/26, 192.168.1.128/26, and 192.168.1.192/26, each with 62 usable host addresses. This is exactly how organizations carve one allocated block into separate subnets for different VLANs, departments, or security zones.</p>
+
+          <p>RFC 1918 reserves three blocks of IPv4 address space for private use that is never routed on the public internet: 10.0.0.0/8, 172.16.0.0/12, and 192.168.0.0/16. Every home router, corporate LAN, and cloud VPC uses addresses from one of these ranges internally, translated to a public address at the edge through NAT. Recognizing these ranges instantly is a basic triage skill: traffic sourced from a 10.x address inside your environment is expected, the same address showing up as a source in an external-facing log is a red flag worth investigating.</p>
+
+          <p>IPv6 exists because IPv4's 32-bit address space, roughly 4.3 billion addresses, was exhausted by the growth of the internet and especially by mobile and IoT devices. IPv6 uses 128-bit addresses, written as eight groups of hexadecimal digits separated by colons, which provides an address space large enough that exhaustion is not a practical concern for the foreseeable future. IPv6 also removes NAT as a practical necessity, since every device can have a globally routable address, and it changes some fundamentals like using Neighbor Discovery Protocol instead of ARP. Adoption remains uneven, and most enterprise networks run IPv4 and IPv6 side by side, which analysts need to account for when writing detections that assume IPv4 formatting.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>CIDR</th><th>Subnet Mask</th><th>Total Addresses</th><th>Usable Hosts</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>/24</td><td>255.255.255.0</td><td>256</td><td>254</td></tr>
+                <tr><td>/25</td><td>255.255.255.128</td><td>128</td><td>126</td></tr>
+                <tr><td>/26</td><td>255.255.255.192</td><td>64</td><td>62</td></tr>
+                <tr><td>/27</td><td>255.255.255.224</td><td>32</td><td>30</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="tcp-handshake">
+          <h2>The TCP Three-Way Handshake</h2>
+          <p>TCP is connection-oriented, meaning two hosts must formally establish a session before exchanging application data, and that session is established through a three-step exchange known as the three-way handshake. The client initiates by sending a segment with the SYN flag set, along with an initial sequence number it has chosen. The server responds with a segment that has both the SYN and ACK flags set, acknowledging the client's sequence number and supplying its own initial sequence number. The client completes the exchange by sending a segment with the ACK flag set, acknowledging the server's sequence number. Once all three segments have been exchanged, the connection is established and either side can begin sending data.</p>
+
+          <p>Port numbers are what let a single IP address support many simultaneous, independent conversations. Every TCP segment carries a source port and a destination port, and the combination of source IP, source port, destination IP, and destination port (the four-tuple) uniquely identifies one specific connection. A destination port of 443 tells the receiving host to hand the data to whatever process is listening for HTTPS traffic, typically a web server. Well-known ports below 1024 are conventionally reserved for standard services, ephemeral ports in the higher ranges are assigned dynamically by the client's operating system for the lifetime of a single connection.</p>
+
+          <p>Sequence numbers are what make TCP reliable. Every byte of data sent gets a sequence number, and the receiving side acknowledges receipt by sending back the sequence number it expects next. If a segment is lost or arrives out of order, the receiver's acknowledgments make that gap visible, and the sender retransmits the missing data. This is the mechanism that lets TCP guarantee in-order, complete delivery even over a network that can drop, duplicate, or reorder packets, at the cost of additional overhead and latency compared to a protocol that does not bother with any of this.</p>
+
+          <p>UDP takes the opposite approach: it is connectionless, with no handshake, no guaranteed delivery, and no built-in ordering. A UDP datagram is simply sent, and it either arrives or it does not, with no automatic retransmission. This tradeoff makes UDP faster and lower-overhead, which is exactly why it is used for DNS lookups, video streaming, and online gaming, cases where a lost packet is better handled by the application (or simply ignored) than delayed by retransmission logic. Understanding which protocol a given service uses is a direct clue to how it will fail and how it should be monitored.</p>
+
+          <p>Connection teardown normally happens through a four-step exchange of FIN segments: each side sends a FIN when it has finished sending data, and the other side acknowledges it, so a graceful close involves both directions independently signaling they are done. An RST (reset) segment, by contrast, is an abrupt, immediate termination, sent when a host receives data for a connection it does not recognize, encounters an unrecoverable error, or wants to reject a connection outright. Seeing an unusually high volume of RST segments in a capture is often a sign of a scan, a blocked connection attempt, or a service actively refusing traffic, and it is one of the first things to check when triaging unexpected connection failures.</p>
+        </section>
+
+        <section class="content-section" id="module-roadmap">
+          <h2>What This Module Covers</h2>
+          <p>Eight chapters take you from foundational packet mechanics to full traffic analysis. Chapter 1 (this chapter) covers the OSI and TCP/IP models, encapsulation, IP addressing, subnetting, and the TCP handshake, the vocabulary and mechanics everything else in this module depends on.</p>
+
+          <p>Chapter 2 covers routing, switching, and VLANs: how routers select paths, how switches learn and forward on MAC addresses, and how VLANs segment a physical network into isolated logical ones. Chapter 3 covers DNS internals and resolution, from the recursive resolver chain down to record types and cache poisoning. Chapter 4 covers TLS in practice: the handshake, certificate validation, and where encryption starts and stops mattering for visibility.</p>
+
+          <p>Chapter 5 covers packet analysis with Wireshark: filters, following streams, and reading a capture the way an analyst actually needs to. Chapter 6 covers protocols attackers abuse, including SMB, RDP, and DNS tunneling, and why these specific protocols keep showing up in intrusions. Chapter 7 covers network detection with NetFlow, Zeek, and IDS signatures, connecting protocol knowledge directly to detection engineering.</p>
+
+          <p>Chapter 8 closes the module with advanced topics: VPNs, proxies, NAT traversal, and full-PCAP analysis workflows for incident response, tying every earlier chapter together into a single investigative skill set.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> If you already know this material cold, you can skim this chapter for the terminology table and jump straight to Chapter 2. If subnetting or the handshake feel shaky, work through the examples here with pen and paper before moving on. Later chapters assume you can do both without stopping to think.
+          </div>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>OSI is a seven-layer teaching model; TCP/IP is the four-layer model actually implemented on real networks, collapsing Physical/Data Link into Link and Session/Presentation/Application into one Application layer.</li>
+            <li>Encapsulation wraps data in a new header at each layer going down the stack (segment, packet, frame, bits) and de-encapsulation strips those headers going back up on the receiving end.</li>
+            <li>A subnet mask or CIDR prefix defines where the network portion of an address ends and the host portion begins; borrowing host bits creates smaller subnets, as in splitting a /24 into four /26s.</li>
+            <li>RFC 1918 reserves 10.0.0.0/8, 172.16.0.0/12, and 192.168.0.0/16 for private use; these never appear as a source on the public internet without NAT translation.</li>
+            <li>TCP establishes connections with a SYN, SYN-ACK, ACK handshake and guarantees ordered delivery through sequence numbers; UDP skips all of that for speed, at the cost of reliability guarantees.</li>
+            <li>Port numbers combined with source and destination IPs uniquely identify a connection; an unusual spike in RST segments is a common signal of scanning or blocked connection attempts.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A packet capture shows a frame containing an IP packet containing a TCP segment containing an HTTP request. At which layer would a switch make its forwarding decision for this frame?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Layer 3, using the destination IP address</button>
+              <button class="kc-option" data-correct="true">B. Layer 2, using the destination MAC address</button>
+              <button class="kc-option" data-correct="false">C. Layer 4, using the destination port</button>
+              <button class="kc-option" data-correct="false">D. Layer 7, using the HTTP host header</button>
+            </div>
+            <div class="kc-answer">Switches operate at the Data Link layer and forward frames based on the destination MAC address in the Ethernet header, using a MAC address table built from observed traffic. Routers make Layer 3 decisions using IP addresses. Port numbers and HTTP headers belong to Transport and Application layer devices such as load balancers and firewalls, not basic switches.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Your organization has been allocated 10.20.5.0/24 and needs to split it into subnets that support at least 50 hosts each while wasting as few addresses as possible. Which prefix should you use?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. /25, giving two subnets of 126 usable hosts each</button>
+              <button class="kc-option" data-correct="true">B. /26, giving four subnets of 62 usable hosts each</button>
+              <button class="kc-option" data-correct="false">C. /27, giving eight subnets of 30 usable hosts each</button>
+              <button class="kc-option" data-correct="false">D. /24 cannot be subnetted further</button>
+            </div>
+            <div class="kc-answer">A /26 mask borrows 2 host bits from the original /24, producing four subnets of 64 addresses each with 62 usable host addresses, comfortably above the 50-host requirement. A /27 only provides 30 usable hosts per subnet, which falls short. A /25 works numerically but wastes far more addresses than necessary per subnet given the actual requirement. Choosing the tightest prefix that still meets the requirement is the standard subnetting discipline.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A host attempts to connect to a service on TCP port 8080 and immediately receives a segment with the RST flag set, with no data exchanged. What does this most likely indicate?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. The three-way handshake completed successfully</button>
+              <button class="kc-option" data-correct="false">B. The connection is using UDP instead of TCP</button>
+              <button class="kc-option" data-correct="true">C. Nothing is listening on that port, or the connection was actively refused</button>
+              <button class="kc-option" data-correct="false">D. The packet was corrupted in transit and needs retransmission</button>
+            </div>
+            <div class="kc-answer">An RST sent immediately in response to a connection attempt, with no SYN-ACK first, typically means no process is listening on that port or a firewall is actively rejecting the connection. This is a normal and common response during port scanning: closed ports answer with RST while open ones answer with SYN-ACK, which is exactly how scanners like Nmap distinguish open from closed ports. It has nothing to do with UDP or packet corruption, which would produce silence or a checksum failure rather than an explicit reset.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="index.html" class="chapter-nav-prev">← Networking Overview</a>
+          <a href="02-routing-switching-vlans.html" class="chapter-nav-next">Routing, Switching & VLANs →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Networking</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('01', 6));</script>
+</body>
+</html>

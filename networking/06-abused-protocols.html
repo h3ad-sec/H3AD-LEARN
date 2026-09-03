@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="06">
+  <meta name="module-id" content="networking">
+  <title>Protocols Attackers Abuse · Networking · H3AD-LEARN</title>
+  <meta name="description" content="Explains how attackers abuse HTTP, SMB, and RDP for payload delivery, lateral movement, and remote access, and how DNS tunneling smuggles data past defenses.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/networking/06-abused-protocols.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/networking/06-abused-protocols.html">
+  <meta property="og:title" content="Protocols Attackers Abuse · Networking · H3AD-LEARN">
+  <meta property="og:description" content="Explains how attackers abuse HTTP, SMB, and RDP for payload delivery, lateral movement, and remote access, and how DNS tunneling smuggles data past defenses.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Protocols Attackers Abuse · Networking · H3AD-LEARN">
+  <meta name="twitter:description" content="Explains how attackers abuse HTTP, SMB, and RDP for payload delivery, lateral movement, and remote access, and how DNS tunneling smuggles data past defenses.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Protocols Attackers Abuse",
+    "description": "Explains how attackers abuse HTTP, SMB, and RDP for payload delivery, lateral movement, and remote access, and how DNS tunneling smuggles data past defenses.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/networking/06-abused-protocols.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Networking",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/networking/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://h3ad-sec.github.io/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "H3AD-LEARN",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Networking",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/networking/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "Protocols Attackers Abuse",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/networking/06-abused-protocols.html"
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">PROTOCOLS ATTACKERS ABUSE</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub nav-current">&#8623; NETWORKING</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Networking</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 06 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 06</span>
+            <span class="badge-time muted mono">35 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Protocols Attackers Abuse</h1>
+          <p class="chapter-intro">Almost none of the protocols attackers rely on are inherently malicious. HTTP serves billions of legitimate web requests every minute. SMB is how every Windows fileshare in the world works. RDP is how countless IT teams remotely support their users, and DNS is the lookup service every single device on the internet depends on just to resolve a name. That legitimacy is exactly what makes abuse of these protocols so hard to catch: the traffic looks like traffic your organization generates all day, every day, and the attacker is counting on that resemblance to buy them time.</p>
+          <div class="chapter-tags">
+            <span class="tag">SMB</span>
+            <span class="tag">RDP</span>
+            <span class="tag">DNS tunneling</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="http-abuse">
+          <h2>HTTP and HTTPS for Payload Delivery and C2</h2>
+          <p>HTTP and HTTPS are the most abused protocols on the internet simply because of volume. Every network allows outbound web traffic, most proxies and firewalls are tuned to let it flow with minimal friction, and TLS encryption means a growing share of that traffic cannot be inspected for content at all without a break-and-inspect proxy. Attackers exploit this on two fronts: getting malware onto a host in the first place, and then talking to that malware once it is there.</p>
+
+          <p>Delivery over HTTP takes several common forms. Drive-by downloads serve malicious content from a compromised or attacker-controlled website, often through a browser exploit or a fake update prompt, with no action from the victim beyond visiting the page. Staged payloads are more common in modern intrusions: a small first-stage loader, often delivered through phishing, reaches out over HTTP to fetch a second-stage payload from an attacker server. Splitting delivery into stages lets the attacker keep the initial lure small and unremarkable while holding the more detectable capability back until after the victim has already executed something.</p>
+
+          <p>Command and control over HTTP/S works because C2 frameworks deliberately mimic legitimate web traffic. A beacon checks in to a C2 server at intervals, requesting tasking and posting back results, formatted to resemble ordinary API calls or browser requests. Frameworks like Cobalt Strike default to HTTP/S beaconing precisely because it blends with the baseline. The C2 channel does not need to look suspicious on its own; it needs to look like nothing at all, one more request among thousands.</p>
+
+          <p>User-agent strings are one of the easiest tells when they are wrong. A beacon that claims to be a specific browser version but omits the headers, cookies, and referer chains a real browser generates stands out once you know to look. Outdated or generic user-agent strings, requests with no accompanying DNS lookup for the destination hostname, and traffic to a domain with no legitimate business reason to be contacted are all signals worth correlating.</p>
+
+          <p>Beaconing interval is the other major tell. Legitimate application traffic tends to be bursty and tied to human activity or scheduled jobs with predictable timing. C2 beacons, even ones that jitter their timing to avoid pattern detection, tend to check in with a rough periodicity over long stretches of time, often from a host that has no other reason to talk to that destination. Plotting connection timestamps to a given external host and looking for a near-constant interval, even a jittered one, is one of the more reliable ways to surface a beacon that has otherwise blended into normal traffic volume.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> TLS inspection changes what you can see but not what you should look for. Even without decrypting payloads, JA3/JA3S TLS fingerprints, certificate details, SNI values, and connection timing all remain visible and are frequently enough to flag a C2 channel that never gets fully decrypted.
+          </div>
+        </section>
+
+        <section class="content-section" id="smb-abuse">
+          <h2>SMB for Lateral Movement</h2>
+          <p>Server Message Block (SMB) is the protocol behind Windows file and printer sharing, and it is also one of the most heavily abused protocols for moving between hosts inside a compromised network. Once an attacker has valid credentials or a foothold with sufficient privileges, SMB gives them a built-in, expected way to read, write, and execute on other machines without introducing any new tooling that would stand out.</p>
+
+          <p>Administrative shares are the specific mechanism most often abused. Windows automatically exposes hidden shares like C$ and ADMIN$ on every machine, mapping to the root of the C: drive and the Windows directory respectively, accessible to any account with local administrator rights. An attacker who has compromised a domain account with admin privileges on other hosts can connect to these shares directly, drop a binary or script onto a remote machine, and then trigger execution through a separate mechanism such as a scheduled task or a service.</p>
+
+          <p>PsExec-style remote execution is the classic pattern built on top of this. The legitimate Sysinternals tool PsExec, and the many attacker reimplementations of the same technique, copy an executable to ADMIN$ over SMB, then use the Service Control Manager over the same authenticated session to create and start a temporary service that runs the payload. The result is code execution on a remote host using nothing but standard SMB and RPC traffic and a set of credentials the attacker already controls. Because the mechanism is identical to what legitimate IT administration tools use, distinguishing malicious PsExec-style movement from a sysadmin pushing a software update comes down to context: which account is doing it, at what hour, against how many hosts, and whether that account has a documented reason to be an admin session initiator at all.</p>
+
+          <p>EternalBlue is worth knowing as the historical case where SMB itself, not just its administrative use, became the attack surface. The vulnerability, in the SMBv1 implementation of Windows, allowed unauthenticated remote code execution and was weaponized at massive scale in the WannaCry and NotPetya outbreaks of 2017. It is a reminder that SMB abuse is not limited to credential-based lateral movement; the protocol implementation itself has had critical, wormable flaws, and SMBv1 in particular should not exist on a modern network.</p>
+
+          <p>Detecting SMB-based lateral movement generally means watching for the pattern rather than the protocol: a single account authenticating to ADMIN$ or C$ on a series of hosts in a short window, unusual process creation tied to a service that was just installed remotely, or SMB traffic between workstation-to-workstation pairs that have no business reason to talk to each other at all, since most legitimate SMB traffic in a well-segmented network flows to file servers, not laterally between endpoints.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Mechanism</th><th>Legitimate Use</th><th>Abuse Pattern</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>C$ / ADMIN$ shares</td><td>Remote IT administration and imaging tools</td><td>Dropping payloads onto a remote host prior to execution</td></tr>
+                <tr><td>Service Control Manager</td><td>Installing and managing Windows services</td><td>PsExec-style remote code execution via temporary service</td></tr>
+                <tr><td>SMBv1 protocol flaw</td><td>N/A, legacy compatibility only</td><td>EternalBlue: unauthenticated RCE, wormed in WannaCry/NotPetya</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="rdp-abuse">
+          <h2>RDP for Remote Access</h2>
+          <p>Remote Desktop Protocol (RDP) gives a user a full interactive graphical session on a remote Windows machine, and it is used legitimately every day by IT support staff, remote workers, and system administrators managing servers that are not physically in front of them. That same full interactive access is exactly what makes RDP valuable to an attacker who has obtained or guessed a working set of credentials.
+
+          </p>
+
+          <p>Credential brute forcing and password spraying against internet-exposed RDP is one of the most common initial access vectors seen in ransomware intrusions. Automated tools sweep IP ranges for hosts with port 3389 open, then either hammer a small set of usernames with large password lists (brute forcing) or try one or two common passwords across a large set of usernames (spraying, which avoids account lockouts by staying under the threshold for any single account). Once valid credentials are found, the attacker has an interactive foothold that looks, from the server's perspective, identical to any other remote logon.</p>
+
+          <p>After initial compromise, RDP is frequently reused as both a persistence mechanism and a lateral movement tool. An attacker who has already gained a foothold through another vector will often enable RDP on additional internal hosts, create a new local account, or add an existing account to the Remote Desktop Users group, giving themselves a durable way back in that survives the loss of the original access point. RDP sessions between internal hosts, particularly from a workstation to a server or between workstations that have no administrative relationship, are a strong lateral movement indicator worth building detections around.</p>
+
+          <p>BlueKeep is the RDP equivalent of EternalBlue as a historical reference point: a 2019 vulnerability in RDP's implementation on older Windows versions that allowed unauthenticated remote code execution, wormable in the same way EternalBlue was, though it was never weaponized at the same scale in the wild before patches and mitigations became widespread. It underscores that RDP abuse is not limited to credential attacks; the protocol has carried critical, pre-authentication flaws of its own.</p>
+
+          <p>Detection for RDP abuse centers on the same reasoning as SMB: know what normal RDP usage looks like for your environment, then flag departures from it. Successful logons following a burst of failures from the same source, RDP sessions originating from unexpected geographic locations or from Tor exit nodes, logons to servers from accounts that have never logged onto that host before, and new local accounts appearing shortly before RDP activity from those accounts are all high-value signals.</p>
+        </section>
+
+        <section class="content-section" id="dns-tunneling-deep-dive">
+          <h2>DNS Tunneling in Depth</h2>
+          <p>DNS tunneling deserves a deeper look than a general introduction can give it, because the mechanics explain why it remains effective even in security-mature environments. DNS resolution is treated as infrastructure rather than as application traffic in most organizations. Firewalls that block nearly everything else outbound routinely leave UDP/TCP port 53 wide open, because blocking it breaks name resolution for the entire network. Tunneling tools exploit exactly that gap.</p>
+
+          <p>The mechanics rely on the attacker controlling the authoritative DNS server for a domain they own. Data to be exfiltrated, or C2 tasking to be delivered, is encoded, commonly using Base32 or Base64 variants that survive DNS's restricted character set, and split into chunks small enough to fit as subdomain labels, something like <code>7xkq9f2mZ.data.evil-domain.com</code>. The infected host queries that constructed hostname. Because the domain is delegated to the attacker's authoritative server, the query eventually lands there instead of stopping at a caching resolver, and the attacker's server decodes the subdomain to recover the exfiltrated fragment. Responses work the same way in reverse: data can be smuggled back to the victim inside TXT records, NULL records, or the resolved IP address of an A record, giving the channel two-way communication for full interactive C2, not just one-way exfiltration.</p>
+
+          <p>The throughput is deliberately low, often just tens of kilobytes per hour once encoding overhead and query rate limits are accounted for, which is precisely why it survives detection efforts aimed at large, obvious transfers. An attacker using DNS tunneling for exfiltration is rarely trying to move gigabytes; they are moving credentials, small documents, or C2 tasking data where volume matters far less than the channel staying open and unblocked.</p>
+
+          <p>iodine and dnscat2 are the two tools most commonly referenced as examples of purpose-built DNS tunneling software, both open source and both originally built for legitimate uses such as tunneling internet access through captive portals or for red team engagements, which is also why their query patterns and encoding schemes are well documented and detectable once defenders know what to look for. Commodity malware families and custom C2 frameworks have also implemented their own DNS tunneling channels as a fallback communication method when HTTP-based C2 gets blocked.</p>
+
+          <p>Detection signals build directly on what makes the technique work: unusually high query volume to a single second-level domain, subdomain labels with high entropy or unusual length that do not resemble real hostnames, queries for record types rarely used in normal traffic such as TXT and NULL at high frequency, and a steady, sustained rate of queries to a domain rather than the bursty pattern normal DNS resolution produces. Because the payload lives inside a protocol nobody thinks to inspect closely, catching tunneling depends entirely on treating DNS query logs as a first-class detection data source rather than plumbing to ignore.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> Blocking port 53 outbound except to approved resolvers closes the most common DNS tunneling path, but only if internal resolvers themselves are also monitored for tunneling patterns. A misconfigured internal DNS server that forwards arbitrary recursive queries can still be abused as a tunnel even when direct external DNS access from endpoints is blocked.
+          </div>
+        </section>
+
+        <section class="content-section" id="other-abused-protocols">
+          <h2>Other Commonly Abused Protocols</h2>
+          <p>FTP, Telnet, and SNMP get less attention than HTTP, SMB, and RDP, but each shows up often enough in real intrusions and legacy environments to be worth knowing well. All three share a common thread: they were designed in an era before authentication and encryption were assumed defaults, and organizations that still run them are usually running them for legacy compatibility reasons that make patching or replacing them politically harder than it should be.</p>
+
+          <p>FTP transmits credentials and file contents in cleartext by default, which makes any FTP session on a network segment an easy target for credential capture through passive traffic monitoring. Anonymous FTP access, where a server is deliberately configured to allow login with no password or a generic "anonymous" account, is a frequent misconfiguration that turns an FTP server into an open file drop, sometimes discovered and abused by attackers for staging tools or exfiltrating data without needing any credentials at all.</p>
+
+          <p>Telnet is FTP's problem taken further: not just credentials but the entire session, every keystroke and every character of output, travels in cleartext. Telnet has been obsolete for interactive administrative access for decades, replaced by SSH, but it persists on legacy network gear, industrial control systems, and a surprising number of consumer and enterprise IoT devices where the manufacturer never bothered to implement anything better. Any Telnet traffic on a modern network is worth investigating on sight, both because of what it exposes and because its presence usually signals an unmanaged or forgotten device.</p>
+
+          <p>SNMP, the Simple Network Management Protocol used to monitor and configure network devices, is most commonly abused through weak default community strings, the SNMP equivalent of a password, with "public" for read access and "private" for write access being defaults that ship on an enormous number of devices and are never changed. An attacker who finds SNMP exposed with default community strings can pull detailed device configuration, routing tables, and interface information for reconnaissance, or in the case of write access, reconfigure the device outright. SNMPv1 and v2c send these community strings in cleartext, compounding the problem for anyone monitoring the wire.</p>
+
+          <p>None of these three protocols need to be eliminated to be secured. FTP has an encrypted sibling in FTPS or can be replaced with SFTP over SSH. Telnet has a drop-in encrypted replacement in SSH. SNMP has SNMPv3, which adds real authentication and encryption over the community-string model. The recurring lesson is that cleartext, legacy protocols do not disappear on their own; they linger because replacing them takes deliberate inventory and remediation work that competes for the same time and budget as everything else.</p>
+        </section>
+
+        <section class="content-section" id="protocol-abuse-detection-mindset">
+          <h2>The Detection Mindset for Protocol Abuse</h2>
+          <p>Every protocol covered in this chapter has a completely legitimate reason to exist on your network. That is not an incidental detail; it is the central fact that should shape how you build detections against protocol abuse. The signal worth chasing is almost never "this protocol is bad." It is "this instance of this protocol does not match how this protocol normally behaves in this environment."</p>
+
+          <p>That reframing matters because a detection built on the wrong premise produces one of two bad outcomes. Block or alert on a protocol wholesale, and you either break legitimate business functions, generating so many false positives that the alert gets tuned out or the rule gets disabled, or you get pushback from the business units that depend on the traffic and lose the detection entirely. Ignore the protocol because it is "normal," and you miss the abuse happening inside it, since attackers specifically choose these protocols because they know defenders are reluctant to touch them.</p>
+
+          <p>The workable middle ground is baselining: understanding what normal HTTP, SMB, RDP, DNS, and legacy protocol usage actually looks like in your specific environment, then building detections around deviations from that baseline rather than around the protocol itself. Which accounts normally use RDP, and to which hosts. Which service accounts normally touch ADMIN$ shares, and on what schedule. What the DNS query volume and entropy distribution looks like on an ordinary day. A detection tuned to your environment's baseline catches the ransomware operator brute-forcing RDP without also flagging your help desk's routine remote support sessions.</p>
+
+          <p>This is also why context and correlation matter more than any single indicator across every protocol in this chapter. A beacon-like HTTP interval, a new admin-share connection, an RDP logon from an unusual source, and a spike in TXT record queries are each individually explainable in isolation. Stacked together on the same host within a short window, they tell a very different story. Building that correlation logic, rather than chasing single-signal alerts, is what separates a detection program that catches protocol abuse from one that just generates noise about protocols doing what protocols normally do.</p>
+
+          <p>Carry this mindset forward into the next chapter, which builds directly on it: turning the protocol-level behaviors described here into concrete network detections, the log sources that surface them, and the specific query logic that separates a legitimate administrative session from an intrusion in progress.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>HTTP/S is abused for both payload delivery and C2 because outbound web traffic is universally allowed and increasingly encrypted. User-agent inconsistencies and steady beaconing intervals are the most reliable tells.</li>
+            <li>SMB lateral movement typically abuses the built-in C$/ADMIN$ administrative shares and the Service Control Manager to achieve PsExec-style remote execution using credentials the attacker already controls.</li>
+            <li>EternalBlue and BlueKeep are the reference cases for SMB and RDP being attack surfaces in their own right, not just channels for credential-based abuse.</li>
+            <li>RDP is abused through brute forcing and password spraying against exposed servers for initial access, and reused post-compromise for persistence and lateral movement.</li>
+            <li>DNS tunneling exploits the fact that DNS is almost never blocked outbound, encoding data into subdomain labels and record responses at low throughput to stay under detection thresholds; iodine and dnscat2 are common tools.</li>
+            <li>The detection mindset that works across all of these protocols is baselining normal usage and flagging deviation, not treating the protocol itself as the indicator.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">An analyst notices a workstation authenticating to the ADMIN$ share on six other workstations within two minutes, followed by a new service being created and started on each. What does this pattern most likely indicate?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Routine Windows Update activity</button>
+              <button class="kc-option" data-correct="true">B. PsExec-style lateral movement using compromised credentials</button>
+              <button class="kc-option" data-correct="false">C. A misconfigured DNS resolver</button>
+              <button class="kc-option" data-correct="false">D. Normal print spooler traffic</button>
+            </div>
+            <div class="kc-answer">Connecting to ADMIN$ on multiple hosts in a tight window and then creating and starting a temporary service on each is the classic PsExec-style remote execution pattern. Workstation-to-workstation SMB traffic of this kind, especially at speed and scale, has no common legitimate explanation and should be treated as likely lateral movement using an already-compromised account.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A firewall blocks all outbound traffic except DNS, HTTP, and HTTPS, yet an infected host is still successfully exfiltrating small amounts of data. Which technique best explains this, and why does the existing firewall policy fail to stop it?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. FTP exfiltration, because FTP is rarely blocked</button>
+              <button class="kc-option" data-correct="true">B. DNS tunneling, because port 53 is left open for name resolution and is not treated as an inspection point</button>
+              <button class="kc-option" data-correct="false">C. Telnet exfiltration, because Telnet traffic looks like SSH</button>
+              <button class="kc-option" data-correct="false">D. SNMP exfiltration, because community strings are always encrypted</button>
+            </div>
+            <div class="kc-answer">DNS tunneling is designed for exactly this scenario. Because name resolution has to work for the network to function at all, port 53 is almost always left open even in restrictive egress policies, and DNS query logs are frequently not inspected with the same scrutiny as HTTP traffic. Encoding data into subdomain labels or DNS record responses lets an attacker exfiltrate through a channel the firewall policy was never designed to catch.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A security team wants to reduce false positives on their RDP anomaly detection rule, which currently alerts on every RDP logon between internal hosts. What is the most effective fix?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Disable the rule entirely since RDP is a legitimate business protocol</button>
+              <button class="kc-option" data-correct="false">B. Alert only on RDP traffic that uses TLS encryption</button>
+              <button class="kc-option" data-correct="true">C. Baseline which accounts and host pairs normally use internal RDP, and alert only on deviations from that baseline</button>
+              <button class="kc-option" data-correct="false">D. Block RDP between all internal hosts without exception</button>
+            </div>
+            <div class="kc-answer">RDP has legitimate internal uses, such as IT support and server administration, so alerting on every instance produces unmanageable noise. The fix is not to disable the rule or block the protocol outright, both of which either lose the detection or break business function. Baselining which accounts and host pairs normally generate RDP traffic, then alerting on new or unusual combinations, keeps the detection useful without flagging routine administrative work.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="05-packet-analysis-wireshark.html" class="chapter-nav-prev">← Packet Analysis with Wireshark</a>
+          <a href="07-network-detection.html" class="chapter-nav-next">Network Detection →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Networking</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('06', 6));</script>
+</body>
+</html>
