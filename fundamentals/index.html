@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>H3AD-LEARN: LOLBAS · Living Off the Land</title>
-  <meta name="description" content="LOLBAS curriculum: LOLBin taxonomy, attacker tradecraft, detection strategy, KQL/Sigma queries, threat actor campaigns, and advanced evasion defense." />
-  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/lolbas/" />
+  <title>H3AD-LEARN: Security Fundamentals · Core Concepts</title>
+  <meta name="description" content="Security Fundamentals curriculum: CIA triad, authentication, cryptography, attacks and the kill chain, frameworks, risk management, and SOC operations." />
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/" />
 
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="H3AD-SEC" />
-  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/lolbas/" />
-  <meta property="og:title" content="H3AD-LEARN: LOLBAS · Living Off the Land" />
-  <meta property="og:description" content="LOLBAS curriculum: LOLBin taxonomy, attacker tradecraft, detection strategy, KQL/Sigma queries, threat actor campaigns, and advanced evasion defense." />
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/" />
+  <meta property="og:title" content="H3AD-LEARN: Security Fundamentals · Core Concepts" />
+  <meta property="og:description" content="Security Fundamentals curriculum: CIA triad, authentication, cryptography, attacks and the kill chain, frameworks, risk management, and SOC operations." />
   <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" />
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="H3AD-LEARN: LOLBAS · Living Off the Land" />
-  <meta name="twitter:description" content="LOLBAS curriculum: LOLBin taxonomy, attacker tradecraft, detection strategy, KQL/Sigma queries, threat actor campaigns, and advanced evasion defense." />
+  <meta name="twitter:title" content="H3AD-LEARN: Security Fundamentals · Core Concepts" />
+  <meta name="twitter:description" content="Security Fundamentals curriculum: CIA triad, authentication, cryptography, attacks and the kill chain, frameworks, risk management, and SOC operations." />
   <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" />
 
   <meta name="theme-color" content="#080c14" />
@@ -26,7 +26,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/style.css" />
   <style>
-    /* Module-index page styles */
     .module-hero { padding: 3.5rem 0 2.5rem; }
     .module-hero-inner { display: flex; flex-direction: column; gap: 1.25rem; }
     .back-link { display: inline-flex; align-items: center; gap: 0.4rem; font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; color: var(--muted); text-decoration: none; transition: color 0.2s; }
@@ -46,7 +45,6 @@
     .module-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
     .module-tag { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--secondary); background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.15); border-radius: 3px; padding: 0.2em 0.55em; }
 
-    /* Chapter grid */
     .chapters-section { padding: 3rem 0; }
     .chapters-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
     @media (max-width: 768px) { .chapters-grid { grid-template-columns: 1fr; } }
@@ -87,7 +85,6 @@
     .chapter-arrow { font-size: 1rem; color: var(--accent); opacity: 0; transition: opacity 0.2s; }
     .chapter-card:hover .chapter-arrow { opacity: 1; }
 
-    /* Prerequisites */
     .prereq-section { padding: 3rem 0; background: var(--panel-alt); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
     .prereq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
     @media (max-width: 768px) { .prereq-grid { grid-template-columns: 1fr; } }
@@ -98,13 +95,14 @@
     .prereq-list li::before { content: '\00B7'; position: absolute; left: 0; color: var(--accent); font-size: 1rem; line-height: 1.3; }
     .prereq-card.is-outcomes .prereq-list li::before { color: var(--secondary); }
   </style>
+
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Course",
-    "name": "LOLBAS",
-    "description": "LOLBAS curriculum: LOLBin taxonomy, attacker tradecraft, detection strategy, KQL/Sigma queries, threat actor campaigns, and advanced evasion defense.",
-    "url": "https://h3ad-sec.github.io/H3AD-LEARN/lolbas/",
+    "name": "Security Fundamentals",
+    "description": "Security Fundamentals curriculum: CIA triad, authentication, cryptography, attacks and the kill chain, frameworks, risk management, and SOC operations.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/",
     "provider": {
       "@type": "Organization",
       "name": "H3AD-SEC",
@@ -132,8 +130,8 @@
     {
       "@type": "ListItem",
       "position": 3,
-      "name": "LOLBAS",
-      "item": "https://h3ad-sec.github.io/H3AD-LEARN/lolbas/"
+      "name": "Fundamentals",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/"
     }
   ]
 }
@@ -141,7 +139,6 @@
 </head>
 <body>
 
-  <!-- HEADER -->
     <div id="scroll-sentinel" aria-hidden="true"></div>
   <nav class="nav">
     <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
@@ -150,7 +147,7 @@
     </a>
     <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
       <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
-      <span class="xv-pill-tagline">LIVING OFF THE LAND</span>
+      <span class="xv-pill-tagline">SECURITY FUNDAMENTALS</span>
     </a>
     <div class="nav-right">
       <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
@@ -182,30 +179,29 @@
     <a href="https://h3ad-sec.github.io/H3AD-DF/">H3AD-DF &nbsp;&#8599;</a>
     <a href="https://h3ad-sec.github.io/H3AD-IR/">H3AD-IR &nbsp;&#8599;</a>
     <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub nav-current">&#8623; FUNDAMENTALS</a>
     <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
-    <a href="../lolbas/index.html" class="drawer-sub nav-current">&#8623; LOLBAS</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
     <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
     <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
     <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
   </div>
 
-  <!-- BREADCRUMB -->
   <div class="container" style="padding-top: 1.25rem; padding-bottom: 0;">
     <nav aria-label="Breadcrumb" style="font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; color: var(--muted); display: flex; align-items: center; gap: 0.5rem;">
       <a href="../index.html" style="color: var(--muted); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">Home</a>
       <span aria-hidden="true">&#8250;</span>
-      <span style="color: var(--text);">LOLBAS</span>
+      <span style="color: var(--text);">Security Fundamentals</span>
     </nav>
   </div>
 
-  <!-- MODULE HERO -->
   <section class="module-hero">
     <div class="container">
       <div class="module-hero-inner">
         <a href="../index.html" class="back-link">All Modules</a>
-        <span class="module-badge">LOLBAS</span>
-        <h1 class="module-hero-title">Living Off the Land &middot; Complete Guide</h1>
-        <p class="module-hero-desc">Eight chapters on LOLBin taxonomy, attacker tradecraft, detection strategy, KQL/Sigma queries, threat actor campaigns, and advanced evasion defense. Built for detection engineers and threat hunters who need to go beyond signatures.</p>
+        <span class="module-badge">FUNDAMENTALS</span>
+        <h1 class="module-hero-title">Security Fundamentals &middot; Complete Guide</h1>
+        <p class="module-hero-desc">Eight chapters covering the core concepts every other domain in H3AD-LEARN builds on: the CIA triad, authentication and access control, cryptography basics, common attack patterns, security frameworks and compliance, risk and vulnerability management, SOC operations basics, and how it all maps to a career track. Built for anyone starting a SOC analyst, threat hunting, or detection engineering path with no assumed background.</p>
 
         <div class="module-stats-strip">
           <div class="module-stat">
@@ -217,11 +213,11 @@
             <span class="module-stat-label">CONTENT</span>
           </div>
           <div class="module-stat">
-            <span class="module-stat-value">INTERMEDIATE to ADVANCED</span>
+            <span class="module-stat-value">BEGINNER to INTERMEDIATE</span>
             <span class="module-stat-label">SKILL RANGE</span>
           </div>
           <div class="module-stat">
-            <span class="module-stat-value">JUN 2026</span>
+            <span class="module-stat-value">SEP 2026</span>
             <span class="module-stat-label">LAST UPDATED</span>
           </div>
         </div>
@@ -229,28 +225,27 @@
         <div class="module-progress-wrap">
           <div class="module-progress-meta">
             <span>MODULE PROGRESS</span>
-            <span id="lolbas-progress-label">0 / 8 chapters complete</span>
+            <span id="fundamentals-progress-label">0 / 8 chapters complete</span>
           </div>
           <div class="module-progress-bar-outer">
-            <div class="module-progress-bar-inner" id="lolbas-progress-bar"></div>
+            <div class="module-progress-bar-inner" id="fundamentals-progress-bar"></div>
           </div>
         </div>
 
         <div class="module-tags">
-          <span class="module-tag">LOLBins</span>
-          <span class="module-tag">T1218</span>
-          <span class="module-tag">LOTL</span>
-          <span class="module-tag">certutil</span>
-          <span class="module-tag">PowerShell</span>
-          <span class="module-tag">KQL</span>
-          <span class="module-tag">Sigma</span>
-          <span class="module-tag">behavioral detection</span>
+          <span class="module-tag">CIA triad</span>
+          <span class="module-tag">AAA</span>
+          <span class="module-tag">MFA</span>
+          <span class="module-tag">cryptography</span>
+          <span class="module-tag">kill chain</span>
+          <span class="module-tag">NIST CSF</span>
+          <span class="module-tag">CVSS</span>
+          <span class="module-tag">SOC tiers</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- CHAPTER GRID -->
   <section class="chapters-section" aria-labelledby="chapters-heading">
     <div class="container">
       <div class="section-header" style="margin-bottom: 2rem;">
@@ -264,21 +259,20 @@
       <p class="search-empty" id="chapterSearchEmpty" hidden>No chapters match &ldquo;<span id="chapterSearchEmptyTerm"></span>&rdquo;.</p>
       <div class="chapters-grid" id="chaptersGrid">
 
-        <!-- CHAPTER 01 -->
-        <a class="chapter-card" href="./01-lol-fundamentals.html" aria-label="Chapter 1: LOL Fundamentals">
+        <a class="chapter-card" href="./01-cia-triad-security-fundamentals.html" aria-label="Chapter 1: Security Fundamentals and the CIA Triad">
           <div class="chapter-card-top">
             <span class="chapter-num">01</span>
             <div class="chapter-badges">
               <span class="chapter-diff-beginner">BEGINNER</span>
-              <span class="chapter-time">30 min</span>
+              <span class="chapter-time">25 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">LOL Fundamentals</h3>
-          <p class="chapter-desc">What LOLBins are, why they exist, and why signature-based detection fails against them. The LOLBAS Project taxonomy and T1218 subtechnique structure.</p>
+          <h3 class="chapter-title">Security Fundamentals &amp; the CIA Triad</h3>
+          <p class="chapter-desc">Confidentiality, integrity, and availability as the core security model, the Parkerian Hexad extension, AAA, and the vocabulary of threat, vulnerability, risk, and attack surface every other chapter assumes.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">taxonomy</span>
-            <span class="chapter-tag">T1218</span>
-            <span class="chapter-tag">LOLBAS</span>
+            <span class="chapter-tag">CIA triad</span>
+            <span class="chapter-tag">AAA</span>
+            <span class="chapter-tag">core vocabulary</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="01">
@@ -289,21 +283,20 @@
           </div>
         </a>
 
-        <!-- CHAPTER 02 -->
-        <a class="chapter-card" href="./02-lolbin-catalog.html" aria-label="Chapter 2: LOLBin Catalog">
+        <a class="chapter-card" href="./02-authentication-access-control.html" aria-label="Chapter 2: Authentication and Access Control">
           <div class="chapter-card-top">
             <span class="chapter-num">02</span>
             <div class="chapter-badges">
-              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
-              <span class="chapter-time">40 min</span>
+              <span class="chapter-diff-beginner">BEGINNER</span>
+              <span class="chapter-time">30 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">LOLBin Catalog</h3>
-          <p class="chapter-desc">Deep reference for certutil, mshta, regsvr32, rundll32, PowerShell, wmic, bitsadmin, and installutil. Abuse patterns, CommandLine indicators, and detection notes per binary.</p>
+          <h3 class="chapter-title">Authentication &amp; Access Control</h3>
+          <p class="chapter-desc">The three authentication factors, MFA mechanics from TOTP to passkeys, RBAC and ABAC authorization models, least privilege, and why Zero Trust replaced the perimeter model.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">certutil</span>
-            <span class="chapter-tag">mshta</span>
-            <span class="chapter-tag">regsvr32</span>
+            <span class="chapter-tag">MFA</span>
+            <span class="chapter-tag">RBAC</span>
+            <span class="chapter-tag">Zero Trust</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="02">
@@ -314,21 +307,20 @@
           </div>
         </a>
 
-        <!-- CHAPTER 03 -->
-        <a class="chapter-card" href="./03-lolscripts-net.html" aria-label="Chapter 3: LOLScripts, LOLLibs, and LOLDrivers">
+        <a class="chapter-card" href="./03-cryptography-basics.html" aria-label="Chapter 3: Cryptography Basics">
           <div class="chapter-card-top">
             <span class="chapter-num">03</span>
             <div class="chapter-badges">
-              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
-              <span class="chapter-time">30 min</span>
+              <span class="chapter-diff-beginner">BEGINNER</span>
+              <span class="chapter-time">35 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">LOLScripts, LOLLibs, and LOLDrivers</h3>
-          <p class="chapter-desc">Beyond executables: how attackers abuse built-in scripts, .NET libraries, and vulnerable kernel drivers. BYOVD attacks and the LOLDrivers catalog.</p>
+          <h3 class="chapter-title">Cryptography Basics</h3>
+          <p class="chapter-desc">Symmetric and asymmetric encryption, hashing and integrity, digital signatures, PKI and certificate chains, and how a TLS handshake ties all of it together.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">LOLScripts</span>
-            <span class="chapter-tag">LOLDrivers</span>
-            <span class="chapter-tag">BYOVD</span>
+            <span class="chapter-tag">symmetric/asymmetric</span>
+            <span class="chapter-tag">hashing</span>
+            <span class="chapter-tag">PKI</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="03">
@@ -339,8 +331,7 @@
           </div>
         </a>
 
-        <!-- CHAPTER 04 -->
-        <a class="chapter-card" href="./04-attacker-tradecraft.html" aria-label="Chapter 4: Attacker Tradecraft">
+        <a class="chapter-card" href="./04-common-attacks-kill-chain.html" aria-label="Chapter 4: Common Attacks and the Cyber Kill Chain">
           <div class="chapter-card-top">
             <span class="chapter-num">04</span>
             <div class="chapter-badges">
@@ -348,12 +339,12 @@
               <span class="chapter-time">35 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">Attacker Tradecraft</h3>
-          <p class="chapter-desc">Download cradles, execution proxies, persistence mechanisms, lateral movement, and defense evasion patterns. How LOLBins chain together across an intrusion lifecycle.</p>
+          <h3 class="chapter-title">Common Attacks &amp; the Cyber Kill Chain</h3>
+          <p class="chapter-desc">Malware taxonomy, phishing and social engineering tradecraft, common web and network attack patterns, and the Cyber Kill Chain and ATT&amp;CK as shared vocabulary for describing an intrusion.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">download cradle</span>
-            <span class="chapter-tag">lateral movement</span>
-            <span class="chapter-tag">PPID spoofing</span>
+            <span class="chapter-tag">malware taxonomy</span>
+            <span class="chapter-tag">kill chain</span>
+            <span class="chapter-tag">ATT&amp;CK</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="04">
@@ -364,21 +355,20 @@
           </div>
         </a>
 
-        <!-- CHAPTER 05 -->
-        <a class="chapter-card" href="./05-detection-strategy.html" aria-label="Chapter 5: Detection Strategy">
+        <a class="chapter-card" href="./05-security-frameworks-compliance.html" aria-label="Chapter 5: Security Frameworks and Compliance">
           <div class="chapter-card-top">
             <span class="chapter-num">05</span>
             <div class="chapter-badges">
               <span class="chapter-diff-intermediate">INTERMEDIATE</span>
-              <span class="chapter-time">35 min</span>
+              <span class="chapter-time">30 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">Detection Strategy</h3>
-          <p class="chapter-desc">Why behavioral detection beats signature detection for LOLBins. Parent-child process analysis, CommandLine baselining, network-side indicators, and alert triage methodology.</p>
+          <h3 class="chapter-title">Security Frameworks &amp; Compliance</h3>
+          <p class="chapter-desc">NIST CSF, ISO 27001, and CIS Controls as prioritization frameworks, plus a practical walkthrough of PCI-DSS, HIPAA, and GDPR obligations analysts actually encounter.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">behavioral</span>
-            <span class="chapter-tag">parent-child</span>
-            <span class="chapter-tag">baselining</span>
+            <span class="chapter-tag">NIST CSF</span>
+            <span class="chapter-tag">ISO 27001</span>
+            <span class="chapter-tag">CIS Controls</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="05">
@@ -389,21 +379,20 @@
           </div>
         </a>
 
-        <!-- CHAPTER 06 -->
-        <a class="chapter-card" href="./06-detection-queries.html" aria-label="Chapter 6: Detection Queries">
+        <a class="chapter-card" href="./06-risk-vulnerability-management.html" aria-label="Chapter 6: Risk and Vulnerability Management">
           <div class="chapter-card-top">
             <span class="chapter-num">06</span>
             <div class="chapter-badges">
               <span class="chapter-diff-intermediate">INTERMEDIATE</span>
-              <span class="chapter-time">40 min</span>
+              <span class="chapter-time">35 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">Detection Queries</h3>
-          <p class="chapter-desc">Production KQL, SPL, and Sigma rules for certutil, mshta, regsvr32, PowerShell IEX, wmic, bitsadmin, and more. Tuning guidance and false positive management per query.</p>
+          <h3 class="chapter-title">Risk &amp; Vulnerability Management</h3>
+          <p class="chapter-desc">Risk as likelihood times impact, CVSS scoring mechanics, the full vulnerability management lifecycle, and patch prioritization under real operational constraints.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">KQL</span>
-            <span class="chapter-tag">SPL</span>
-            <span class="chapter-tag">Sigma</span>
+            <span class="chapter-tag">CVSS</span>
+            <span class="chapter-tag">vuln lifecycle</span>
+            <span class="chapter-tag">patch management</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="06">
@@ -414,21 +403,20 @@
           </div>
         </a>
 
-        <!-- CHAPTER 07 -->
-        <a class="chapter-card" href="./07-threat-actor-usage.html" aria-label="Chapter 7: Threat Actor Campaigns">
+        <a class="chapter-card" href="./07-security-operations-basics.html" aria-label="Chapter 7: Security Operations Basics">
           <div class="chapter-card-top">
             <span class="chapter-num">07</span>
             <div class="chapter-badges">
-              <span class="chapter-diff-advanced">ADVANCED</span>
-              <span class="chapter-time">35 min</span>
+              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
+              <span class="chapter-time">30 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">Threat Actor Campaigns</h3>
-          <p class="chapter-desc">How APT32, APT34, Lazarus, BlackMatter, LockBit, and Conti use LOLBins. Cobalt Strike stager delivery methods. Attribution signals and translating CTI into hunt hypotheses.</p>
+          <h3 class="chapter-title">Security Operations Basics</h3>
+          <p class="chapter-desc">How a SOC is structured across tiers, what SIEM and EDR actually do, the alert triage workflow from ticket to disposition, and escalation and shift realities.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">APT</span>
-            <span class="chapter-tag">ransomware</span>
-            <span class="chapter-tag">Cobalt Strike</span>
+            <span class="chapter-tag">SOC tiers</span>
+            <span class="chapter-tag">SIEM</span>
+            <span class="chapter-tag">triage</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="07">
@@ -439,21 +427,19 @@
           </div>
         </a>
 
-        <!-- CHAPTER 08 -->
-        <a class="chapter-card" href="./08-advanced-evasion.html" aria-label="Chapter 8: Advanced Evasion and Defense">
+        <a class="chapter-card" href="./08-career-paths-roadmap.html" aria-label="Chapter 8: Career Paths and Your Learning Roadmap">
           <div class="chapter-card-top">
             <span class="chapter-num">08</span>
             <div class="chapter-badges">
-              <span class="chapter-diff-advanced">ADVANCED</span>
-              <span class="chapter-time">40 min</span>
+              <span class="chapter-diff-beginner">BEGINNER</span>
+              <span class="chapter-time">25 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">Advanced Evasion and Defense</h3>
-          <p class="chapter-desc">AMSI bypass detection, AppLocker/WDAC limitations, EDR evasion via LOLBins, hardening controls, Atomic Red Team validation, and threat-informed defense prioritization.</p>
+          <h3 class="chapter-title">Career Paths &amp; Your Learning Roadmap</h3>
+          <p class="chapter-desc">How these fundamentals map onto SOC analyst, threat hunter, CTI, detection engineer, and IR career tracks, plus a suggested study order through the rest of H3AD-LEARN.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">AMSI</span>
-            <span class="chapter-tag">WDAC</span>
-            <span class="chapter-tag">Atomic Red Team</span>
+            <span class="chapter-tag">career paths</span>
+            <span class="chapter-tag">study roadmap</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="08">
@@ -464,11 +450,10 @@
           </div>
         </a>
 
-      </div><!-- /chapters-grid -->
+      </div>
     </div>
   </section>
 
-  <!-- PREREQUISITES -->
   <section class="prereq-section" aria-labelledby="prereq-heading">
     <div class="container">
       <div class="section-header" style="margin-bottom: 2rem;">
@@ -480,22 +465,22 @@
         <div class="prereq-card">
           <p class="prereq-card-title">WHAT YOU SHOULD KNOW</p>
           <ul class="prereq-list">
-            <li>Windows OS fundamentals: processes, registry, file system, and signed binary concepts</li>
-            <li>Basic SIEM or query language exposure (KQL, SPL, or similar)</li>
-            <li>Familiarity with MITRE ATT&amp;CK technique structure and T-numbers</li>
-            <li>General understanding of how endpoint security and AV products work</li>
+            <li>No security background required. This module assumes general computer literacy only</li>
+            <li>Basic comfort with how logins, websites, and files work day to day</li>
+            <li>Curiosity about how attackers and defenders think, no prior IT or security job required</li>
+            <li>Nothing else. This is the starting point for the rest of H3AD-LEARN</li>
           </ul>
         </div>
 
         <div class="prereq-card is-outcomes">
           <p class="prereq-card-title">WHAT YOU WILL KNOW AFTER</p>
           <ul class="prereq-list">
-            <li>The full LOLBin taxonomy: LOLBins, LOLScripts, LOLLibs, and LOLDrivers</li>
-            <li>How to write behavioral KQL, SPL, and Sigma rules for T1218 subtechniques</li>
-            <li>How APT and ransomware operators use LOLBins across the intrusion lifecycle</li>
-            <li>How to translate CTI reports into hunt hypotheses using actor LOLBin patterns</li>
-            <li>Which hardening controls actually reduce LOTL attack surface and which do not</li>
-            <li>How to validate detection coverage using Atomic Red Team and track coverage gaps</li>
+            <li>The CIA triad and the vocabulary (threat, vulnerability, risk, exploit) used throughout every other module</li>
+            <li>How authentication, authorization, and Zero Trust actually work, not just as buzzwords</li>
+            <li>Enough cryptography to understand TLS, hashing, and why certificate errors matter</li>
+            <li>The Cyber Kill Chain and ATT&amp;CK as a shared language for describing an attack</li>
+            <li>Where compliance and frameworks fit into a real security program</li>
+            <li>Which H3AD-LEARN module and which career track to pursue next</li>
           </ul>
         </div>
 
@@ -503,7 +488,6 @@
     </div>
   </section>
 
-  <!-- RECOMMENDED TOOLS -->
   <section class="resources-section" aria-labelledby="tools-heading">
     <div class="container">
       <div class="section-header">
@@ -513,46 +497,46 @@
       </div>
       <div class="resources-grid">
 
+        <a class="resource-card" href="https://h3ad-sec.github.io/H3AD/" target="_blank" rel="noopener noreferrer">
+          <div class="resource-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg>
+          </div>
+          <div class="resource-card-body">
+            <span class="resource-card-name mono">H3AD</span>
+            <p class="resource-card-desc">The SOC analyst console. See how CIA, AAA, and access control concepts from this module show up as real fields in a real investigation workflow.</p>
+          </div>
+          <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
+        </a>
+
+        <a class="resource-card" href="https://h3ad-sec.github.io/IOC-VERDIKT/" target="_blank" rel="noopener noreferrer">
+          <div class="resource-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <div class="resource-card-body">
+            <span class="resource-card-name mono">IOC-VERDIKT</span>
+            <p class="resource-card-desc">The lowest-friction way to see indicator confidence scoring and attack vocabulary from Chapter 1 and Chapter 4 applied to a live IOC lookup.</p>
+          </div>
+          <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
+        </a>
+
         <a class="resource-card" href="https://h3ad-sec.github.io/TRACERULES/" target="_blank" rel="noopener noreferrer">
           <div class="resource-card-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
           </div>
           <div class="resource-card-body">
             <span class="resource-card-name mono">TRACERULES</span>
-            <p class="resource-card-desc">KQL/Sigma/XQL detection query arsenal organized by MITRE ATT&amp;CK technique. Includes T1218 subtechnique coverage.</p>
+            <p class="resource-card-desc">Browse real detection rules to see how the Cyber Kill Chain and ATT&amp;CK vocabulary from Chapter 4 becomes an actual, production-ready query.</p>
           </div>
           <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
         </a>
 
-        <a class="resource-card" href="https://h3ad-sec.github.io/HYPOS/" target="_blank" rel="noopener noreferrer">
+        <a class="resource-card" href="https://h3ad-sec.github.io/PROMPTVAULT/" target="_blank" rel="noopener noreferrer">
           <div class="resource-card-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h5"/></svg>
           </div>
           <div class="resource-card-body">
-            <span class="resource-card-name mono">HYPOS</span>
-            <p class="resource-card-desc">ATT&amp;CK-driven hypothesis platform. Build and track LOLBin hunt hypotheses from CTI reports using the ABLE framework.</p>
-          </div>
-          <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
-        </a>
-
-        <a class="resource-card" href="https://h3ad-sec.github.io/PIVEX/" target="_blank" rel="noopener noreferrer">
-          <div class="resource-card-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-          </div>
-          <div class="resource-card-body">
-            <span class="resource-card-name mono">PIVEX</span>
-            <p class="resource-card-desc">Pivot graph for threat investigations. Map LOLBin execution chains to IOCs, actors, and infrastructure during active hunts.</p>
-          </div>
-          <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
-        </a>
-
-        <a class="resource-card" href="https://h3ad-sec.github.io/TRACEPULSE/" target="_blank" rel="noopener noreferrer">
-          <div class="resource-card-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
-          </div>
-          <div class="resource-card-body">
-            <span class="resource-card-name mono">TRACEPULSE</span>
-            <p class="resource-card-desc">Threat query packs by campaign and CVE. Structured hunt packs ready to deploy for LOLBin-heavy actor campaigns.</p>
+            <span class="resource-card-name mono">PROMPTVAULT</span>
+            <p class="resource-card-desc">A library of AI prompts for security work. Useful once you know the terminology in this module well enough to judge whether an AI answer is right.</p>
           </div>
           <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
         </a>
@@ -561,12 +545,11 @@
     </div>
   </section>
 
-  <!-- FOOTER -->
     <footer class="site-footer">
     <div class="container">
       <div class="footer-top">
         <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
-        <span class="footer-right">LOLBAS</span>
+        <span class="footer-right">Security Fundamentals</span>
         <div class="footer-credit-row">
           <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
             <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
@@ -580,21 +563,19 @@
   <script src="../js/learn.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Module progress bar
-      const pct   = getModuleProgress('lolbas');
-      const bar   = document.getElementById('lolbas-progress-bar');
-      const label = document.getElementById('lolbas-progress-label');
+      const pct   = getModuleProgress('fundamentals');
+      const bar   = document.getElementById('fundamentals-progress-bar');
+      const label = document.getElementById('fundamentals-progress-label');
       if (bar)   bar.style.width = pct + '%';
       if (label) {
         const progress  = initProgress();
-        const chapters  = progress.modules?.['lolbas']?.chapters || {};
+        const chapters  = progress.modules?.['fundamentals']?.chapters || {};
         const completed = Object.values(chapters).filter(c => c.status === 'complete').length;
         label.textContent = completed + ' / 8 chapters complete';
       }
 
-      // Chapter status dots
       const progress = initProgress();
-      const chapters = progress.modules?.['lolbas']?.chapters || {};
+      const chapters = progress.modules?.['fundamentals']?.chapters || {};
       document.querySelectorAll('.chapter-status[data-chapter-id]').forEach(el => {
         const id  = el.dataset.chapterId;
         const ch  = chapters[id];

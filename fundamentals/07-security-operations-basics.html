@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="07">
+  <meta name="module-id" content="fundamentals">
+  <title>Security Operations Basics · Fundamentals · H3AD-LEARN</title>
+  <meta name="description" content="How a SOC is structured across tiers, what SIEM and EDR actually do, the alert triage workflow from ticket to disposition, and escalation and shift realities.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/07-security-operations-basics.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/07-security-operations-basics.html">
+  <meta property="og:title" content="Security Operations Basics · Fundamentals · H3AD-LEARN">
+  <meta property="og:description" content="How a SOC is structured across tiers, what SIEM and EDR actually do, the alert triage workflow from ticket to disposition, and escalation and shift realities.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Security Operations Basics · Fundamentals · H3AD-LEARN">
+  <meta name="twitter:description" content="How a SOC is structured across tiers, what SIEM and EDR actually do, the alert triage workflow from ticket to disposition, and escalation and shift realities.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Security Operations Basics",
+    "description": "How a SOC is structured across tiers, what SIEM and EDR actually do, the alert triage workflow from ticket to disposition, and escalation and shift realities.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/07-security-operations-basics.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Security Fundamentals",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://h3ad-sec.github.io/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "H3AD-LEARN",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Fundamentals",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "Security Operations Basics",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/07-security-operations-basics.html"
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">SECURITY OPERATIONS BASICS</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub nav-current">&#8623; FUNDAMENTALS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Fundamentals</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 07 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 07</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Security Operations Basics</h1>
+          <p class="chapter-intro">Movies show a SOC as a dark room full of screens and someone shouting "we're in." The real thing is quieter and less dramatic: a queue of alerts, a ticketing system, a rotation of analysts working through them one at a time. A SOC is the operational function that watches an organization's environment continuously and decides, alert by alert, whether something needs action. This chapter covers how that function is actually structured, what the tools in front of an analyst really do, and what a shift looks like once the adrenaline of the pitch deck wears off.</p>
+          <div class="chapter-tags">
+            <span class="tag">SOC tiers</span>
+            <span class="tag">SIEM</span>
+            <span class="tag">triage</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="soc-structure">
+          <h2>SOC Structure: Tier 1, Tier 2, Tier 3</h2>
+          <p>Most SOCs organize analysts into tiers, and the tiers exist for a practical reason: alert volume is high, most alerts are not incidents, and it is inefficient to have your most experienced analyst reading every login notification. The tiered model routes low-complexity work to less experienced staff and reserves deep investigation for people who have earned the pattern recognition to do it fast. It is not a hierarchy of importance so much as a division of labor by depth of analysis required.</p>
+
+          <p>Tier 1 analysts are the front line. Their job is initial alert review: does this alert make sense given what fired it, is there an obvious explanation, does it match a known benign pattern, and does it need to go further. A Tier 1 analyst working a phishing alert checks headers, checks the sender domain, checks whether other users received the same email, and decides in a few minutes whether this is routine or needs escalation. Speed and consistency matter more than deep expertise at this tier, because the volume is high and most of what comes through is either false positive or already-understood benign activity.</p>
+
+          <p>Tier 2 analysts pick up what Tier 1 escalates. Their job is deeper investigation: pulling additional telemetry, correlating across multiple log sources, establishing a timeline, and where appropriate taking containment action such as isolating a host or disabling an account. Tier 2 work requires more context. A Tier 2 analyst investigating a suspicious PowerShell execution needs to understand what normal admin activity looks like on that specific host, whether the parent process is legitimate, and whether the behavior fits a known technique. They also own a lot of the incident coordination work: looping in IT, documenting scope, and deciding when something needs to become a formal incident.</p>
+
+          <p>Tier 3 analysts do the work that does not fit neatly into a ticket queue: proactive threat hunting, advanced malware and forensic analysis, and tuning the detection stack itself. When a Tier 2 investigation surfaces a detection gap, or a new technique shows up in a threat intel report, it is usually Tier 3 that writes the new correlation rule or hunt query. This tier also tends to own tool administration: SIEM rule libraries, EDR policy tuning, and playbook development that Tier 1 and Tier 2 rely on day to day. Not every SOC has a formal Tier 3; smaller teams often fold this into a senior analyst or detection engineering role.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Tier</th><th>Primary Focus</th><th>Typical Actions</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Tier 1</td><td>Initial alert triage</td><td>Review, classify, close false positives, escalate real hits</td></tr>
+                <tr><td>Tier 2</td><td>Investigation and containment</td><td>Correlate telemetry, build timeline, isolate hosts, coordinate IR</td></tr>
+                <tr><td>Tier 3</td><td>Hunting and tuning</td><td>Proactive hunts, malware analysis, detection rule authoring</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="what-siem-does">
+          <h2>What SIEM Actually Does</h2>
+          <p>SIEM stands for Security Information and Event Management, and at its core it does three things: it aggregates logs from across the environment into one place, it normalizes those logs into a common format, and it runs correlation rules against the normalized data to surface things worth looking at. None of that sounds dramatic, and it isn't. A SIEM is closer to a very large, well-indexed database with an alerting layer on top than it is to some kind of intelligent detection brain.</p>
+
+          <p>Aggregation means pulling logs from firewalls, endpoints, domain controllers, cloud services, proxies, and anything else generating security-relevant events, and shipping them to a central platform. This sounds simple but is the part organizations most often get wrong: a SIEM only sees what is forwarded to it. If DNS logs are not being shipped, the SIEM cannot alert on suspicious DNS activity no matter how well-written the correlation rule is. Log source coverage is the actual foundation of SOC capability, and gaps in that coverage are invisible until an incident happens and someone asks "do we have logs for that."</p>
+
+          <p>Normalization takes logs arriving in dozens of different formats, from dozens of different vendors, and maps them into a common schema so a field like "source IP" or "username" means the same thing regardless of which product generated the log. Without normalization, writing a single rule that catches suspicious logins across Windows, a cloud identity provider, and a VPN concentrator would mean writing three separate rules in three separate syntaxes. Normalization is unglamorous plumbing work, but a SIEM with poor normalization produces correlation rules that quietly miss data because the field they are matching against does not line up the way the analyst assumed.</p>
+
+          <p>Correlation rules are the logic that turns normalized events into alerts. A rule might say: if a single account fails authentication five times in two minutes and then succeeds, generate an alert. Or: if a process spawns from an Office document and then makes an outbound connection to a rare external domain, generate an alert. These rules range from simple threshold logic to more complex sequence and behavioral patterns. The quality of a SIEM deployment is measured almost entirely by the quality of the log sources feeding it and the quality of the rules written against those sources, not by which vendor's name is on the license.</p>
+
+          <p>This is why the phrase "garbage in, garbage out" gets repeated so often around SIEM deployments. A SIEM with expensive licensing but poor log coverage and untuned rules will generate a flood of low-value alerts while missing the activity that actually matters. A well-scoped deployment with disciplined log source onboarding and continuously tuned rules, even on a smaller platform, will outperform it. The tool is not the detection. The engineering behind the tool is the detection.</p>
+        </section>
+
+        <section class="content-section" id="what-edr-does">
+          <h2>What EDR Actually Does</h2>
+          <p>EDR stands for Endpoint Detection and Response, and it does for a single host what a SIEM tries to do across the whole environment: collect detailed telemetry and surface suspicious activity, but with a resolution and response capability that host-level logs alone do not provide. Where a SIEM might see a single Windows event log entry, an EDR agent sees the full process tree, the network connections that process made, the files it touched, and the registry keys it modified, all tied together in a way an analyst can actually pivot through.</p>
+
+          <p>Process tree visibility is the core of what makes EDR useful. Instead of seeing that "powershell.exe ran" in isolation, an analyst sees that Outlook spawned a Word document, Word spawned PowerShell, and PowerShell spawned a network connection to an external IP, all in a single chain with parent-child relationships intact. That chain is what distinguishes a legitimate admin script from a phishing payload executing on a workstation. Along with process trees, EDR agents track network connections initiated by each process, file creation and modification events, and often registry and driver activity, giving a much richer picture than log files alone.</p>
+
+          <p>Detection in EDR platforms happens two ways: signature-based and behavioral. Signature-based detection matches known-bad indicators, a specific file hash, a known malicious binary. It is fast and low-noise but only catches what has already been seen and cataloged; it does nothing against a new or modified payload. Behavioral detection instead watches for patterns of activity regardless of the specific file involved: a process injecting into another process's memory, a script attempting to disable security tooling, credential material being accessed by a process that has no legitimate reason to touch it. Behavioral detection catches novel threats that signatures miss, but it also tends to generate more false positives, because legitimate admin tools sometimes do things that look behaviorally similar to malicious activity.</p>
+
+          <p>The response side of EDR is what separates it from a pure monitoring tool. From the console, an analyst can isolate a host from the network while keeping the EDR agent's management channel alive, kill a running process, and quarantine a file so it cannot execute again. These actions matter because they compress the time between "we found something" and "the bleeding has stopped" from what used to require physically pulling a network cable to a few clicks. Host isolation in particular is one of the most consequential actions a Tier 2 analyst can take, because it can also disrupt a legitimate business process if the containment call is wrong, which is why isolation decisions usually require some level of confidence or sign-off before they happen.</p>
+
+          <p>EDR and SIEM are complementary, not competing. EDR gives depth on a single endpoint; SIEM gives breadth across the environment, tying endpoint activity to network, identity, and cloud events. Many organizations forward EDR alerts and telemetry into the SIEM specifically so an analyst can correlate an endpoint detection with a suspicious login from the same account elsewhere in the environment, something neither tool alone would surface.</p>
+        </section>
+
+        <section class="content-section" id="alert-triage-workflow">
+          <h2>The Alert Triage Workflow</h2>
+          <p>An alert firing is the start of a process, not an answer. A realistic triage workflow moves through a consistent sequence regardless of what generated the alert: initial review, gathering context, determining true or false positive, deciding whether to escalate or close, and documenting the outcome. Analysts who skip steps in this sequence, especially under alert volume pressure, are the ones who miss real incidents or waste Tier 2's time on things that could have been resolved at Tier 1.</p>
+
+          <p>Initial review starts with reading what actually fired. What rule triggered, what raw event caused it, what is the affected asset and user. A surprising number of triage mistakes happen because an analyst pattern-matches on the alert title without reading the underlying event, and closes something that looked like a known benign pattern but was not actually the same activity. Slowing down for thirty seconds at this step saves far more time than it costs.</p>
+
+          <p>Gathering context means pulling in everything needed to understand whether the activity is expected. Is this user's normal working pattern consistent with the time and location of the alert? Is this asset a server that runs scheduled jobs at odd hours, or a workstation where 3 a.m. activity is inherently unusual? Has this exact alert fired before on this host, and if so what was the disposition then? Good triage pulls from multiple sources: the SIEM, the EDR console, asset inventory, and sometimes a quick check with the user or system owner if time allows.</p>
+
+          <p>Determining true positive versus false positive is the analytical core of the job. A true positive means the activity is what the alert says it is and represents a genuine security concern, even if it turns out to be low severity. A false positive means the underlying activity does not actually match the threat the rule was written to catch, often because the rule logic is too broad or the environment has legitimate activity that looks similar. This is also where benign true positives show up: activity that is real and matches the alert but turns out to be authorized, like a pentester's scan or an approved admin script, which still needs to be documented rather than silently dismissed.</p>
+
+          <p>Once the disposition is clear, the analyst either closes the alert with a documented reason or escalates it. Closing is not the end of the responsibility. Every closed alert should carry enough documentation that a different analyst, or the same analyst three months later, can understand why it was closed without redoing the investigation from scratch.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> Documentation discipline is not busywork, it is what makes the next analyst faster. A ticket closed with "not malicious" tells the next person nothing. A ticket closed with "verified via EDR process tree that svchost.exe spawning powershell.exe here matches the scheduled patch deployment script from Asset Management, confirmed with IT ticket #4471" means the next analyst who sees the same alert on the same host can close it in thirty seconds instead of thirty minutes.
+          </div>
+        </section>
+
+        <section class="content-section" id="escalation-handoffs">
+          <h2>Escalation Criteria and Handoffs</h2>
+          <p>Escalation exists so that decisions requiring more context, more authority, or more time get to the person who has them. A Tier 1 analyst who has confirmed activity is malicious but lacks the authority to isolate a production server should escalate immediately rather than sit on the decision. Knowing when to escalate is as much a skill as knowing how to investigate, and it is one of the things that separates a strong Tier 1 analyst from one who either escalates everything or escalates nothing.</p>
+
+          <p>Confirmed malicious activity is the clearest trigger. Once an analyst has reasonable confidence that what they are looking at is a genuine compromise, whether that is credential theft, malware execution, or unauthorized access, the investigation moves to whoever owns the next stage of response. Waiting for absolute certainty before escalating usually costs time the response cannot afford; escalation criteria are typically written around reasonable confidence, not proof beyond doubt.</p>
+
+          <p>Scope beyond a single host or account is another common trigger. An alert that starts as one suspicious login can turn into a lateral movement pattern touching several systems within minutes. Once an investigation crosses from a single asset to multiple assets, or from a single user to a pattern suggesting a shared credential or a common initial access point, it usually exceeds what a Tier 1 analyst is expected to scope alone and needs Tier 2 involvement to establish the full blast radius.</p>
+
+          <p>Need for containment authority is a practical trigger distinct from technical complexity. Some organizations restrict host isolation, account disablement, or firewall changes to specific roles, regardless of how clear-cut the investigation is, because those actions have business impact and require accountability. A Tier 1 analyst who has done excellent investigative work still needs to hand off to someone with the authority to act if that authority sits outside their role.</p>
+
+          <p>What makes a handoff good rather than merely present is specificity. A weak handoff says "this looks suspicious, can you take a look." A strong handoff includes what triggered the alert, what context was gathered, what has already been ruled out, what remains uncertain, and a clear statement of why this is being escalated now rather than closed. The receiving analyst should be able to pick up the investigation from where it left off rather than start over, which means the handoff needs the same documentation discipline that closing a ticket requires, just aimed at a different reader.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> A good escalation is not an admission that Tier 1 could not handle it. It is the system working as designed. The tiered model only functions if analysts trust that escalating a genuinely ambiguous case is the correct call, not a mark against them.
+          </div>
+        </section>
+
+        <section class="content-section" id="shift-work-oncall">
+          <h2>Shift Work and On-Call Realities</h2>
+          <p>Threats do not stop at 5 p.m., so SOCs need coverage that does not either. There are a few common models for achieving this. Follow-the-sun coverage uses teams in different time zones, typically three regions roughly eight hours apart, so each team works a normal daytime shift locally while the SOC as a whole covers 24 hours. Rotating shift models instead keep one team but cycle analysts through day, evening, and overnight shifts on a schedule, often rotating every few weeks so no one is stuck permanently on nights. Smaller organizations without the headcount for either often rely on a smaller core daytime team plus an on-call rotation for after-hours escalations, where someone carries a phone and is expected to respond to a page within a defined window.</p>
+
+          <p>Overnight and on-call work has a real physiological cost that is worth naming plainly. Working against a normal circadian rhythm degrades attention and decision quality, and rotating shift patterns make it worse than a fixed overnight shift would, because the body never fully adjusts before the schedule changes again. Organizations that ignore this and staff overnight coverage as an afterthought tend to see it show up as slower triage times and more missed context during the hours when fewer senior analysts are watching.</p>
+
+          <p>Alert fatigue is the operational problem that shift work makes more visible, though it is not unique to overnight shifts. When an analyst works through a queue of alerts where the overwhelming majority turn out to be false positives, attention and rigor degrade over the course of a shift. A rule that fires accurately once and gets ignored the next fifty times because it fired on benign activity every prior time is a rule that has trained the analyst to distrust it, and that distrust does not discriminate between the fiftieth false positive and the one time it is real. This is a documented and well-studied failure mode in SOC operations, not a personal discipline problem with individual analysts.</p>
+
+          <p>Tuning and automation are the actual countermeasure, and this is why Tier 3 tuning work connects directly back to shift sustainability. Every rule tightened to reduce false positive rate, every repetitive triage step automated through a playbook, and every noisy log source cleaned up reduces the raw volume an analyst has to push through per shift. This is not just an efficiency exercise, it is what keeps the humans doing triage sharp enough to catch the alert that matters. A SOC that treats detection tuning as optional overhead rather than a core operational responsibility will eventually pay for it in a missed incident buried under noise.</p>
+
+          <p>None of this means SOC work is grim by default. Well-run SOCs treat shift design, workload balance, and detection tuning as deliberate engineering problems rather than something to solve with more caffeine and longer hours. Analysts who understand these realities going in, and who work somewhere that takes tuning seriously, tend to build sustainable careers in operations rather than burning out in the first two years.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>The tiered SOC model routes work by depth: Tier 1 triages, Tier 2 investigates and contains, Tier 3 hunts and tunes the detection stack.</li>
+            <li>A SIEM aggregates, normalizes, and correlates logs. It is only as good as the log sources feeding it and the rules written against them.</li>
+            <li>EDR gives depth on a single endpoint: process trees, network connections, and file activity, plus response actions like isolation, process kill, and quarantine.</li>
+            <li>Triage is a repeatable sequence: initial review, gather context, determine disposition, escalate or close, document. Skipping steps under volume pressure causes missed incidents.</li>
+            <li>Escalation triggers on confirmed malicious activity, scope beyond a single host, or a need for containment authority the current tier does not hold. A strong handoff carries full context forward.</li>
+            <li>Alert fatigue is a real operational risk, not a discipline failure. Tuning and automation are what protect analyst attention and keep 24/7 coverage sustainable.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A Tier 1 analyst reviews an alert, confirms it matches an approved IT change ticket, and closes it with the note "not malicious." What is the problem with this handling?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. It should have been escalated to Tier 2 regardless</button>
+              <button class="kc-option" data-correct="false">B. Approved changes should never trigger alerts in the first place</button>
+              <button class="kc-option" data-correct="true">C. The closure note lacks the context needed for a future analyst to trust it without redoing the work</button>
+              <button class="kc-option" data-correct="false">D. Only Tier 3 analysts are permitted to close alerts</button>
+            </div>
+            <div class="kc-answer">The disposition itself was likely correct, but "not malicious" with no supporting detail forces the next analyst who sees this alert to reinvestigate from scratch. A better closure would cite the specific ticket number, what was verified, and how it maps to the alert. Documentation discipline is what makes triage faster over time rather than repeating the same work indefinitely.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">During investigation of a suspicious login, a Tier 1 analyst discovers the same credential was used to authenticate successfully on three additional servers within the last ten minutes. What should happen next?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Close the alert since only one login triggered it</button>
+              <button class="kc-option" data-correct="false">B. Isolate all three servers directly without escalating</button>
+              <button class="kc-option" data-correct="true">C. Escalate to Tier 2 with the scope details, since this now exceeds a single-host investigation</button>
+              <button class="kc-option" data-correct="false">D. Wait until the next shift to hand it off</button>
+            </div>
+            <div class="kc-answer">Activity spreading across multiple hosts is one of the clearest escalation triggers: it suggests lateral movement or a shared compromised credential, and establishing full scope is typically Tier 2's responsibility. A Tier 1 analyst generally should not take containment action like isolation independently, and delaying the handoff to the next shift wastes time during an active spread.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A SIEM correlation rule for suspicious authentication has fired hundreds of times over the past month, and every instance investigated so far has been a benign VPN reconnect pattern. What is the most appropriate response?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Leave the rule as is, since any true positive it eventually catches justifies the noise</button>
+              <button class="kc-option" data-correct="false">B. Have analysts simply ignore alerts from that rule going forward</button>
+              <button class="kc-option" data-correct="true">C. Route the rule to Tier 3 for tuning so it stops matching the known benign VPN pattern</button>
+              <button class="kc-option" data-correct="false">D. Disable the rule entirely with no replacement</button>
+            </div>
+            <div class="kc-answer">A rule generating consistent false positives is a tuning problem, and tuning is core Tier 3 work, not something analysts should just learn to tune out mentally. Leaving it unaddressed trains analysts to distrust the rule, which is exactly how alert fatigue causes a real positive to get missed later. Disabling it outright removes detection coverage entirely instead of fixing the underlying logic.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="06-risk-vulnerability-management.html" class="chapter-nav-prev">← Risk & Vulnerability Management</a>
+          <a href="08-career-paths-roadmap.html" class="chapter-nav-next">Career Paths & Your Learning Roadmap →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Security Fundamentals</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('07', 6));</script>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="02">
+  <meta name="module-id" content="fundamentals">
+  <title>Authentication & Access Control · Fundamentals · H3AD-LEARN</title>
+  <meta name="description" content="Authentication factors, MFA from TOTP to passkeys, RBAC and ABAC models, least privilege, and why Zero Trust replaced the perimeter model.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/02-authentication-access-control.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/02-authentication-access-control.html">
+  <meta property="og:title" content="Authentication & Access Control · Fundamentals · H3AD-LEARN">
+  <meta property="og:description" content="Authentication factors, MFA from TOTP to passkeys, RBAC and ABAC models, least privilege, and why Zero Trust replaced the perimeter model.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Authentication & Access Control · Fundamentals · H3AD-LEARN">
+  <meta name="twitter:description" content="Authentication factors, MFA from TOTP to passkeys, RBAC and ABAC models, least privilege, and why Zero Trust replaced the perimeter model.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Authentication & Access Control",
+    "description": "Authentication factors, MFA from TOTP to passkeys, RBAC and ABAC models, least privilege, and why Zero Trust replaced the perimeter model.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/02-authentication-access-control.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Security Fundamentals",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://h3ad-sec.github.io/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "H3AD-LEARN",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Fundamentals",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "Authentication & Access Control",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/02-authentication-access-control.html"
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">AUTHENTICATION & ACCESS CONTROL</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub nav-current">&#8623; FUNDAMENTALS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Fundamentals</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 02 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 02</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-beginner">BEGINNER</span>
+          </div>
+          <h1 class="chapter-title">Authentication & Access Control</h1>
+          <p class="chapter-intro">"Who are you?" and "what are you allowed to do?" feel like the same question, but they are not, and the gap between them is where a huge amount of real-world compromise happens. Authentication answers the first question: proving an identity claim is genuine. Authorization answers the second: deciding what a proven identity is permitted to touch. Attackers who cannot forge an identity outright will often go after the second question instead, riding a legitimate login into privileges nobody meant to grant them. This chapter walks through how modern systems verify identity, how they decide what that identity can do, and where the everyday failures in both processes actually come from.</p>
+          <div class="chapter-tags">
+            <span class="tag">MFA</span>
+            <span class="tag">RBAC</span>
+            <span class="tag">Zero Trust</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="three-factors">
+          <h2>Identity and the Three Factors</h2>
+          <p>Authentication factors fall into three categories, and every credential you have ever used belongs to one of them. Something you know is a secret stored in your memory: a password, a PIN, the answer to a security question. Something you have is a physical or digital object in your possession: a hardware token, a phone running an authenticator app, a smart card. Something you are is a measurable physical trait: a fingerprint, a face, an iris pattern. Some frameworks add a fourth and fifth category, somewhere you are (location or network context) and something you do (behavioral patterns like typing cadence), but the original three cover the overwhelming majority of real systems.</p>
+
+          <p>The reason this categorization matters is that each factor fails independently, for different reasons. A password can be guessed, phished, or leaked in a breach dump. A hardware token can be lost or stolen, but a remote attacker sitting in another country cannot casually acquire it. A fingerprint cannot be reused across a thousand other sites the way a reused password can. When an attacker defeats one factor, the other factors are not automatically compromised too, because the attack surface for each one is different. That independence is the entire security value of combining them.</p>
+
+          <p>This is also why the phrase "two-factor authentication" gets misused constantly. Requiring a password plus a security question is not two-factor authentication, because both are something you know. An attacker who phishes your password with a fake login page can usually phish or guess the security question answer in the same session. Real multi-factor authentication requires two DIFFERENT categories: something you know paired with something you have, or something you have paired with something you are. The category boundary is what forces an attacker to pull off two structurally different attacks instead of one attack repeated twice.</p>
+
+          <p>In a SOC context this distinction shows up constantly when reviewing authentication logs or vendor claims. A login flow that asks for a password and then a one-time code sent to email is weaker than it sounds, because if the attacker already has the password from a breach, email is frequently compromised through the same credential-reuse chain. A password plus a push notification to a registered device is genuinely stronger, because compromising the device requires a separate attack path entirely. When you are assessing an authentication control, the first question to ask is not "how many steps" but "how many genuinely independent categories."</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> Vendors sometimes market "two-step verification" as equivalent to MFA. Read the fine print. If both steps can be defeated by the same phishing page or the same breached data set, it is not delivering the security benefit that true multi-factor authentication provides, regardless of what the marketing copy calls it.
+          </div>
+        </section>
+
+        <section class="content-section" id="mfa-mechanics">
+          <h2>MFA Mechanics: TOTP, Push, and Passkeys</h2>
+          <p>Time-based One-Time Password (TOTP) is the mechanism behind most authenticator apps: Google Authenticator, Microsoft Authenticator, Authy, and the codes generated by hardware tokens like a YubiKey in OTP mode. When you scan a QR code to set up MFA, the server and your app agree on a shared secret, a random string encoded in the QR data. From that point on, both sides independently compute a code by feeding the shared secret and the current time, rounded down to a fixed step (usually 30 seconds), into an HMAC hash function, then truncating the output to a short numeric code. Because both sides start from the same secret and the same clock, they arrive at the same code without ever transmitting it over the network during generation. This is why TOTP still works when your phone is offline: it needs the secret and a synced clock, nothing else.</p>
+
+          <p>SMS-based one-time codes are weaker than TOTP for reasons that have nothing to do with the code itself. The weakness is the delivery channel. SIM-swapping attacks let an adversary port your phone number to a device they control by social-engineering a carrier's support desk, after which every SMS code goes straight to them. SS7 protocol weaknesses in the telecom backbone allow interception of SMS traffic without touching the victim's phone at all. NIST deprecated SMS as an acceptable out-of-band authenticator for this reason years ago, though it remains common because it requires no app install and works on any phone.</p>
+
+          <p>Push-based MFA sends an approve-or-deny prompt to a registered device instead of a code to type. It is convenient, but that convenience is exactly what push-bombing (also called MFA fatigue) attacks exploit. An attacker who already has a valid password triggers repeated push notifications, sometimes dozens in a row, hoping the victim eventually taps "approve" just to make the notifications stop, or mistakes it for a legitimate login they forgot about. This technique was used in several well-documented enterprise breaches where the initial password was obtained through an unrelated credential leak and the MFA prompt was the last barrier. Number-matching, where the user must type a code shown on the login screen into the push prompt, was introduced specifically to defeat mindless-tap approval, because it forces the user to look at the login context before approving.</p>
+
+          <p>Passkeys, built on the FIDO2/WebAuthn standard, are structurally different from both TOTP and push. Instead of a shared secret that both sides need to protect, a passkey uses public-key cryptography: your device generates a key pair during registration, keeps the private key locked inside a secure enclave or TPM, and gives the website only the public key. During login, the site sends a challenge, your device signs it with the private key, and the site verifies the signature. The private key never leaves your device and is never typed anywhere, which removes phishing as a viable attack entirely, since there is no secret for a fake login page to capture. The other property that makes passkeys phishing-resistant is origin binding: the browser cryptographically ties the credential to the exact domain it was registered on, so a lookalike phishing domain cannot even request a valid signature, let alone forge one.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Mechanism</th><th>What Can Defeat It</th><th>Phishing Resistance</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>SMS OTP</td><td>SIM swap, SS7 interception, real-time phishing relay</td><td>None</td></tr>
+                <tr><td>TOTP app code</td><td>Real-time phishing relay (adversary-in-the-middle proxy)</td><td>Low</td></tr>
+                <tr><td>Push notification</td><td>MFA fatigue / push-bombing, prompt bombing at odd hours</td><td>Low to medium (higher with number-matching)</td></tr>
+                <tr><td>FIDO2 / passkey</td><td>Physical device theft plus local unlock bypass</td><td>High (origin-bound, no shareable secret)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="authorization-models">
+          <h2>Authorization Models: RBAC, ABAC, DAC, MAC</h2>
+          <p>Once identity is established, authorization decides what that identity can do, and different systems make that decision using fundamentally different logic. Role-Based Access Control (RBAC) assigns permissions to roles rather than to individual users, and users get permissions by being assigned to one or more roles. A "Help Desk Tier 1" role might get permission to reset passwords and view ticket queues but not to modify firewall rules. This is the model behind most enterprise applications, from Active Directory groups to SaaS admin consoles, because it scales cleanly: onboarding a new help desk employee means adding them to one role instead of hand-configuring dozens of individual permissions.</p>
+
+          <p>Attribute-Based Access Control (ABAC) makes decisions dynamically, evaluating attributes of the user, the resource, and the environment at the moment of the request rather than relying on a fixed role assignment. A policy might read: allow access to this S3 bucket if the user's department attribute is "finance," the request originates from a corporate IP range, and the time is within business hours. This is the model behind cloud IAM policy engines like AWS IAM conditions or Azure Conditional Access, because cloud environments need decisions that account for context (device posture, location, resource sensitivity tags) that a static role can't express on its own.</p>
+
+          <p>Discretionary Access Control (DAC) lets the owner of a resource decide who else gets access to it. When you set sharing permissions on a Google Doc or change file permissions on a Windows share you own, you are exercising DAC. It is flexible and intuitive for end users, which is also its weakness: permissions sprawl because there is no central policy enforcing consistency, and an owner can grant access far more broadly than an organization would want, often without anyone else reviewing the decision.</p>
+
+          <p>Mandatory Access Control (MAC) removes that discretion entirely. Access decisions are made by a central authority based on fixed classification labels, and neither the resource owner nor the user can override them. A document labeled "Secret" cannot be shared with a user holding only a "Confidential" clearance, no matter what the document owner wants. This is the model used in classified government and military systems, and in commercial systems like SELinux where the kernel enforces label-based policy regardless of file ownership. MAC trades flexibility for guaranteed policy enforcement, which is exactly the tradeoff a classified environment needs.</p>
+
+          <p>Most enterprises run RBAC for internal applications, layer ABAC on top for cloud resources where context matters, tolerate a degree of DAC for day-to-day file sharing, and reserve MAC for the rare environment where compliance or classification requirements demand it. Knowing which model you are looking at during an access review changes what question you ask: for RBAC, "is this role assignment still correct?" For ABAC, "is this policy condition still valid?" For DAC, "who granted this, and did anyone approve it?"</p>
+        </section>
+
+        <section class="content-section" id="least-privilege">
+          <h2>Least Privilege and Privilege Creep</h2>
+          <p>The principle of least privilege states that an identity, whether human or service account, should hold only the permissions strictly required to perform its current job, and nothing more. It sounds obvious stated that way, but almost no organization actually maintains it over time, because permissions accumulate far more easily than they get removed. Granting access is a one-click action that unblocks someone immediately. Revoking access is a low-priority cleanup task that nobody owns, so it gets deferred indefinitely.</p>
+
+          <p>Privilege creep is the slow accumulation of unnecessary access that results from that asymmetry. It happens in a few predictable ways. An employee moves from the finance team to the marketing team and keeps their old finance system access because nobody triggered a deprovisioning step during the transfer. A contractor gets temporary elevated access to finish a migration project and the access is never pulled once the project ends. An analyst is granted admin rights "just for this one incident" during an emergency and the grant quietly becomes permanent because removing it would require someone to notice it and act on it.</p>
+
+          <p>Privilege creep is one of the single most common findings in real access audits, and it is dangerous for a specific reason beyond general hygiene: it expands the blast radius of every future compromise. If an attacker phishes a marketing employee's credentials and that account still holds finance-system access from two roles ago, the attacker inherits access far beyond what the compromised job function should ever have needed. Least privilege is not just about preventing insider misuse; it directly limits what any single compromised account can do once an attacker is inside.</p>
+
+          <p>Fixing privilege creep requires a process, not a one-time cleanup. Regular access reviews (often called access certifications or attestations) force managers to explicitly re-confirm that each of their team's permissions is still needed, on a quarterly or semi-annual cycle. Just-in-time access, where elevated permissions are granted for a defined window and expire automatically, replaces the pattern of permanent "just for now" grants. Both approaches shift the default from "access persists until someone notices" to "access expires unless someone actively renews it," which is the opposite failure mode and a much safer one to be stuck in.</p>
+
+          <div class="callout-tip">
+            <strong>Example:</strong> A mid-size company ran its first formal access review in three years and found a former database administrator, now working in an unrelated department after an internal transfer eighteen months earlier, still held production database admin rights. Nobody had misused the access. It was simply never revoked when the transfer happened, because deprovisioning was not part of the transfer checklist. The finding did not point to malice; it pointed to a missing process step, which is exactly the pattern privilege creep usually follows.
+          </div>
+        </section>
+
+        <section class="content-section" id="zero-trust">
+          <h2>Zero Trust: Never Trust, Always Verify</h2>
+          <p>The traditional perimeter security model treated the network boundary as the trust boundary: anything inside the corporate firewall was implicitly trusted, and security effort concentrated on keeping attackers out at the edge. Once an attacker (or a rogue insider, or a compromised laptop) got past that edge, lateral movement inside the network was often trivially easy, because internal traffic was assumed safe by default. This model made sense when most work happened on-premises with a well-defined network edge. It stopped making sense once cloud services, remote work, and mobile devices dissolved any single defensible perimeter.</p>
+
+          <p>Zero Trust replaces "trusted inside, untrusted outside" with a single rule: never trust, always verify, regardless of where the request originates. Being on the corporate VPN or inside the office network grants no implicit trust at all. Every request to every resource is authenticated and authorized on its own merits, every time, based on current context rather than network location.</p>
+
+          <p>Three tenets define how that plays out in practice. Verify explicitly means every access decision uses all available signals, identity, device health, location, and behavior pattern, rather than trusting a single network-location check. Least privilege access means every grant is scoped as narrowly as possible and often time-limited, echoing the principle covered above but enforced continuously rather than at initial account setup. Assume breach means the architecture is designed as though an attacker is already inside the network, using segmentation, encryption, and continuous monitoring to limit what that attacker can reach and how long they can operate undetected, rather than betting everything on keeping them out in the first place.</p>
+
+          <p>Applied to a concrete scenario: under the old perimeter model, an employee who connected to the office Wi-Fi or corporate VPN could reach an internal HR application with little further scrutiny, because they were "inside." Under Zero Trust, that same employee reaching the same application triggers a full evaluation regardless of network location: is this a recognized, healthy, compliant device? Does this identity's current role justify access to this specific application? Is the request pattern consistent with how this user normally behaves? If the device fails a compliance check, say it is missing a required security patch, access can be denied or stepped up to an additional verification challenge even though the user is sitting in the building on the corporate network. The network is no longer doing any of the trust decision on its own.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> Zero Trust is an architectural philosophy, not a single product, despite how it gets marketed. Implementing it in practice usually means combining strong identity verification (MFA, conditional access), device posture checks, micro-segmentation of network resources, and continuous monitoring, not buying one appliance labeled "Zero Trust."
+          </div>
+        </section>
+
+        <section class="content-section" id="auth-attacks">
+          <h2>Common Authentication Attacks</h2>
+          <p>Credential stuffing takes username-and-password pairs leaked from one breach and replays them against other services, betting on password reuse. Because the attacker already has valid-looking credentials, the traffic pattern is high-volume automated logins against many different accounts, each attempt using a credential pair harvested elsewhere. It succeeds purely because people reuse passwords across services, and it fails immediately against any account protected by real multi-factor authentication, since the attacker has a password but not the second factor.</p>
+
+          <p>Password spraying flips the usual brute-force pattern. Instead of trying many passwords against one account (which triggers lockout thresholds quickly), it tries one or a few common passwords, "Summer2026!", "Password123", against a large number of accounts, staying under each individual account's lockout threshold while still eventually landing on someone using a weak, common password. It is slow and low-and-slow by design, which is exactly what makes it evade naive per-account lockout defenses.</p>
+
+          <p>MFA fatigue, or push-bombing, was already covered in the mechanics section above but deserves listing here as an attack category on its own: an attacker with a valid password sends repeated push approval prompts until the victim taps approve out of annoyance or confusion, effectively social-engineering the second factor rather than technically defeating it.</p>
+
+          <p>Session and token hijacking skips the login process entirely by stealing an already-authenticated session, through a stolen session cookie, a leaked bearer token, or an adversary-in-the-middle phishing proxy that relays a live login session in real time and captures the resulting session token. This is particularly dangerous against TOTP-protected accounts, because the attacker never needs to defeat the TOTP code at all; they let the real user complete authentication through the proxy and steal the session that authentication produces.</p>
+
+          <p>Each of these attacks leaves a distinct fingerprint in authentication logs, which is exactly what makes detection possible even without stopping the initial attempt.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Attack</th><th>Typical Pattern</th><th>Detection Signal</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Credential stuffing</td><td>Many accounts, one attempt each, automated velocity</td><td>High login volume from few source IPs/ASNs against many distinct usernames</td></tr>
+                <tr><td>Password spraying</td><td>Common passwords tried across many accounts, low attempts per account</td><td>Failed logins spread across many accounts with same/similar password, under lockout threshold</td></tr>
+                <tr><td>MFA fatigue / push-bombing</td><td>Repeated push prompts to one user in a short window</td><td>Multiple MFA denials or rapid re-prompts against a single account, often off-hours</td></tr>
+                <tr><td>Session/token hijacking</td><td>Valid session used from an unexpected location or device</td><td>Impossible travel, session reuse from new device fingerprint without a fresh login event</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>Authentication factors are something you know, something you have, and something you are. Real MFA requires two DIFFERENT categories, not two secrets from the same category.</li>
+            <li>TOTP codes come from a shared secret and the current time step run through HMAC; SMS OTP is weak because of the delivery channel, not the code; passkeys are phishing-resistant because they are origin-bound and never expose a shareable secret.</li>
+            <li>RBAC assigns permissions to roles, ABAC evaluates contextual attributes at request time, DAC lets resource owners decide, and MAC enforces fixed classification labels centrally.</li>
+            <li>Privilege creep accumulates through role changes and temporary access that never gets revoked, and it is one of the most common findings in real access audits because granting access is easy and revoking it usually isn't anyone's job.</li>
+            <li>Zero Trust removes implicit trust from network location entirely: verify explicitly, enforce least privilege continuously, and assume breach architecturally.</li>
+            <li>Credential stuffing, password spraying, MFA fatigue, and session hijacking each leave a distinct log signature, which is what makes each one detectable even when the initial attempt isn't blocked.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A login flow requires a password followed by an answer to a pre-set security question. A vendor markets this as two-factor authentication. Is that accurate?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Yes, because there are two distinct steps to log in</button>
+              <button class="kc-option" data-correct="true">B. No, because both steps are something you know, not two different factor categories</button>
+              <button class="kc-option" data-correct="false">C. Yes, because the security question adds a knowledge-based verification layer</button>
+              <button class="kc-option" data-correct="false">D. No, because security questions are never a valid authentication factor</button>
+            </div>
+            <div class="kc-answer">Two-factor authentication requires two different factor categories: something you know, something you have, or something you are. A password and a security question are both something you know, so an attacker who phishes or guesses one can typically phish or guess the other through the same attack. The step count is irrelevant; the category boundary is what provides the actual security benefit.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A SOC analyst notices one user account receiving eleven MFA push approval requests within four minutes, all denied by the user, at 2 AM local time. What does this pattern most likely indicate?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. A misconfigured mobile device retrying a stuck notification</button>
+              <button class="kc-option" data-correct="true">B. An MFA fatigue / push-bombing attack using a already-compromised password</button>
+              <button class="kc-option" data-correct="false">C. Normal behavior for a user working across time zones</button>
+              <button class="kc-option" data-correct="false">D. A password spraying attempt against a single account</button>
+            </div>
+            <div class="kc-answer">Repeated push prompts against one account in a short window, especially at an unusual hour, is the signature of MFA fatigue: an attacker with a valid password is triggering the second factor prompt repeatedly, hoping the user approves out of annoyance or confusion. Password spraying targets many accounts with few attempts each, which is the opposite pattern. This account should be treated as having a compromised password even though every push was denied.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">An access review finds an employee who transferred from the finance team to marketing eighteen months ago still has active permissions to the finance system's admin console. No misuse has occurred. What is this an example of, and what is the underlying cause?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Credential stuffing caused by password reuse across systems</button>
+              <button class="kc-option" data-correct="true">B. Privilege creep, caused by deprovisioning not being part of the role-transfer process</button>
+              <button class="kc-option" data-correct="false">C. A Zero Trust policy failure at the network perimeter</button>
+              <button class="kc-option" data-correct="false">D. Mandatory Access Control mislabeling the employee's clearance level</button>
+            </div>
+            <div class="kc-answer">This is privilege creep: access that was appropriate for a prior role persisted after the role changed, because nothing in the transfer process triggered removal. It has nothing to do with credential stuffing, network perimeter controls, or MAC classification labels. The fix is process, not a one-time cleanup: access certifications and time-bound grants that force explicit renewal instead of letting access persist indefinitely by default.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="01-cia-triad-security-fundamentals.html" class="chapter-nav-prev">← Security Fundamentals & the CIA Triad</a>
+          <a href="03-cryptography-basics.html" class="chapter-nav-next">Cryptography Basics →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Security Fundamentals</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('02', 6));</script>
+</body>
+</html>

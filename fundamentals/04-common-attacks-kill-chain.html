@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="04">
+  <meta name="module-id" content="fundamentals">
+  <title>Common Attacks & the Cyber Kill Chain · Fundamentals · H3AD-LEARN</title>
+  <meta name="description" content="Malware taxonomy, phishing and social engineering, common web and network attacks, and the Cyber Kill Chain and ATT&CK vocabulary for an intrusion.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/04-common-attacks-kill-chain.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/04-common-attacks-kill-chain.html">
+  <meta property="og:title" content="Common Attacks & the Cyber Kill Chain · Fundamentals · H3AD-LEARN">
+  <meta property="og:description" content="Malware taxonomy, phishing and social engineering, common web and network attacks, and the Cyber Kill Chain and ATT&CK vocabulary for an intrusion.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Common Attacks & the Cyber Kill Chain · Fundamentals · H3AD-LEARN">
+  <meta name="twitter:description" content="Malware taxonomy, phishing and social engineering, common web and network attacks, and the Cyber Kill Chain and ATT&CK vocabulary for an intrusion.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Common Attacks & the Cyber Kill Chain",
+    "description": "Malware taxonomy, phishing and social engineering, common web and network attacks, and the Cyber Kill Chain and ATT&CK vocabulary for an intrusion.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/04-common-attacks-kill-chain.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Security Fundamentals",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://h3ad-sec.github.io/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "H3AD-LEARN",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Fundamentals",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "Common Attacks & the Cyber Kill Chain",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/04-common-attacks-kill-chain.html"
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">COMMON ATTACKS & THE KILL CHAIN</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub nav-current">&#8623; FUNDAMENTALS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Fundamentals</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 04 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 04</span>
+            <span class="badge-time muted mono">35 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Common Attacks & the Cyber Kill Chain</h1>
+          <p class="chapter-intro">Every intrusion looks different from the inside. Different malware, different entry point, different target, different actor. But strip away the specifics and almost every attack follows the same underlying shape: an adversary gets in, establishes a foothold, and works toward an objective. This chapter builds the vocabulary for that shape. You will learn the major malware families, the social engineering techniques that get attackers in the door in the first place, a few foundational web and network attack patterns, and two frameworks, the Cyber Kill Chain and MITRE ATT&CK, that give every stage of an intrusion a name. That naming is what makes the rest of your security career possible: you cannot detect, hunt, or respond to something you cannot describe.</p>
+          <div class="chapter-tags">
+            <span class="tag">malware taxonomy</span>
+            <span class="tag">kill chain</span>
+            <span class="tag">ATT&CK</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="malware-taxonomy">
+          <h2>Malware Taxonomy</h2>
+          <p>Malware is a catch-all term, and using it precisely matters more than most people assume. Calling every malicious binary "a virus" is like calling every vehicle "a car." The distinctions between malware families are not academic. They describe different behaviors, different propagation methods, and different defensive priorities, and getting the terminology right is often the fastest way to signal to a colleague or an interviewer that you actually understand how these things work rather than just having memorized the word.</p>
+
+          <p>A virus is malicious code that attaches itself to a legitimate file or program and requires that host to execute. It cannot run on its own, and it typically needs some form of user action, opening an infected document or running an infected executable, to activate. Once running, a virus can replicate by inserting copies of itself into other files on the system. A worm, by contrast, is self-replicating and self-propagating. It does not need a host file or user action to spread. It exploits a vulnerability or a network service to copy itself directly to other machines, which is why worms like WannaCry were able to spread across entire networks in minutes without anyone clicking anything.</p>
+
+          <p>A trojan disguises itself as legitimate software to trick a user into installing it. The name comes from the wooden horse for a reason: the payload is hidden inside something that looks harmless or even desirable, a cracked software installer, a fake invoice attachment, a bogus system utility. Trojans do not self-replicate. Their defining trait is deception, not propagation. Ransomware is malware that encrypts a victim's files, or in more advanced cases exfiltrates them first, and demands payment for the decryption key or for withholding the stolen data from public release. Modern ransomware operations are frequently double-extortion: encrypt and steal, then threaten both denial of access and public leak.</p>
+
+          <p>A Remote Access Trojan, or RAT, is a specific trojan subtype built to give an attacker persistent, interactive remote control over an infected machine, keystroke logging, screen capture, file transfer, webcam access, and arbitrary command execution. RATs are the workhorse of many post-compromise operations because they turn a single foothold into an ongoing presence. A rootkit is different in kind rather than degree: it is designed to operate at a privileged level, often kernel mode, specifically to hide its own presence and the presence of other malicious activity from the operating system and from security tools. A rootkit does not necessarily do anything malicious on its own; its job is concealment, which is what makes it so dangerous when paired with something else.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Type</th><th>Defining Trait</th><th>Requires Host / User Action</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Virus</td><td>Attaches to a legitimate file, replicates when host executes</td><td>Yes, needs a host file and user action</td></tr>
+                <tr><td>Worm</td><td>Self-replicating, spreads over the network unaided</td><td>No, propagates autonomously</td></tr>
+                <tr><td>Trojan</td><td>Disguises as legitimate software to gain installation</td><td>Yes, relies on user deception</td></tr>
+                <tr><td>Ransomware</td><td>Encrypts and/or exfiltrates data, extorts victim for recovery</td><td>Varies by delivery method</td></tr>
+                <tr><td>RAT</td><td>Gives attacker persistent interactive remote control</td><td>Typically delivered via trojan or exploit</td></tr>
+                <tr><td>Rootkit</td><td>Hides presence at a privileged, often kernel, level</td><td>Installed post-compromise, no independent action</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="phishing-social-engineering">
+          <h2>Phishing and Social Engineering Tradecraft</h2>
+          <p>Social engineering is the manipulation of people rather than systems, and it remains the single most common initial access vector across nearly every breach report published every year. The reason is simple: it is almost always cheaper and more reliable to trick a human than to find and exploit a technical vulnerability. Phishing is the broadest category, mass-distributed fraudulent messages, usually email, designed to trick recipients into clicking a malicious link, opening a malicious attachment, or handing over credentials. Volume is the strategy: send enough messages and a percentage will land.</p>
+
+          <p>Spear phishing narrows the target. Instead of a generic message blasted to thousands of recipients, a spear phishing email is researched and tailored to a specific individual or small group, referencing their real job title, a real colleague's name, or a real ongoing project. The personalization dramatically increases the click-through rate because the message no longer trips the mental alarm bells that generic phishing does. Whaling is a further narrowing: spear phishing aimed specifically at executives or other high-value targets, where the payoff for a successful compromise, or a successful impersonation of that executive, is proportionally larger.</p>
+
+          <p>Business Email Compromise, or BEC, is where social engineering stops being about malware delivery entirely and becomes pure fraud. In a typical BEC attack, an adversary compromises or spoofs an executive's or vendor's email account and uses that trusted position to instruct someone in finance to wire funds, change payroll banking details, or release sensitive data. There is often no malicious link and no attachment at all, which is exactly why BEC is so hard for traditional email security controls to catch. It is a well-written email from what looks like a legitimate, trusted sender, asking for something that seems like a normal business request.</p>
+
+          <p>Pretexting is the broader technique underneath most of this: inventing a fabricated scenario, a pretext, to justify why the target should share information or take an action they otherwise would not. A caller claiming to be from IT support asking for a password reset confirmation is pretexting. So is an attacker posing as a new vendor requesting an update to banking details on file. Social engineering works because it exploits three consistent human tendencies: deference to authority, people comply faster with requests that appear to come from a boss or an official source; manufactured urgency, a ticking clock short-circuits careful verification; and default trust, most people extend good faith to messages that look like they come from a known and legitimate source. Effective defenses target these three levers directly rather than trying to teach people to spot every possible technical tell.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> A finance clerk receives an email that appears to come from the CFO, sent late on a Friday, marked urgent, asking for a same-day wire transfer to a new vendor account for a time-sensitive acquisition that must stay confidential until Monday's announcement. The tone matches the CFO's usual style. The domain looks correct at a glance. Every element of this message, authority, urgency, and confidentiality as a reason not to verify by phone, is a deliberate lever. Organizations that survive this scenario are the ones with a hard out-of-band verification rule for any payment change request, no exceptions, regardless of how legitimate the email looks.
+          </div>
+        </section>
+
+        <section class="content-section" id="web-network-attacks">
+          <h2>Common Web and Network Attack Patterns</h2>
+          <p>Beyond malware and social engineering, a handful of technical attack patterns show up constantly enough that every security practitioner needs at least a working understanding of the mechanism, even without going near exploit development. SQL injection is the oldest and still one of the most damaging. It happens when an application builds a database query by directly concatenating user-supplied input into the query string instead of treating that input as data. If a login form takes a username and drops it straight into a SQL statement, an attacker can supply input that alters the structure of the query itself, for example closing out the intended string early and appending their own logic, tricking the database into returning data it should never have exposed or bypassing authentication entirely. The fundamental problem is a failure to separate code from data.</p>
+
+          <p>Cross-site scripting, or XSS, is the web equivalent of the same underlying idea applied to the browser instead of the database. It occurs when an application takes untrusted input and renders it back into a page without properly sanitizing or encoding it, allowing an attacker to inject their own script into that page. When another user's browser loads the page, the attacker's script runs in the context of that user's session, which can mean stealing session cookies, redirecting the user, or performing actions on their behalf without their knowledge. Stored XSS persists the malicious script somewhere the application saves and later serves to other users, a comment field is the classic example. Reflected XSS instead relies on tricking a victim into clicking a crafted link where the malicious payload is part of the request itself and gets echoed straight back in the response.</p>
+
+          <p>A man-in-the-middle attack works on an entirely different layer: instead of exploiting a flaw in application logic, the attacker positions themselves between two parties who believe they are communicating directly with each other, intercepting, and potentially altering, the traffic that passes between them. This can happen on a compromised or spoofed Wi-Fi network, through ARP spoofing on a local network, or through a fraudulent certificate that lets an attacker decrypt traffic a victim believes is securely encrypted. The core mechanism is always the same: break the assumption of a direct, private channel between two endpoints, and everything that flows through that channel is now visible, and potentially modifiable, to a third party.</p>
+
+          <p>These three patterns are worth learning together because they illustrate three distinct trust failures that recur constantly in security work: SQL injection is a failure to separate code from data, XSS is a failure to separate trusted application output from untrusted user input, and man-in-the-middle is a failure to verify that a communication channel is actually private and unaltered. Recognizing which trust boundary failed is often more useful for a working analyst than memorizing exploit syntax, because it tells you where the actual fix belongs.</p>
+        </section>
+
+        <section class="content-section" id="cyber-kill-chain">
+          <h2>The Cyber Kill Chain</h2>
+          <p>In 2011, Lockheed Martin published the Cyber Kill Chain, a model borrowed from military targeting doctrine and adapted to describe the stages an adversary moves through to execute a successful intrusion. Its core insight, and the reason it remains useful more than a decade later, is that defenders do not need to stop every stage. Breaking the chain at any single stage stops the entire attack. That reframes defense from an all-or-nothing problem into a layered one: even if reconnaissance and delivery both succeed, a detection at exploitation or command and control still wins.</p>
+
+          <p>Reconnaissance is the adversary researching the target before any contact is made, harvesting employee names and email addresses from LinkedIn, enumerating internet-facing infrastructure, or identifying which software versions a target organization runs. Weaponization is where the adversary couples a deliverable exploit with a payload, for example embedding a malicious macro inside a Word document crafted to look like a legitimate invoice. Delivery is the transmission of that weaponized payload to the target, most commonly a phishing email attachment, but also a malicious USB drop or a compromised website waiting for a visitor.</p>
+
+          <p>Exploitation is the moment the weaponized payload actually triggers, the user opens the document and enables macros, or a vulnerable service processes a malicious request and executes attacker code. Installation follows immediately after: the adversary establishes persistence on the compromised system, often a backdoor or RAT configured to survive a reboot. Command and Control, usually abbreviated C2, is the adversary establishing a communication channel back out to infrastructure they control, a beacon that checks in periodically for further instructions, which is what turns a single infected machine into something the attacker can actively operate.</p>
+
+          <p>Actions on Objectives is the final stage, and it is the point of the whole operation: this is where the adversary does whatever they came to do, exfiltrating sensitive data, deploying ransomware across the environment, or pivoting to additional systems to expand their foothold. Everything before this stage was setup. Everything at this stage is the actual damage. This is also why detection earlier in the chain is worth so much more than detection here: catching an intrusion at delivery or exploitation costs an incident report, while catching it at actions on objectives costs a breach.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Stage</th><th>What Happens</th><th>Real-World Example</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Reconnaissance</td><td>Research the target</td><td>Scraping employee names and roles from LinkedIn before a spear phishing campaign</td></tr>
+                <tr><td>Weaponization</td><td>Pair an exploit with a payload</td><td>Embedding a malicious macro inside a fake invoice document</td></tr>
+                <tr><td>Delivery</td><td>Transmit the payload to the target</td><td>Sending the weaponized document as a phishing attachment</td></tr>
+                <tr><td>Exploitation</td><td>Trigger the payload</td><td>Victim enables macros and the embedded code executes</td></tr>
+                <tr><td>Installation</td><td>Establish persistence</td><td>Dropping a RAT configured to survive a reboot</td></tr>
+                <tr><td>Command &amp; Control</td><td>Open a channel back to attacker infrastructure</td><td>Malware beacons out to a C2 server every few minutes</td></tr>
+                <tr><td>Actions on Objectives</td><td>Achieve the actual goal</td><td>Exfiltrating finance data or deploying ransomware across the network</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="mitre-attack">
+          <h2>MITRE ATT&CK as the Modern Complement</h2>
+          <p>MITRE ATT&CK is a globally maintained knowledge base of adversary tactics and techniques built from observed, real-world intrusions. Where the Kill Chain gives you seven broad, linear stages, ATT&CK gives you a matrix: tactics across the top, representing the adversary's goal at a given moment, such as Initial Access or Persistence, and dozens of specific techniques underneath each tactic describing exactly how that goal can be achieved. Each technique carries a unique identifier, T1566 for phishing, T1059 for command and scripting interpreter abuse, which gives analysts a precise, shared label instead of a prose description that varies from person to person.</p>
+
+          <p>The key structural difference from the Kill Chain is that ATT&CK is not linear. A real intrusion does not march through tactics in a fixed order the way the Kill Chain's seven stages imply. An adversary might establish Persistence, then pivot back to Discovery, then attempt Privilege Escalation, then return to Persistence again with a second, more resilient backdoor. ATT&CK's matrix structure reflects that reality: tactics can be revisited, skipped, or interleaved depending on what the adversary encounters in the environment. That flexibility is precisely why ATT&CK has become the preferred framework for detection engineering. A detection team does not build one rule for "the exploitation stage." They build a rule mapped to a specific technique, and they can track exactly which techniques they have coverage for and which they do not.
+
+          </p>
+
+          <p>Three tactics are worth knowing as concrete anchors before the rest of this platform goes deeper into ATT&CK. Initial Access covers the techniques an adversary uses to get an initial foothold in the environment, phishing, exploiting a public-facing application, or valid account abuse. Execution covers the techniques used to run attacker-controlled code once inside, PowerShell abuse, scheduled task creation, or exploiting a scripting interpreter. Persistence covers the techniques used to maintain that foothold across reboots and credential rotations, registry run keys, scheduled tasks configured to recur, or new account creation. These three alone map cleanly onto the Kill Chain's Delivery-through-Installation stages, but with far more granularity about the actual mechanism used.</p>
+
+          <p>The two frameworks are not competitors. The Kill Chain is better for explaining an intrusion's overall arc to a non-technical stakeholder, seven clean stages, a clear story. ATT&CK is better for the technical work of building and measuring detection coverage, because it operates at the level of specific, observable technique rather than broad phase. Most mature SOCs use both: the Kill Chain to frame the narrative of what happened, ATT&CK to specify precisely how.</p>
+        </section>
+
+        <section class="content-section" id="why-it-matters-for-detection">
+          <h2>Why This Vocabulary Matters for Detection</h2>
+          <p>None of this is trivia. A SOC analyst who can say "this alert represents Initial Access via T1566.001, spear phishing attachment, and the process tree afterward looks like Execution via T1059.001, PowerShell" has communicated, in one sentence, exactly what happened, exactly how far the adversary got, and exactly what the next likely stage is. Compare that to "someone opened a bad email and now there's weird PowerShell running," which conveys roughly the same facts but gives a colleague, a manager, or an automated system nothing precise to act on.</p>
+
+          <p>This shared vocabulary is what lets a SOC function as a team rather than a collection of individuals improvising their own descriptions. When an analyst hands off an incident at shift change, when a detection engineer writes a rule, when a threat hunter documents a hypothesis, when an incident responder writes the final report, all of them are describing the same underlying reality using the same named stages and the same technique IDs. That precision is what turns "something bad happened" into "here is exactly what stage this intrusion reached, and here is exactly what stage we need to prevent it from reaching next time."</p>
+
+          <p>It also directly drives prioritization. Knowing that an alert sits at Command and Control rather than Reconnaissance tells you the urgency instantly: C2 means an adversary already has a live, interactive presence in the environment, while reconnaissance activity, though worth logging, does not yet mean anyone is inside. The kill chain stage or ATT&CK tactic an alert maps to is often the single fastest way to triage severity before a full investigation has even started.</p>
+
+          <p>This vocabulary is not specific to this chapter. Every other module on this platform, threat hunting, threat intelligence, cloud security, LOLBAS, assumes you already have this frame in your head. When a later chapter references "an actor at the Persistence stage" or cites a specific technique ID, it is building directly on what you learned here. Getting comfortable with these terms now, to the point where you can use them correctly in a sentence without pausing to look them up, is one of the highest-leverage things you can do early in a security career.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> When you read an incident report or a vendor writeup from now on, try mapping each described action to both a Kill Chain stage and an ATT&CK technique ID before you finish reading. It feels slow at first. Within a few reports it becomes automatic, and that automatic mapping is exactly the skill this chapter is meant to build.
+          </div>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>Malware families are distinguished by mechanism, not just by damage: replication for viruses and worms, disguise for trojans, remote control for RATs, and concealment for rootkits.</li>
+            <li>Social engineering succeeds by exploiting authority, urgency, and default trust, and BEC in particular often involves no malware at all, just a convincing, well-timed request.</li>
+            <li>SQL injection, XSS, and man-in-the-middle attacks each break a different trust boundary: code versus data, trusted versus untrusted output, and a private communication channel.</li>
+            <li>The Cyber Kill Chain's seven linear stages, from Reconnaissance through Actions on Objectives, describe the overall arc of an intrusion and show why breaking any single stage stops the attack.</li>
+            <li>MITRE ATT&CK complements the Kill Chain with a non-linear, granular matrix of tactics and techniques, each with a unique ID, making it the preferred framework for detection engineering.</li>
+            <li>Shared vocabulary, kill chain stages and ATT&CK technique IDs, is what allows a SOC to communicate precisely about intrusion status, and it underpins every other module on this platform.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">An analyst finds a piece of malware on a compromised server that has no user-facing functionality of its own. Its only observed behavior is hiding certain processes and files from the operating system's own APIs so that neither the user nor endpoint tools can see them. This is most likely a:</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Worm</button>
+              <button class="kc-option" data-correct="false">B. Trojan</button>
+              <button class="kc-option" data-correct="true">C. Rootkit</button>
+              <button class="kc-option" data-correct="false">D. Ransomware</button>
+            </div>
+            <div class="kc-answer">A rootkit's defining trait is concealment at a privileged level, hiding processes, files, or its own presence from the operating system and security tools. It does not need to self-replicate like a worm, disguise itself as legitimate software like a trojan, or encrypt data like ransomware. Rootkits are frequently paired with another malware type that does the actual damage while the rootkit keeps it hidden.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A finance employee receives an email that appears to come from a known vendor, requesting an update to the bank account used for an upcoming invoice payment. The message reuses real invoice numbers and matches the vendor's usual tone. No attachment or link is involved. This scenario is best classified as:</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. A worm exploiting a network vulnerability</button>
+              <button class="kc-option" data-correct="true">B. Business Email Compromise</button>
+              <button class="kc-option" data-correct="false">C. A man-in-the-middle attack</button>
+              <button class="kc-option" data-correct="false">D. Cross-site scripting</button>
+            </div>
+            <div class="kc-answer">This is BEC: fraud conducted through a compromised or spoofed trusted email identity, with no malware delivery involved at all. The realistic detail, invoice numbers and matching tone, is exactly what makes BEC hard to catch with technical controls, which is why out-of-band verification for any payment change is the standard defense rather than relying on email filtering alone.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A SOC analyst is documenting an incident and wants to precisely describe that the adversary used PowerShell to run attacker-controlled code shortly after initial compromise. Which combination correctly maps this activity?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Kill Chain: Actions on Objectives; ATT&CK Tactic: Discovery</button>
+              <button class="kc-option" data-correct="false">B. Kill Chain: Reconnaissance; ATT&CK Tactic: Initial Access</button>
+              <button class="kc-option" data-correct="true">C. Kill Chain: Installation; ATT&CK Tactic: Execution</button>
+              <button class="kc-option" data-correct="false">D. Kill Chain: Weaponization; ATT&CK Tactic: Persistence</button>
+            </div>
+            <div class="kc-answer">Running attacker-controlled code shortly after compromise, before persistence or C2 have necessarily been fully established, maps most closely to the Kill Chain's Installation stage in terms of timing, and directly to the ATT&CK Execution tactic, which covers running attacker code such as PowerShell abuse. This is exactly the kind of precise mapping that lets analysts communicate intrusion status without ambiguity.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="03-cryptography-basics.html" class="chapter-nav-prev">← Cryptography Basics</a>
+          <a href="05-security-frameworks-compliance.html" class="chapter-nav-next">Security Frameworks & Compliance →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Security Fundamentals</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('04', 6));</script>
+</body>
+</html>
