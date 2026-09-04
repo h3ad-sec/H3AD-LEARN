@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="06">
+  <meta name="module-id" content="windows">
+  <title>Windows Event Logging &amp; Sysmon · Windows · H3AD-LEARN</title>
+  <meta name="description" content="Explains which Windows Security log Event IDs matter most for detection work, and how to configure Sysmon for the visibility Windows lacks by default.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/windows/06-event-logging-sysmon.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/windows/06-event-logging-sysmon.html">
+  <meta property="og:title" content="Windows Event Logging &amp; Sysmon · Windows · H3AD-LEARN">
+  <meta property="og:description" content="Explains which Windows Security log Event IDs matter most for detection work, and how to configure Sysmon for the visibility Windows lacks by default.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Windows Event Logging &amp; Sysmon · Windows · H3AD-LEARN">
+  <meta name="twitter:description" content="Explains which Windows Security log Event IDs matter most for detection work, and how to configure Sysmon for the visibility Windows lacks by default.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Windows Event Logging & Sysmon",
+    "description": "Explains which Windows Security log Event IDs matter most for detection work, and how to configure Sysmon for the visibility Windows lacks by default.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/windows/06-event-logging-sysmon.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Windows",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/windows/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://h3ad-sec.github.io/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "H3AD-LEARN",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Windows",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/windows/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "Windows Event Logging & Sysmon",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/windows/06-event-logging-sysmon.html"
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">WINDOWS EVENT LOGGING &amp; SYSMON</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub nav-current">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Windows</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 06 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 06</span>
+            <span class="badge-time muted mono">35 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Windows Event Logging &amp; Sysmon</h1>
+          <p class="chapter-intro">Everything covered so far, processes launching, accounts authenticating, tokens carrying privilege, keys getting written to the registry, leaves a trace somewhere on the system. This chapter is about where those traces actually land, and how much of that trail Windows records without any help from you. The built-in Security log captures a slice of it, but only for the categories its audit policy is actually told to watch. Sysmon fills most of the remaining gap, but only once it is installed and given a configuration that tells it what to log. By the end of this chapter you should know which Event ID answers which question, and which of the two log sources actually holds the answer.</p>
+          <div class="chapter-tags">
+            <span class="tag">Event IDs</span>
+            <span class="tag">Sysmon</span>
+            <span class="tag">Security log</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="windows-event-log-architecture">
+          <h2>Windows Event Log Architecture</h2>
+          <p>Windows organizes its native logging into a set of channels, and three of them matter for almost all day-to-day work: Security, System, and Application. Each is stored as a separate .evtx file under C:\Windows\System32\winevt\Logs and each is browsable through Event Viewer (eventvwr.msc), which lets you filter by log, source, level, and Event ID, or build a custom view that spans multiple channels at once. In a real environment you rarely work directly in Event Viewer on individual hosts; these logs get forwarded to a SIEM so they can be correlated across the fleet. But understanding what each channel holds locally is what makes that forwarding and correlation meaningful.</p>
+
+          <p>The Security log is the one analysts spend the most time in. It records auditable security events: logons and logoffs, object access, privilege use, policy changes, and account or group lifecycle events. Critically, it only records what the active audit policy tells it to record. An unconfigured system logs a surprisingly small slice of what the Security log is capable of, which is the subject of the next two sections. Because of what it contains, the Security log is also access-restricted by default; only administrators and the LocalSystem/Event Log service can read it.</p>
+
+          <p>The System log covers the operating system itself: driver load failures, service start and stop events, unexpected shutdowns, disk and hardware-related warnings. It is useful for stability troubleshooting and occasionally for detection, for example spotting an Event Log service being stopped and restarted, which sometimes accompanies log-clearing activity. The Application log is a catch-all for whatever installed software chooses to write into it: crash reports, licensing messages, update notifications. Its usefulness for security work is inconsistent because it depends entirely on what each vendor decided to log and how.</p>
+
+          <p>Every event record shares a basic structure regardless of which channel it lives in. The Event ID is a numeric identifier for the type of event, but it is only unique within the context of its Source or Provider, the component that generated it, so the same numeric ID can mean something completely different coming from two different providers. The Level field marks severity (Critical, Error, Warning, Information, Verbose), and Keywords carries flags like Audit Success or Audit Failure that let you filter for outcome rather than just event type. Underneath the general header sits the EventData block, which holds the fields specific to that event type: for a logon event that means the account name, the logon type, the source IP, and a Logon ID that ties the session together across later events.</p>
+
+          <p>That Logon ID field deserves attention early, because it is the thread that lets you stitch a single session together across multiple log entries. A user's 4624 logon carries a Logon ID that reappears in every subsequent event tied to that session, which is exactly how you connect "who logged on" to "what they did afterward" once you start pulling in Sysmon data alongside Security log data later in this chapter.</p>
+        </section>
+
+        <section class="content-section" id="key-security-event-ids">
+          <h2>Key Security Event IDs</h2>
+          <p>A small handful of Event IDs cover most of the detection value the Security log offers, and nearly all of them cluster around identity: who authenticated, with what kind of session, and what changed about accounts and group membership. Learning these by number, not just by description, is worth the effort because they show up constantly in queries, playbooks, and other people's detection logic.</p>
+
+          <p>Event ID 4624 records a successful logon, and 4625 records a failed one. Neither is useful on its own without the Logon Type field, which tells you what kind of session was being attempted. Type 2 is an interactive logon at the local console, type 3 is a network logon such as accessing a file share, type 4 is a batch logon typically tied to a scheduled task, type 5 is a service logon, type 7 is a workstation unlock, type 8 is a network logon sending credentials in cleartext, type 9 is NewCredentials, generated by tools like RunAs /netonly, and type 10 is RemoteInteractive, which is RDP. A wave of 4625 events with Logon Type 10 from an external address looks like RDP brute forcing; the same pattern with Logon Type 3 against multiple hosts in a short window looks like lateral movement via SMB or a remote admin tool.</p>
+
+          <p>Event ID 4672 fires when a logon session is granted special, admin-equivalent privileges, things like SeDebugPrivilege or SeBackupPrivilege. It appears alongside the matching 4624 and gives you a fast way to flag privileged sessions without parsing the full privilege list attached to every single logon. Any unexpected account triggering 4672 outside its normal pattern is worth a second look.</p>
+
+          <p>Account lifecycle events matter just as much as logon events. 4720 records a new user account being created. Group membership changes split by group scope: 4728 records a member added to a security-enabled global group, which includes Domain Admins by default since that group is global scope, while 4732 records a member added to a security-enabled local group, which is what you see when an account is added to the local Administrators group on a specific machine. Both are core signals for spotting backdoor accounts, and the pairing of a 4720 with a privileged group addition shortly after is one of the clearest identity-based persistence patterns you can build a detection around, covered in the final section of this chapter.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Event ID</th><th>Name</th><th>Why It Matters</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>4624</td><td>Successful logon</td><td>Check the Logon Type field to know what kind of session this was</td></tr>
+                <tr><td>4625</td><td>Failed logon</td><td>Volume plus Logon Type reveals brute forcing or password spraying</td></tr>
+                <tr><td>4672</td><td>Special privileges assigned</td><td>Fast filter for admin-equivalent logon sessions</td></tr>
+                <tr><td>4720</td><td>User account created</td><td>First half of the classic backdoor account pattern</td></tr>
+                <tr><td>4728</td><td>Member added to global group</td><td>Covers Domain Admins and other domain-wide groups</td></tr>
+                <tr><td>4732</td><td>Member added to local group</td><td>Covers local Administrators on an individual host</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="audit-policy">
+          <h2>Audit Policy</h2>
+          <p>None of the Event IDs in the previous section appear reliably unless the corresponding audit policy is turned on. Windows ships with a conservative default audit policy that logs only a narrow set of events, largely account logon success and failure, and leaves most of the categories that security teams actually care about disabled or only partially enabled. A freshly built server or workstation running default settings will not generate 4732 when someone is added to a local group, and it will not generate object access events at all, no matter how sensitive the file being touched is.</p>
+
+          <p>The fix is Advanced Audit Policy Configuration, found under Local Security Policy or pushed through Group Policy. It replaces the nine broad legacy categories with ten categories broken into far more granular subcategories, each independently toggleable for Success, Failure, or both. To make sure the advanced settings actually take precedence over any legacy Local Security Policy configuration sitting alongside them, the "Force audit policy subcategory settings to override audit policy category settings" option, backed by the SCENoApplyLegacyAuditPolicy registry value, needs to be enabled too. Skipping that step is a common reason advanced audit settings appear configured but do not actually change what gets logged.</p>
+
+          <p>Four categories carry most of the weight for detection work. Account Logon records authentication against a domain controller, including Kerberos ticket activity. Account Management covers the account and group lifecycle events from the previous section: creation, deletion, password resets, and membership changes. Object Access covers access to files, folders, registry keys, and other securable objects, but it has a second requirement beyond just enabling the category: the object itself needs a System Access Control List (SACL) defining what to audit. Enabling Object Access auditing without also placing a SACL on the specific file share or registry key you care about produces nothing. Privilege Use records the exercise of sensitive privileges tied to Event ID 4672 and its companions, and needs some tuning since a handful of routine system privileges generate constant, low-value noise if left unfiltered.</p>
+
+          <p>Most organizations do not build an audit policy from a blank slate. Microsoft publishes a recommended baseline audit policy, and frameworks like the CIS benchmarks and NSA hardening guidance build on it with their own recommendations. Adopting one of these baselines through GPO is the practical starting point, followed by tuning specific subcategories up or down based on what your SIEM can actually absorb and what your detections actually need.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> Enabling the Object Access audit category and expecting file or registry access events to start appearing is the single most common audit policy mistake. The category only controls whether Windows checks for a SACL at all; without a SACL configured on the specific object, enabling the category by itself produces zero events for that object.
+          </div>
+        </section>
+
+        <section class="content-section" id="sysmon-overview">
+          <h2>What Sysmon Adds</h2>
+          <p>Sysmon, short for System Monitor, is a free tool from the Sysinternals suite, originally written by Mark Russinovich and Thomas Garnier. It installs as a Windows service backed by a kernel driver and logs to its own dedicated channel, Microsoft-Windows-Sysmon/Operational, separate from the Security log entirely. Where the Security log's auditing was designed for general accountability, Sysmon was designed specifically for detection and forensics, and it captures a level of process and network detail that native Windows auditing was never built to provide.</p>
+
+          <p>Event ID 1, process creation, is the single most valuable event Sysmon produces. It records the full command line of every process that starts, which matters enormously: a process name alone tells you powershell.exe ran, but the command line tells you it ran with -EncodedCommand and a base64 blob, which is the difference between noise and an actionable lead. It also captures the parent process, a process and file hash, and the account context the process ran under, giving you the ancestry chain that native Windows logging mostly leaves out.</p>
+
+          <p>Event ID 3, network connection, records the source and destination IP, port, and the process responsible for the connection. This is what lets you tie an outbound beacon to the exact process that made it, rather than just seeing traffic at the network layer with no process attribution. It is also one of the noisiest event types by default, since it fires for every browser tab and background update check, which is exactly why the configuration discussed in the next section matters so much.</p>
+
+          <p>Event ID 7, image loaded, records DLL loads, which is directly useful for hunting DLL side-loading and process injection style techniques where a legitimate process is made to load a malicious library. Like Event ID 3, it is extremely high-volume in its default state and needs deliberate filtering to be usable rather than overwhelming.</p>
+
+          <p>Event IDs 12 through 14 cover registry object modification: 12 for key creation or deletion, 13 for a value being set, and 14 for a rename operation. This directly connects back to the registry persistence techniques covered in the previous chapter. A Run key being written, a service's ImagePath being modified, or a new AppInit_DLLs entry appearing are all things the Security log's native auditing generally will not surface on its own, but Sysmon's registry events will.</p>
+        </section>
+
+        <section class="content-section" id="sysmon-configuration">
+          <h2>Configuring Sysmon</h2>
+          <p>Installed with no configuration, Sysmon logs everything it is capable of logging, and on a moderately busy endpoint that volume becomes unmanageable within hours, especially from Event ID 3 and Event ID 7. Making Sysmon usable in production means giving it a configuration XML that tells it, per event type, what to include and what to exclude, so the operational log fills up with signal instead of routine background activity.</p>
+
+          <p>The configuration works around rule groups scoped to each event type, and each rule group carries an onmatch attribute set to either include or exclude. An include ruleset flips the default to deny: only events matching one of the listed conditions get logged, everything else is dropped. An exclude ruleset flips the default to allow: everything gets logged except events matching the listed conditions. Conditions themselves are simple field comparisons, an image path equals a value, a command line contains a string, a destination port is one of a list, and so on. Most production configs mix both approaches: broad excludes to cut known-benign volume for noisy event types, and tighter includes for event types where only specific activity is worth keeping.</p>
+
+          <p>Very few teams write a Sysmon config from scratch. The community has converged on a small number of well-known starting points, the most widely referenced being the SwiftOnSecurity baseline, which ships sensible defaults tuned to cut common Windows and application noise while preserving the events that matter for detection. Olaf Hartong's modular configuration is another common choice, built to align more explicitly with ATT&CK technique coverage. The practical approach is to adopt one of these as a base, deploy it, watch what volume and false positives look like in your own environment, and then layer targeted includes and excludes on top rather than building the whole thing from first principles.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> Treat your Sysmon config as a living document, not a one-time deployment. Revisit it whenever a new detection depends on an event type you are currently excluding, and remember that Sysmon-Operational is a separate channel from the Security log with its own size and retention settings that need to be sized deliberately, not left at the default.
+          </div>
+        </section>
+
+        <section class="content-section" id="building-detections-from-logs">
+          <h2>Building Detections from These Logs</h2>
+          <p>Neither log source is complete on its own. The Security log tells you what changed in the identity and access state of the system: an account was created, a group membership changed. What it does not tell you is what process or command caused that change, or whether it fits the pattern of routine administration. Sysmon tells you exactly that: the process, its full command line, and its parent, but Sysmon alone has no concept of "this account now has domain admin rights." Real detections combine both.</p>
+
+          <p>Take the classic backdoor account pattern. A 4720 fires when a new account is created. On its own, that event is ambiguous, it could be legitimate onboarding work by an IT admin using their normal tooling. Correlating that 4720 against Sysmon Event ID 1 around the same timestamp and Logon ID adds the missing context: was the account created from an interactive PowerShell session with an admin's expected process ancestry, or was it created by net.exe or net1.exe spawned from an unusual parent, such as a web shell process or a script host running under a service account that has no business creating users? Shortly afterward, a 4732 records that same account being added to the local Administrators group, or a 4728 if it was instead added to a domain-wide group like Domain Admins. A new account followed within minutes by a privileged group addition, tied to a process ancestry that does not match normal admin activity, is a strong and fairly specific signal.</p>
+
+          <p>The detection logic follows naturally from that chain: alert when a 4720 for a given account is followed within a short window, minutes rather than hours, by a 4732 or 4728 adding that same account to a privileged group. Raise the priority further when the Sysmon process chain around the 4720 shows net.exe, net1.exe, or a directory service tool invoked by a parent process that is not part of your organization's known admin workflow, a browser, an Office application, or a script interpreter rather than an interactive admin session.</p>
+
+          <p>This pairing is the template for most identity-focused detection work in a Windows environment. Use the Security log to establish what changed about access, and use Sysmon to establish what process and command chain caused that change. Detections built on only one of the two sources tend to either miss the attack entirely or generate so many false positives on routine admin work that nobody trusts them.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>Security, System, and Application are the three core Windows log channels; the Security log only fills in once the relevant audit policy categories are actually enabled.</li>
+            <li>4624 and 4625 record successful and failed logons, and the Logon Type field, interactive, network, RDP, service, and so on, is what makes them useful. 4672 flags privileged logon sessions.</li>
+            <li>4720 (account creation) plus 4728 (added to a global group like Domain Admins) or 4732 (added to a local group like local Administrators) are the core events for spotting backdoor accounts.</li>
+            <li>Default audit policy misses most events security teams need. Advanced Audit Policy Configuration categories like Account Management, Object Access, and Privilege Use must be explicitly enabled, and Object Access also needs a SACL on the specific object.</li>
+            <li>Sysmon adds process command lines (Event ID 1), network connections (ID 3), image and DLL loads (ID 7), and registry modification (IDs 12-14) that the Security log does not natively capture.</li>
+            <li>Sysmon needs a scoped configuration XML, community baselines like SwiftOnSecurity are the standard starting point, or its volume becomes unmanageable; strong detections correlate Security log identity events with Sysmon process and network context.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">An analyst is triaging a spike of Event ID 4625 failures against a single account, all showing Logon Type 10 in the event data, sourced from an IP outside the corporate network. What does this most likely indicate?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="true">A. Failed RDP logon attempts, consistent with brute forcing</button>
+              <button class="kc-option" data-correct="false">B. Failed local console logon attempts</button>
+              <button class="kc-option" data-correct="false">C. Failed scheduled task authentication</button>
+              <button class="kc-option" data-correct="false">D. Normal SMB share access noise</button>
+            </div>
+            <div class="kc-answer">Logon Type 10 is RemoteInteractive, which is RDP. A cluster of failed logons at that type from an external address is a classic RDP brute-force signature. Type 2 would indicate a local console attempt, type 4 a scheduled task, and type 3 a network logon such as SMB share access, none of which match what is described here.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A team enables the Object Access audit category through Group Policy, but Event ID 4663 never appears in the Security log for a sensitive file share they want to monitor. What is the most likely reason?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="true">A. Object Access auditing also requires a SACL configured on that specific file share; enabling the category alone is not enough</button>
+              <button class="kc-option" data-correct="false">B. Object Access events only appear once Sysmon is installed alongside the Security log</button>
+              <button class="kc-option" data-correct="false">C. Event ID 4663 was deprecated in recent Windows versions</button>
+              <button class="kc-option" data-correct="false">D. Object Access requires Advanced Audit Policy to be turned off, not on</button>
+            </div>
+            <div class="kc-answer">Object Access auditing has a two-part requirement: the audit category has to be enabled, and the object itself needs a System Access Control List (SACL) defining what activity to audit. Enabling the category without placing a SACL on the specific file share produces no events for that object, which is exactly the gap described in this scenario.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">An analyst wants to build a detection for attacker-created backdoor accounts that get added to a privileged group shortly after creation. Which combination of log data gives both the identity-state change and the process context behind it?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="true">A. Security log 4720/4732 (or 4728) correlated with Sysmon Event ID 1 process creation around the same time</button>
+              <button class="kc-option" data-correct="false">B. Sysmon Event ID 3 network connections on their own</button>
+              <button class="kc-option" data-correct="false">C. System log driver load events on their own</button>
+              <button class="kc-option" data-correct="false">D. Application log entries from installed third-party software</button>
+            </div>
+            <div class="kc-answer">The Security log's 4720 and 4732/4728 events establish what changed about the account and its group membership, while Sysmon's Event ID 1 supplies the process, command line, and parent process that performed the action. Neither source alone gives the full picture: the Security log lacks process context, and Sysmon has no concept of privileged group membership.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="05-the-registry.html" class="chapter-nav-prev">← The Registry</a>
+          <a href="07-common-attack-techniques.html" class="chapter-nav-next">Common Windows Attack Techniques →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Windows</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('06', 6));</script>
+</body>
+</html>

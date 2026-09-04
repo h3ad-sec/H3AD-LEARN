@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>H3AD-LEARN: Security Fundamentals · Core Concepts</title>
-  <meta name="description" content="Security Fundamentals curriculum: CIA triad, authentication, cryptography, attacks and the kill chain, frameworks, risk management, and SOC operations." />
-  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/" />
+  <title>H3AD-LEARN: Windows · Internals to Attacks</title>
+  <meta name="description" content="Eight-chapter Windows curriculum. Process architecture, Active Directory, Kerberos/NTLM, tokens and privileges, the registry, event logging, and AD attack detection." />
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/windows/" />
 
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="H3AD-SEC" />
-  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/" />
-  <meta property="og:title" content="H3AD-LEARN: Security Fundamentals · Core Concepts" />
-  <meta property="og:description" content="Security Fundamentals curriculum: CIA triad, authentication, cryptography, attacks and the kill chain, frameworks, risk management, and SOC operations." />
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/windows/" />
+  <meta property="og:title" content="H3AD-LEARN: Windows · Internals to Attacks" />
+  <meta property="og:description" content="Eight-chapter Windows curriculum. Process architecture, Active Directory, Kerberos/NTLM, tokens and privileges, the registry, event logging, and AD attack detection." />
   <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" />
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="H3AD-LEARN: Security Fundamentals · Core Concepts" />
-  <meta name="twitter:description" content="Security Fundamentals curriculum: CIA triad, authentication, cryptography, attacks and the kill chain, frameworks, risk management, and SOC operations." />
+  <meta name="twitter:title" content="H3AD-LEARN: Windows · Internals to Attacks" />
+  <meta name="twitter:description" content="Eight-chapter Windows curriculum. Process architecture, Active Directory, Kerberos/NTLM, tokens and privileges, the registry, event logging, and AD attack detection." />
   <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" />
 
   <meta name="theme-color" content="#080c14" />
@@ -100,9 +100,9 @@
   {
     "@context": "https://schema.org",
     "@type": "Course",
-    "name": "Security Fundamentals",
-    "description": "Security Fundamentals curriculum: CIA triad, authentication, cryptography, attacks and the kill chain, frameworks, risk management, and SOC operations.",
-    "url": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/",
+    "name": "Windows",
+    "description": "Eight-chapter Windows curriculum. Process architecture, Active Directory, Kerberos/NTLM, tokens and privileges, the registry, event logging, and AD attack detection.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/windows/",
     "provider": {
       "@type": "Organization",
       "name": "H3AD-SEC",
@@ -130,8 +130,8 @@
     {
       "@type": "ListItem",
       "position": 3,
-      "name": "Fundamentals",
-      "item": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/"
+      "name": "Windows",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/windows/"
     }
   ]
 }
@@ -147,7 +147,7 @@
     </a>
     <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
       <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
-      <span class="xv-pill-tagline">SECURITY FUNDAMENTALS</span>
+      <span class="xv-pill-tagline">WINDOWS</span>
     </a>
     <div class="nav-right">
       <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
@@ -179,7 +179,9 @@
     <a href="https://h3ad-sec.github.io/H3AD-DF/">H3AD-DF &nbsp;&#8599;</a>
     <a href="https://h3ad-sec.github.io/H3AD-IR/">H3AD-IR &nbsp;&#8599;</a>
     <a href="../index.html">H3AD-LEARN</a>
-    <a href="../fundamentals/index.html" class="drawer-sub nav-current">&#8623; FUNDAMENTALS</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub nav-current">&#8623; WINDOWS</a>
     <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
     <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
     <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
@@ -191,7 +193,7 @@
     <nav aria-label="Breadcrumb" style="font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; color: var(--muted); display: flex; align-items: center; gap: 0.5rem;">
       <a href="../index.html" style="color: var(--muted); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">Home</a>
       <span aria-hidden="true">&#8250;</span>
-      <span style="color: var(--text);">Security Fundamentals</span>
+      <span style="color: var(--text);">Windows</span>
     </nav>
   </div>
 
@@ -199,21 +201,21 @@
     <div class="container">
       <div class="module-hero-inner">
         <a href="../index.html" class="back-link">All Modules</a>
-        <span class="module-badge">FUNDAMENTALS</span>
-        <h1 class="module-hero-title">Security Fundamentals &middot; Complete Guide</h1>
-        <p class="module-hero-desc">Ten chapters covering the core concepts every other domain in H3AD-LEARN builds on: the CIA triad, authentication and access control, cryptography basics, common attack patterns, security frameworks and compliance, risk and vulnerability management, SOC operations basics, identity federation, threat modeling, and how it all maps to a career track. Built for anyone starting a SOC analyst, threat hunting, or detection engineering path with no assumed background.</p>
+        <span class="module-badge">WINDOWS</span>
+        <h1 class="module-hero-title">Windows &middot; Complete Guide</h1>
+        <p class="module-hero-desc">Eleven chapters covering the OS-level knowledge behind most enterprise attacks: process and session architecture, Active Directory fundamentals, Kerberos and NTLM authentication, tokens and privilege escalation, the registry, Windows event logging and Sysmon, common attack techniques, Active Directory attack detection, PowerShell logging, AD Certificate Services attacks, and delegation abuse with modern AD hardening. Built for analysts who see Windows Event IDs and process trees daily but have never had to explain the internals behind them.</p>
 
         <div class="module-stats-strip">
           <div class="module-stat">
-            <span class="module-stat-value">10</span>
+            <span class="module-stat-value">11</span>
             <span class="module-stat-label">CHAPTERS</span>
           </div>
           <div class="module-stat">
-            <span class="module-stat-value">~13 HRS</span>
+            <span class="module-stat-value">~16 HRS</span>
             <span class="module-stat-label">CONTENT</span>
           </div>
           <div class="module-stat">
-            <span class="module-stat-value">BEGINNER to INTERMEDIATE</span>
+            <span class="module-stat-value">BEGINNER to ADVANCED</span>
             <span class="module-stat-label">SKILL RANGE</span>
           </div>
           <div class="module-stat">
@@ -225,22 +227,22 @@
         <div class="module-progress-wrap">
           <div class="module-progress-meta">
             <span>MODULE PROGRESS</span>
-            <span id="fundamentals-progress-label">0 / 10 chapters complete</span>
+            <span id="windows-progress-label">0 / 11 chapters complete</span>
           </div>
           <div class="module-progress-bar-outer">
-            <div class="module-progress-bar-inner" id="fundamentals-progress-bar"></div>
+            <div class="module-progress-bar-inner" id="windows-progress-bar"></div>
           </div>
         </div>
 
         <div class="module-tags">
-          <span class="module-tag">CIA triad</span>
-          <span class="module-tag">AAA</span>
-          <span class="module-tag">MFA</span>
-          <span class="module-tag">cryptography</span>
-          <span class="module-tag">kill chain</span>
-          <span class="module-tag">NIST CSF</span>
-          <span class="module-tag">CVSS</span>
-          <span class="module-tag">SOC tiers</span>
+          <span class="module-tag">Active Directory</span>
+          <span class="module-tag">Kerberos</span>
+          <span class="module-tag">NTLM</span>
+          <span class="module-tag">tokens</span>
+          <span class="module-tag">registry</span>
+          <span class="module-tag">Sysmon</span>
+          <span class="module-tag">Kerberoasting</span>
+          <span class="module-tag">DCSync</span>
         </div>
       </div>
     </div>
@@ -259,20 +261,20 @@
       <p class="search-empty" id="chapterSearchEmpty" hidden>No chapters match &ldquo;<span id="chapterSearchEmptyTerm"></span>&rdquo;.</p>
       <div class="chapters-grid" id="chaptersGrid">
 
-        <a class="chapter-card" href="./01-cia-triad-security-fundamentals.html" aria-label="Chapter 1: Security Fundamentals and the CIA Triad">
+        <a class="chapter-card" href="./01-windows-architecture-process-model.html" aria-label="Chapter 1: Windows Architecture and the Process Model">
           <div class="chapter-card-top">
             <span class="chapter-num">01</span>
             <div class="chapter-badges">
               <span class="chapter-diff-beginner">BEGINNER</span>
-              <span class="chapter-time">25 min</span>
+              <span class="chapter-time">30 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">Security Fundamentals &amp; the CIA Triad</h3>
-          <p class="chapter-desc">Confidentiality, integrity, and availability as the core security model, the Parkerian Hexad extension, AAA, and the vocabulary of threat, vulnerability, risk, and attack surface every other chapter assumes.</p>
+          <h3 class="chapter-title">Windows Architecture &amp; the Process Model</h3>
+          <p class="chapter-desc">Processes, threads, and handles, how sessions and integrity levels work, and the process tree relationships that show up in every EDR alert and every Sysmon log.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">CIA triad</span>
-            <span class="chapter-tag">AAA</span>
-            <span class="chapter-tag">core vocabulary</span>
+            <span class="chapter-tag">processes</span>
+            <span class="chapter-tag">integrity levels</span>
+            <span class="chapter-tag">sessions</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="01">
@@ -283,20 +285,20 @@
           </div>
         </a>
 
-        <a class="chapter-card" href="./02-authentication-access-control.html" aria-label="Chapter 2: Authentication and Access Control">
+        <a class="chapter-card" href="./02-active-directory-fundamentals.html" aria-label="Chapter 2: Active Directory Fundamentals">
           <div class="chapter-card-top">
             <span class="chapter-num">02</span>
             <div class="chapter-badges">
               <span class="chapter-diff-beginner">BEGINNER</span>
-              <span class="chapter-time">30 min</span>
+              <span class="chapter-time">35 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">Authentication &amp; Access Control</h3>
-          <p class="chapter-desc">The three authentication factors, MFA mechanics from TOTP to passkeys, RBAC and ABAC authorization models, least privilege, and why Zero Trust replaced the perimeter model.</p>
+          <h3 class="chapter-title">Active Directory Fundamentals</h3>
+          <p class="chapter-desc">Domains, forests, organizational units, group policy, and trusts, the directory structure that almost every enterprise attack eventually has to navigate.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">MFA</span>
-            <span class="chapter-tag">RBAC</span>
-            <span class="chapter-tag">Zero Trust</span>
+            <span class="chapter-tag">Active Directory</span>
+            <span class="chapter-tag">GPOs</span>
+            <span class="chapter-tag">trusts</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="02">
@@ -307,20 +309,20 @@
           </div>
         </a>
 
-        <a class="chapter-card" href="./03-cryptography-basics.html" aria-label="Chapter 3: Cryptography Basics">
+        <a class="chapter-card" href="./03-authentication-ntlm-kerberos.html" aria-label="Chapter 3: Authentication with NTLM, Kerberos and Tickets">
           <div class="chapter-card-top">
             <span class="chapter-num">03</span>
             <div class="chapter-badges">
-              <span class="chapter-diff-beginner">BEGINNER</span>
-              <span class="chapter-time">35 min</span>
+              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
+              <span class="chapter-time">40 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">Cryptography Basics</h3>
-          <p class="chapter-desc">Symmetric and asymmetric encryption, hashing and integrity, digital signatures, PKI and certificate chains, and how a TLS handshake ties all of it together.</p>
+          <h3 class="chapter-title">Authentication: NTLM, Kerberos &amp; Tickets</h3>
+          <p class="chapter-desc">The full Kerberos ticket exchange step by step, how NTLM differs and why it is weaker, and why understanding both is the prerequisite for every credential attack in this module.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">symmetric/asymmetric</span>
-            <span class="chapter-tag">hashing</span>
-            <span class="chapter-tag">PKI</span>
+            <span class="chapter-tag">Kerberos</span>
+            <span class="chapter-tag">NTLM</span>
+            <span class="chapter-tag">TGT/TGS</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="03">
@@ -331,7 +333,7 @@
           </div>
         </a>
 
-        <a class="chapter-card" href="./04-common-attacks-kill-chain.html" aria-label="Chapter 4: Common Attacks and the Cyber Kill Chain">
+        <a class="chapter-card" href="./04-tokens-privileges-access-control.html" aria-label="Chapter 4: Tokens, Privileges and Access Control">
           <div class="chapter-card-top">
             <span class="chapter-num">04</span>
             <div class="chapter-badges">
@@ -339,12 +341,12 @@
               <span class="chapter-time">35 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">Common Attacks &amp; the Cyber Kill Chain</h3>
-          <p class="chapter-desc">Malware taxonomy, phishing and social engineering tradecraft, common web and network attack patterns, and the Cyber Kill Chain and ATT&amp;CK as shared vocabulary for describing an intrusion.</p>
+          <h3 class="chapter-title">Tokens, Privileges &amp; Access Control</h3>
+          <p class="chapter-desc">Access tokens and SIDs, how ACLs actually grant or deny access, privilege escalation fundamentals, and what UAC is really checking when it prompts.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">malware taxonomy</span>
-            <span class="chapter-tag">kill chain</span>
-            <span class="chapter-tag">ATT&amp;CK</span>
+            <span class="chapter-tag">access tokens</span>
+            <span class="chapter-tag">SIDs</span>
+            <span class="chapter-tag">UAC</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="04">
@@ -355,7 +357,7 @@
           </div>
         </a>
 
-        <a class="chapter-card" href="./05-security-frameworks-compliance.html" aria-label="Chapter 5: Security Frameworks and Compliance">
+        <a class="chapter-card" href="./05-the-registry.html" aria-label="Chapter 5: The Registry">
           <div class="chapter-card-top">
             <span class="chapter-num">05</span>
             <div class="chapter-badges">
@@ -363,12 +365,12 @@
               <span class="chapter-time">30 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">Security Frameworks &amp; Compliance</h3>
-          <p class="chapter-desc">NIST CSF, ISO 27001, and CIS Controls as prioritization frameworks, plus a practical walkthrough of PCI-DSS, HIPAA, and GDPR obligations analysts actually encounter.</p>
+          <h3 class="chapter-title">The Registry</h3>
+          <p class="chapter-desc">Registry structure and hives, how the registry stores configuration and identity data, and the specific keys attackers abuse for persistence, from Run keys to services.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">NIST CSF</span>
-            <span class="chapter-tag">ISO 27001</span>
-            <span class="chapter-tag">CIS Controls</span>
+            <span class="chapter-tag">registry hives</span>
+            <span class="chapter-tag">persistence</span>
+            <span class="chapter-tag">Run keys</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="05">
@@ -379,7 +381,7 @@
           </div>
         </a>
 
-        <a class="chapter-card" href="./06-risk-vulnerability-management.html" aria-label="Chapter 6: Risk and Vulnerability Management">
+        <a class="chapter-card" href="./06-event-logging-sysmon.html" aria-label="Chapter 6: Windows Event Logging and Sysmon">
           <div class="chapter-card-top">
             <span class="chapter-num">06</span>
             <div class="chapter-badges">
@@ -387,12 +389,12 @@
               <span class="chapter-time">35 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">Risk &amp; Vulnerability Management</h3>
-          <p class="chapter-desc">Risk as likelihood times impact, CVSS scoring mechanics, the full vulnerability management lifecycle, and patch prioritization under real operational constraints.</p>
+          <h3 class="chapter-title">Windows Event Logging &amp; Sysmon</h3>
+          <p class="chapter-desc">The Security log Event IDs that actually matter for detection, why default logging is not enough, and how to configure and read Sysmon for the visibility Windows does not give you by default.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">CVSS</span>
-            <span class="chapter-tag">vuln lifecycle</span>
-            <span class="chapter-tag">patch management</span>
+            <span class="chapter-tag">Event IDs</span>
+            <span class="chapter-tag">Sysmon</span>
+            <span class="chapter-tag">Security log</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="06">
@@ -403,20 +405,20 @@
           </div>
         </a>
 
-        <a class="chapter-card" href="./07-security-operations-basics.html" aria-label="Chapter 7: Security Operations Basics">
+        <a class="chapter-card" href="./07-common-attack-techniques.html" aria-label="Chapter 7: Common Windows Attack Techniques">
           <div class="chapter-card-top">
             <span class="chapter-num">07</span>
             <div class="chapter-badges">
               <span class="chapter-diff-intermediate">INTERMEDIATE</span>
-              <span class="chapter-time">30 min</span>
+              <span class="chapter-time">40 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">Security Operations Basics</h3>
-          <p class="chapter-desc">How a SOC is structured across tiers, what SIEM and EDR actually do, the alert triage workflow from ticket to disposition, and escalation and shift realities.</p>
+          <h3 class="chapter-title">Common Windows Attack Techniques</h3>
+          <p class="chapter-desc">Credential dumping from LSASS, lateral movement over PsExec/WMI/WinRM, and the persistence mechanisms that follow directly from the process and registry chapters.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">SOC tiers</span>
-            <span class="chapter-tag">SIEM</span>
-            <span class="chapter-tag">triage</span>
+            <span class="chapter-tag">credential dumping</span>
+            <span class="chapter-tag">lateral movement</span>
+            <span class="chapter-tag">persistence</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="07">
@@ -427,19 +429,20 @@
           </div>
         </a>
 
-        <a class="chapter-card" href="./08-career-paths-roadmap.html" aria-label="Chapter 8: Career Paths and Your Learning Roadmap">
+        <a class="chapter-card" href="./08-ad-attacks-detection.html" aria-label="Chapter 8: Active Directory Attacks and Detection">
           <div class="chapter-card-top">
             <span class="chapter-num">08</span>
             <div class="chapter-badges">
-              <span class="chapter-diff-beginner">BEGINNER</span>
-              <span class="chapter-time">25 min</span>
+              <span class="chapter-diff-advanced">ADVANCED</span>
+              <span class="chapter-time">45 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">Career Paths &amp; Your Learning Roadmap</h3>
-          <p class="chapter-desc">How these fundamentals map onto SOC analyst, threat hunter, CTI, detection engineer, and IR career tracks, plus a suggested study order through the rest of H3AD-LEARN.</p>
+          <h3 class="chapter-title">Active Directory Attacks &amp; Detection</h3>
+          <p class="chapter-desc">Kerberoasting, DCSync, and Golden/Silver ticket attacks explained mechanically, plus the detection strategy for each.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">career paths</span>
-            <span class="chapter-tag">study roadmap</span>
+            <span class="chapter-tag">Kerberoasting</span>
+            <span class="chapter-tag">DCSync</span>
+            <span class="chapter-tag">golden ticket</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="08">
@@ -450,7 +453,7 @@
           </div>
         </a>
 
-        <a class="chapter-card" href="./09-identity-federation-sso-oauth.html" aria-label="Chapter 9: Identity Federation: SSO, SAML and OAuth/OIDC">
+        <a class="chapter-card" href="./09-powershell-security-logging.html" aria-label="Chapter 9: PowerShell Security and Logging">
           <div class="chapter-card-top">
             <span class="chapter-num">09</span>
             <div class="chapter-badges">
@@ -458,12 +461,12 @@
               <span class="chapter-time">40 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">Identity Federation: SSO, SAML &amp; OAuth/OIDC</h3>
-          <p class="chapter-desc">SSO, SAML assertions, OAuth 2.0 grant types, OpenID Connect, and JWTs, the identity backbone of real enterprise environments and real federation attacks like Golden SAML.</p>
+          <h3 class="chapter-title">PowerShell Security &amp; Logging</h3>
+          <p class="chapter-desc">Why PowerShell dominates post-exploitation, its logging types, AMSI, Constrained Language Mode, and the Event IDs a SOC analyst actually monitors.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">SSO</span>
-            <span class="chapter-tag">SAML</span>
-            <span class="chapter-tag">OAuth/OIDC</span>
+            <span class="chapter-tag">PowerShell</span>
+            <span class="chapter-tag">AMSI</span>
+            <span class="chapter-tag">script block logging</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="09">
@@ -474,23 +477,47 @@
           </div>
         </a>
 
-        <a class="chapter-card" href="./10-threat-modeling-security-by-design.html" aria-label="Chapter 10: Threat Modeling and Security by Design">
+        <a class="chapter-card" href="./10-ad-cs-attacks.html" aria-label="Chapter 10: Active Directory Certificate Services Attacks">
           <div class="chapter-card-top">
             <span class="chapter-num">10</span>
             <div class="chapter-badges">
-              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
-              <span class="chapter-time">35 min</span>
+              <span class="chapter-diff-advanced">ADVANCED</span>
+              <span class="chapter-time">45 min</span>
             </div>
           </div>
-          <h3 class="chapter-title">Threat Modeling &amp; Security by Design</h3>
-          <p class="chapter-desc">STRIDE, attack trees, DREAD, and PASTA, threat modeling as a practice done before code is written, closing the module by tying every prior chapter together.</p>
+          <h3 class="chapter-title">Active Directory Certificate Services Attacks</h3>
+          <p class="chapter-desc">AD CS misconfigurations from the ESC attack family, certificate template abuse, and NTLM relay to certificate enrollment.</p>
           <div class="chapter-tags">
-            <span class="chapter-tag">STRIDE</span>
-            <span class="chapter-tag">attack trees</span>
-            <span class="chapter-tag">secure design</span>
+            <span class="chapter-tag">AD CS</span>
+            <span class="chapter-tag">ESC1-8</span>
+            <span class="chapter-tag">certificate abuse</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="10">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <a class="chapter-card" href="./11-delegation-abuse-hardening.html" aria-label="Chapter 11: Delegation Abuse and Modern AD Hardening">
+          <div class="chapter-card-top">
+            <span class="chapter-num">11</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-advanced">ADVANCED</span>
+              <span class="chapter-time">40 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Delegation Abuse &amp; Modern AD Hardening</h3>
+          <p class="chapter-desc">Unconstrained, constrained, and resource-based delegation abuse, plus LAPS, gMSA, and the tiered administration model that closes the module.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">delegation</span>
+            <span class="chapter-tag">LAPS</span>
+            <span class="chapter-tag">tiered admin</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="11">
               <span class="chapter-status-dot"></span>
               <span class="chapter-status-text">UNREAD</span>
             </div>
@@ -513,22 +540,21 @@
         <div class="prereq-card">
           <p class="prereq-card-title">WHAT YOU SHOULD KNOW</p>
           <ul class="prereq-list">
-            <li>No security background required. This module assumes general computer literacy only</li>
-            <li>Basic comfort with how logins, websites, and files work day to day</li>
-            <li>Curiosity about how attackers and defenders think, no prior IT or security job required</li>
-            <li>Nothing else. This is the starting point for the rest of H3AD-LEARN</li>
+            <li>The Fundamentals module, or equivalent comfort with core security vocabulary (threat, vulnerability, attack surface)</li>
+            <li>The Networking module, or comfort with client-server communication, since Kerberos and NTLM are network authentication protocols</li>
+            <li>General comfort using Windows as an end user; no prior systems administration or Active Directory experience required</li>
           </ul>
         </div>
 
         <div class="prereq-card is-outcomes">
           <p class="prereq-card-title">WHAT YOU WILL KNOW AFTER</p>
           <ul class="prereq-list">
-            <li>The CIA triad and the vocabulary (threat, vulnerability, risk, exploit) used throughout every other module</li>
-            <li>How authentication, authorization, and Zero Trust actually work, not just as buzzwords</li>
-            <li>Enough cryptography to understand TLS, hashing, and why certificate errors matter</li>
-            <li>The Cyber Kill Chain and ATT&amp;CK as a shared language for describing an attack</li>
-            <li>Where compliance and frameworks fit into a real security program</li>
-            <li>Which H3AD-LEARN module and which career track to pursue next</li>
+            <li>How Windows processes, sessions, and integrity levels actually work, and what a process tree in an EDR alert is really showing you</li>
+            <li>How Active Directory is structured, and why domain admin is the single most valuable target in most enterprise networks</li>
+            <li>The full Kerberos ticket exchange and how NTLM differs, well enough to understand why Kerberoasting and pass-the-hash work</li>
+            <li>How tokens, SIDs, and ACLs govern access, and the mechanics behind common privilege escalation</li>
+            <li>Which registry keys and Event IDs actually matter for persistence detection, and how to configure Sysmon for real visibility</li>
+            <li>How Kerberoasting, DCSync, and Golden/Silver ticket attacks work mechanically, and what each looks like in logs</li>
           </ul>
         </div>
 
@@ -551,18 +577,7 @@
           </div>
           <div class="resource-card-body">
             <span class="resource-card-name mono">H3AD</span>
-            <p class="resource-card-desc">The SOC analyst console. See how CIA, AAA, and access control concepts from this module show up as real fields in a real investigation workflow.</p>
-          </div>
-          <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
-        </a>
-
-        <a class="resource-card" href="https://h3ad-sec.github.io/IOC-VERDIKT/" target="_blank" rel="noopener noreferrer">
-          <div class="resource-card-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          </div>
-          <div class="resource-card-body">
-            <span class="resource-card-name mono">IOC-VERDIKT</span>
-            <p class="resource-card-desc">The lowest-friction way to see indicator confidence scoring and attack vocabulary from Chapter 1 and Chapter 4 applied to a live IOC lookup.</p>
+            <p class="resource-card-desc">The SOC analyst console. See how process trees, Event IDs, and token/privilege fields from this module show up in a real investigation workflow.</p>
           </div>
           <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
         </a>
@@ -573,18 +588,29 @@
           </div>
           <div class="resource-card-body">
             <span class="resource-card-name mono">TRACERULES</span>
-            <p class="resource-card-desc">Browse real detection rules to see how the Cyber Kill Chain and ATT&amp;CK vocabulary from Chapter 4 becomes an actual, production-ready query.</p>
+            <p class="resource-card-desc">Real detection rules for Kerberoasting, DCSync, and credential dumping. See how Chapters 7 and 8's attack mechanics become production queries.</p>
           </div>
           <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
         </a>
 
-        <a class="resource-card" href="https://h3ad-sec.github.io/PROMPTVAULT/" target="_blank" rel="noopener noreferrer">
+        <a class="resource-card" href="https://h3ad-sec.github.io/PIVEX/" target="_blank" rel="noopener noreferrer">
           <div class="resource-card-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h5"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
           </div>
           <div class="resource-card-body">
-            <span class="resource-card-name mono">PROMPTVAULT</span>
-            <p class="resource-card-desc">A library of AI prompts for security work. Useful once you know the terminology in this module well enough to judge whether an AI answer is right.</p>
+            <span class="resource-card-name mono">PIVEX</span>
+            <p class="resource-card-desc">Visual pivot graph for investigations. Map lateral movement and privilege escalation paths once you understand the tokens and trusts that make them possible.</p>
+          </div>
+          <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
+        </a>
+
+        <a class="resource-card" href="https://h3ad-sec.github.io/HYPOS/" target="_blank" rel="noopener noreferrer">
+          <div class="resource-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div class="resource-card-body">
+            <span class="resource-card-name mono">HYPOS</span>
+            <p class="resource-card-desc">ATT&amp;CK-driven hypothesis platform. Turn this module's AD attack techniques directly into structured hunt hypotheses.</p>
           </div>
           <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
         </a>
@@ -597,7 +623,7 @@
     <div class="container">
       <div class="footer-top">
         <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
-        <span class="footer-right">Security Fundamentals</span>
+        <span class="footer-right">Windows</span>
         <div class="footer-credit-row">
           <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
             <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
@@ -611,19 +637,19 @@
   <script src="../js/learn.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const pct   = getModuleProgress('fundamentals');
-      const bar   = document.getElementById('fundamentals-progress-bar');
-      const label = document.getElementById('fundamentals-progress-label');
+      const pct   = getModuleProgress('windows');
+      const bar   = document.getElementById('windows-progress-bar');
+      const label = document.getElementById('windows-progress-label');
       if (bar)   bar.style.width = pct + '%';
       if (label) {
         const progress  = initProgress();
-        const chapters  = progress.modules?.['fundamentals']?.chapters || {};
+        const chapters  = progress.modules?.['windows']?.chapters || {};
         const completed = Object.values(chapters).filter(c => c.status === 'complete').length;
-        label.textContent = completed + ' / 10 chapters complete';
+        label.textContent = completed + ' / 11 chapters complete';
       }
 
       const progress = initProgress();
-      const chapters = progress.modules?.['fundamentals']?.chapters || {};
+      const chapters = progress.modules?.['windows']?.chapters || {};
       document.querySelectorAll('.chapter-status[data-chapter-id]').forEach(el => {
         const id  = el.dataset.chapterId;
         const ch  = chapters[id];

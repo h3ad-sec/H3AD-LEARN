@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="09">
+  <meta name="module-id" content="windows">
+  <title>PowerShell Security & Logging · Windows · H3AD-LEARN</title>
+  <meta name="description" content="PowerShell's built-in logging mechanisms, the Event IDs analysts monitor, and configuration hardening for enterprise visibility.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/windows/09-powershell-security-logging.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/windows/09-powershell-security-logging.html">
+  <meta property="og:title" content="PowerShell Security & Logging · Windows · H3AD-LEARN">
+  <meta property="og:description" content="PowerShell's built-in logging mechanisms, the Event IDs analysts monitor, and configuration hardening for enterprise visibility.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="PowerShell Security & Logging · Windows · H3AD-LEARN">
+  <meta name="twitter:description" content="PowerShell's built-in logging mechanisms, the Event IDs analysts monitor, and configuration hardening for enterprise visibility.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "PowerShell Security & Logging",
+    "description": "PowerShell's built-in logging mechanisms, the Event IDs analysts monitor, and configuration hardening for enterprise visibility.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/windows/09-powershell-security-logging.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Windows",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/windows/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://h3ad-sec.github.io/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "H3AD-LEARN",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Windows",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/windows/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "PowerShell Security & Logging",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/windows/09-powershell-security-logging.html"
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">POWERSHELL SECURITY & LOGGING</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub nav-current">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Windows</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 09 of 11</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">40 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 8 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 09</span>
+            <span class="badge-time muted mono">40 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">PowerShell Security & Logging</h1>
+          <p class="chapter-intro">PowerShell ships on every modern Windows host and gets used constantly for entirely legitimate work: patch scripts, inventory pulls, Active Directory administration, scheduled maintenance, and countless one-off admin tasks that never touch a ticketing system. That ubiquity means a SOC analyst's job is not to treat PowerShell activity as inherently suspicious, because flagging every invocation produces an unworkable volume of noise. The job is to know exactly what visibility exists into PowerShell execution, what a normal baseline looks like in your environment, and which logs to pull the moment something needs a closer look. This chapter covers the logging mechanisms Windows provides for PowerShell, the specific Event IDs each one produces, and the configuration controls that turn PowerShell from a visibility gap into one of the richest telemetry sources on the endpoint.</p>
+          <div class="chapter-tags">
+            <span class="tag">PowerShell logging</span>
+            <span class="tag">script block logging</span>
+            <span class="tag">JEA</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="powershell-and-visibility">
+          <h2>PowerShell and Why Visibility Matters</h2>
+          <p>PowerShell is not a standalone scripting language bolted onto Windows, it is built directly on the .NET Common Language Runtime and has first-class access to WMI, COM, and the Windows API surface. That depth of integration is exactly why it is so useful for administration: a single PowerShell command can query Active Directory, touch the registry, manipulate services, and reach out over the network, all without invoking a separate executable for each step. It is also why PowerShell activity is fundamentally different from, say, a suspicious binary dropped to disk. A malicious PowerShell script does not need to write a new file at all. It can be handed to the engine as a string, assembled dynamically at runtime, decoded from an encoded argument, or pulled down and executed entirely in memory.</p>
+
+          <p>That in-memory, script-based execution model is precisely why traditional file-based antivirus scanning is a weak control against PowerShell misuse on its own. A signature-based scanner looks for known-bad files on disk. If nothing is ever written to disk, there is nothing for that scanner to find. This is not a statement about how attackers evade detection, it is a statement about where the actual control has to live for this class of activity: in the logging and execution-policy layer of PowerShell itself, not in the file system. Microsoft built PowerShell with this reality in mind, and the logging features covered in this chapter exist specifically to give defenders visibility into commands and scripts regardless of whether they ever touch disk.</p>
+
+          <p>This is also why PowerShell logging configuration deserves the same deliberate rollout as any other core telemetry source, alongside process creation auditing (Event ID 4688) and EDR agent coverage. An organization that has strong process-level logging but has never enabled PowerShell's own logging features is missing the content of what actually ran, only seeing that powershell.exe launched. Conversely, an organization with rich PowerShell logging but no baseline for what normal administrative usage looks like will drown analysts in alert volume without any way to prioritize.</p>
+
+          <p>The remainder of this chapter treats PowerShell logging as a defense-in-depth stack: multiple independent mechanisms, each with a different blind spot, that together give a SOC meaningfully complete visibility. Module Logging, Script Block Logging, and Transcription each capture a different slice of an execution. Constrained Language Mode, JEA, AppLocker, and WDAC restrict what can run in the first place. None of these controls is sufficient alone. Understanding what each one does, and does not, capture is the foundation for building reliable PowerShell detections.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> All of the logging features in this chapter are configured through Group Policy under Administrative Templates &gt; Windows Components &gt; Windows PowerShell, or through the equivalent registry keys under <span class="mono">HKLM\SOFTWARE\Policies\Microsoft\Windows\PowerShell</span>. None of them are enabled by default on a stock Windows installation, which is the single most common visibility gap this chapter addresses.</div>
+        </section>
+
+        <section class="content-section" id="module-logging">
+          <h2>Module Logging</h2>
+          <p>Module Logging records pipeline execution details for the specific PowerShell modules an administrator has enabled it for. When active, it logs the commands that were run through a given module and their parameters, writing that record as Event ID 4103 to the Microsoft-Windows-PowerShell/Operational log. In practical terms, it tells an analyst that a particular cmdlet from a particular module executed, and what arguments were passed to it, which is genuinely useful when investigating an incident where a known module was involved, for example confirming that a particular Active Directory cmdlet ran against a specific object.</p>
+
+          <p>The practical limitation of Module Logging is right in its name: it only logs modules that have been explicitly enabled for logging. Windows PowerShell ships with dozens of built-in modules and organizations frequently install more, and an administrator must select which ones generate 4103 events, commonly through the "Turn on Module Logging" Group Policy setting with a wildcard or an explicit module list. A module that was never added to that list produces no 4103 telemetry no matter what runs through it. Enabling logging for every module (using a wildcard such as <span class="mono">*</span>) is the common recommendation for security-relevant environments, but that decision has a real cost in log volume that needs to be sized for before rollout.</p>
+
+          <p>The second limitation is about content completeness. Module Logging captures pipeline execution details, command names, and parameters, but it was never designed to be a full-fidelity record of everything a script does internally. Code that runs without invoking a logged module's cmdlets, or logic that operates purely on .NET objects and language constructs rather than module commands, can execute without generating a corresponding 4103 event with the full picture. This is the reason Module Logging is described as complementary rather than a complete solution: it is strong at telling you which commands ran, weaker at reconstructing exactly what a script's full logic was.</p>
+
+          <p>Because of that gap, Module Logging is rarely the first log source an analyst pulls during an investigation. It is more often used to corroborate a finding from Script Block Logging, confirming that a specific command with specific parameters actually executed against a specific module, or to answer narrow questions like "did anyone run Get-ADUser against this account in the last week." Treat it as a supporting log source that adds command-level detail once you already have a lead, not as your primary detection surface.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> If storage or SIEM ingestion budget forces a choice between logging sources, prioritize Script Block Logging over Module Logging. Script Block Logging captures the executed code itself and covers a broader range of activity; Module Logging is a useful supplement once that foundation is in place.</div>
+        </section>
+
+        <section class="content-section" id="script-block-logging">
+          <h2>Script Block Logging</h2>
+          <p>Script Block Logging is the single most valuable PowerShell log source available to a defender, and understanding exactly what it captures is worth the detail. When enabled through the "Turn on PowerShell Script Block Logging" policy, it writes Event ID 4104 to the Microsoft-Windows-PowerShell/Operational log every time a block of PowerShell code is executed, whether that code was typed interactively, run from a saved script file, or built dynamically at runtime and assembled as a string before being invoked.</p>
+
+          <p>What makes this the highest-value source is that it logs the code as it is actually compiled and executed by the PowerShell engine, not merely the command line that launched the process. If a script assembles a command dynamically, for example by concatenating strings or decoding a Base64-encoded block before running it, Script Block Logging captures the resulting executed content, not just the original wrapper that process-creation logging alone would show. That distinction, as-executed versus as-typed, is what separates a log source that can be trivially deprived of content from one that reliably captures the substance of what ran.</p>
+
+          <p>PowerShell also has a built-in heuristic layer independent of the "Turn on Script Block Logging" policy: certain patterns considered suspicious by the engine's own detection logic trigger a warning-level 4104 event automatically, even in environments that have not explicitly enabled full Script Block Logging. This is a useful safety net, but it should never be relied on as a substitute for deliberately enabling the policy, because it only fires on a defined set of patterns rather than logging comprehensively.</p>
+
+          <p>A worthwhile operational detail: very long script blocks are split across multiple 4104 events that share a common identifier so they can be reassembled, and each event's fields (including <span class="mono">MessageNumber</span> and <span class="mono">MessageTotal</span>) tell you how to stitch a multi-part script back together. When building detections or doing manual triage, remember that a single suspicious script may show up as several linked 4104 records rather than one, and your query logic or SIEM parser needs to account for that.</p>
+
+          <p>Volume is the honest tradeoff here. Because Script Block Logging captures essentially all executed PowerShell code across the environment, including routine administrative scripts, scheduled tasks, and management tooling that itself runs on PowerShell under the hood, 4104 can be one of the higher-volume event IDs a SOC ingests. That is a reason to plan storage and SIEM licensing accordingly, not a reason to avoid enabling it. The alternative, no visibility into executed code content at all, is a materially worse position for an investigator to be in.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Log Source</th><th>Captures</th><th>Enabled By Default</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Module Logging</td><td>Pipeline execution details for enabled modules</td><td>No</td></tr>
+                <tr><td>Script Block Logging</td><td>Actual code as compiled and executed, including dynamically assembled content</td><td>No (heuristic warnings only)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="transcription">
+          <h2>PowerShell Transcription</h2>
+          <p>PowerShell Transcription writes a plain-text record of an entire interactive session, both the commands entered and the output that was returned, to a file on disk. It is enabled through the "Turn on PowerShell Transcription" Group Policy setting, which corresponds to the registry key under <span class="mono">HKLM\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription</span> with the <span class="mono">EnableTranscripting</span> value set to enable it. Administrators can also start a transcript manually within a session using the <span class="mono">Start-Transcript</span> cmdlet, though for enterprise visibility the policy-driven, always-on configuration is what matters.</p>
+
+          <p>The field that distinguishes Transcription from the other logging mechanisms is output. Script Block Logging and Module Logging both tell you what code ran; neither one, by design, tells you what that code returned or printed to the console. Transcription fills exactly that gap. If a script queries a system and prints results, enumerates data and displays it, or an operator runs a diagnostic command and reads the output on screen, that output is captured in the transcript file. For an investigation trying to reconstruct not just what an operator or a script did but what they saw and knew as a result, transcript output can be the deciding piece of evidence.</p>
+
+          <p>Transcript files are written to disk as text, by default to each user's Documents folder unless an <span class="mono">OutputDirectory</span> is configured, with a filename that includes the computer name and a timestamp. In a managed environment, that output directory is almost always redirected to a centralized, write-restricted network share so an operator cannot simply delete their own local transcript to cover their tracks, and so a SIEM or log shipper can pick the files up for centralized retention. Configuring that output path deliberately is as important as enabling the feature itself.</p>
+
+          <p>Transcription has real limitations worth knowing before treating it as a complete solution. It records what appears in the session's input and output stream, which for content assembled or executed silently in memory without any interactive echo may be thinner than what Script Block Logging captures for the same activity. The two features are designed to be run together, and Microsoft's own guidance treats them as complementary: Script Block Logging for the as-executed code, Transcription for the human-readable narrative of a session including its results.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> Because transcripts are plain text files rather than structured Windows Event Log entries, they need to be pulled into your SIEM through a separate file-collection or log-shipping pipeline. Confirm your logging agent is actually watching the configured <span class="mono">OutputDirectory</span> before assuming transcript coverage exists.</div>
+        </section>
+
+        <section class="content-section" id="constrained-language-jea">
+          <h2>Constrained Language Mode and JEA</h2>
+          <p>PowerShell supports several language modes, and Constrained Language Mode is the one built specifically as a security boundary. It is designed to support ordinary day-to-day administrative tasks while restricting access to the language elements that allow scripts to call arbitrary .NET methods, instantiate arbitrary .NET or COM types, or otherwise reach outside the set of approved commands. A script running under Constrained Language Mode can still do a great deal of legitimate administrative work, but the sensitive building blocks that let it interact directly with low-level system APIs are cut off.</p>
+
+          <p>The important operational detail is how Constrained Language Mode actually gets applied. PowerShell does not switch into it on its own; it is triggered automatically when PowerShell is running under an enforced application control policy, specifically AppLocker or Windows Defender Application Control (WDAC), and the script or session in question falls outside what that policy explicitly allows to run in Full Language Mode. Without an application control policy enforcing it, PowerShell defaults to Full Language Mode regardless of any other setting. That means Constrained Language Mode is not something you toggle in isolation, it is a downstream effect of an AppLocker or WDAC deployment, which is why it belongs in the same conversation as execution restriction rather than as a purely standalone control. An analyst can check the active mode for a given session with <span class="mono">$ExecutionContext.SessionState.LanguageMode</span>.</p>
+
+          <p>Just Enough Administration (JEA) takes a different but complementary approach: rather than restricting what language constructs are available inside a session, it restricts what an operator can do in the first place by defining role-based, constrained PowerShell endpoints. An administrator connecting through a JEA endpoint is limited to a specific, pre-approved set of cmdlets, functions, and parameters defined in that endpoint's role capability file, rather than getting an open-ended session with their full standing permissions. JEA sessions commonly run under a temporary virtual account or a group-managed service account, so an operator can perform an action that genuinely requires elevated rights without ever holding standing admin credentials themselves.</p>
+
+          <p>From a logging perspective, JEA has a built-in advantage: because every JEA session runs through a defined, constrained endpoint, it is straightforward to configure transcription and detailed logging specifically for that endpoint, giving you a clean audit trail of exactly which commands a given operator ran during a privileged session. That pairing, least-privilege access plus mandatory session logging, is what makes JEA valuable well beyond just reducing standing admin rights. It directly supports incident response by narrowing the set of actions any single compromised credential could have taken.</p>
+
+          <p>Neither Constrained Language Mode nor JEA is a logging mechanism in itself, and it is worth being explicit about that distinction. They are hardening controls that shrink what is possible to execute or which endpoint an operator can reach, which reduces the attack surface a defender has to monitor in the first place. Deploying them alongside Script Block Logging and Transcription, rather than instead of them, is the combination that produces both fewer bad outcomes and better evidence when something does happen.</p>
+        </section>
+
+        <section class="content-section" id="powershell-event-ids">
+          <h2>PowerShell Event IDs to Monitor</h2>
+          <p>Two separate Windows Event Logs carry PowerShell telemetry, and analysts building detections need to know which one to query for which purpose. The legacy "Windows PowerShell" log carries the classic engine lifecycle and pipeline events going back to early PowerShell versions. The newer Microsoft-Windows-PowerShell/Operational log, introduced with PowerShell v3 and the module-based logging architecture, carries the higher-fidelity events this chapter has focused on. A mature detection stack pulls from both, because some tooling and some older systems still only populate the legacy log.</p>
+
+          <p>The table below is the practical reference for a SOC analyst wiring up detection content: which Event ID fires, in which log, and what it actually tells you.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Event ID</th><th>Log</th><th>Meaning</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>400</td><td>Windows PowerShell</td><td>Engine state changed to Available; a new PowerShell session/pipeline has started</td></tr>
+                <tr><td>403</td><td>Windows PowerShell</td><td>Engine state changed to Stopped; the session has ended</td></tr>
+                <tr><td>600</td><td>Windows PowerShell</td><td>A provider (such as the registry or file system provider) was started within the session</td></tr>
+                <tr><td>800</td><td>Windows PowerShell</td><td>Pipeline execution details; a summary record of a command or script that ran, useful as a fallback when Operational-log detail is unavailable</td></tr>
+                <tr><td>4103</td><td>Microsoft-Windows-PowerShell/Operational</td><td>Module Logging: pipeline execution details for a module enabled for logging, including command and parameters</td></tr>
+                <tr><td>4104</td><td>Microsoft-Windows-PowerShell/Operational</td><td>Script Block Logging: the actual code compiled and executed, including dynamically assembled or decoded content</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>4104 deserves special attention when building alerting logic. Most 4104 events are logged at an informational or verbose level and represent completely routine execution. A smaller subset are logged at warning level because they matched PowerShell's built-in suspicious-content heuristics, and that <span class="mono">Level</span> field is a cheap, high-value filter for surfacing the events worth a first look without having to inspect every single script block logged across the fleet.</p>
+
+          <p>When correlating across these events, the <span class="mono">HostID</span> and <span class="mono">RunspaceID</span> fields are what tie a session together. A single investigation often needs to walk from a 400 (session start), through a series of 4104 events (the code that ran), to a 403 (session end), all sharing the same identifiers. Building that correlation into your SIEM's parsing logic ahead of time saves significant time during an actual incident rather than reconstructing it manually under pressure.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> Do not assume the Microsoft-Windows-PowerShell/Operational log alone is sufficient. If Script Block Logging was only enabled recently, or was disabled on a given host, the legacy Windows PowerShell log's 400/403/800 events may be the only PowerShell telemetry available for the time window you are investigating. Check both logs before concluding that no record exists.</div>
+        </section>
+
+        <section class="content-section" id="baseline-and-anomaly-patterns">
+          <h2>Establishing a Baseline and Spotting Anomalies</h2>
+          <p>Effective PowerShell detection depends on knowing what normal looks like in your specific environment before trying to define what abnormal looks like. Every organization has its own mix of scheduled maintenance scripts, configuration management tooling, and admin habits, and a pattern that would be alarming in one environment is background noise in another. Spend time reviewing a representative sample of 4104 events during a quiet period to build that baseline: what modules run routinely, what parent processes typically launch PowerShell, and roughly how long or complex a normal script block tends to be.</p>
+
+          <p>Against that baseline, script block length and content entropy are useful signals. A script block that is unusually long, or that consists largely of high-entropy character sequences, such as long runs of what looks like random-looking encoded or compressed text, is a pattern worth a closer look. This is not proof of anything on its own; legitimate tooling sometimes embeds compressed resources or generated data. But it is a low-cost, high-signal filter for triage, and pairing a length or entropy threshold with the warning-level flag on 4104 events is a reasonable starting point for a detection rule.</p>
+
+          <p>Parent process is another strong contextual signal. PowerShell launched interactively by a logged-on administrator from a normal shell looks very different, from a process-tree perspective, than PowerShell spawned as a child of an Office application, a scripting host, or another process that does not typically launch PowerShell in your environment. Correlating 4688 process-creation events (or your EDR's equivalent) with the PowerShell logs described in this chapter, specifically looking at parent-child relationships, surfaces execution chains worth investigating even when the script block content itself looks unremarkable.</p>
+
+          <p>Command-line flags are also worth watching for, again as a "worth investigating" signal rather than a definitive verdict. Flags that suppress the normal interactive experience, such as running without loading the usual profile, running with a hidden or minimized window, or bypassing an execution policy check, are commonly used by both legitimate automation (a scheduled task has no reason to load an interactive profile) and by activity that specifically wants to avoid drawing attention. The presence of such flags does not distinguish the two cases by itself; what does is combining them with everything else in this section, the parent process, the script content, and whether the calling account and time of day fit the established baseline.</p>
+
+          <p>Frequency and timing round out the picture. A service account that runs the same PowerShell task every night at 2 AM is baseline. The same account suddenly running an unfamiliar script block at an unusual hour, or a workstation account (rather than a server or admin workstation) invoking PowerShell at all when it never has before, is a deviation worth a look regardless of what the script content contains. Building alerting around deviation from an established per-host or per-account baseline, rather than around any single static rule, tends to produce far better signal-to-noise than trying to write one universal "this script is bad" pattern.</p>
+
+          <p>The consistent theme across all of these signals is that none of them, on their own, means malicious activity occurred. Encoded content, unusual parent processes, quiet-hour execution, and profile-suppressing flags are all things legitimate administration does routinely somewhere in most environments. The analyst's job is to treat each as a prioritization signal that earns a script a closer read, not as an automatic verdict, and to build detection logic that scores and correlates these signals rather than firing hard on any single one in isolation.</p>
+        </section>
+
+        <section class="content-section" id="restricting-execution">
+          <h2>Restricting Execution with AppLocker and WDAC</h2>
+          <p>Logging tells you what happened. AppLocker and Windows Defender Application Control (WDAC) are the complementary side of the equation: controls that restrict which scripts are allowed to run in the first place, rather than simply recording that they ran. Both let an administrator define policy governing which scripts, executables, and modules are permitted to execute on a system, evaluated against rules based on file path, publisher signature, or file hash.</p>
+
+          <p>AppLocker is the older and more approachable of the two, letting administrators build rules that determine whether a script is allowed to run at all, and separately, as covered earlier in this chapter, whether it runs in Full Language Mode or is dropped into Constrained Language Mode. It is a reasonable fit for organizations that need targeted script restriction without the deeper platform integration that WDAC requires. WDAC (the modern evolution of what used to be called Device Guard) is a kernel-enforced control that locks down which scripts, modules, and PowerShell commands can run at a lower, harder-to-bypass level, and its enforcement is what automatically triggers Constrained Language Mode for anything that falls outside the allowed policy.</p>
+
+          <p>It is worth being precise about how these two controls divide responsibility, since they solve different problems. WDAC and AppLocker govern whether a given script is permitted to execute at all. Constrained Language Mode governs what a script is allowed to do even once it has been permitted to run, restricting it away from the sensitive .NET and COM access described earlier in this chapter. Neither one replaces logging: a permitted script that runs under Constrained Language Mode is still worth capturing in Script Block Logging, both to confirm the restriction held and to have a record of exactly what executed.</p>
+
+          <p>This is why execution restriction and logging are described as complementary rather than redundant. A logging-only posture gives you excellent visibility but no ability to actually stop something from running before it does damage. An execution-restriction-only posture can block a lot of unauthorized activity but, without logging, gives an investigator little to go on when trying to understand what a permitted script actually did, or when trying to catch something that found a gap in the policy. Deploying both together, backed by the baseline-driven triage approach from the previous section, is what gives a SOC realistic, defensible coverage of PowerShell activity across an enterprise.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> Roll AppLocker or WDAC PowerShell policy out in Audit mode first, not Enforce mode. Audit mode generates the same "would have been blocked" telemetry without actually breaking legitimate scripts, giving you a realistic view of what your policy would impact before it can disrupt production administration.</div>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>PowerShell's deep .NET and WMI integration and its ability to run entirely in memory make logging configuration, not antivirus, the primary visibility control for this activity.</li>
+            <li>Module Logging (Event ID 4103) records pipeline execution details but only for modules explicitly enabled for logging, and does not by itself capture the full logic of a script.</li>
+            <li>Script Block Logging (Event ID 4104) captures the actual code as compiled and executed, including dynamically assembled or decoded content, making it the highest-value PowerShell log source.</li>
+            <li>Transcription writes a full text record of session input and output, filling the gap that neither Module Logging nor Script Block Logging covers: what a script actually returned.</li>
+            <li>Constrained Language Mode and JEA are hardening controls, not logging mechanisms. CLM is triggered by AppLocker or WDAC enforcement; JEA constrains operators to role-defined, auditable endpoints.</li>
+            <li>None of the anomaly signals covered here, script length, entropy, parent process, suppressed-profile flags, or off-baseline timing, are proof of malicious activity on their own. Treat each as a reason to look closer, not a verdict.</li>
+            <li>AppLocker and WDAC restrict what can execute at all, and their enforcement is what triggers Constrained Language Mode. Execution restriction plus logging together cover both prevention and investigation in a way neither does alone.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">During an investigation, you find Event ID 4103 records showing a specific cmdlet ran, but you need to see the exact code that assembled and executed the payload dynamically at runtime. Which log source should you pull next?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. PowerShell Transcription, because it always captures dynamically assembled code in full</button>
+              <button class="kc-option" data-correct="true">B. Script Block Logging (Event ID 4104), because it logs code as compiled and executed, not just as typed</button>
+              <button class="kc-option" data-correct="false">C. Event ID 400/403 from the legacy Windows PowerShell log, since those contain the full script text</button>
+              <button class="kc-option" data-correct="false">D. Module Logging alone is sufficient; no further log source is needed</button>
+            </div>
+            <div class="kc-answer">Script Block Logging (4104) is designed exactly for this case: it captures the resulting executed content after any dynamic assembly or decoding, not merely the original command that triggered it. Module Logging (4103) tells you which command and module ran but not the full reconstructed code. 400/403 are lifecycle events with no script content at all.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">You are scoping a PowerShell logging rollout and need to prioritize due to SIEM ingestion cost. Which single logging feature should be enabled first if only one can be deployed initially?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Transcription, because output is always more valuable than input</button>
+              <button class="kc-option" data-correct="true">B. Script Block Logging, because it captures the actual executed code across the broadest range of activity</button>
+              <button class="kc-option" data-correct="false">C. Module Logging, because it is the lowest-volume option</button>
+              <button class="kc-option" data-correct="false">D. None; PowerShell logging is not worth enabling until AppLocker is deployed first</button>
+            </div>
+            <div class="kc-answer">Script Block Logging captures the as-executed code across essentially all PowerShell activity, including dynamically assembled content that other sources would miss, making it the highest-value single log source. Module Logging only covers explicitly enabled modules and lacks full script content. Transcription adds valuable output context but is a complement to, not a substitute for, capturing executed code.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A workstation account that has never run PowerShell before suddenly generates a 4104 event at 3 AM for a script block that suppresses the normal profile-loading behavior. What is the correct analyst response?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Close it immediately; profile-suppression flags are used constantly by legitimate scheduled tasks, so this is not worth a look</button>
+              <button class="kc-option" data-correct="false">B. Automatically declare it malicious and escalate to IR without further review, since the flag alone is conclusive</button>
+              <button class="kc-option" data-correct="true">C. Treat the combination of off-baseline account, off-hours timing, and suppressed-profile flags as worth a closer look, and pull the full script block content and parent process for context</button>
+              <button class="kc-option" data-correct="false">D. Ignore the timing and account context and only evaluate the script block content in isolation</button>
+            </div>
+            <div class="kc-answer">No single signal here, the flag, the timing, or the account type, is proof of malicious activity on its own; each is common in legitimate automation somewhere. But the combination of a workstation account deviating from its own baseline, off-hours execution, and profile-suppressing flags together is exactly the kind of correlated deviation worth a closer look, which means pulling the full 4104 content and correlating parent process before making any determination.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="08-ad-attacks-detection.html" class="chapter-nav-prev">← Active Directory Attacks & Detection</a>
+          <a href="10-ad-cs-attacks.html" class="chapter-nav-next">Active Directory Certificate Services Attacks →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Windows</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('09', 8));</script>
+</body>
+</html>

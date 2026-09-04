@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="10">
+  <meta name="module-id" content="windows">
+  <title>Active Directory Certificate Services Attacks · Windows · H3AD-LEARN</title>
+  <meta name="description" content="Explains AD CS misconfigurations (the ESC attack family), certificate template abuse, and NTLM relay to certificate enrollment.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/windows/10-ad-cs-attacks.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/windows/10-ad-cs-attacks.html">
+  <meta property="og:title" content="Active Directory Certificate Services Attacks · Windows · H3AD-LEARN">
+  <meta property="og:description" content="Explains AD CS misconfigurations (the ESC attack family), certificate template abuse, and NTLM relay to certificate enrollment.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Active Directory Certificate Services Attacks · Windows · H3AD-LEARN">
+  <meta name="twitter:description" content="Explains AD CS misconfigurations (the ESC attack family), certificate template abuse, and NTLM relay to certificate enrollment.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Active Directory Certificate Services Attacks",
+    "description": "Explains AD CS misconfigurations (the ESC attack family), certificate template abuse, and NTLM relay to certificate enrollment.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/windows/10-ad-cs-attacks.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Windows",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/windows/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://h3ad-sec.github.io/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "H3AD-LEARN",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Windows",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/windows/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "Active Directory Certificate Services Attacks",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/windows/10-ad-cs-attacks.html"
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">AD CERTIFICATE SERVICES ATTACKS</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub nav-current">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Windows</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 10 of 11</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">45 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 8 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 10</span>
+            <span class="badge-time muted mono">45 MIN READ</span>
+            <span class="badge-diff badge-advanced">ADVANCED</span>
+          </div>
+          <h1 class="chapter-title">Active Directory Certificate Services Attacks</h1>
+          <p class="chapter-intro">Chapter 8 covered the classic AD attack techniques that most defenders learn first: Kerberoasting, DCSync, Golden Ticket forgery. Those remain real and current. But a huge share of real-world AD compromises since 2021, when SpecterOps researchers Will Schroeder and Lee Christensen published "Certified Pre-Owned," have gone through a completely different, and often overlooked, attack surface: certificate services. Active Directory Certificate Services (AD CS) sits in almost every enterprise domain, is rarely audited with the same rigor as group memberships or GPOs, and can hand an attacker domain-wide impersonation with a handful of API calls. This chapter covers what AD CS is, why it became one of the most active abuse surfaces in modern AD attacks, and how to detect and harden against it.</p>
+          <div class="chapter-tags">
+            <span class="tag">AD CS</span>
+            <span class="tag">ESC1-8</span>
+            <span class="tag">certificate abuse</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="what-is-ad-cs">
+          <h2>What AD CS Is and Why It's a Modern Attack Surface</h2>
+          <p>Active Directory Certificate Services is Microsoft's implementation of a Public Key Infrastructure (PKI) built into Active Directory. Organizations deploy it to issue their own X.509 certificates internally rather than paying a public certificate authority for every certificate they need. A single AD CS deployment can issue certificates for a wide range of purposes: TLS for internal web servers, code signing, smart card logon, Wi-Fi and VPN client authentication, and, critically for this chapter, general user and computer authentication to the domain itself.</p>
+
+          <p>That last use case is what makes AD CS interesting to an attacker. A certificate that carries the Client Authentication Extended Key Usage (EKU) can be used to authenticate to Active Directory in place of a password, through a process built on the same PKINIT extension to Kerberos that smart card logon relies on. In practice, a certificate can function as a durable, portable credential. Whoever holds it can authenticate as the identity embedded in that certificate, in some cases without ever knowing that identity's actual password.
+
+          <p>Certificates are also attractive because of an asymmetry in how organizations audit their environments. Security teams have gotten reasonably disciplined about reviewing Domain Admins membership, nested group membership, and GPO-linked privilege. Far fewer teams have ever inventoried their certificate templates, reviewed who holds enrollment rights on those templates, or checked their Certificate Authority's own access control list. AD CS was, for most of its existence, treated as invisible infrastructure that quietly issued certificates and was never revisited after initial deployment. That combination, strong authentication power plus weak audit visibility, is exactly the profile of a high-value, under-defended attack surface.</p>
+
+          <p>The 2021 "Certified Pre-Owned" research from SpecterOps changed how the offensive and defensive community treats AD CS. It formally documented a family of misconfiguration classes, labeled ESC1 through ESC8 (Escalation), each describing a distinct way a certificate template, a CA's configuration, or a CA's own access controls can be abused to escalate privilege or persist in a domain. Since that publication, AD CS abuse has become a standard step in modern AD-focused penetration tests and a documented technique in real intrusions, precisely because so many production environments were deployed years before this research existed and have never been reviewed against it.</p>
+
+          <p>It is worth being precise about what AD CS abuse actually is: in almost every ESC case, there is no vulnerability being exploited in the traditional sense, no patch that fixes it outright. These are misconfigurations, permission and template settings that deviate from a secure default, usually introduced through convenience decisions made during initial deployment or through delegated administration that grew too permissive over time. That also means the fix is available to every organization today, without waiting on a vendor, and this chapter spends real time on exactly what that fix looks like.</p>
+        </section>
+
+        <section class="content-section" id="certificate-templates-enrollment">
+          <h2>Certificate Templates and Enrollment Rights</h2>
+          <p>A certificate template is a policy object stored in Active Directory that defines the rules for a category of certificate the CA is willing to issue. It specifies things like which EKUs the resulting certificate will carry, whether the requester or Active Directory supplies the subject identity, whether manager approval is required before issuance, and what cryptographic properties the certificate uses. When a user or computer requests a certificate, they request it against a specific template, and the CA issues (or refuses) the certificate based on that template's rules combined with the requester's enrollment rights.</p>
+
+          <p>Enrollment rights are the access control layer that determines who is even allowed to request a certificate from a given template in the first place. Templates carry their own ACL, separate from the permissions on the CA itself, and that ACL grants specific security principals rights such as Enroll or AutoEnroll. In a well-run environment, sensitive templates, particularly any template capable of producing a certificate with client authentication capability, are restricted to a small, deliberate set of principals. In practice, many environments accumulate templates where Domain Users or Authenticated Users hold enrollment rights, often because a template was cloned from a default and nobody revisited the ACL afterward.</p>
+
+          <p>This is the root cause underneath nearly every ESC technique in this chapter: enrollment rights that are broader than they should be, applied to a template whose other settings make that broad access dangerous. A template with a dangerous setting but locked-down enrollment rights held only by a trusted admin group is low risk. The identical template with Domain Users granted Enroll is a direct privilege escalation path. Certificate template review, in other words, means looking at the combination of what a template allows and who can request it, not either one in isolation.</p>
+
+          <p>Templates also carry a publish state. A template can exist as a configured object in AD without being published for issuance by any CA, in which case no one can request from it regardless of its settings or ACL. Part of a proper AD CS audit is confirming which templates are actually published and enrollable on production CAs, since a dangerously configured but unpublished template is not currently exploitable, while the same template published even on one CA in the forest is.</p>
+
+          <p>Because certificate templates are AD objects, they are also subject to standard AD delegation. That means the security of a template is not fully described by its own ACL: anyone with sufficient rights over the template object itself, through delegated write access, can edit the template's settings directly, potentially converting a currently safe template into a vulnerable one. This connects certificate template security to the same object-level access control discipline that governs every other sensitive object in the domain, and it is the basis for one of the escalation techniques described later in this chapter.</p>
+        </section>
+
+        <section class="content-section" id="esc1">
+          <h2>ESC1: Misconfigured Templates Enabling Impersonation</h2>
+          <p>ESC1 is the most direct and most commonly cited AD CS escalation, and it is the combination of three template properties that together let a low-privileged requester become anyone. The first is the Enrollee Supplies Subject flag (technically CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT), visible in the certificate template management console as "Supply in the request" under the Subject Name tab. When this is enabled, the requester, not Active Directory, decides what identity the resulting certificate represents, including its Subject Alternative Name (SAN).</p>
+
+          <p>The second is a Client Authentication capable EKU on the template, such as Client Authentication or the Kerberos PKINIT-specific Smartcard Logon EKU. This is what makes the resulting certificate usable to actually log on to the domain as the identity it names, rather than being limited to something like code signing or document encryption.</p>
+
+          <p>The third is enrollment rights broad enough that an ordinary low-privileged account, commonly Domain Users or Authenticated Users, can request from the template at all, combined with no manager approval requirement standing in the way of automatic issuance. When all three conditions line up, a low-privileged domain user can request a certificate from the template and simply specify a Domain Admin's User Principal Name in the SAN field of the request. The CA issues a valid, correctly signed certificate that authenticates as that Domain Admin, because nothing in the template stopped the requester from claiming that identity, and enrollment rights let them make the request in the first place.</p>
+
+          <p>The resulting certificate is not a forgery in the way a Golden Ticket is a forgery. It is a completely legitimate, CA-signed certificate. That is precisely what makes ESC1 so effective and so quiet at the moment of abuse: the CA did exactly what it was configured to do. The problem is entirely in the configuration, not in any flaw in the issuance process itself. Once obtained, the certificate can be used to authenticate as the impersonated account through Kerberos PKINIT, yielding a TGT for that account without ever touching its actual password or hash.</p>
+
+          <p>ESC1 templates are also the easiest class of AD CS misconfiguration to find in an audit, because both conditions, Enrollee Supplies Subject and an authentication EKU, are readable attributes on the template object, and enrollment rights are a readable ACL. Any tooling built to enumerate AD CS, offensive or defensive, treats ESC1 discovery as close to a solved problem. The fact that it remains one of the most commonly found misconfigurations in real assessments says more about how rarely these templates get reviewed than about how hard the issue is to detect.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> ESC1 requires no elevated starting privilege at all. Any low-privileged, authenticated domain account with Enroll rights on a vulnerable template can carry out the full escalation chain. This is functionally comparable in severity to DCSync from Chapter 8, and should be treated with the same urgency once found.
+          </div>
+        </section>
+
+        <section class="content-section" id="esc8">
+          <h2>ESC8: NTLM Relay to AD CS Web Enrollment</h2>
+          <p>ESC8 is a different category of AD CS attack entirely: it does not depend on a misconfigured certificate template at all, and instead targets the CA's HTTP-based enrollment interface, commonly reachable as the certsrv web application. AD CS can optionally expose enrollment over HTTP so that clients that cannot use the native RPC/DCOM enrollment path, such as non-domain-joined or cross-forest systems, can still request certificates through a web form. By default, this web enrollment endpoint accepts NTLM authentication.</p>
+
+          <p>NTLM, on its own, is a relayable authentication protocol: a machine authenticating with NTLM to one destination can have that authentication attempt intercepted and forwarded (relayed) to a different destination by an attacker positioned in the middle, and the second destination has no reliable way to tell the difference unless specific protections are in place. Two protections normally defend against this: NTLM signing, which most services require by default, and Extended Protection for Authentication (EPA), which cryptographically binds the authentication to the specific TLS channel it arrived on so a relayed attempt over a different channel fails. The AD CS web enrollment endpoint has historically shipped without EPA enabled and without requiring signing, leaving it exposed to relay by default.</p>
+
+          <p>The practical attack chain combines this weakness with a coercion technique: an attacker forces or lures a high-value machine account, very often a domain controller itself, into authenticating to an attacker-controlled listener, using any of several well-documented coercion methods that abuse Windows RPC interfaces. The attacker relays that captured NTLM authentication attempt straight to the vulnerable web enrollment endpoint instead of letting it reach its intended destination, and requests a certificate as the coerced machine. Because the CA's default machine certificate template grants client authentication capability to computer accounts, the attacker walks away with a valid certificate for that domain controller's own machine account, which can then be used to authenticate as that domain controller.</p>
+
+          <p>ESC8 is significant because it does not require the defender to have made a certificate template mistake at all. It requires only that the web enrollment role is installed and running with its default authentication posture, which is common because organizations often enable it for a single legitimate business need and never revisit its authentication hardening afterward. This makes it one of the more environment-agnostic AD CS attack paths, since it depends on how the CA's web service is configured rather than on any one template's settings.</p>
+
+          <p>Mitigation centers on two controls confirmed by Microsoft guidance and consistently cited across defensive AD CS research: requiring Extended Protection for Authentication on both Certificate Authority Web Enrollment and Certificate Enrollment Web Services, and requiring HTTPS with NTLM relay protections enabled, or removing NTLM as an accepted authentication method for these endpoints entirely, restricting them to Kerberos. Where the web enrollment role is not actively required, removing it entirely closes the exposure outright.</p>
+        </section>
+
+        <section class="content-section" id="other-esc-overview">
+          <h2>Other ESC Techniques, Briefly</h2>
+          <p>ESC1 and ESC8 are the two techniques covered in mechanical depth in this chapter because they are the most consistently documented and the most commonly encountered in practice. The broader ESC family named in the original "Certified Pre-Owned" research and extended by subsequent community research covers several other distinct misconfiguration categories, and it is worth knowing the general shape of each even without full operational depth on all of them. Some numbering and detail below reflects how the community has documented these since the original 2021 paper and should be treated as a general map rather than an exhaustive technical reference; verify specifics against current SpecterOps, GhostPack Certify, or Certipy documentation before relying on any one detail operationally.</p>
+
+          <p>ESC2 covers templates configured with an overly broad EKU, specifically the Any Purpose EKU or a template with no EKUs restricting it at all (behaving like a subordinate CA certificate). A certificate issued from such a template can be repurposed for uses its issuer never intended, including, in combination with other conditions, client authentication.</p>
+
+          <p>ESC3 covers templates configured with the Certificate Request Agent EKU, which is meant to support legitimate enrollment-on-behalf-of scenarios such as smart card issuance by a designated agent. Broad enrollment rights on such a template let an attacker obtain an "agent" certificate and then use it to request certificates on behalf of other users, including privileged ones.</p>
+
+          <p>ESC4 covers vulnerable access control on the certificate template object itself, distinct from enrollment rights. If a principal holds write or ownership-equivalent permissions over a template object, they can directly modify that template's settings, for example toggling on the same Enrollee Supplies Subject and EKU conditions that define ESC1, effectively converting a currently safe template into a vulnerable one at will.</p>
+
+          <p>ESC5 covers vulnerable access control on other PKI-related AD objects beyond the template itself, such as the CA's own AD computer object or the container objects that hold PKI configuration. ESC6 covers a CA-level configuration flag, EDITF_ATTRIBUTESUBJECTALTNAME2, which when enabled lets any certificate request specify an arbitrary SAN regardless of what the requested template itself allows, effectively turning every issuable template on that CA into an ESC1-equivalent risk. ESC7 covers overly permissive access control on the Certificate Authority object itself, where roles like ManageCA or ManageCertificates granted too broadly let a principal approve pending requests or otherwise manipulate CA behavior directly rather than going through template abuse at all.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> Community research has continued to expand this numbering well past ESC8 since the original whitepaper, covering additional abuse conditions tied to newer certificate mapping and strong-mapping enforcement behavior in AD. The core lesson holds regardless of the exact count: any AD CS deployment should be inventoried and audited against the full current technique list using dedicated tooling, not just checked against whichever handful of techniques happen to be well known at a given moment.
+          </div>
+        </section>
+
+        <section class="content-section" id="tooling-landscape">
+          <h2>The Detection and Offensive Tooling Landscape</h2>
+          <p>A handful of purpose-built tools defined how both attackers and defenders interact with AD CS, and knowing their names is genuinely useful even for a purely defensive analyst, because the same tools blue teams use to audit their own exposure are the tools an intruder is likely to run first. Certify, released by GhostPack alongside the original SpecterOps research, was the first tool built specifically to enumerate AD CS certificate authorities and templates and flag which ones matched known ESC abuse conditions.</p>
+
+          <p>Certipy, developed independently and maintained actively since, has become the more commonly referenced tool in current writeups and assessments. It performs the same enumeration role, identifying vulnerable templates, CA configuration flags, and CA-level access control issues, and additionally supports requesting certificates, performing NTLM relay to AD CS web enrollment for ESC8-style attacks, and using an obtained certificate to authenticate. Its output is frequently the first thing a penetration tester or red team operator runs against an unfamiliar AD environment specifically because AD CS misconfigurations are so common and so high-impact when found.</p>
+
+          <p>The defensive framing matters here: an internal security team can and should run this same class of tooling against their own environment on a recurring basis, the same way vulnerability scanning or BloodHound-style AD relationship mapping already happens on a schedule. Finding a vulnerable ESC1 template through your own audit, before an attacker or pentester finds it for you, is the entire point of these tools existing in the open. Treat AD CS enumeration as a standing item in any AD security assessment, not a one-time check.</p>
+
+          <p>Beyond dedicated AD CS tools, general AD attack path mapping tools that already ingest certificate template and CA object data (the kind of relationship-graphing tooling covered conceptually alongside the attack path thinking in this module) increasingly surface ESC-style paths automatically as part of broader privilege escalation graphs. That reflects how thoroughly certificate abuse has been absorbed into mainstream AD attack path analysis rather than remaining a niche, separate concern.</p>
+        </section>
+
+        <section class="content-section" id="detection-strategy">
+          <h2>Detection Strategy for AD CS Abuse</h2>
+          <p>Chapter 6 covered the Windows Security event logging pipeline in depth, and AD CS abuse leaves signal in that same pipeline, though it requires enabling certificate issuance auditing specifically, which is not part of every default logging baseline. The starting point for any AD CS detection program is confirming that CA-level auditing is actually turned on, since without it, certificate issuance events simply do not exist to analyze.</p>
+
+          <p>Certificate issuance itself is the highest-value signal. Every certificate a CA issues can be logged, and the detail that matters most is the relationship between the account that requested the certificate and the identity embedded in that certificate's SAN. A certificate requested by a low-privileged service account but carrying a SAN naming a Domain Admin, or any account whose privilege level does not match the requester, is close to a direct ESC1 signature and should be treated as high-priority. Building a baseline of which accounts request from which templates, and alerting on deviation, particularly first-time enrollment against a sensitive template, is one of the more durable detections available here because it does not depend on knowing every possible ESC variant in advance.</p>
+
+          <p>Web enrollment access patterns deserve their own monitoring line, separate from native enrollment, precisely because of ESC8. Unusual access to the CertSrv web application, especially authentication attempts using NTLM rather than Kerberos, requests originating from unexpected source hosts, or a spike in enrollment activity correlated with prior coercion-style RPC activity elsewhere in the environment, should all feed into the same detection logic that already watches for NTLM relay behavior more broadly. A domain controller's machine account requesting a certificate through web enrollment is a pattern worth an alert on its own, since domain controllers have no ordinary reason to self-enroll through that specific endpoint.</p>
+
+          <p>Template and CA object modification events matter as much as issuance events, because ESC4 and ESC7 style abuse happens upstream of any certificate being issued at all. Monitoring changes to certificate template ACLs, EKU settings, and the Enrollee Supplies Subject flag, alongside changes to CA-level role assignments such as ManageCA, gives visibility into an attacker (or a careless admin) converting a currently safe configuration into a vulnerable one. These are exactly the kind of low-volume, high-signal AD object changes that Chapter 6's object auditing guidance applies to directly.</p>
+
+          <p>As with the Chapter 8 techniques, none of these signals are meaningful as a single isolated event. A certificate issuance event is normal, routine AD CS activity happening constantly in any functioning environment. What separates a real detection from noise is context: does the requester's privilege level match the issued identity, does the enrollment path match how that account normally enrolls, and does the template or CA configuration match a known-good baseline you have actually established through a prior audit.</p>
+        </section>
+
+        <section class="content-section" id="hardening-tier-zero">
+          <h2>Hardening AD CS as a Tier 0 Asset</h2>
+          <p>The single most important mental shift for defending AD CS is treating the Certificate Authority itself as Tier 0 infrastructure, equivalent in sensitivity to a domain controller, rather than as a background service that happens to run somewhere in the environment. A compromised CA, or a CA whose configuration lets an attacker impersonate arbitrary identities, provides an attacker with a path to domain-wide compromise that is functionally comparable to compromising a domain controller directly. Any organization that restricts DC logon rights, patches DCs aggressively, and monitors DC activity closely but leaves its CA server administered casually has a real gap between its stated tiering model and its actual practice.</p>
+
+          <p>Practical hardening starts with the certificate template audit this chapter has repeatedly pointed toward: enumerate every published template, identify which ones carry a client authentication capable EKU, and for each of those, review both the Enrollee Supplies Subject setting and the full enrollment rights ACL. Any template combining requester-supplied identity, an authentication EKU, and broad enrollment rights should be treated as an active ESC1 finding and remediated immediately, either by removing the offending setting, tightening enrollment rights to a genuinely minimal set of principals, or unpublishing the template if it serves no active business need.</p>
+
+          <p>On the web enrollment surface, the ESC8 mitigations described earlier, enabling and requiring Extended Protection for Authentication, disabling NTLM in favor of Kerberos where feasible, and removing the web enrollment role where it is not actually needed, should be standard configuration rather than an exception applied only after a finding. Because these settings are rarely revisited after initial deployment, a scheduled recurring review is more reliable than a one-time hardening pass.</p>
+
+          <p>Access control on the CA itself and on PKI-related AD objects needs the same delegation discipline covered in Chapter 8's DCSync section: know exactly which principals hold ManageCA, ManageCertificates, or write access on template and PKI container objects, and treat membership in those roles with the same scrutiny given to Domain Admins. A dedicated CA administration group, separate from general-purpose administrative groups, with logon restricted to a hardened administrative workstation, keeps CA management from inheriting broad domain privilege it does not need.</p>
+
+          <p>Finally, this chapter's hardening guidance is really a specific application of a broader model: the Tiered Administration approach that separates infrastructure by sensitivity and restricts credential exposure across tiers. Chapter 11 covers that model in full, including how delegation abuse more generally undermines tiering even when each individual delegation looked reasonable in isolation, and how to design and audit a tiering model that actually holds up against determined privilege escalation attempts, AD CS included.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> If you can only do one thing after reading this chapter, run a certificate template and enrollment rights audit this week. ESC1-class findings are consistently among the fastest privilege escalation paths found in real AD assessments, and the fix is almost always a permissions and configuration change, not a patch you have to wait on.
+          </div>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>AD CS certificates can authenticate to Active Directory in place of a password, and the infrastructure issuing them is routinely under-audited compared to group memberships and GPOs.</li>
+            <li>Certificate template misconfiguration, not a code vulnerability, is the root cause of nearly every ESC technique. Enrollment rights determine who can exploit a given template's weakness.</li>
+            <li>ESC1 combines requester-supplied SAN, a client authentication EKU, and broad enrollment rights, letting a low-privileged user request a certificate impersonating any account, including Domain Admins.</li>
+            <li>ESC8 targets the CA's web enrollment endpoint rather than a template, relaying coerced NTLM authentication from a machine like a domain controller to obtain a certificate as that machine.</li>
+            <li>ESC2 through ESC7 cover other distinct categories: dangerous EKUs, agent-certificate abuse, and overly permissive access control on templates, PKI objects, and the CA itself.</li>
+            <li>Certipy and Certify are the well-known tools for enumerating AD CS exposure, and defenders should run the same enumeration against their own environment on a recurring basis.</li>
+            <li>The CA should be treated as Tier 0 infrastructure: dedicated admin groups, hardened administrative access, EPA enabled on web enrollment, and a recurring template and ACL audit rather than a one-time hardening pass.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">An audit finds a certificate template with Enrollee Supplies Subject enabled, the Client Authentication EKU present, no manager approval required, and Domain Users granted Enroll rights. What does this represent, and who can exploit it?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. ESC8, exploitable only by an attacker who can perform NTLM relay</button>
+              <button class="kc-option" data-correct="true">B. ESC1, exploitable by any authenticated low-privileged domain user</button>
+              <button class="kc-option" data-correct="false">C. ESC7, exploitable only by a principal already holding ManageCA rights</button>
+              <button class="kc-option" data-correct="false">D. Not exploitable, since manager approval status is irrelevant to certificate templates</button>
+            </div>
+            <div class="kc-answer">This is the textbook ESC1 combination: requester-supplied subject identity, an authentication-capable EKU, and enrollment rights open to a broad low-privileged group with no approval gate. Any Domain User can request a certificate naming any identity, including a Domain Admin, in the SAN field and receive a validly signed certificate for that identity.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Security monitoring shows a domain controller's machine account authenticating to a CertSrv web enrollment endpoint using NTLM, shortly after unusual RPC activity was observed against the same domain controller from an internal host. What attack does this pattern most likely indicate?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Kerberoasting against the domain controller's SPN</button>
+              <button class="kc-option" data-correct="false">B. A routine scheduled certificate renewal for the domain controller</button>
+              <button class="kc-option" data-correct="true">C. ESC8: coercion of the domain controller followed by NTLM relay to AD CS web enrollment</button>
+              <button class="kc-option" data-correct="false">D. AS-REP Roasting against the domain controller's computer account</button>
+            </div>
+            <div class="kc-answer">The sequence, coercion-style RPC activity followed by the domain controller's own machine account authenticating via NTLM to web enrollment, matches the ESC8 attack chain: an attacker coerces the DC into authenticating to them, relays that NTLM authentication to the CA's web enrollment endpoint, and obtains a certificate usable to authenticate as the DC. Domain controllers have no ordinary business reason to self-enroll through that endpoint using NTLM.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A security team wants the single most effective starting point for reducing their AD CS attack surface, without waiting on any vendor patch. What should they prioritize?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Migrating the CA to newer hardware</button>
+              <button class="kc-option" data-correct="false">B. Disabling Kerberos authentication domain-wide</button>
+              <button class="kc-option" data-correct="true">C. Auditing certificate templates and their enrollment rights, and hardening the web enrollment endpoint's authentication settings</button>
+              <button class="kc-option" data-correct="false">D. Waiting for Microsoft to release a security patch addressing ESC1 through ESC8</button>
+            </div>
+            <div class="kc-answer">Nearly every ESC technique is a misconfiguration, not a code-level vulnerability, so there is no patch that fixes them outright. The highest-leverage action available immediately is auditing certificate templates and their enrollment rights ACLs for ESC1-style conditions, and hardening the web enrollment endpoint (Extended Protection for Authentication, disabling NTLM) against ESC8. Both are configuration changes an organization can make on its own timeline.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="09-powershell-security-logging.html" class="chapter-nav-prev">← PowerShell Security & Logging</a>
+          <a href="11-delegation-abuse-hardening.html" class="chapter-nav-next">Delegation Abuse & Modern AD Hardening →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Windows</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('10', 8));</script>
+</body>
+</html>

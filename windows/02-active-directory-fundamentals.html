@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="02">
+  <meta name="module-id" content="windows">
+  <title>Active Directory Fundamentals · Windows · H3AD-LEARN</title>
+  <meta name="description" content="Explains Active Directory domains, forests, OUs, and group policy, plus trusts: the directory structure enterprise attacks eventually have to navigate.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/windows/02-active-directory-fundamentals.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/windows/02-active-directory-fundamentals.html">
+  <meta property="og:title" content="Active Directory Fundamentals · Windows · H3AD-LEARN">
+  <meta property="og:description" content="Explains Active Directory domains, forests, OUs, and group policy, plus trusts: the directory structure enterprise attacks eventually have to navigate.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Active Directory Fundamentals · Windows · H3AD-LEARN">
+  <meta name="twitter:description" content="Explains Active Directory domains, forests, OUs, and group policy, plus trusts: the directory structure enterprise attacks eventually have to navigate.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Active Directory Fundamentals",
+    "description": "Explains Active Directory domains, forests, OUs, and group policy, plus trusts: the directory structure enterprise attacks eventually have to navigate.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/windows/02-active-directory-fundamentals.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Windows",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/windows/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://h3ad-sec.github.io/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "H3AD-LEARN",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Windows",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/windows/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "Active Directory Fundamentals",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/windows/02-active-directory-fundamentals.html"
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">ACTIVE DIRECTORY FUNDAMENTALS</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub nav-current">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Windows</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 02 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 02</span>
+            <span class="badge-time muted mono">35 MIN READ</span>
+            <span class="badge-diff badge-beginner">BEGINNER</span>
+          </div>
+          <h1 class="chapter-title">Active Directory Fundamentals</h1>
+          <p class="chapter-intro">Active Directory is the nervous system of almost every enterprise Windows network. It decides who can log into what, which machines trust which, and how policy gets pushed to ten thousand endpoints without anyone touching them by hand. Every domain admin compromise headline, every "attacker moved laterally across the domain" incident writeup, sits on top of a structure most people never learn explicitly. Understanding that structure is what turns those headlines from abstract danger into something concrete you can reason about. This chapter builds the map: domains, forests, OUs, group policy, trusts, and the domain controllers that hold it all together.</p>
+          <div class="chapter-tags">
+            <span class="tag">Active Directory</span>
+            <span class="tag">GPOs</span>
+            <span class="tag">trusts</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="domains-forests">
+          <h2>Domains, Trees, and Forests</h2>
+          <p>A domain is the basic administrative unit in Active Directory: a collection of users, computers, and other objects that share a common directory database and are managed under a single set of security policies. Every domain has a name, such as corp.h3ad.local, and every object inside it, from a user account to a printer, is tracked in that domain's copy of the directory. When people say "the domain" in an enterprise context, they almost always mean this logical container, not a physical network segment.</p>
+
+          <p>Domains can be organized into domain trees, which are groups of domains that share a contiguous DNS namespace and a two-way transitive trust relationship. If corp.h3ad.local is the root, a child domain might be emea.corp.h3ad.local. The naming convention makes the hierarchy visible at a glance, and objects in a child domain can be authenticated and referenced by objects in the parent, and vice versa, because of the automatic trust that domain tree membership creates.</p>
+
+          <p>A forest is the top-level container in Active Directory: one or more domain trees that share a common schema, a common configuration partition, and a global catalog. Forests do not require a shared DNS namespace, which is the practical difference between a tree and a forest. An organization that acquires another company might bring its domain into the same forest as a separate tree, rather than folding it into the existing namespace, because the acquired company keeps its own domain name.</p>
+
+          <p>Every domain needs at least one domain controller (DC): a server running Active Directory Domain Services that holds a writable copy of that domain's directory database and handles authentication requests for it. Multiple DCs in a domain replicate changes to each other so no single server is a hard point of failure for logins.</p>
+
+          <p>The forest, not the domain, is the actual security boundary. This trips up a lot of people early in their careers because domains look like the isolation unit: they have separate administrators, separate policies, separate password rules. But Enterprise Admins and Schema Admins groups, which live in the forest root domain, have rights that reach every domain in the forest. Certain attack paths, like exploiting the krbtgt account or abusing trust relationships, can cross domain lines within a forest with far less friction than crossing into a different forest entirely. When you're scoping an assessment or reasoning about blast radius during an incident, think in forests first and domains second.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> Treating a domain as an isolation boundary is one of the most common scoping mistakes in both security assessments and incident response. Two domains in the same forest already share a schema, a configuration partition, and a transitive trust path. Isolation, if it exists at all, has to be evaluated at the forest level.
+          </div>
+        </section>
+
+        <section class="content-section" id="ous-objects">
+          <h2>Organizational Units and Objects</h2>
+          <p>An Organizational Unit (OU) is a container inside a domain used to organize objects for administrative purposes. Unlike a security group, which exists to grant permissions or apply access control, an OU exists to structure the directory itself: to group the Finance department's user accounts together, or all the laptops in the Chicago office, so that policy and delegated administration can target them as a set. OUs can be nested inside other OUs, which lets organizations mirror their real-world org chart or geography inside the directory tree.</p>
+
+          <p>The main object types an analyst encounters day to day are users, computers, and groups. A user object represents a person (or sometimes a service) that can authenticate, and it carries attributes like sAMAccountName, userPrincipalName, and memberOf. A computer object represents a domain-joined machine and behaves a lot like a user account in the directory: it has its own security identifier and its own password, which it rotates automatically on a schedule. A group object is a collection of other objects, used almost entirely to grant or restrict permissions in bulk rather than to assign one permission per user.</p>
+
+          <p>Every object in Active Directory has a Distinguished Name (DN), which describes its exact position in the directory tree using LDAP notation. A user named Priya in the Finance OU of corp.h3ad.local might have the DN CN=Priya Shah,OU=Finance,OU=Employees,DC=corp,DC=h3ad,DC=local. Reading a DN from left to right tells you the object's common name first, then walks up through every container it sits inside, ending at the domain components. Analysts run into DNs constantly in event logs, LDAP queries, and tools like BloodHound, so being able to parse one on sight is a basic but genuinely useful skill.</p>
+
+          <p>A handful of attributes come up again and again in investigation work. distinguishedName and objectGUID uniquely identify and locate an object. memberOf shows group membership, which is central to almost every privilege question. userAccountControl encodes flags like whether an account is disabled or whether its password never expires. adminCount, when set to 1, flags an account that is or was a member of a protected group such as Domain Admins, and it is a favorite pivot point for attackers and defenders alike because it survives even after someone is removed from the protected group, unless it's explicitly reset.</p>
+
+          <p>Groups themselves come in two scopes that matter for how far their permissions reach: domain local groups, which are typically used to grant access to resources within a single domain, and universal or global groups, which can be used across the forest. Getting group scope wrong is a common source of "why can't this user access that resource" tickets, and it's also a common source of unintended privilege when someone nests a broad group inside a narrow one without realizing the permissions travel with it.</p>
+        </section>
+
+        <section class="content-section" id="group-policy">
+          <h2>Group Policy</h2>
+          <p>A Group Policy Object (GPO) is a collection of configuration settings that gets applied to users or computers within the scope it's linked to. GPOs are how an organization enforces password complexity requirements, deploys software, maps network drives, restricts which applications can run, and configures thousands of other Windows settings without an administrator ever touching an individual machine. A GPO exists independently in the directory until it's linked to a site, a domain, or an OU, at which point it starts actually applying to the objects inside that container.</p>
+
+          <p>Policy application follows a specific order, commonly remembered by the acronym LSDOU: Local policy first, then Site-linked GPOs, then Domain-linked GPOs, then OU-linked GPOs, applied from the OU closest to the domain root down to the OU that directly contains the object. Settings applied later in that sequence generally win when there's a conflict, which means OU-linked policy, especially from a deeply nested OU, has the final say by default. This processing order is the whole reason OU structure matters beyond just tidy organization: where you place a computer or user in the OU tree directly determines which policies actually take effect on it.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Order</th><th>Level</th><th>Typical Use</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>1</td><td>Local</td><td>Baseline settings configured directly on the machine</td></tr>
+                <tr><td>2</td><td>Site</td><td>Settings tied to physical location, such as proxy configuration</td></tr>
+                <tr><td>3</td><td>Domain</td><td>Company-wide baselines like password policy</td></tr>
+                <tr><td>4</td><td>OU</td><td>Team or department-specific settings, applied last and generally winning conflicts</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Inheritance means a GPO linked at a parent OU automatically applies to child OUs beneath it, cascading down the tree unless something interrupts that flow. Two mechanisms interrupt it: Block Inheritance, set on a child OU, stops policies from parent containers from applying there, and Enforced, set on a GPO link, forces that specific policy through even past a Block Inheritance setting further down. Combining these incorrectly is a very common source of "why is this setting not applying" troubleshooting, and it's worth mapping out explicitly rather than guessing when policy behavior looks wrong.</p>
+
+          <p>GPO misconfigurations are a well-worn privilege escalation and lateral movement vector because GPOs apply with SYSTEM-level authority on the target machine and because the permission to edit or link a GPO is itself just another set of delegated rights in the directory. If a low-privileged user or group has been granted write access to a GPO that applies to a set of servers, whether through direct delegation or through nested group membership nobody audited, that user can push a scheduled task, a startup script, or a scripted local admin group change to every machine in scope. Tools like BloodHound explicitly map GPO edit rights alongside group membership and ACLs because this path from "can edit a GPO" to "code execution as SYSTEM on a fleet of machines" is short and frequently overlooked in access reviews.</p>
+
+          <p>Because GPO abuse doesn't require exploiting a vulnerability, just abusing legitimate delegated permissions, it often produces very little that looks anomalous in isolation. A new GPO link, or an edited script inside an existing one, can sit unnoticed for a long time unless an organization is specifically auditing GPO changes and the permissions structure that allows them, which is exactly the kind of gap that shows up repeatedly in real intrusion retrospectives.</p>
+        </section>
+
+        <section class="content-section" id="trusts">
+          <h2>Domain and Forest Trusts</h2>
+          <p>A trust is a relationship that allows users authenticated in one domain to access resources in another. Trusts have a direction: in a one-way trust, users in the trusted domain can access resources in the trusting domain, but not the reverse. A two-way trust allows authentication to flow both directions. Direction matters a great deal when reasoning about attack paths, because a trust relationship defines exactly which direction authentication, and potentially an attacker, can move.</p>
+
+          <p>Trusts are also either transitive or non-transitive. A transitive trust extends automatically: if Domain A trusts Domain B, and Domain B trusts Domain C, then Domain A also trusts Domain C, without anyone explicitly configuring that third relationship. The default trusts formed within a domain tree and within a forest are transitive. A non-transitive trust is explicitly scoped to just the two domains involved and does not chain further, which is typical of trusts set up manually between separate forests or with an external domain.</p>
+
+          <p>Common trust types include parent-child trusts, formed automatically when a child domain is created under a parent in the same tree, tree-root trusts, formed when a new tree is added to an existing forest, and forest trusts, configured explicitly between two entirely separate forests to allow limited cross-forest authentication. External trusts connect to a domain in a different forest, or even a much older Windows NT-style domain, without extending forest-wide.</p>
+
+          <p>Trusts expand the effective attack surface across domain and forest boundaries in a way that's easy to underestimate. Even a one-way, non-transitive trust means an account compromised in the trusted domain can potentially authenticate against resources in the trusting domain, and misconfigured SID history or overly broad group membership across the trust can turn that into a much bigger foothold than the trust's designers intended. Assessing an environment's actual security boundary means enumerating every trust relationship, not just the domains and forest an organization thinks of as "theirs."</p>
+
+          <p>This is exactly why real-world environments try to keep trust relationships as narrow and well-documented as possible. A forgotten trust left over from a merger, or a trust set up years ago for a project that no longer exists, is a classic finding in security assessments: nobody remembers it's there, nobody is monitoring it, and it still provides a working path between two directories.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> Never assume a trust is harmless just because it's non-transitive or one-way. SID history injection, over-broad group nesting, and shared credentials across trust boundaries have all been used to turn a narrowly scoped trust into a full cross-domain or cross-forest compromise path.
+          </div>
+        </section>
+
+        <section class="content-section" id="domain-controllers-replication">
+          <h2>Domain Controllers and Replication</h2>
+          <p>A domain controller does three jobs that make everything else in this chapter function: it authenticates users and computers against Kerberos and NTLM, it stores and serves the directory database that describes every object in the domain, and it applies Group Policy processing logic to whatever's requesting it. Every logon, every resource access check that involves Active Directory, and every GPO refresh eventually touches a domain controller in some form.</p>
+
+          <p>The directory database itself lives in a file called NTDS.dit, stored locally on each domain controller. It's a structured database, built on the same Extensible Storage Engine used by Exchange, that holds every object in the domain: user accounts and their password hashes, computer accounts, group memberships, GPO links, and the schema that defines what attributes any of those objects can even have. Because NTDS.dit contains every password hash in the domain, including the krbtgt account's hash that underpins Kerberos ticket signing, getting a copy of it off a domain controller is functionally equivalent to obtaining the keys to the whole domain.</p>
+
+          <p>Domains typically run multiple domain controllers for redundancy, and those DCs replicate changes to each other so that a user created or a password changed on one DC eventually shows up everywhere. Active Directory uses multi-master replication: nearly all DCs can accept writes, not just one designated primary, and changes propagate outward using update sequence numbers and a replication topology managed automatically through the Knowledge Consistency Checker. A handful of specific roles, called FSMO roles, are still held by exactly one DC at a time for operations that genuinely need a single point of coordination, like assigning new object identifiers or processing schema changes.</p>
+
+          <p>Sites, which represent physical network locations with good connectivity between machines inside them, control replication scheduling between DCs in different locations so that replication traffic doesn't saturate a slow WAN link. Within a site, replication happens quickly and frequently. Between sites, administrators typically configure a schedule that trades off replication latency against bandwidth usage, which means a change made on one continent might take a while to show up on a DC on another.</p>
+
+          <p>Compromising a single domain controller is often equivalent to compromising the entire domain, and this is one of the clearest lines connecting AD architecture to real incident response outcomes. An attacker with administrative access to any one DC can extract every password hash in NTDS.dit, forge Kerberos tickets using the krbtgt hash that will be trusted domain-wide, and push malicious Group Policy to every joined machine. This is exactly why domain controllers get held to a stricter security standard than ordinary servers: no general-purpose software, no browsing from the DC, tightly restricted administrative access, and dedicated monitoring, because the blast radius of one DC going down to an attacker is the entire domain, not just one server.</p>
+        </section>
+
+        <section class="content-section" id="ad-as-attack-surface">
+          <h2>Why AD Is the Primary Target</h2>
+          <p>Domain admin, or an equivalent level of forest-wide control, is the top objective in most enterprise intrusions that go beyond a single compromised endpoint. The reason is structural, not incidental: Active Directory is the single system that already has authority over every other system. An attacker who reaches domain admin doesn't need to individually compromise each server, each workstation, and each service account, because AD already has a trust relationship with all of them. Ransomware operators specifically chase domain admin before deploying encryptors, because pushing the payload through Group Policy or a domain-trusted scheduled task reaches every machine at once, rather than one at a time.</p>
+
+          <p>Everything covered in this chapter is also, from an offensive perspective, a map of where that authority lives and how it moves. OU structure and GPO linkage determine what policy, and therefore what code, reaches which machines. Group membership and delegated permissions determine who can edit that policy. Trusts determine which other domains and forests inherit some version of that authority. None of this is a vulnerability in the traditional sense; it's how AD is designed to work, which is exactly why it's so consistently abused. Most real attack paths chain together several pieces of ordinary, intended functionality rather than a single flashy exploit.</p>
+
+          <p>The next two chapters build the mechanics this chapter assumes. Chapter 3 covers authentication in depth: how NTLM and Kerberos actually work, what a ticket contains, and why the krbtgt account mentioned above is so valuable. Chapter 4 covers access control directly: how permissions and ACLs determine what an authenticated identity can actually touch once it's inside the domain. Both chapters give you the mechanical detail behind concepts this chapter has only been able to gesture at.</p>
+
+          <p>Chapter 8, later in this module, comes back to Active Directory specifically and covers the attack techniques themselves: Kerberoasting, DCSync, golden and silver tickets, ACL abuse, and the tooling analysts use to both discover and detect these paths, including BloodHound-style attack path mapping. Everything in this chapter is the prerequisite vocabulary and structural understanding that chapter needs to land. Read Chapter 8 without this one, and terms like "OU-linked GPO" or "cross-forest trust" will be abstractions instead of a picture of the actual environment being attacked.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>A domain is the basic administrative unit in AD; a forest, made up of one or more domain trees, is the actual security boundary, not the domain.</li>
+            <li>OUs organize objects for administration and, critically, determine which Group Policy Objects apply to a user or computer based on where it sits in the OU tree.</li>
+            <li>GPOs apply in LSDOU order (Local, Site, Domain, OU) with inheritance flowing down the OU tree, modifiable by Block Inheritance and Enforced settings.</li>
+            <li>GPO edit rights are a common privilege escalation and lateral movement path because GPOs execute with SYSTEM authority on every machine in scope.</li>
+            <li>Trusts have direction (one-way or two-way) and transitivity, and every trust relationship, including forgotten ones, expands the domain's effective attack surface.</li>
+            <li>A domain controller stores every object and password hash in NTDS.dit; compromising one DC is usually equivalent to compromising the entire domain.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">During an assessment, you find that a domain in the target forest has a two-way transitive trust with its parent domain, and the forest also has Enterprise Admins with rights spanning all domains. A stakeholder asks whether compromising the child domain alone is a contained problem. What's the accurate answer?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Yes, each domain has its own administrators and password policy, so compromise stays contained</button>
+              <button class="kc-option" data-correct="true">B. No, the forest is the actual security boundary, and forest-wide groups plus trust relationships can extend compromise beyond the child domain</button>
+              <button class="kc-option" data-correct="false">C. Yes, because trusts only allow resource access, never privilege escalation</button>
+              <button class="kc-option" data-correct="false">D. No, but only if the child domain is in a different forest tree</button>
+            </div>
+            <div class="kc-answer">Domains look like isolation units because they have separate administrators and policies, but the forest is the real security boundary. Enterprise Admins and Schema Admins in the forest root have rights reaching every domain, and the automatic transitive trust between parent and child domains gives an attacker in the child domain a path to pursue forest-wide compromise, not just local domain compromise.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A help desk ticket says a specific laptop isn't receiving a security setting that's supposed to be enforced company-wide via a domain-linked GPO. You check and find the laptop's computer object sits in an OU three levels deep that has its own conflicting GPO linked directly to it. What's the most likely explanation?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Domain-linked GPOs never apply to objects inside OUs, only to objects directly in the domain root</button>
+              <button class="kc-option" data-correct="true">B. GPO processing order is LSDOU, so the OU-linked GPO applies later and its conflicting setting wins over the domain-linked one</button>
+              <button class="kc-option" data-correct="false">C. The domain-linked GPO takes priority over any OU-linked GPO by default</button>
+              <button class="kc-option" data-correct="false">D. GPOs cannot conflict with each other; the setting must be a local policy issue on the laptop itself</button>
+            </div>
+            <div class="kc-answer">Group Policy applies in Local, Site, Domain, then OU order, and later-applied settings generally win when there's a direct conflict. An OU-linked GPO, especially on a deeply nested OU, is processed after the domain-linked GPO, so a conflicting setting there overrides the company-wide one unless the domain GPO link was set to Enforced.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">An incident responder confirms an attacker obtained administrative access to one domain controller and pulled a copy of NTDS.dit before being evicted. What's the accurate scope assessment for the response?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Only that one DC needs to be rebuilt; other DCs are unaffected since they're separate servers</button>
+              <button class="kc-option" data-correct="false">B. Only accounts that logged into that specific DC are at risk</button>
+              <button class="kc-option" data-correct="true">C. The entire domain should be treated as compromised, since NTDS.dit contains every account's password hash and the krbtgt hash used domain-wide</button>
+              <button class="kc-option" data-correct="false">D. No action is needed as long as the attacker didn't modify any Group Policy Objects</button>
+            </div>
+            <div class="kc-answer">NTDS.dit holds every object and password hash in the domain, including the krbtgt account's hash, which underpins Kerberos ticket signing for the whole domain. An attacker with a copy of it can crack or replay hashes and forge tickets that every DC in the domain will trust, so a single DC compromise is treated as a full domain compromise, typically requiring a krbtgt reset (performed twice) and a broader credential reset across the environment.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="01-windows-architecture-process-model.html" class="chapter-nav-prev">← Windows Architecture &amp; the Process Model</a>
+          <a href="03-authentication-ntlm-kerberos.html" class="chapter-nav-next">Authentication: NTLM, Kerberos &amp; Tickets →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Windows</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('02', 6));</script>
+</body>
+</html>

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="09">
+  <meta name="module-id" content="fundamentals">
+  <title>Identity Federation: SSO, SAML & OAuth/OIDC · Fundamentals · H3AD-LEARN</title>
+  <meta name="description" content="SSO, SAML assertions, OAuth 2.0 grant types, OpenID Connect, and JWTs, the identity backbone of real enterprise environments.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/09-identity-federation-sso-oauth.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/09-identity-federation-sso-oauth.html">
+  <meta property="og:title" content="Identity Federation: SSO, SAML & OAuth/OIDC · Fundamentals · H3AD-LEARN">
+  <meta property="og:description" content="SSO, SAML assertions, OAuth 2.0 grant types, OpenID Connect, and JWTs, the identity backbone of real enterprise environments.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Identity Federation: SSO, SAML & OAuth/OIDC · Fundamentals · H3AD-LEARN">
+  <meta name="twitter:description" content="SSO, SAML assertions, OAuth 2.0 grant types, OpenID Connect, and JWTs, the identity backbone of real enterprise environments.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Identity Federation: SSO, SAML & OAuth/OIDC",
+    "description": "SSO, SAML assertions, OAuth 2.0 grant types, OpenID Connect, and JWTs, the identity backbone of real enterprise environments.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/09-identity-federation-sso-oauth.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Security Fundamentals",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://h3ad-sec.github.io/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "H3AD-LEARN",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Fundamentals",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "Identity Federation: SSO, SAML & OAuth/OIDC",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/09-identity-federation-sso-oauth.html"
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">IDENTITY FEDERATION: SSO, SAML & OAUTH</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub nav-current">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Fundamentals</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 09 of 10</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">40 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 8 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 09</span>
+            <span class="badge-time muted mono">40 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Identity Federation: SSO, SAML & OAuth/OIDC</h1>
+          <p class="chapter-intro">Chapter 2 covered authentication and access control inside a single system: one identity store, one login form, one set of role assignments. Real enterprises do not look like that. A mid-size company might run 60 to 200 SaaS applications, and asking every employee to maintain a separate password for each one is not just inconvenient, it is a security failure waiting to happen, because password reuse across dozens of unmanaged accounts is exactly the pattern credential-stuffing attacks exploit. Identity federation solves a fundamentally different problem than the one Chapter 2 addressed: how do you let one trusted identity source vouch for a user across every application that user needs, without handing each application its own copy of that user's password? This chapter goes deep on the protocols that make that possible, SAML, OAuth 2.0, OpenID Connect, and the JWTs that carry the actual claims, along with the real attacks that target them.</p>
+          <div class="chapter-tags">
+            <span class="tag">SSO</span>
+            <span class="tag">SAML</span>
+            <span class="tag">OAuth/OIDC</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="why-federation-exists">
+          <h2>Why Identity Federation Exists</h2>
+          <p>Before federation, the default pattern was one identity per application. Every SaaS tool, every internal web app, every vendor portal maintained its own user database, its own password hashing, its own account recovery flow. At the scale of a handful of tools this is annoying but survivable. At enterprise scale, with dozens or hundreds of applications, it becomes a structural liability. Employees reuse passwords across accounts because remembering a hundred unique ones is unrealistic. IT loses visibility into who has access to what, because provisioning and deprovisioning happen independently in every application's own admin console. When someone leaves the company, offboarding means chasing down access in every one of those separate systems, and missed accounts are exactly how ex-employees retain access long after they should not.</p>
+
+          <p>Identity federation restructures this around a single trusted source of truth: the Identity Provider, or IdP. Instead of each application authenticating users itself, the application (in federation terminology, the Service Provider or relying party) trusts the IdP to do that job and simply accepts the IdP's word for who the user is. The user authenticates once, to the IdP, and that authentication event is then recognized across every federated application without the user typing a password into each one separately. This is what people mean by Single Sign-On (SSO): not that there is only one login screen in the org, but that one authentication event at the IdP establishes trust everywhere the IdP is trusted.</p>
+
+          <p>The security payoff is significant and goes beyond convenience. Centralizing authentication at the IdP means MFA, conditional access policies, and login anomaly detection only need to be enforced in one place to protect access to everything downstream. It means a single admin console, the IdP's, is the actual source of truth for who can reach what, which makes access reviews and offboarding tractable instead of a scavenger hunt across a hundred separate admin panels. Deactivating one account at the IdP instantly cuts off access to every federated application at once, rather than requiring a separate deprovisioning step per app.</p>
+
+          <p>Federation is not free of tradeoffs. It concentrates risk. If the IdP itself is compromised, or if the credential that proves the IdP's identity to relying applications is stolen, an attacker inherits trust across every application that trusts the IdP, not just one. That concentration of trust is precisely why IdP infrastructure, particularly the private keys and certificates it uses to sign its assertions, is treated as some of the highest-value infrastructure in an enterprise environment, and why attacks against that signing material (covered later in this chapter under Golden SAML) are so consequential when they succeed.</p>
+
+          <p>It is worth being precise about vocabulary here, because SSO, federation, and identity provider get used loosely in casual conversation. SSO describes the user experience: log in once, reach many applications. Federation describes the underlying trust architecture that makes SSO possible across organizational or system boundaries: a Service Provider trusting assertions issued by an external Identity Provider, rather than maintaining its own separate authentication. The IdP is the specific system, Okta, Microsoft Entra ID, Google Workspace, or an on-premises system like Active Directory Federation Services, that authenticates the user and issues the proof of that authentication to everything else.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> Federation and single sign-on are related but not identical. You can have SSO within a single vendor's ecosystem without true federation (for example, staying logged into every Google product once you sign into one). True federation specifically means a Service Provider trusts an Identity Provider it does not itself operate, using a standardized protocol like SAML or OIDC to exchange that trust.
+          </div>
+        </section>
+
+        <section class="content-section" id="sso-concept">
+          <h2>The SSO Model: IdP and Service Provider</h2>
+          <p>Every federated SSO relationship has two named parties, and the vocabulary is consistent across SAML, OAuth, and OIDC even though the exact mechanics differ. The Identity Provider (IdP) is the system that owns the authoritative record of who a user is and is responsible for actually verifying their identity, typically through a password plus MFA. The Service Provider (SP), sometimes called the relying party depending on the protocol, is the application the user wants to reach. The SP does not verify the password itself; it delegates that job entirely to the IdP and instead verifies that the proof the IdP handed back is genuine and intact.</p>
+
+          <p>Establishing this trust relationship is a one-time configuration step, not something negotiated per login. An administrator configures the SP and IdP to trust each other by exchanging metadata: the IdP's public signing certificate (so the SP can verify signatures on anything the IdP issues), the SP's expected entity ID or client identifier, and the specific endpoints each side will use during the login flow. Vendor documentation from providers like Okta and Microsoft Entra ID walks through this exact metadata exchange as the setup step before any user can actually log in through the integration.</p>
+
+          <p>Once trust is configured, the basic flow is consistent at a conceptual level regardless of which protocol carries it: the user attempts to reach the SP, gets redirected to the IdP if they are not already authenticated there, proves their identity to the IdP (password, MFA, whatever policy requires), and the IdP sends the SP a piece of signed proof that this specific user successfully authenticated. The SP validates that proof, cryptographically confirms it came from the trusted IdP and was not tampered with, and establishes its own local session for the user. From that point forward, the user interacts with the SP using its own session mechanism, typically a cookie, without needing to go back to the IdP again until that session expires or the SP requires re-authentication.</p>
+
+          <p>A critical detail that trips up a lot of people new to this space: once the SP has validated the IdP's proof and created a local session, the SP is not continuously checking back with the IdP on every request. The federation protocol governs how the initial trust gets established, not how the ongoing session is maintained afterward. This matters operationally: if an account is disabled at the IdP mid-session, the user's existing SP session does not necessarily die immediately, it depends entirely on how that specific SP is configured to handle session lifetime and revocation, which is exactly the kind of gap that shows up in real security assessments of SSO deployments.</p>
+
+          <p>The reason the IdP/SP model scales so well is that it cleanly separates two concerns that used to be tangled together in every application: authenticating a user, and doing whatever the application actually does. Application developers no longer need to build and secure their own password storage, MFA flow, and account recovery process; they consume a standardized proof of identity from a specialized system built for exactly that job. This is also why federation protocols show up constantly in real environments, almost every enterprise SaaS product supports SAML or OIDC login specifically so it can plug into whatever IdP the customer already runs.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Role</th><th>Responsibility</th><th>Real Examples</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Identity Provider (IdP)</td><td>Authenticates the user, issues signed proof of identity</td><td>Okta, Microsoft Entra ID, Google Workspace, Ping Identity, on-prem AD FS</td></tr>
+                <tr><td>Service Provider (SP) / Relying Party</td><td>Trusts the IdP's proof, establishes its own session for the user</td><td>Salesforce, Slack, an internal web app, a SaaS admin console</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="saml-assertions">
+          <h2>SAML: Assertions and the IdP-Initiated/SP-Initiated Flows</h2>
+          <p>Security Assertion Markup Language (SAML) 2.0, standardized by OASIS, is the older and still widely deployed federation protocol, especially common in traditional enterprise environments and applications that predate the modern OAuth/OIDC ecosystem. SAML is XML-based, and its core artifact is the assertion: a signed XML document the IdP produces that makes specific statements about a user, wrapped inside a larger SAML Response message that the IdP sends to the SP.</p>
+
+          <p>A SAML assertion has real structure, not just an opaque blob. It contains a Subject, which identifies who the assertion is about, typically carried in a NameID element that serves as the unique identifier the SP will recognize for that user. It contains Conditions, which constrain when and where the assertion is valid: a validity window defined by NotBefore and NotOnOrAfter timestamps, so an assertion cannot be replayed indefinitely, and an AudienceRestriction that names the specific SP the assertion was issued for. That AudienceRestriction detail matters more than it might look: it is the mechanism that stops an assertion issued for one application from being reused to log into a different one, because a receiving SP is expected to check that it is actually the named audience before accepting the assertion. The assertion also carries statements, most importantly an AuthnStatement recording that authentication happened and when, and often AttributeStatements carrying additional user attributes like email address, group membership, or department.</p>
+
+          <p>The entire assertion, or the enclosing Response, is digitally signed by the IdP using its private signing key, following the XML Signature standard. This signature is what lets the SP trust the assertion's contents without needing to call the IdP back to confirm anything; the SP already has the IdP's public certificate from the initial trust setup, and it uses that certificate to verify the signature is valid and the assertion has not been altered in transit. This signature is also the single most security-critical piece of the whole SAML trust model, because it is the only thing standing between "this assertion genuinely came from our trusted IdP" and "this assertion could have been forged by anyone." That property is exactly what the Golden SAML attack, covered later in this chapter, targets directly.</p>
+
+          <p>SAML supports two distinct login flows that differ in where the process starts. In SP-initiated SSO, the user starts at the application itself, the SP recognizes it needs to authenticate the user, sends an AuthnRequest to the IdP, and validates the resulting response partly by checking that it corresponds to the request it sent (matching an InResponseTo reference back to its original request ID). This is the more common pattern for a user typing a URL directly into their browser and being bounced to a login page. In IdP-initiated SSO, the user starts at the IdP itself, for example by clicking an application tile on an IdP dashboard like Okta's or Microsoft Entra ID's My Apps portal, and the IdP sends an unsolicited SAML Response straight to the SP without any prior request from that SP. Both flows are legitimate and widely supported, but IdP-initiated flows carry a structurally weaker validation story for the SP, since there is no original request to match the response against, which is part of why some security guidance recommends disabling IdP-initiated SSO where it is not specifically needed.</p>
+
+          <p>SAML's XML-heavy design is often criticized as verbose compared to the JSON-based tokens used in OAuth and OIDC, and that criticism has some merit for developer experience. But the underlying trust model, signed assertions with explicit audience and validity constraints, is sound and battle-tested, which is a large part of why SAML remains deeply embedded in enterprise environments even as newer applications increasingly default to OIDC instead.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> When reviewing a SAML integration or investigating suspicious SSO activity, the questions that matter are: is the assertion signature actually being validated by the SP (not just present), is the AudienceRestriction being checked against the correct SP identifier, and is the assertion's validity window being enforced. Skipping any of these three checks is a real, recurring class of SAML implementation vulnerability, not a theoretical one.
+          </div>
+        </section>
+
+        <section class="content-section" id="oauth-grant-types">
+          <h2>OAuth 2.0: Roles and Grant Types</h2>
+          <p>OAuth 2.0, defined in RFC 6749, is frequently misunderstood as a login protocol. It is not, at least not by itself; it is an authorization framework, built to solve a specific problem: how does a third-party application get limited, scoped access to a resource on a user's behalf, without that application ever seeing the user's actual password. The canonical example is a photo-printing app that needs to read your photos from a cloud storage account without you ever typing your cloud storage password into the printing app.</p>
+
+          <p>OAuth defines four roles that every flow involves. The resource owner is the user who owns the data or account being accessed. The client is the application requesting access, the photo-printing app in the example above. The authorization server is the system that authenticates the resource owner and issues access tokens once they approve the request, this role is often filled by the same infrastructure that functions as an IdP in a federation context. The resource server is the API that actually holds the protected data and accepts the access token as proof of authorized access. Keeping these four roles straight is the foundation for understanding every OAuth flow, because each grant type is really just a different way of getting a token from the authorization server into the client's hands, appropriate to how much that client can be trusted.</p>
+
+          <p>The Authorization Code grant is the default choice for the overwhelming majority of real-world web applications today, and for good reason: the client never directly handles the resource owner's credentials, and the actual access token exchange happens through a back-channel server-to-server call rather than through the user's browser, which limits exposure. The flow redirects the user to the authorization server to authenticate and approve the requested scope, then returns a short-lived authorization code to the client, which the client exchanges for an access token in a separate, more secure request. Modern implementations pair this grant with PKCE (Proof Key for Code Exchange), which was originally designed for mobile and single-page apps that cannot safely hold a client secret but is now recommended broadly as a defense against authorization code interception.</p>
+
+          <p>The Client Credentials grant serves a different scenario entirely: machine-to-machine communication where there is no human resource owner involved at all, just a backend service authenticating as itself to access an API. A batch job that needs to call an internal API on its own behalf, not on behalf of any specific user, is the textbook use case.</p>
+
+          <p>Two older grant types are now explicitly discouraged in current OAuth security guidance. The Implicit grant, which returned the access token directly in the browser's URL fragment and skipped the authorization code exchange step, is deprecated; current OAuth 2.0 security best practice guidance recommends using the Authorization Code grant with PKCE instead, even for browser-based apps that cannot hold a secret. The Resource Owner Password Credentials (ROPC) grant, which had the client collect the user's actual username and password directly and exchange them for a token, defeats much of the point of OAuth in the first place, since it requires the resource owner to hand credentials to the client after all; it is deprecated and removed entirely from the OAuth 2.1 draft specification. Recognizing why these two grants fell out of favor is a useful lens for understanding OAuth security generally: nearly every OAuth hardening recommendation exists to keep the resource owner's actual credentials, and any long-lived token that could stand in for them, out of the hands of parties that do not strictly need them.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Grant Type</th><th>Use Case</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Authorization Code (+ PKCE)</td><td>Web, mobile, and SPA apps acting on behalf of a user</td><td>Current recommended default</td></tr>
+                <tr><td>Client Credentials</td><td>Machine-to-machine / backend service access, no user involved</td><td>Current, widely used</td></tr>
+                <tr><td>Implicit</td><td>Legacy browser-based apps, token returned via URL fragment</td><td>Deprecated, replaced by Auth Code + PKCE</td></tr>
+                <tr><td>Resource Owner Password Credentials</td><td>Legacy, client collects username/password directly</td><td>Deprecated, removed in OAuth 2.1 draft</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="oidc-vs-oauth">
+          <h2>OpenID Connect: Authentication on Top of OAuth</h2>
+          <p>This is the distinction that trips up the most people, including experienced developers: OAuth 2.0 answers "what is this client allowed to access," not "who is this user." An OAuth access token proves the client was granted some scope of authorization; it says nothing standardized about the identity of the user who approved that grant, and it was never designed to. Plenty of early implementations misused OAuth as a de facto login mechanism anyway, treating "the user successfully completed an OAuth flow" as equivalent to "the user is authenticated," which is a category error that led to real vulnerabilities.</p>
+
+          <p>OpenID Connect (OIDC) exists specifically to close that gap. It is an identity layer built directly on top of OAuth 2.0, reusing OAuth's flows and roles but adding what OAuth deliberately left out: a standardized way to actually authenticate a user and learn who they are. The mechanism it adds is the ID token, a JWT issued alongside (or instead of, depending on flow) the OAuth access token, containing a standardized set of claims specifically about the authentication event itself: who the user is, when they authenticated, which client the token was issued for, and how long the assertion is valid.</p>
+
+          <p>OIDC also standardizes a UserInfo endpoint that a client can call, using the access token, to retrieve additional profile claims about the authenticated user, and it defines a common, interoperable set of claim names (things like name, email, and profile picture) so that different identity providers return user information in a consistent shape rather than every implementation inventing its own format. This standardization is a large part of why "Sign in with Google" or "Sign in with Microsoft" buttons work consistently across countless unrelated applications: they are all speaking the same OIDC vocabulary underneath.</p>
+
+          <p>Put simply: if an application needs to know what a user is allowed to do against some API, that is an OAuth access token question. If an application needs to know who is logging in, so it can create an account, display a name, or make an access decision based on identity, that is an OIDC ID token question. A well-built modern login integration typically issues both from the same flow: the ID token establishes who just logged in, and the access token, if the app also needs to call an API on the user's behalf, authorizes that separate action.</p>
+
+          <p>This layering is also why OIDC has effectively become the default choice for new consumer-facing and increasingly enterprise SSO integrations, while SAML remains dominant in older or more XML-centric enterprise stacks: OIDC gives you a standardized login answer using the same JSON/REST-friendly tooling most modern applications already use for everything else, without needing to also parse and validate XML.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> Treating a bare OAuth access token as proof of identity, without an accompanying, properly validated ID token, is a documented anti-pattern often called the "OAuth as authentication" confused-deputy problem. An access token can sometimes be obtained or replayed in ways that were never intended to prove who is sitting at the keyboard. If your application needs to know who the user is, use OIDC's ID token and validate it properly, not the mere presence of an access token.
+          </div>
+        </section>
+
+        <section class="content-section" id="jwt-structure">
+          <h2>JWT Structure and Validation</h2>
+          <p>JSON Web Tokens (JWTs), defined in RFC 7519, are the token format underneath OIDC's ID tokens and very commonly used for OAuth access tokens as well, though the spec itself doesn't mandate JWT for access tokens specifically. Structurally, a signed JWT is three Base64URL-encoded segments joined by dots: header.payload.signature. The header states metadata about the token itself, most importantly which signing algorithm was used. The payload carries the actual claims, the statements the token is making. The signature is computed over the header and payload using the algorithm named in the header, and it is what allows a relying party to detect if either segment has been tampered with after issuance.</p>
+
+          <p>The payload's claims fall into a few categories. Registered claims are the standardized ones defined by the JWT spec itself so that different systems can interoperate: iss (issuer, identifying who issued the token), sub (subject, identifying who the token is about), aud (audience, identifying who the token is intended for), exp (expiration time, after which the token must not be accepted), iat (issued-at time), and nbf (not-before time). Beyond these, tokens can carry public claims (registered in a public claims registry to avoid collisions) and private claims specific to a given deployment, like an internal role or department field an application defines for its own purposes.</p>
+
+          <p>A JWT being well-formed and correctly Base64-decodable says absolutely nothing about whether it should be trusted. A relying party consuming a JWT is required to actively validate several things before accepting it, and skipping any one of them reopens a real, well-documented vulnerability class. The signature must be verified against the issuer's actual public key, using the algorithm the relying party itself expects, not simply whatever algorithm the token's own header claims to use; blindly trusting the header's algorithm field is how the notorious "alg:none" and algorithm-confusion classes of JWT vulnerabilities have historically been exploited, where an attacker crafts a token claiming to use no signature, or a different algorithm than the server actually configured, hoping the validation logic accepts it anyway. The issuer (iss) must match the specific IdP the relying party actually trusts. The audience (aud) must match this specific application, exactly the same principle as SAML's AudienceRestriction, so that a token minted for one application cannot be replayed against a different one. And the expiration (exp), along with not-before if present, must be enforced so an old or not-yet-valid token is rejected.</p>
+
+          <p>These checks are not optional extras; each one closes a distinct attack path. Skipping signature verification means accepting any token an attacker crafts, since nothing proves it came from the real issuer. Skipping issuer validation means a token from an unrelated or attacker-controlled identity source could be accepted as if it came from the trusted IdP. Skipping audience validation means a legitimately issued token, minted for a completely different application, could be replayed against this one. Skipping expiration checks means a token stolen months ago still works today. In practice, real-world JWT validation bugs tend to come from exactly one of these checks being silently missing or misconfigured in a library or custom implementation, not from some exotic cryptographic break of the JWT format itself.</p>
+
+          <p>It also matters that JWTs are typically only signed, not encrypted, unless a deployment specifically uses the JWE (JSON Web Encryption) variant. That means the payload's claims are readable by anyone who intercepts the token, even though they cannot be modified without invalidating the signature. Sensitive data should generally not be placed in JWT claims for exactly this reason; the signature protects integrity, not confidentiality.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> "The token is properly signed" and "the token should be trusted" are not the same statement. A relying party must independently check issuer, audience, and expiration on every token it accepts, every time, regardless of how much it trusts the signing key. Treat any implementation that skips one of these checks as carrying a real vulnerability, not a minor gap.
+          </div>
+        </section>
+
+        <section class="content-section" id="federation-attacks">
+          <h2>Real Federation Attacks</h2>
+          <p>Golden SAML is the signature attack against SAML-based federation, and it earned its name and its notoriety through the SolarWinds/SUNBURST campaign attributed to APT29, publicly disclosed in December 2020. The technique itself was first documented earlier, by CyberArk researchers Shaked Reiner and Nir Yehoshua in 2017, but it was the SolarWinds campaign that made it a household name in security circles. The attack targets the single most trusted piece of material in the entire SAML model: the IdP's private signing key and certificate. An attacker who gains administrative access to on-premises federation infrastructure, historically Active Directory Federation Services (AD FS) has been the most documented target, and steals that signing key can forge SAML assertions entirely offline, for any user, with any attributes or permissions, without ever touching the real IdP's login flow or triggering an actual authentication event. Because the forged assertion carries a mathematically valid signature from the legitimate signing key, it is cryptographically indistinguishable from a real assertion, which is exactly what makes it so dangerous: it bypasses password checks and MFA entirely, since neither of those ever get evaluated when the assertion is forged directly. MITRE ATT&CK tracks this technique under Forge Web Credentials: SAML Tokens (T1606.002). In the SolarWinds campaign, this technique specifically enabled the attackers to pivot from a compromised on-premises environment into cloud services like Microsoft 365, by forging SAML assertions that those cloud services trusted as legitimate.</p>
+
+          <p>A related, newer technique called Silver SAML targets cloud-native identity providers rather than on-premises AD FS, and has been documented as capable of evading some of the specific detections built around the original Golden SAML pattern, though the underlying idea, forging assertions using compromised signing material, is conceptually similar.</p>
+
+          <p>OAuth's attack surface looks different because the trust model is different, but the underlying theme, abusing a legitimate flow rather than breaking cryptography, is consistent. Open redirect abuse in the authorization flow is a well-documented, recurring class of real OAuth vulnerability: if an authorization server validates a client's redirect_uri loosely, for instance only checking that it starts with an allowed domain rather than matching it exactly, an attacker can register or find an open redirect on that same trusted domain and chain it to forward the authorization code or token, appended to the URL, straight to an attacker-controlled server. Because the redirect_uri parameter passed the authorization server's (weak) validation, the victim's browser dutifully carries the sensitive authorization code along for the ride. This is exactly why current OAuth security guidance insists on exact string matching for registered redirect URIs rather than prefix or domain-only matching, and why PKCE is recommended broadly, since even a stolen authorization code becomes far less useful to an attacker who does not also have the matching code verifier.</p>
+
+          <p>Token replay is the other recurring OAuth and OIDC failure mode: an access token or ID token intercepted through a compromised network, a logged referrer header, a browser history leak, or a server-side logging mistake can be reused by an attacker as long as it remains valid, if the resource server or relying party is not additionally checking things like token binding, expected audience, or unusual usage patterns. Short token lifetimes and refresh token rotation exist specifically to shrink the window in which a replayed token remains useful, and proper audience validation, covered in the JWT section above, is what stops a token issued for one relying party from being successfully replayed against a different one.</p>
+
+          <p>What ties Golden SAML and these OAuth issues together conceptually is worth naming directly: none of these attacks break the underlying cryptography of SAML, OAuth, or JWTs. They succeed by targeting the trust boundary around the protocol instead, stolen signing keys, loosely validated redirect URIs, tokens that outlive their usefulness, or relying parties that skip a validation step they were supposed to perform. That is precisely why understanding the protocol mechanics from the earlier sections in this chapter matters for a SOC analyst or IR responder: recognizing that Golden SAML requires prior administrative compromise of the IdP infrastructure tells you it is a late-stage, high-severity finding, not an isolated event, and recognizing that an OAuth redirect_uri validation gap is the actual root cause of a token-theft incident tells you exactly what configuration needs to be fixed, not just which token needs to be revoked.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Attack</th><th>What It Targets</th><th>Why It Works</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Golden SAML</td><td>IdP's private SAML signing key/certificate</td><td>Forged assertions carry a valid signature, bypassing password and MFA entirely (MITRE ATT&CK T1606.002)</td></tr>
+                <tr><td>Silver SAML</td><td>Cloud-native IdP signing material</td><td>Same forgery concept applied to cloud IdPs, can evade some Golden SAML-specific detections</td></tr>
+                <tr><td>OAuth redirect_uri / open redirect abuse</td><td>Loosely validated redirect_uri during the authorization flow</td><td>Authorization code or token gets forwarded to an attacker server via a trusted domain's own open redirect</td></tr>
+                <tr><td>Token replay</td><td>Intercepted access or ID tokens</td><td>Token remains usable until expiry if audience/lifetime/binding checks are weak or missing</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="federation-in-the-real-world">
+          <h2>Federation in the Real World</h2>
+          <p>The concepts in this chapter are not academic. A handful of identity providers dominate real enterprise deployments, and recognizing them by name matters because you will see them constantly in log sources, incident reports, and job postings alike. Okta is one of the most widely deployed dedicated identity providers, supporting both SAML and OIDC integrations across thousands of pre-built application connectors. Microsoft Entra ID, formerly known as Azure Active Directory, is deeply embedded in any organization already running Microsoft 365 or Azure, and supports SP-initiated flows for both SAML and OIDC applications as well as IdP-initiated flows for SAML apps specifically. Google Workspace serves the same role for organizations built around Google's productivity suite. Ping Identity is common in larger, more security-mature enterprises, particularly ones with complex legacy SAML estates alongside newer OIDC deployments. None of these vendors invented the underlying protocols; they are implementations of the same open standards, SAML 2.0, OAuth 2.0, and OpenID Connect, covered throughout this chapter, competing primarily on integration breadth, policy tooling, and user experience.</p>
+
+          <p>Recognizing these names in practice matters for a specific reason: log sources and incident narratives will reference them constantly. An alert about anomalous Okta sign-in activity, a Microsoft Entra ID Conditional Access policy blocking a login, or a Sigma rule looking for suspicious AD FS token-signing certificate access are all directly downstream of the concepts in this chapter. Understanding what a SAML assertion actually contains makes an Entra ID sign-in log immediately more legible. Understanding OAuth's redirect_uri validation makes an "unusual OAuth grant" alert something you can actually reason about instead of a term you pattern-match on faintly.</p>
+
+          <p>This chapter also connects backward and forward across the module in a specific way. Chapter 2's Zero Trust section described continuous, context-aware verification replacing implicit network trust; identity federation is the plumbing that makes that continuous verification practical at scale, since Conditional Access and similar policy engines are built directly on top of the IdP's authentication events described in this chapter. A device-compliance check gating access under Zero Trust is typically evaluated at the exact moment the IdP is issuing a SAML assertion or OIDC ID token, not as some separate bolted-on system.</p>
+
+          <p>Later modules in this platform, particularly cloud security content, will build directly on this chapter rather than re-explaining it. Cloud IAM federation (letting an on-premises identity assume a role in AWS or Azure without a separate cloud-only password), workload identity federation for CI/CD pipelines, and B2B guest access models all reuse the exact SAML/OIDC/JWT mechanics covered here, just pointed at cloud resources instead of SaaS applications. Having this chapter's vocabulary solid, assertion versus token, IdP versus SP, authentication versus authorization, signature versus trust, is what makes those later, more cloud-specific topics click quickly instead of feeling like an entirely new subject.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> If you only remember one practical habit from this chapter, make it this: whenever you see "SSO," ask what protocol is actually running underneath it, SAML or OIDC, and whether the flow is SP-initiated or IdP-initiated. That single question will make almost every federation-related log entry, vendor doc, or incident report you encounter afterward significantly easier to parse.
+          </div>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>Identity federation centralizes authentication at a trusted Identity Provider (IdP) so Service Providers (SPs) don't each maintain their own password store; SSO is the resulting user experience of authenticating once.</li>
+            <li>A SAML assertion is a signed XML statement containing a Subject, Conditions (validity window and AudienceRestriction), and authentication/attribute statements; SP-initiated flows start at the app, IdP-initiated flows start at the IdP and send an unsolicited response.</li>
+            <li>OAuth 2.0 is an authorization framework with four roles (resource owner, client, authorization server, resource server); Authorization Code + PKCE and Client Credentials are the current recommended grants, while Implicit and Resource Owner Password Credentials are deprecated.</li>
+            <li>OAuth alone does not authenticate a user; OpenID Connect (OIDC) adds that layer on top of OAuth via a standardized ID token and UserInfo endpoint.</li>
+            <li>A JWT is header.payload.signature; a relying party must verify the signature, issuer, audience, and expiration on every token, since skipping any one of these reopens a real, documented vulnerability class.</li>
+            <li>Golden SAML forges SAML assertions using a stolen IdP signing key, bypassing password and MFA entirely; it was central to the SolarWinds/APT29 campaign's pivot into cloud services and is tracked as MITRE ATT&CK T1606.002.</li>
+            <li>OAuth's recurring real-world failures are loosely validated redirect_uri handling (enabling authorization code theft via open redirects) and token replay from intercepted access or ID tokens.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A user clicks an application tile directly from their Okta dashboard, and Okta sends a SAML response to that application without the application ever sending a prior request. What flow is this, and what is one notable difference in how it validates compared to the alternative?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. SP-initiated SSO; the SP matches the response against an InResponseTo request ID</button>
+              <button class="kc-option" data-correct="true">B. IdP-initiated SSO; there is no prior request for the SP to match the response against</button>
+              <button class="kc-option" data-correct="false">C. OAuth Implicit grant; the token is returned in the URL fragment</button>
+              <button class="kc-option" data-correct="false">D. OIDC Client Credentials flow; no resource owner is involved</button>
+            </div>
+            <div class="kc-answer">This is IdP-initiated SSO: the user starts at the Identity Provider's dashboard and the IdP sends an unsolicited SAML response to the SP. In SP-initiated SSO, the SP sends an AuthnRequest first and validates the response partly by matching it back to that original request. IdP-initiated flows lack that matching mechanism, which is part of why some security guidance recommends disabling them where not specifically needed.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">An incident responder finds that an attacker gained domain admin on an on-premises AD FS server, extracted the token-signing certificate, and used it to forge SAML assertions granting themselves access to Microsoft 365 as an arbitrary user, without ever triggering an MFA prompt. What is this technique, and why does it bypass MFA?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Token replay; the attacker reused a valid session cookie that had not expired yet</button>
+              <button class="kc-option" data-correct="true">B. Golden SAML; the assertion is forged offline using the stolen signing key, so no real authentication event, and therefore no MFA check, ever occurs</button>
+              <button class="kc-option" data-correct="false">C. OAuth redirect_uri abuse; the attacker exploited an open redirect on a trusted domain</button>
+              <button class="kc-option" data-correct="false">D. Password spraying against the AD FS login portal</button>
+            </div>
+            <div class="kc-answer">This is Golden SAML, the technique made notorious by the SolarWinds/APT29 campaign and tracked as MITRE ATT&CK T1606.002. Because the attacker holds the actual private signing key, they can construct a validly signed assertion entirely offline, without the real IdP login flow, password check, or MFA challenge ever executing. The forged assertion is cryptographically indistinguishable from a legitimate one, which is what makes this technique so severe once an attacker has the signing material.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A developer building a login integration receives a valid OAuth access token after a user completes the authorization flow and treats that as sufficient proof of who the user is, without checking for or validating an ID token. What is the problem with this approach?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. There is no problem; an access token and an ID token are functionally interchangeable</button>
+              <button class="kc-option" data-correct="true">B. OAuth is an authorization framework, not an authentication protocol; an access token proves granted scope, not identity, which is exactly the gap OpenID Connect's ID token was designed to close</button>
+              <button class="kc-option" data-correct="false">C. Access tokens are always encrypted and cannot be validated by the client anyway</button>
+              <button class="kc-option" data-correct="false">D. This is only a problem if the client is using the Client Credentials grant</button>
+            </div>
+            <div class="kc-answer">OAuth access tokens prove that a client was granted some scope of authorization; they were never designed to carry a standardized statement about who the user is. Treating a bare access token as authentication proof is a well-known anti-pattern. OpenID Connect exists specifically to add that missing authentication layer through the ID token, which does carry standardized identity claims and should be validated (signature, issuer, audience, expiration) before an application treats a login as legitimate.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="08-career-paths-roadmap.html" class="chapter-nav-prev">← Career Paths & Your Learning Roadmap</a>
+          <a href="10-threat-modeling-security-by-design.html" class="chapter-nav-next">Threat Modeling & Security by Design →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Security Fundamentals</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('09', 8));</script>
+</body>
+</html>

@@ -202,15 +202,15 @@
         <a href="../index.html" class="back-link">All Modules</a>
         <span class="module-badge">NETWORKING</span>
         <h1 class="module-hero-title">Networking &middot; Complete Guide</h1>
-        <p class="module-hero-desc">Eight chapters covering the networking foundation every detection is built on: TCP/IP and the OSI model, routing and switching, DNS internals, TLS in practice, hands-on packet analysis with Wireshark, the protocols attackers abuse most, and how network telemetry becomes a detection. Built for analysts who can use a network but have never had to explain why it works.</p>
+        <p class="module-hero-desc">Ten chapters covering the networking foundation every detection is built on: TCP/IP and the OSI model, routing and switching, DNS internals, TLS in practice, hands-on packet analysis with Wireshark, the protocols attackers abuse most, network telemetry and detection, firewalls and segmentation, and wireless security. Built for analysts who can use a network but have never had to explain why it works.</p>
 
         <div class="module-stats-strip">
           <div class="module-stat">
-            <span class="module-stat-value">8</span>
+            <span class="module-stat-value">10</span>
             <span class="module-stat-label">CHAPTERS</span>
           </div>
           <div class="module-stat">
-            <span class="module-stat-value">~10 HRS</span>
+            <span class="module-stat-value">~13 HRS</span>
             <span class="module-stat-label">CONTENT</span>
           </div>
           <div class="module-stat">
@@ -226,7 +226,7 @@
         <div class="module-progress-wrap">
           <div class="module-progress-meta">
             <span>MODULE PROGRESS</span>
-            <span id="networking-progress-label">0 / 8 chapters complete</span>
+            <span id="networking-progress-label">0 / 10 chapters complete</span>
           </div>
           <div class="module-progress-bar-outer">
             <div class="module-progress-bar-inner" id="networking-progress-bar"></div>
@@ -452,6 +452,54 @@
           </div>
         </a>
 
+        <a class="chapter-card" href="./09-firewalls-network-segmentation.html" aria-label="Chapter 9: Firewalls and Network Segmentation">
+          <div class="chapter-card-top">
+            <span class="chapter-num">09</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
+              <span class="chapter-time">40 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Firewalls &amp; Network Segmentation</h3>
+          <p class="chapter-desc">Stateful vs next-gen firewalls, rule architecture, DMZ design, and how PCI-DSS-driven segmentation shapes real enterprise network layouts.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">firewalls</span>
+            <span class="chapter-tag">NGFW</span>
+            <span class="chapter-tag">segmentation</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="09">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <a class="chapter-card" href="./10-wireless-security.html" aria-label="Chapter 10: Wireless Security">
+          <div class="chapter-card-top">
+            <span class="chapter-num">10</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
+              <span class="chapter-time">35 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Wireless Security</h3>
+          <p class="chapter-desc">WPA2/WPA3, the 4-way handshake, evil twin attacks, and 802.1X enterprise authentication over RADIUS, closing the module.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">WPA3</span>
+            <span class="chapter-tag">evil twin</span>
+            <span class="chapter-tag">802.1X</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="10">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
       </div>
     </div>
   </section>
@@ -572,7 +620,7 @@
         const progress  = initProgress();
         const chapters  = progress.modules?.['networking']?.chapters || {};
         const completed = Object.values(chapters).filter(c => c.status === 'complete').length;
-        label.textContent = completed + ' / 8 chapters complete';
+        label.textContent = completed + ' / 10 chapters complete';
       }
 
       const progress = initProgress();

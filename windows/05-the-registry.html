@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="05">
+  <meta name="module-id" content="windows">
+  <title>The Registry · Windows · H3AD-LEARN</title>
+  <meta name="description" content="Covers registry structure and hives, plus the specific keys attackers abuse for persistence: Run keys, RunOnce, services, and IFEO debugger hijacking.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/windows/05-the-registry.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/windows/05-the-registry.html">
+  <meta property="og:title" content="The Registry · Windows · H3AD-LEARN">
+  <meta property="og:description" content="Covers registry structure and hives, plus the specific keys attackers abuse for persistence: Run keys, RunOnce, services, and IFEO debugger hijacking.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The Registry · Windows · H3AD-LEARN">
+  <meta name="twitter:description" content="Covers registry structure and hives, plus the specific keys attackers abuse for persistence: Run keys, RunOnce, services, and IFEO debugger hijacking.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "The Registry",
+    "description": "Covers registry structure and hives, plus the specific keys attackers abuse for persistence: Run keys, RunOnce, services, and IFEO debugger hijacking.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/windows/05-the-registry.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Windows",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/windows/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://h3ad-sec.github.io/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "H3AD-LEARN",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Windows",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/windows/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "The Registry",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/windows/05-the-registry.html"
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">THE REGISTRY</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub nav-current">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Windows</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 05 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 05</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">The Registry</h1>
+          <p class="chapter-intro">Nothing in Windows sounds more boring than the registry, and few artifacts on the system are more forensically valuable. It is a giant hierarchical database of settings that most users never open and most administrators only touch when something breaks. But it also quietly records installation history, execution evidence, and user activity that the people who write it rarely intend to expose. For an attacker it is a convenient place to make a program launch without anyone noticing. For a defender it is one of the richest sources of both persistence detection and general forensic timeline building on the entire host.</p>
+          <div class="chapter-tags">
+            <span class="tag">registry hives</span>
+            <span class="tag">persistence</span>
+            <span class="tag">Run keys</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="registry-structure">
+          <h2>Registry Structure and Hives</h2>
+          <p>The registry is organized as a hierarchical database, conceptually similar to a filesystem. Instead of folders and files it has keys and values. A key is a container, roughly equivalent to a directory, and it can hold subkeys and values. A value has a name, a data type, and actual data, roughly equivalent to a file with a name and contents. The entire structure is rooted at a small set of predefined top-level containers called hives, each identified by a constant that starts with HKEY.</p>
+
+          <p>HKEY_LOCAL_MACHINE, abbreviated HKLM, holds configuration that applies to the machine as a whole regardless of who is logged in. Hardware settings, installed services, driver configuration, and machine-wide software settings live here. Because it governs the whole system, most of HKLM requires administrative privileges to modify. HKEY_CURRENT_USER, abbreviated HKCU, holds settings specific to the user who is currently logged on: desktop preferences, recently opened files, mapped drives, and per-user application settings. HKCU is really a view into a specific subtree of HKEY_USERS that corresponds to the logged-in user's security identifier.</p>
+
+          <p>HKEY_USERS, abbreviated HKU, contains a subkey for every user profile that has ever loaded on the machine, each named by that user's SID, plus a .DEFAULT subkey used for new profiles and the system account. HKEY_CLASSES_ROOT, abbreviated HKCR, is a merged view combining file association and COM registration data from both HKLM\Software\Classes and HKCU\Software\Classes, with the per-user entries taking precedence. It answers questions like which program opens a .docx file and what a given COM class identifier resolves to. HKEY_CURRENT_CONFIG is a small, largely vestigial hive that points at the current hardware profile, something that matters far less now than it did when machines commonly had multiple hardware configurations.</p>
+
+          <p>These in-memory hives are backed by physical hive files on disk. HKLM\SAM, HKLM\SECURITY, HKLM\SOFTWARE, and HKLM\SYSTEM correspond to files of the same name in C:\Windows\System32\config. Per-user hives live inside each profile: NTUSER.DAT in the user's profile root backs HKCU, and UsrClass.dat under AppData\Local\Microsoft\Windows backs the user-specific portion of HKCR. This matters for forensics because these files can be pulled directly from a disk image, or from a Volume Shadow Copy, and parsed offline with tools like RegRipper or the Registry Explorer even when the machine is not running.</p>
+
+          <p>Every value stored in the registry has a declared data type. REG_SZ is a fixed-length string, REG_EXPAND_SZ is a string that may contain environment variables like %SystemRoot% to be expanded at read time, and REG_MULTI_SZ is an array of strings. REG_DWORD and REG_QWORD store 32-bit and 64-bit integers, commonly used for flags, counts, and timestamps encoded as numbers. REG_BINARY stores raw bytes with no defined interpretation beyond what the reading application expects, and it is frequently where malware or unusual configuration hides data that a casual GUI browse of the registry will not render meaningfully.</p>
+        </section>
+
+        <section class="content-section" id="registry-as-config-store">
+          <h2>The Registry as Configuration and Identity Store</h2>
+          <p>Describing the registry purely as "where Windows keeps its settings" undersells what actually accumulates there. Windows itself uses it for the obvious things: network adapter configuration, driver bindings, feature flags, and policy settings pushed down by Group Policy or Intune. But nearly every third-party application installed on a Windows machine also writes to the registry, often extensively, and that installed-software footprint is where things get interesting for an investigator.</p>
+
+          <p>When software is installed through a standard installer, it typically registers an entry under HKLM\Software\Microsoft\Windows\CurrentVersion\Uninstall. That entry records the product name, publisher, install date, and uninstall command, and it is exactly what Control Panel's "Programs and Features" reads to build its list. This means the registry holds a fairly reliable record of what has been installed on a machine and when, independent of whether the application is currently running or has left files behind. Investigators use this routinely to establish whether a suspicious tool was ever installed on a host, even after the files themselves have been deleted.</p>
+
+          <p>Beyond installation records, the registry accumulates a surprising amount of user activity evidence. The RecentDocs key under HKCU tracks recently opened files by extension. The UserAssist key stores an encoded (ROT13-obfuscated) list of GUI programs a user has launched, along with run counts and last-run timestamps. ShellBags record folder view settings for directories a user has browsed, which incidentally proves that folder existed and was accessed even if it has since been deleted or was on removable media that is no longer connected. None of these keys exist because Microsoft wanted to help forensic examiners. They exist to make the shell feel responsive and personalized. The forensic value is a side effect of ordinary UI convenience features quietly logging behavior.</p>
+
+          <p>This dual nature, configuration store and incidental activity log, is why the registry shows up constantly in both directions of security work. Defenders read it to reconstruct what happened on a compromised host: what ran, what was installed, what a user touched. Attackers write to it, sometimes deliberately for persistence and sometimes just as a side effect of executing malware, and both kinds of writes leave evidence. Treating the registry as "just config" misses most of why it matters to an investigation.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> Because so much registry activity happens as a side effect of normal use, context is everything. A single unfamiliar Run key entry is a strong signal. A single unfamiliar UserAssist entry is often nothing. Correlate registry artifacts with other evidence, such as file creation timestamps or process execution logs, before drawing conclusions from any one key in isolation.
+          </div>
+        </section>
+
+        <section class="content-section" id="persistence-run-keys">
+          <h2>Persistence via Run Keys</h2>
+          <p>The Run and RunOnce keys are the oldest and most widely recognized persistence mechanism in Windows, and they remain in active use by both legitimate software and malware today. Any value placed under HKLM\Software\Microsoft\Windows\CurrentVersion\Run gets launched for every user at system startup. Any value placed under HKCU\Software\Microsoft\Windows\CurrentVersion\Run gets launched specifically for that user at logon. Both keys accept an arbitrary command line as the value data, so the entry can point directly at an executable, a script interpreter with a script argument, or a living-off-the-land binary invoked with malicious arguments.</p>
+
+          <p>RunOnce, at HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce and the equivalent HKCU path, behaves almost identically except that Windows deletes the value after it runs once. This is intended for legitimate use cases like installers that need one more step to complete after a reboot, but it works just as well for an attacker who wants a payload to fire on the next logon and then remove the evidence of its own trigger automatically.
+
+          There are also lesser-known siblings of these keys worth knowing: RunServices and RunServicesOnce are deprecated legacy keys from older Windows versions that some tooling still checks; Wow6432Node duplicates the Run keys under HKLM\Software\WOW6432Node\Microsoft\Windows\CurrentVersion on 64-bit systems for 32-bit application compatibility, and malware occasionally uses that path specifically because analysts scanning only the primary Software hive path can miss it.</p>
+
+          <p>Run keys remain popular with attackers, including in commodity malware and low-sophistication intrusions, for a simple reason: they are trivially easy to implement. Writing a single registry value is far less code than installing a service or scheduling a task, and it requires no special privileges when targeting the HKCU variant, since any user can write to their own hive. The tradeoff is that Run keys are also one of the easiest persistence mechanisms to detect. They are a small, finite, well-known list of locations, and both built-in tools like Autoruns and EDR agents enumerate them by default.</p>
+
+          <p>From a detection standpoint, the practical approach is baselining. A clean installation of Windows plus known-good enterprise software produces a fairly stable, predictable set of Run key entries. Any new entry appearing outside a change window, especially one pointing at an unsigned binary, a script interpreter, or a path in a user-writable location like %AppData% or %Temp%, warrants investigation. Analysts should also pay attention to the value name and data together, since malware authors frequently choose value names designed to look like legitimate Windows or vendor components while pointing at something else entirely.</p>
+        </section>
+
+        <section class="content-section" id="persistence-services">
+          <h2>Persistence via Services</h2>
+          <p>Windows services are represented in the registry under HKLM\SYSTEM\CurrentControlSet\Services, with each service getting its own subkey named after the service's internal name. That subkey holds the values the Service Control Manager needs to run it: ImagePath, which is the path to the executable or driver; Start, a number that controls whether it starts automatically, on demand, or is disabled; Type, which distinguishes a standalone Win32 service from a shared-process service or a kernel driver; and ObjectName, which specifies the account context the service runs under, commonly LocalSystem.</p>
+
+          <p>There are two common ways services get abused for persistence. The first is straightforward: an attacker creates an entirely new service, typically using sc.exe, New-Service in PowerShell, or a direct registry write, pointing ImagePath at their payload and setting Start to auto-start. The second is subtler and often more effective against casual review: an attacker hijacks an existing, legitimate service by modifying its ImagePath value to point at a malicious binary instead of the original one. Because the service name and its outward description remain unchanged, an analyst scanning a list of installed services sees a familiar, expected name and may not think to verify that the path underneath it still points where it should.</p>
+
+          <p>Services are attractive to attackers for reasons that go beyond simple persistence. A service configured to run as LocalSystem executes with SYSTEM-level privileges, which is a higher privilege tier than most interactively logged-on users have, so service-based persistence often doubles as a privilege escalation vector. Services also start before user logon, so a service-based payload can run and re-establish other footholds even if no one ever logs into the console. And because service configuration lives in the registry and is managed centrally by the Service Control Manager, it survives reboots reliably in a way that some other execution methods do not.</p>
+
+          <p>Detecting malicious services means watching for a few specific signals: new service creation events (Windows Security Event ID 4697, or Sysmon Event ID 13 registry-value-set events on the Services key), ImagePath values pointing at unsigned binaries or unusual locations such as user profile directories, service binaries with names deliberately similar to legitimate Windows components, and any modification to the ImagePath of a pre-existing, well-known service. A sudden, unexplained restart of a familiar-sounding service is also worth checking, since a hijacked service typically needs to be restarted for the new ImagePath to take effect.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Registry Value</th><th>Location</th><th>Purpose</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>ImagePath</td><td>Services\&lt;ServiceName&gt;</td><td>Path to the executable or driver the service runs</td></tr>
+                <tr><td>Start</td><td>Services\&lt;ServiceName&gt;</td><td>Startup type: auto, manual, disabled, boot, system</td></tr>
+                <tr><td>Type</td><td>Services\&lt;ServiceName&gt;</td><td>Win32 service, driver, or shared-process service</td></tr>
+                <tr><td>ObjectName</td><td>Services\&lt;ServiceName&gt;</td><td>Account context the service executes under</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="other-persistence-locations">
+          <h2>Other Common Persistence Locations</h2>
+          <p>Run keys and services are the two persistence mechanisms most closely tied to the registry, but they are far from the only registry-relevant footholds attackers use. Scheduled tasks are technically stored primarily as XML task definition files under C:\Windows\System32\Tasks, but their metadata and cache is also mirrored into the registry under HKLM\Software\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache. A scheduled task that runs at logon or on a recurring trigger achieves essentially the same outcome as a Run key entry, and analysts investigating persistence should check both mechanisms rather than assuming one covers the other.</p>
+
+          <p>COM hijacking targets the way Windows resolves Component Object Model class identifiers, or CLSIDs, to the code that implements them. Every registered COM object has an entry under HKCR\CLSID\{GUID}\InprocServer32 or LocalServer32 pointing at the DLL or executable that implements it. Because HKCU's classes take precedence over HKLM's in the merged HKCR view, an attacker can register a malicious replacement for a legitimate, frequently-invoked CLSID entirely within their own user hive, without needing administrative rights, and have it silently invoked whenever some other trusted process instantiates that COM object in the normal course of business.</p>
+
+          <p>Image File Execution Options, or IFEO, is a legitimate Windows debugging feature stored under HKLM\Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options. It was designed so a developer could attach a debugger automatically whenever a specific executable launches, by setting a Debugger value under a subkey named after that executable, for example a subkey named notepad.exe with a Debugger value pointing at a debugger tool. Windows honors that value literally: whatever is listed as the "debugger" launches instead of, or ahead of, the target program. Attackers abuse this by setting the Debugger value on a security tool's process name to point at their own payload, effectively disabling that tool every time it tries to start, or by setting it on a commonly launched utility to achieve execution.</p>
+
+          <p>What ties these three mechanisms together with Run keys and services is that all of them are, at bottom, registry writes that redirect what code executes under normal, expected circumstances. None require exotic tooling. An analyst who understands the registry's structure well enough to know where these values live can check all of them quickly with the same set of skills, which is exactly why Autoruns and similar tools enumerate this entire family of locations by default rather than just the classic Run keys.</p>
+        </section>
+
+        <section class="content-section" id="registry-forensics-detection">
+          <h2>Registry Forensics and Detection</h2>
+          <p>Everything covered in this chapter points toward the same practical conclusion: registry-based persistence is common precisely because the registry is large, flexible, and only partially monitored by default. A defender's job is to narrow that surface down to a manageable, well-understood set of locations and watch them consistently, rather than trying to review the entire registry, which is neither practical nor useful.</p>
+
+          <p>At minimum, an analyst building registry-based detection should monitor the Run and RunOnce keys in both HKLM and HKCU, the Services key for new service creation and ImagePath modification on existing services, the IFEO key for new Debugger values, and the COM CLSID structure for unexpected changes to well-known, high-frequency class identifiers. Tools like Sysinternals Autoruns provide a point-in-time snapshot across most of these locations and are useful for manual triage or incident response, but they do not provide continuous, real-time visibility on their own.</p>
+
+          <p>For continuous monitoring, the registry needs to be instrumented so that changes generate events as they happen rather than being discovered later during a manual sweep. Sysmon is the tool most commonly used for this in a Windows environment, and it can be configured to log registry key and value creation, modification, deletion, and renaming, filtered down to the specific paths that matter for persistence rather than the entire hive, which would be far too noisy to be usable.</p>
+
+          <p>This chapter has focused on where persistence lives in the registry and why attackers choose these particular locations. Chapter 6 picks up the other half of that picture: the specific Sysmon Event IDs, 12, 13, and 14, that capture registry object creation and deletion, value sets, and key and value renames, and how to build detection logic around them so that a new Run key entry or a hijacked ImagePath generates an alert instead of waiting to be found during a manual review.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> Enabling Sysmon registry logging without scoping it will flood a SIEM with legitimate noise, since the registry changes constantly during normal operation. Always scope registry event collection to the specific persistence-relevant paths covered in this chapter rather than logging every registry write on the system.
+          </div>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>The registry is organized into hives (HKLM, HKCU, HKU, HKCR, HKCU) backed by physical hive files on disk, with keys, values, and typed data such as REG_SZ, REG_DWORD, and REG_BINARY.</li>
+            <li>Both Windows and installed applications write extensively to the registry, leaving behind installation records and incidental user activity artifacts like UserAssist and ShellBags.</li>
+            <li>Run and RunOnce keys in HKLM and HKCU launch programs at startup or logon and remain a common, easily detected persistence mechanism.</li>
+            <li>Services store their configuration, including ImagePath, under HKLM\SYSTEM\CurrentControlSet\Services, and are attractive for persistence because they can run as SYSTEM and survive reboots.</li>
+            <li>Scheduled tasks, COM hijacking, and IFEO debugger hijacking are additional registry-adjacent persistence techniques that redirect normal execution to attacker-controlled code.</li>
+            <li>Effective detection means scoping monitoring to a known set of persistence-relevant registry paths rather than logging the entire registry, which Chapter 6 covers using Sysmon Event IDs 12, 13, and 14.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">During triage you find a value under HKCU\Software\Microsoft\Windows\CurrentVersion\Run pointing at a script in the user's AppData\Roaming folder. The user has standard, non-administrative privileges. What does this tell you?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. This cannot be malicious because the user lacks admin rights</button>
+              <button class="kc-option" data-correct="true">B. The entry only requires standard user privileges to create, so lack of admin rights does not rule out malicious persistence</button>
+              <button class="kc-option" data-correct="false">C. HKCU Run keys only ever run legitimate startup programs</button>
+              <button class="kc-option" data-correct="false">D. This is definitely benign because AppData is a normal Windows folder</button>
+            </div>
+            <div class="kc-answer">HKCU is writable by the logged-in user without any elevated privileges, which is exactly why it is popular for low-sophistication persistence. A script sitting in a user-writable location like AppData\Roaming and referenced from a Run key is a classic, easily deployed persistence pattern and should be investigated rather than dismissed based on the user's privilege level.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A previously known, legitimate Windows service suddenly restarts, and afterward its ImagePath value in the registry points to a different executable than it did the day before. What is the most likely explanation?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. A routine Windows Update modified the service automatically</button>
+              <button class="kc-option" data-correct="true">B. The service was hijacked: its ImagePath was modified to point at attacker-controlled code, then restarted to load it</button>
+              <button class="kc-option" data-correct="false">C. This is normal behavior for services with automatic start type</button>
+              <button class="kc-option" data-correct="false">D. The Type value changed, which always causes ImagePath to reset</button>
+            </div>
+            <div class="kc-answer">Service hijacking works by modifying an existing service's ImagePath to point at malicious code and then restarting the service so the new path takes effect, which is exactly the sequence described. Because the service name stays familiar, this technique is designed to blend in with a routine glance at the services list, which is why the ImagePath value itself needs to be checked, not just the service name.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">You find a Debugger value set under HKLM\Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\taskmgr.exe pointing at an unfamiliar binary. What is the effect of this configuration?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. It has no effect unless Task Manager is run as administrator</button>
+              <button class="kc-option" data-correct="true">B. Whenever taskmgr.exe is launched, Windows runs the unfamiliar binary instead of, or ahead of, Task Manager</button>
+              <button class="kc-option" data-correct="false">C. It only logs Task Manager launches for auditing purposes</button>
+              <button class="kc-option" data-correct="false">D. It blocks Task Manager from launching entirely with no other effect</button>
+            </div>
+            <div class="kc-answer">IFEO's Debugger value is honored literally by Windows: whatever is set there launches in place of the intended executable. Attackers use this against security or monitoring tools like Task Manager specifically to disable them, or against commonly launched utilities to gain execution, making an unexpected Debugger entry a high-confidence indicator of tampering rather than a benign debugging leftover.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="04-tokens-privileges-access-control.html" class="chapter-nav-prev">← Tokens, Privileges & Access Control</a>
+          <a href="06-event-logging-sysmon.html" class="chapter-nav-next">Windows Event Logging & Sysmon →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Windows</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('05', 6));</script>
+</body>
+</html>

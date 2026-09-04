@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="10">
+  <meta name="module-id" content="fundamentals">
+  <title>Threat Modeling & Security by Design · Fundamentals · H3AD-LEARN</title>
+  <meta name="description" content="How STRIDE, attack trees, and threat modeling find risk before code is written, not just during a security review after deployment.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/10-threat-modeling-security-by-design.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/10-threat-modeling-security-by-design.html">
+  <meta property="og:title" content="Threat Modeling & Security by Design · Fundamentals · H3AD-LEARN">
+  <meta property="og:description" content="How STRIDE, attack trees, and threat modeling find risk before code is written, not just during a security review after deployment.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Threat Modeling & Security by Design · Fundamentals · H3AD-LEARN">
+  <meta name="twitter:description" content="How STRIDE, attack trees, and threat modeling find risk before code is written, not just during a security review after deployment.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Threat Modeling & Security by Design",
+    "description": "How STRIDE, attack trees, and threat modeling find risk before code is written, not just during a security review after deployment.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/10-threat-modeling-security-by-design.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Security Fundamentals",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://h3ad-sec.github.io/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "H3AD-LEARN",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Fundamentals",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "Threat Modeling & Security by Design",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/fundamentals/10-threat-modeling-security-by-design.html"
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">THREAT MODELING & SECURITY BY DESIGN</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub nav-current">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Fundamentals</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 10 of 10</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 7 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 10</span>
+            <span class="badge-time muted mono">35 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Threat Modeling & Security by Design</h1>
+          <p class="chapter-intro">Every chapter in this module so far has been about recognizing and reacting to risk that already exists: a weak control, a missing patch, an exposed credential, an attacker technique already in motion. This closing chapter is about a different discipline entirely, one that tries to find that risk before the system it threatens has even been built, while a design is still a whiteboard sketch or a set of diagrams instead of a production deployment.</p>
+          <div class="chapter-tags">
+            <span class="tag">STRIDE</span>
+            <span class="tag">attack trees</span>
+            <span class="tag">secure design</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="what-is-threat-modeling">
+          <h2>What Threat Modeling Is (and When It Happens)</h2>
+          <p>Threat modeling is a structured process for identifying, at a specific system or feature, what could go wrong from a security standpoint and what should be done about it. It asks a small set of deceptively simple questions: what are we building, what can go wrong with it, what are we going to do about the things that can go wrong, and did we do a good enough job. Those four questions, in roughly that order, are the skeleton that almost every threat modeling framework hangs off of.</p>
+
+          <p>The defining trait of threat modeling is not the framework used to run it. It is when it happens. A penetration test, a vulnerability scan, and a code review all happen after something exists: code has been written, an application has been deployed, infrastructure has been stood up. Threat modeling is meant to happen earlier than that, during design, while a data flow diagram or an architecture sketch is still easy and cheap to change. Finding out that a new microservice has no way to authenticate its callers while it is still a box on a whiteboard costs an afternoon of redesign. Finding out after the service is live and integrated with six other systems costs an incident.</p>
+
+          <p>This is what "shift left" means in this context, and it is worth being precise about the term because it gets used loosely elsewhere in security. Shifting left means moving a security activity earlier in the development timeline, toward design and planning, rather than leaving it clustered at the end near release or, worse, after release. Threat modeling is one of the purest expressions of that idea because its entire value proposition depends on timing. A threat model produced the week before a system was already scheduled to ship functions mostly as documentation of debt the team has decided to accept, not as a design tool.
+
+          </p>
+
+          <p>None of this means threat modeling is a one-time, pre-launch checkbox either. Systems change. New integrations get added, authentication flows get reworked, data that used to stay internal starts getting shared with a partner. Each of those changes can introduce a threat that the original model never considered, which is why threat modeling is better understood as a recurring practice tied to significant design changes than as a single document produced once and filed away.</p>
+
+          <p>Threat modeling also differs from a vulnerability assessment in what it is looking for. A vulnerability scanner finds known flaws in existing software: an unpatched library, a misconfigured header, a CVE with a matching signature. Threat modeling asks a broader, earlier question: given this design, what categories of attack does it need to defend against, regardless of whether any specific implementation flaw exists yet. It produces a list of threats and mitigations, not a list of findings against a running system.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> Threat modeling does not replace penetration testing, code review, or vulnerability scanning. It happens earlier and asks a different question. A mature security program runs all of these at different points in a system's life, and threat modeling is the one that runs first.
+          </div>
+        </section>
+
+        <section class="content-section" id="stride-framework">
+          <h2>The STRIDE Framework</h2>
+          <p>STRIDE is the most widely used threat modeling framework, and it originated at Microsoft. It was developed by Loren Kohnfelder and Praerit Garg in 1999 as a way to systematically identify security threats to a system during design. STRIDE is a mnemonic for six threat categories: Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, and Elevation of Privilege. Each category maps to a security property being violated, which is part of why the framework has stayed useful for over two decades: it is not tied to any specific technology stack.</p>
+
+          <p>Spoofing is pretending to be something or someone you are not, in violation of authentication. A concrete example is an attacker who obtains a valid session token through a phishing page and uses it to authenticate to an API as the legitimate user, without ever knowing that user's actual password.</p>
+
+          <p>Tampering is unauthorized modification of data or code, in violation of integrity. Microsoft's own description of this category covers both modification of data at rest, such as unauthorized changes to database records, and modification of data in transit, such as an attacker altering a request payload as it crosses an unencrypted network link between two services.</p>
+
+          <p>Repudiation is the ability to deny having performed an action, in violation of non-repudiation. Microsoft's documentation frames this as a user performing an illegal operation in a system that has no way to trace or prove what happened. A concrete example is an admin who deletes an audit log entry after making an unauthorized change, and because the system logged the change to a location the same admin account could modify, there is no independent record to contradict a denial.</p>
+
+          <p>Information Disclosure is exposure of data to a party that should not have access to it, in violation of confidentiality. A concrete example is a misconfigured cloud storage bucket that returns customer records to any authenticated request, regardless of which tenant that request belongs to.</p>
+
+          <p>Denial of Service is degrading or blocking legitimate access to a system, in violation of availability. A concrete example is an unauthenticated endpoint that triggers an expensive database query on every request, letting an attacker exhaust server resources with a modest volume of traffic and no valid credentials at all.</p>
+
+          <p>Elevation of Privilege is gaining capabilities or access beyond what was granted, in violation of authorization. A concrete example is a low-privilege application user who discovers that an internal admin API endpoint checks for a valid session but never checks the role attached to it, letting any logged-in user call an action that should be restricted to administrators.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>STRIDE Category</th><th>Property Violated</th><th>Example</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Spoofing</td><td>Authentication</td><td>Attacker authenticates as a user with a stolen session token</td></tr>
+                <tr><td>Tampering</td><td>Integrity</td><td>Request payload altered in transit over an unencrypted link</td></tr>
+                <tr><td>Repudiation</td><td>Non-repudiation</td><td>Admin deletes the only log record of an unauthorized change</td></tr>
+                <tr><td>Information Disclosure</td><td>Confidentiality</td><td>Misconfigured storage bucket exposes records across tenants</td></tr>
+                <tr><td>Denial of Service</td><td>Availability</td><td>Unauthenticated endpoint triggers expensive queries at scale</td></tr>
+                <tr><td>Elevation of Privilege</td><td>Authorization</td><td>Admin API endpoint checks session but not role</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="attack-trees-surface-mapping">
+          <h2>Attack Trees and Attack Surface Mapping</h2>
+          <p>An attack tree is a way of visualizing how an attacker could reach a specific goal against a system. Attack trees were introduced by Bruce Schneier in 1999 as a formal, methodical way of representing attacks in a tree structure. The root node of the tree is the attacker's objective, not a specific vulnerability or technique. Something like "exfiltrate customer payment data" or "achieve administrative access to the production database" makes a good root node because it describes an outcome the attacker wants, independent of any single path to get there.</p>
+
+          <p>Child nodes below the root represent distinct ways of achieving that goal, and those children can be broken down further into their own sub-goals, all the way down to a leaf node that represents a concrete, atomic action. In Schneier's original formulation, some nodes are AND nodes, where every child must succeed for the parent goal to be reached, and others are OR nodes, where any single child succeeding is enough. A goal like "bypass the login page" might be an OR node with children like "guess a weak password," "exploit a session fixation bug," and "phish an employee for credentials," any one of which gets the attacker there.</p>
+
+          <p>Building a useful attack tree depends on first understanding attack surface, which is every point where an attacker could interact with or attempt to affect a system. That includes obvious things like public-facing login forms and API endpoints, but also less obvious ones: third-party integrations, internal admin panels that happen to be reachable from a shared network segment, file upload handlers, and even physical access points if the system includes on-premises hardware. A system's attack surface is not a fixed property; it grows every time a new integration, endpoint, or dependency is added, which is one of the reasons threat models need to be revisited rather than written once.</p>
+
+          <p>The relationship between the two is sequential in practice. Mapping attack surface first gives an analyst the raw inventory of entry points: what talks to what, what accepts external input, what trusts what. Building an attack tree then takes that inventory and organizes it around specific attacker goals, asking which combinations of those entry points and weaknesses would actually get an attacker somewhere they should not be. Skipping the surface-mapping step and jumping straight to a tree tends to produce a tree built from assumptions rather than from an accurate picture of the system.</p>
+
+          <p>Attack trees are also useful as a communication tool, not just an analytical one. A tree makes it visible, to people who are not deep in the technical weeds, exactly how many independent paths lead to a bad outcome and which of those paths currently have no mitigation at all. That visibility is often what gets a fix prioritized on a roadmap that would otherwise treat it as a low-priority backlog item.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> A quick way to sanity-check an attack tree: for every leaf node, ask whether there is currently a control that would detect or block that specific action. A leaf with no matching control anywhere in the environment is a gap worth flagging immediately, independent of how "likely" that specific leaf feels.
+          </div>
+        </section>
+
+        <section class="content-section" id="dread-and-risk-rating">
+          <h2>DREAD and Other Risk-Rating Approaches</h2>
+          <p>Once a set of threats has been identified through something like STRIDE or an attack tree, they need to be prioritized, because not every threat deserves the same amount of engineering effort. DREAD is a scoring approach developed at Microsoft for exactly this purpose. It stands for Damage, Reproducibility, Exploitability, Affected users, and Discoverability. Each threat is rated on each of the five dimensions, typically on a numeric scale, and the ratings are combined into an overall score used to rank threats against each other.</p>
+
+          <p>Damage asks how bad the impact would be if the threat were realized. Reproducibility asks how reliably an attacker could trigger it again once they found it. Exploitability asks how much skill or resource investment is needed to pull it off. Affected users asks how many users or how much of the system would be touched. Discoverability asks how easy it would be for an attacker to find the issue in the first place, whether through casual poking around or automated scanning.</p>
+
+          <p>DREAD was developed by Microsoft, but it is no longer actively used or recommended by Microsoft. The commonly cited reason is that its scoring is subjective: two analysts rating the same threat on the same five dimensions can land on meaningfully different numbers with no objective way to reconcile them, and simple numeric scores can create a false sense of precision around what is ultimately a judgment call. Microsoft's current guidance leans toward simpler qualitative ratings, such as High, Medium, and Low, applied with documented reasoning rather than an averaged numeric score.</p>
+
+          <p>This is not a reason to skip risk rating entirely; it is a reason to be honest about what a rating actually represents. Chapter 6 of this module framed risk as a function of likelihood and impact. DREAD is, at its core, an attempt to break both of those variables down into more granular sub-factors: Reproducibility, Exploitability, and Discoverability are all really different angles on likelihood, while Damage and Affected Users are both angles on impact. The critique of DREAD is not that likelihood times impact is the wrong idea, it is that forcing five subjective judgments into a single averaged number can hide disagreement that would be more useful left visible.</p>
+
+          <p>In practice, many teams now use a simplified version of the same idea: rate likelihood as High, Medium, or Low, rate impact the same way, and use a small matrix to land on an overall priority, with a short written justification attached to each rating rather than a bare number. That approach keeps the underlying logic of DREAD, thinking about how likely and how damaging a threat is, while dropping the precision theater of a five-factor numeric average.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> Whatever rating system a team uses, the number itself is never the deliverable. The deliverable is a prioritized list of threats with a documented mitigation plan for each one. A DREAD score or a High/Medium/Low rating with no follow-up action attached is just an exercise in labeling.
+          </div>
+        </section>
+
+        <section class="content-section" id="threat-modeling-in-sdlc">
+          <h2>Threat Modeling in the Development Lifecycle</h2>
+          <p>Threat modeling fits earliest in a secure development lifecycle, ideally during the design phase, after requirements are roughly known but before significant implementation work has started. Some organizations run it again at key architecture review gates, and some run a lighter version whenever a pull request touches authentication, data handling, or a trust boundary, but the highest-value session is almost always the first one, while the system is still a diagram rather than running code.</p>
+
+          <p>A useful threat modeling session usually needs at least three kinds of people in the room, even if one person plays more than one role. An architect or engineer who deeply understands the system's design is needed to produce an accurate data flow diagram and answer questions about how components actually talk to each other. A developer who will build or maintain the system is needed because they know the practical constraints and are the one who will implement whatever mitigations get decided. Someone with a security background is needed to drive the threat identification itself, whether through STRIDE, an attack tree, or another structured method, and to keep the group from either under-thinking or over-engineering the threat list.</p>
+
+          <p>Diagrams matter more than most people expect going into their first session. A data flow diagram showing components, the data that moves between them, and the trust boundaries those flows cross is the single most useful artifact for a STRIDE-style walkthrough, because STRIDE is typically applied one boundary or one component at a time rather than to the system as an undifferentiated whole. A team without an accurate diagram usually spends the first half of a session just reconstructing one from memory, which is itself often a useful exercise since disagreements about how the system actually works are a threat signal on their own.</p>
+
+          <p>Certain changes should reliably trigger a new or updated threat model rather than waiting for a scheduled review. A new external integration, especially one that introduces a new trust boundary with a third party, is one of the most common triggers. A significant change to authentication or authorization logic is another, since that is exactly the territory STRIDE's Spoofing and Elevation of Privilege categories cover. Moving a system from an internal-only deployment to something internet-facing is a trigger almost by definition, because the attack surface changes completely even if the code did not. Handling a new category of sensitive data, such as adding payment information to a system that previously only stored account metadata, is another common trigger, since it changes what Information Disclosure would actually cost if it happened.</p>
+
+          <p>The output of a session should be concrete and trackable, not a narrative document that gets read once and forgotten. A list of identified threats, a rating for each, an owner responsible for the mitigation, and a mitigation status that gets tracked the same way a bug would be tracked. Threat modeling that produces a polished report with no linked, assigned follow-up work tends to have identified real risk and then done nothing durable about it.</p>
+        </section>
+
+        <section class="content-section" id="other-methodologies">
+          <h2>Other Threat Modeling Methodologies</h2>
+          <p>STRIDE is not the only threat modeling methodology in use, and it is worth knowing at least one alternative well enough to recognize when it might fit better. PASTA, the Process for Attack Simulation and Threat Analysis, is a risk-centric, seven-stage methodology that takes a noticeably different approach than STRIDE's category-driven checklist.</p>
+
+          <p>Where STRIDE starts from a system diagram and asks which of six threat categories applies at each boundary, PASTA starts from business objectives and works outward from there. Its seven stages move from defining business objectives, to defining technical scope, to decomposing the application into its components and data flows, to analyzing threats, to analyzing vulnerabilities and weaknesses, to modeling attacks, and finally to analyzing risk and business impact. Attack trees and attacker simulation show up explicitly inside PASTA's attack-modeling stage, which is part of why the two frameworks in this chapter are not really competitors: an attack tree is a technique that can support either STRIDE or PASTA, not a methodology exclusive to one.</p>
+
+          <p>The practical difference that matters most for choosing between them is scope and audience. STRIDE is lightweight enough to run in a single working session against one feature or one service, and it is approachable for engineers without a dedicated security analyst driving every step. PASTA is heavier, explicitly ties every technical finding back to business impact from the start, and tends to suit larger, higher-stakes systems where getting buy-in from business stakeholders on why a mitigation matters is as important as identifying the threat itself.</p>
+
+          <p>Neither framework is inherently more correct. A small internal tool with a straightforward data flow is usually better served by a quick STRIDE pass than by a seven-stage PASTA exercise that would take longer to run than the tool took to build. A system handling regulated financial data with multiple integrated business units behind it is exactly the kind of system PASTA was designed for, where the extra structure around business objectives and risk analysis pays for itself.</p>
+        </section>
+
+        <section class="content-section" id="closing-the-module">
+          <h2>Closing This Module</h2>
+          <p>Threat modeling is the practice that ties the rest of this module together, and that is a deliberate reason it sits last. Chapter 1's CIA triad gave you the three properties STRIDE's six categories map directly onto: confidentiality, integrity, and availability are exactly what Information Disclosure, Tampering, and Denial of Service violate. Chapter 2's authentication and access control material is what Spoofing and Elevation of Privilege are really about, and no amount of threat modeling substitutes for getting those controls right in the first place; modeling just tells you where they need to exist.</p>
+
+          <p>Chapter 3's cryptography underpins the mitigations for Tampering and Information Disclosure threats identified during modeling. Chapter 4's attack patterns are the raw material that fills in an attack tree's leaf nodes; you cannot populate a tree with realistic attacker actions without knowing what those actions typically look like. Chapter 5's frameworks and Chapter 6's risk model, likelihood times impact, are the direct ancestors of the DREAD and High/Medium/Low rating approaches covered in this chapter. Chapter 9's identity federation material describes exactly the kind of trust boundary, a token being passed between an identity provider and a relying party, that a STRIDE walkthrough is built to interrogate for Spoofing and Tampering threats.</p>
+
+          <p>What makes threat modeling distinct from every one of those earlier chapters is timing, not subject matter. Everything before this chapter equips you to recognize and respond to risk that already exists somewhere in a system. Threat modeling is the discipline of applying that same knowledge before the system exists, while a diagram is still cheap to redraw and a design decision is still cheap to reverse. That is the proactive half of security work that reactive skills alone cannot provide.</p>
+
+          <p>This closes the Fundamentals module. From here, the practical next step depends on which direction you want to specialize in, and <a href="08-career-paths-roadmap.html">Chapter 8's career roadmap</a> is built specifically to help make that call, mapping the foundational concepts from this module onto the specific skill paths covered in H3AD-LEARN's other modules, from threat hunting and threat intelligence through networking, Windows internals, cloud security, and LOLBAS technique analysis.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>Threat modeling is a structured process for identifying threats to a system, and its defining trait is timing: it belongs during design, before code is written, not as a review activity after deployment.</li>
+            <li>STRIDE, developed at Microsoft by Loren Kohnfelder and Praerit Garg in 1999, breaks threats into six categories: Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, and Elevation of Privilege, each mapped to a violated security property.</li>
+            <li>An attack tree, introduced by Bruce Schneier in 1999, puts an attacker's goal at the root node and breaks that goal into the specific paths, and sub-paths, that could achieve it, built on top of an accurate map of the system's attack surface.</li>
+            <li>DREAD scores threats across Damage, Reproducibility, Exploitability, Affected users, and Discoverability. Microsoft developed it but no longer uses or recommends it, favoring simpler High/Medium/Low ratings because DREAD's numeric averaging masks subjective disagreement.</li>
+            <li>Threat modeling belongs in the SDLC at design time and should be repeated whenever a system changes significantly: new integrations, authentication changes, new exposure to the internet, or new categories of sensitive data.</li>
+            <li>PASTA offers a heavier, risk-centric alternative to STRIDE, moving through seven stages from business objectives to risk analysis, and is best suited to larger or higher-stakes systems where tying technical findings to business impact matters most.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A team is designing a new internal admin panel and schedules a security review three days before it ships, planning to run a full penetration test against the finished build. What is the most accurate description of this approach?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. This is a correct application of threat modeling, since the review happens before public release</button>
+              <button class="kc-option" data-correct="true">B. This is not threat modeling. Threat modeling belongs during design, and a pre-release pen test only finds issues after implementation decisions are already locked in</button>
+              <button class="kc-option" data-correct="false">C. This is acceptable because DREAD scoring can still be applied to any findings from the test</button>
+              <button class="kc-option" data-correct="false">D. This is fine as long as STRIDE categories are used to organize the pen test findings</button>
+            </div>
+            <div class="kc-answer">Threat modeling's defining feature is that it happens during design, while an architecture is still easy to change. A penetration test run three days before shipping a finished build is a valuable activity, but it happens after implementation choices are already made, so fixing anything structural at that point is expensive and rushed. Organizing findings with STRIDE categories or scoring them with DREAD does not change when the activity happened.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">During a STRIDE walkthrough of a new API, the team finds that an endpoint checks whether a request has a valid session token but never checks whether that session belongs to a user with the admin role required for the action. Which STRIDE category best describes this threat?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Spoofing, because the token could be stolen</button>
+              <button class="kc-option" data-correct="false">B. Repudiation, because there is no log of who called the endpoint</button>
+              <button class="kc-option" data-correct="true">C. Elevation of Privilege, because any authenticated user can perform an action meant to be restricted to admins</button>
+              <button class="kc-option" data-correct="false">D. Denial of Service, because the missing check could be exploited to overload the endpoint</button>
+            </div>
+            <div class="kc-answer">The endpoint correctly verifies authentication (a valid session exists) but fails to verify authorization (whether that session's role permits the action). That gap, where any logged-in user reaches functionality meant to be restricted to a higher-privilege role, is the definition of Elevation of Privilege. Spoofing would apply if the attacker were impersonating another identity rather than acting under a legitimately authenticated but under-privileged session of their own.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A security lead is choosing between STRIDE and PASTA for an upcoming project: a small internal script that renames files in a shared folder once a week, with no external users and no sensitive data involved. Which is the better fit, and why?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. PASTA, because it always produces a more thorough result than STRIDE</button>
+              <button class="kc-option" data-correct="true">B. A lightweight STRIDE pass, or possibly skipping formal modeling entirely, since PASTA's seven-stage, business-impact-driven process is disproportionate to the system's size and risk</button>
+              <button class="kc-option" data-correct="false">C. PASTA, because DREAD scoring is only compatible with PASTA's methodology</button>
+              <button class="kc-option" data-correct="false">D. Neither, because threat modeling only applies to internet-facing systems</button>
+            </div>
+            <div class="kc-answer">STRIDE is lightweight enough to run quickly against a small, low-stakes system, while PASTA's seven stages, starting from business objectives and ending in a full risk and business-impact analysis, are built for larger or higher-stakes systems where that overhead pays for itself. DREAD is a scoring approach independent of either framework, not something exclusive to PASTA. Threat modeling is not limited to internet-facing systems either; an internal tool that touches a shared resource still has an attack surface worth thinking through, even if a full session is not warranted here.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="09-identity-federation-sso-oauth.html" class="chapter-nav-prev">← Identity Federation: SSO, SAML & OAuth/OIDC</a>
+          <a href="index.html" class="chapter-nav-next">Back to Fundamentals Overview →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Security Fundamentals</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('10', 7));</script>
+</body>
+</html>

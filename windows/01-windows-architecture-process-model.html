@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="01">
+  <meta name="module-id" content="windows">
+  <title>Windows Architecture & the Process Model · Windows · H3AD-LEARN</title>
+  <meta name="description" content="Covers processes, threads, handles, sessions, integrity levels, and process trees: the vocabulary behind every EDR alert and Sysmon log you will read.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/windows/01-windows-architecture-process-model.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/windows/01-windows-architecture-process-model.html">
+  <meta property="og:title" content="Windows Architecture & the Process Model · Windows · H3AD-LEARN">
+  <meta property="og:description" content="Covers processes, threads, handles, sessions, integrity levels, and process trees: the vocabulary behind every EDR alert and Sysmon log you will read.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Windows Architecture & the Process Model · Windows · H3AD-LEARN">
+  <meta name="twitter:description" content="Covers processes, threads, handles, sessions, integrity levels, and process trees: the vocabulary behind every EDR alert and Sysmon log you will read.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Windows Architecture & the Process Model",
+    "description": "Covers processes, threads, handles, sessions, integrity levels, and process trees: the vocabulary behind every EDR alert and Sysmon log you will read.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/windows/01-windows-architecture-process-model.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Windows",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/windows/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://h3ad-sec.github.io/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "H3AD-LEARN",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Windows",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/windows/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "Windows Architecture & the Process Model",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/windows/01-windows-architecture-process-model.html"
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">WINDOWS ARCHITECTURE & THE PROCESS MODEL</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub nav-current">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Windows</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 01 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 01</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-beginner">BEGINNER</span>
+          </div>
+          <h1 class="chapter-title">Windows Architecture & the Process Model</h1>
+          <p class="chapter-intro">Every EDR alert you will ever triage and every Sysmon event you will ever read is, underneath the vendor branding, a story about processes, threads, and the relationships between them. An alert says a process was created, a handle was opened, a thread was injected into another process, or a child spawned from a parent that should never have spawned it. None of that means anything until you know precisely what a process is, what a thread does inside it, and how Windows tracks the objects they touch. This chapter builds that vocabulary from the ground up, deliberately and without shortcuts, because guessing at these terms is how analysts misread perfectly good telemetry.</p>
+          <div class="chapter-tags">
+            <span class="tag">processes</span>
+            <span class="tag">integrity levels</span>
+            <span class="tag">sessions</span>
+          </div>
+        </header>
+
+        <div class="callout-tip">
+          <strong>New to security?</strong> This module assumes you already know core security vocabulary from the CIA triad and basic client-server networking concepts. If any of that is unfamiliar, start with the <a href="../fundamentals/index.html">Fundamentals module</a> and the <a href="../networking/index.html">Networking module</a> first.
+        </div>
+
+        <section class="content-section" id="processes-threads">
+          <h2>Processes and Threads</h2>
+          <p>A process is not code running. A process is a container: an isolated virtual address space, a unique process ID (PID), a security context, and a table of handles to the kernel objects it has opened. When you double-click an executable, the operating system does not simply "start the program." It asks the kernel to allocate a new address space, map the executable image and its dependent DLLs into that space, set up an initial environment block, and create the bookkeeping structures the kernel needs to manage the process for the rest of its life. That container is what shows up in Process Explorer, in Task Manager, and in every EDR process-creation event with a PID attached to it.</p>
+
+          <p>A process by itself does nothing. It cannot execute a single instruction. Execution belongs to threads. A thread is the actual unit of scheduling and execution within a process: it has its own stack, its own set of CPU register values, and its own execution context, but it shares the parent process's address space, handle table, and loaded modules with every other thread in that process. When you see a process "doing" something, what is actually happening is one or more of its threads running on a CPU core, and the operating system's scheduler is what decides which thread runs on which core at which moment. A single process can have one thread or thousands; a typical service process idles with a handful and spins up more under load.</p>
+
+          <p>This distinction matters immediately for detection work. Process injection techniques, for example, do not create a new process at all. They create a new thread inside an existing, already-running process, using functions like CreateRemoteThread or its many API-calling and syscall variants. The process the injected code runs under does not change: the PID stays the same, the parent-child chain looks identical to before. What changes is that a foreign thread, executing code that was never part of the original image, is now running inside a process's address space. Recognizing that a "process" and the "threads inside it" are two different things you can independently manipulate is the first mental model shift that makes injection techniques legible instead of magical.</p>
+
+          <p>Underneath both processes and threads sits the split between kernel mode and user mode. User mode is where ordinary application code, including malware, runs with restricted CPU privileges: it cannot directly touch hardware or arbitrary physical memory, and every request that requires that kind of access, like reading a file or opening a network socket, has to be handed off. Kernel mode is where the operating system's core, ntoskrnl.exe, and its loaded drivers run with essentially unrestricted access to the machine. A user-mode process crosses into kernel mode through a system call, a controlled, well-defined transition point where the CPU switches privilege levels, the kernel validates the request, performs the privileged work, and returns control to user mode. Almost every meaningful action a process takes, opening a handle, writing to disk, allocating memory, ultimately routes through this boundary, which is exactly why EDR products hook or monitor system calls to see what a process is really doing rather than trusting what it appears to do at the user-mode API layer.</p>
+
+          <p>Put together, a running Windows machine at any given moment is a set of process containers, each holding one or more threads that are actually executing, with the kernel arbitrating access to hardware and enforcing the user-mode and kernel-mode boundary underneath all of it. Every later concept in this chapter, handles, sessions, integrity levels, process trees, is really just describing different facets of this same basic structure: what a process is allowed to touch, where it runs, and who its ancestors were.</p>
+        </section>
+
+        <section class="content-section" id="handles">
+          <h2>Handles and the Object Manager</h2>
+          <p>A handle is not the resource itself. It is a reference, a small integer value stored in a process's private handle table, that points to a kernel object the process has been granted some level of access to. Files, registry keys, mutexes, events, threads, and even other processes are all represented internally as kernel objects, and the only way a process can interact with one of those objects is by first obtaining a handle to it, typically by calling an API like CreateFile or OpenProcess. The handle value itself is meaningless outside the process that owns it; process A's handle number 0x84 and process B's handle number 0x84 can point to two completely unrelated objects, because each process has its own private handle table.</p>
+
+          <p>The component responsible for all of this is the Object Manager, a core piece of the Windows kernel that creates, tracks, and tears down kernel objects, and that enforces access checks every time a handle is requested or used. When a process asks to open a handle to an object, the Object Manager checks the requesting process's security token against the object's access control list, decides what level of access to grant (read-only, full control, or something in between), and returns a handle scoped to exactly that access level. The Object Manager also maintains a reference count on every object: as long as at least one process holds an open handle to an object, the kernel keeps that object alive in memory, which is why a locked file or an in-use registry key cannot be deleted until every handle referencing it is closed.</p>
+
+          <p>Handles become a genuinely important detection concept because of handle duplication. A process that already holds a handle to another object can, under the right permissions, share that access with a completely different process using DuplicateHandle. This is legitimate machinery, used constantly for things like passing a file handle to a child process. It is also one of the most reliable ways attackers gain access to a protected process without ever calling OpenProcess directly against it. If direct access to a sensitive process like lsass.exe is blocked or heavily monitored, an attacker who can get another process, one that already legitimately holds a powerful handle to lsass.exe, to duplicate that handle into their own process obtains equivalent access while sidestepping the access check and, in some tooling, the alerting that a direct OpenProcess call against lsass.exe would trigger.</p>
+
+          <p>This is exactly why credential-dumping tooling and EDR detection logic both spend so much attention on handle activity around lsass.exe specifically. A direct process-access event against lsass.exe from an unusual parent is a fairly obvious signal. A handle duplicated from a trusted process that already had legitimate access is quieter and requires correlating which process originally held the handle, which process received the duplicate, and what access rights transferred. Understanding handles as first-class, trackable objects, not just an implementation detail, is what lets an analyst reason about that chain instead of only seeing the final suspicious action.</p>
+        </section>
+
+        <section class="content-section" id="sessions">
+          <h2>Sessions and Window Stations</h2>
+          <p>A session in Windows is a logical container that groups together the processes, window stations, and desktops belonging to one logon. Every time a user logs on interactively, or a service starts, or a Remote Desktop connection is established, that activity happens inside a session, identified by a session ID that you will see attached to process listings in Task Manager, Process Explorer, and most EDR telemetry. Sessions matter for security work because Windows deliberately isolates certain sessions from others, and that isolation is a real security boundary, not just an organizational convenience.</p>
+
+          <p>The specific isolation that matters most is Session 0 isolation, introduced starting with Windows Vista and Windows Server 2008. Before that change, services ran in the same session as the first interactive user logon, Session 0, which meant a service process and a logged-on user's desktop applications shared the same session and, critically, the same window station. That created a real attack surface: a service running with SYSTEM privileges could have its window station and desktop objects manipulated by a lower-privileged interactive process sitting in the same session, a class of attack broadly known as a shatter attack, where malicious window messages sent to a privileged process's UI could be used to execute code with that process's privileges.</p>
+
+          <p>The fix was to move all services into their own dedicated session, Session 0, permanently, and to give every interactive logon its own separate session starting at Session 1. Services in Session 0 no longer have an interactive desktop at all in any normal configuration; they run non-interactively, which is why a service that tries to pop up a UI dialog either fails silently or, on older systems before this change was fully enforced, could not be seen by the logged-on user. Interactive users, whether logged on at the console or over RDP, each get their own numbered session with their own window station and desktop, fully isolated from Session 0 and from each other.</p>
+
+          <p>For detection and privilege escalation analysis, this isolation is a load-bearing fact. Because Session 0 runs services, many of them with SYSTEM privileges and no interactive desktop, escalation techniques that target services specifically care about crossing that session boundary: a technique that can get code to execute as a Session 0 service, or that abuses a service's SYSTEM-level token to spawn a process into a different, interactive session, is meaningfully more dangerous than one confined to a single user's own session. Session IDs in your telemetry are also a useful pivot on their own: a process spawned into Session 0 that is not a recognized service binary, or a service-hosted process suddenly interacting with a session it should have no business touching, is worth a second look.</p>
+        </section>
+
+        <section class="content-section" id="integrity-levels">
+          <h2>Integrity Levels and the UAC Boundary</h2>
+          <p>Integrity levels are a security mechanism, introduced with Windows Vista's Mandatory Integrity Control, that sits alongside and independently of standard discretionary permissions like NTFS ACLs and group membership. Where a permission check asks "does this account have rights to this object," an integrity level check asks a different question: "is this process trustworthy enough to write to this object at all," regardless of what the account nominally has access to. Every process and every securable object carries an integrity level, and the general rule, sometimes called the no-write-up policy, is that a process cannot write to, inject into, or otherwise modify an object with a higher integrity level than its own, even if the underlying discretionary permissions would technically allow it.</p>
+
+          <p>The four levels an analyst needs to know are Low, Medium, High, and System. Low integrity is reserved for the most sandboxed, least trusted processes, historically things like Internet Explorer's Protected Mode or a browser's sandboxed renderer process, which can write only to specifically designated low-integrity locations regardless of the logged-on user's actual permissions. Medium is the default for an ordinary standard user process and for a standard interactive session even under an administrator account; this is the level almost everything you run day to day starts at. High integrity is where processes that have successfully elevated run, an admin-approval prompt accepted, a process launched with Run as Administrator. System is reserved for SYSTEM-level services and core OS processes, sitting above even High.</p>
+
+          <p>This is the actual mechanism behind User Account Control. When an administrator logs on, Windows does not simply hand out a full-privilege token by default. It issues two tokens: a filtered, Medium-integrity token used for everything the user does normally, and a full, High-integrity administrator token that stays dormant until something requests elevation. The UAC consent prompt you see is Windows asking permission to hand over that dormant High-integrity token to a specific process. This is precisely why an administrator account still runs day-to-day applications, and is still just as exploitable by a Medium-integrity malicious process, as a standard user account; admin group membership alone does not grant High-integrity execution, the UAC prompt does, and that prompt is the actual security boundary, not the account's group memberships.</p>
+
+          <p>For malware and living-off-the-land analysis, integrity level is often more informative than the user account a process is running under. A process running under an administrator's account but at Medium integrity cannot silently reach into a High-integrity process's memory or tamper with protected registry keys and system files, because the integrity check blocks it regardless of the account's nominal admin rights. This is exactly why so many privilege escalation and UAC bypass techniques exist: they exist specifically to get code from Medium integrity to High integrity without triggering the visible consent prompt, by abusing auto-elevating binaries, DLL hijacking inside a trusted auto-elevate process, or COM elevation moniker abuse. An EDR or Sysmon event that shows a process integrity level jumping from Medium to High with no corresponding consent.exe interaction in between is a legitimate red flag worth investigating on its own.</p>
+        </section>
+
+        <section class="content-section" id="process-trees">
+          <h2>Process Trees and Parent-Child Relationships</h2>
+          <p>Every process on a Windows system, with the narrow exception of a handful of processes created directly by the kernel at boot like System and Idle, is created by another process calling CreateProcess or an equivalent API. The creating process is the parent; the newly created process is the child, and it records its parent's PID as part of its own metadata. Follow that chain far enough back on any running process and you eventually land on a small number of root ancestors: services.exe for service-spawned processes, winlogon.exe or userinit.exe descendants for the interactive logon shell, and ultimately System for the earliest kernel-created processes. The result across a whole machine is not a flat list of processes but a tree, and that tree shape is one of the single most valuable pieces of context in all of endpoint telemetry.</p>
+
+          <p>The reason process trees matter so much for detection is that legitimate software has predictable, boring parent-child patterns, and those patterns are stable enough to build reliable detection logic on. explorer.exe launching a user's applications, svchost.exe instances hosting services under services.exe, a browser spawning its own renderer and GPU helper processes: these are the overwhelming majority of process creation events on any endpoint, and they follow the same shapes day after day. Sysmon Event ID 1 and equivalent EDR process-creation telemetry record exactly this: the new process, its command line, and critically its parent process and parent command line. A detection engineer's job is very often not spotting an inherently malicious binary, but spotting a parent-child pairing that breaks the expected pattern.</p>
+
+          <p>The canonical teaching example is winword.exe spawning cmd.exe, which in turn spawns powershell.exe. Microsoft Word, under completely normal use, has no legitimate reason to launch a command interpreter. Word's job is to open and render documents; it does not need to shell out to cmd.exe to do that. When it does, the overwhelmingly likely explanation is a macro-enabled document, opened by a user, running VBA code that calls Shell() or an equivalent function to drop into a command shell, and from there launching PowerShell to download or execute a second-stage payload, because PowerShell gives an attacker a full scripting environment, in-memory execution capability, and easy access to .NET. Each individual binary in that chain, winword.exe, cmd.exe, powershell.exe, is completely legitimate and signed by Microsoft. It is the parentage, an Office application directly spawning a shell, that is the anomaly worth alerting on.</p>
+
+          <p>This generalizes well beyond Office macros. Any office application, PDF reader, or browser directly spawning a shell interpreter, a scripting engine it has no documented reason to invoke, or a LOLBAS binary known for proxy execution, is worth the same scrutiny. Process tree analysis is also why command lines matter as much as the binary name: powershell.exe launched with -enc and a base64 blob, or with -WindowStyle Hidden, tells a very different story from powershell.exe opened by a user typing into a terminal, even though the binary and its immediate parent, cmd.exe, look identical in a shallow log. Reading the full chain, not just the single new process, is what turns a list of process-creation events into an actual narrative of what happened on a host.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Parent Process</th><th>Child Process</th><th>Why It Is Suspicious</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>winword.exe / excel.exe</td><td>cmd.exe or powershell.exe</td><td>Office apps have no legitimate need to launch a shell; strongly indicates a macro payload</td></tr>
+                <tr><td>outlook.exe</td><td>cmd.exe, wscript.exe, or mshta.exe</td><td>Email client spawning a script host suggests a malicious attachment executed</td></tr>
+                <tr><td>svchost.exe</td><td>cmd.exe with an unusual command line</td><td>Legitimate for some services, but worth checking which service and whether the command line fits it</td></tr>
+                <tr><td>powershell.exe</td><td>rundll32.exe or regsvr32.exe with a remote path</td><td>Classic pattern for staging a second-stage payload via a LOLBAS proxy execution technique</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="module-roadmap">
+          <h2>What This Module Covers</h2>
+          <p>Eight chapters build a working mental model of Windows internals for detection and hunting work, starting from this foundation and moving toward the specific mechanisms attackers abuse. Chapter 2 covers Active Directory fundamentals: domains, forests, trusts, organizational units, and the objects that make up a directory service most enterprise environments depend on.</p>
+
+          <p>Chapter 3 covers authentication with NTLM and Kerberos, the two protocols underneath nearly every logon event you will investigate, including why Kerberos ticket structure is the basis for attacks like Kerberoasting and Golden Ticket. Chapter 4 covers tokens, privileges, and access control: how a security token actually represents a user's identity and rights, and how privilege abuse turns a low-level foothold into SYSTEM.</p>
+
+          <p>Chapter 5 covers the registry, both as a configuration database and as one of the most heavily abused persistence and defense-evasion surfaces on the platform. Chapter 6 covers Windows event logging and Sysmon in depth, including which event IDs matter and why, building directly on the process-creation concepts introduced in this chapter.</p>
+
+          <p>Chapter 7 covers common Windows attack techniques: credential dumping, process injection, and living-off-the-land binary abuse, tying together the handle, integrity level, and process tree concepts from this chapter into real attacker tradecraft. Chapter 8 closes the module with Active Directory attacks and detection, covering the kill chain from initial domain foothold through to domain dominance and how to catch it at each stage.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> If you already understand processes and threads from another OS or from development work, do not skip integrity levels and process trees. Those two sections carry the most direct weight for reading EDR and Sysmon output, and the rest of this module assumes you can reason about both fluently.
+          </div>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>A process is a container: an address space, a PID, and a handle table. A thread is the actual unit of execution inside it, and a process can hold many threads.</li>
+            <li>A handle is a reference to a kernel object, tracked and access-checked by the Object Manager. Handle duplication lets one process share its access to an object with another process, which attackers abuse to reach protected processes like lsass.exe indirectly.</li>
+            <li>Session 0 isolation, since Windows Vista, keeps services in their own non-interactive session, separate from every interactive user session, closing off an older class of shatter attacks.</li>
+            <li>Integrity levels (Low, Medium, High, System) are a security boundary separate from account permissions. UAC works by holding a dormant High-integrity token until a consent prompt releases it.</li>
+            <li>Process trees record every parent-child relationship on a host. Detection logic leans heavily on recognizing when a normally boring parent, like winword.exe, spawns a child it has no legitimate reason to spawn, like cmd.exe.</li>
+            <li>These five concepts, processes, handles, sessions, integrity levels, and process trees, are the vocabulary underneath essentially every EDR alert and Sysmon event you will read for the rest of this module.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">An EDR alert shows no new process was created, but a foreign thread began executing inside an already-running, legitimate process. What does this best describe?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. A new process was hidden from the process list</button>
+              <button class="kc-option" data-correct="true">B. Process injection, where a new thread was created inside an existing process's address space</button>
+              <button class="kc-option" data-correct="false">C. A handle duplication attack against lsass.exe</button>
+              <button class="kc-option" data-correct="false">D. A Session 0 isolation failure</button>
+            </div>
+            <div class="kc-answer">Process injection does not create a new process at all; it creates a new thread inside an existing process's address space, using an API like CreateRemoteThread or a syscall equivalent. The PID and parent-child chain stay unchanged, which is exactly why this technique evades detection logic that only watches process-creation events instead of thread activity within existing processes.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A logged-on administrator runs a script that attempts to modify a High-integrity system file. The script's process is running under the administrator's account but at Medium integrity, with no UAC prompt shown. What happens?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. The write succeeds because the account is an administrator</button>
+              <button class="kc-option" data-correct="true">B. The write fails, because Mandatory Integrity Control blocks a lower-integrity process from writing to a higher-integrity object regardless of account permissions</button>
+              <button class="kc-option" data-correct="false">C. The write succeeds because integrity levels only apply to Low-integrity sandboxed processes</button>
+              <button class="kc-option" data-correct="false">D. Windows automatically elevates the script silently</button>
+            </div>
+            <div class="kc-answer">Integrity levels are a no-write-up boundary enforced independently of discretionary permissions. An administrator's day-to-day processes run at Medium integrity by default; only after a UAC prompt releases the dormant High-integrity token does a process gain the right to write to High-integrity objects. Group membership alone never grants that access.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Sysmon Event ID 1 shows outlook.exe as the parent of wscript.exe, which then launches powershell.exe with a base64-encoded command. What makes this chain worth escalating?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. wscript.exe is inherently malicious and never appears in legitimate telemetry</button>
+              <button class="kc-option" data-correct="false">B. powershell.exe cannot legitimately run encoded commands</button>
+              <button class="kc-option" data-correct="true">C. An email client has no legitimate reason to spawn a script host, and the resulting encoded PowerShell command suggests staged, obfuscated execution from a malicious attachment</button>
+              <button class="kc-option" data-correct="false">D. The chain is only suspicious if it occurs inside Session 0</button>
+            </div>
+            <div class="kc-answer">Each binary in this chain is legitimate and signed by Microsoft on its own. The anomaly is the parentage: Outlook's job is to render email and attachments, not to launch a script host, so outlook.exe spawning wscript.exe strongly suggests a malicious attachment executed. The encoded PowerShell command that follows fits the common pattern of obfuscating a second-stage download or execution step, reinforcing the same conclusion.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="index.html" class="chapter-nav-prev">← Windows Overview</a>
+          <a href="02-active-directory-fundamentals.html" class="chapter-nav-next">Active Directory Fundamentals →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Windows</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('01', 6));</script>
+</body>
+</html>
