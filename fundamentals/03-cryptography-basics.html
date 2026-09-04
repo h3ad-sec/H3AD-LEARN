@@ -141,26 +141,52 @@
 
         <section class="content-section" id="symmetric-encryption">
           <h2>Symmetric Encryption and the Key Exchange Problem</h2>
-          <p>Symmetric encryption uses one key for both encryption and decryption. If Alice encrypts a file with a key, Bob needs that exact same key to decrypt it. There is no separate "encrypt key" and "decrypt key"; the same secret runs the algorithm in both directions. This is the oldest form of cryptography, going back to substitution ciphers, but modern symmetric encryption bears no resemblance to those. It operates on binary data using mathematical operations designed to be effectively impossible to reverse without the key, even with enormous computing power.</p>
 
-          <p>The current standard is AES, the Advanced Encryption Standard, adopted by NIST in 2001 after a multi-year public competition. AES operates on fixed-size blocks of data, typically using 128-bit or 256-bit keys, and applies multiple rounds of substitution and permutation to scramble the plaintext beyond recovery. AES-256 with no implementation flaws is not something anyone is brute-forcing with current or foreseeable computing. When you see a product advertise "military-grade AES-256 encryption," this is the algorithm being referenced, and the number after AES is the key length in bits.</p>
+          <div class="callout-info">
+            <strong>Quick glossary, keep these three straight:</strong>
+            <ul>
+              <li><strong>Symmetric key</strong>: one shared secret used for both encryption and decryption. Whoever holds it can read and write everything protected by it.</li>
+              <li><strong>Asymmetric (public/private) key pair</strong>: two mathematically linked keys. One is published openly, the other is kept secret and never transmitted.</li>
+              <li><strong>Hash</strong>: a fixed-length fingerprint of data, one-way and irreversible. It proves integrity, not secrecy.</li>
+            </ul>
+          </div>
 
-          <p>Symmetric encryption is fast, and that speed is the whole reason it exists as a category. The mathematical operations involved are simple compared to asymmetric algorithms, which means AES can encrypt gigabytes of data per second on ordinary hardware. This makes it the correct tool for bulk data: encrypting a hard drive, a database, a file transfer, or the actual content of a network session once a connection is established. Every major system that needs to encrypt large volumes of data efficiently uses a symmetric cipher for that part of the job.</p>
+          <h3>One Key, Both Directions</h3>
+          <p><strong>Symmetric encryption</strong> uses one key for both encryption and decryption. If Alice encrypts a file with a key, Bob needs that exact same key to decrypt it. There is no separate "encrypt key" and "decrypt key," the same secret runs the algorithm in both directions.</p>
+          <p>This is the oldest form of cryptography, going back to substitution ciphers, but modern symmetric encryption bears no resemblance to those. It operates on binary data using mathematical operations designed to be effectively impossible to reverse without the key, even with enormous computing power.</p>
 
-          <p>The problem symmetric encryption does not solve is getting the key to both parties in the first place. If Alice and Bob have never met and need to communicate securely over the open internet, how does Alice send Bob the key without an eavesdropper capturing it in transit? Mailing a key on a USB drive works for some scenarios, but it does not scale to millions of strangers establishing secure connections to a web server every second. This is the key exchange problem, and it sat unsolved for the entire history of cryptography until the 1970s. Solving it is the entire reason asymmetric cryptography was invented.</p>
+          <h3>AES: The Current Standard</h3>
+          <p>The current standard is <strong>AES</strong>, the Advanced Encryption Standard, adopted by NIST in 2001 after a multi-year public competition. AES operates on fixed-size blocks of data, typically using 128-bit or 256-bit keys, and applies multiple rounds of substitution and permutation to scramble the plaintext beyond recovery.</p>
+          <p>AES-256 with no implementation flaws is not something anyone is brute-forcing with current or foreseeable computing. When you see a product advertise "military-grade AES-256 encryption," this is the algorithm being referenced, and the number after AES is the key length in bits.</p>
 
+          <h3>Why It's Fast, and What That's For</h3>
+          <p>Symmetric encryption is fast, and that speed is the whole reason it exists as a category. The mathematical operations involved are simple compared to asymmetric algorithms, which means AES can encrypt gigabytes of data per second on ordinary hardware.</p>
+          <p>This makes it the correct tool for bulk data: encrypting a hard drive, a database, a file transfer, or the actual content of a network session once a connection is established. Every major system that needs to encrypt large volumes of data efficiently uses a symmetric cipher for that part of the job.</p>
+
+          <h3>The Key Exchange Problem</h3>
+          <p>The problem symmetric encryption does not solve is getting the key to both parties in the first place. If Alice and Bob have never met and need to communicate securely over the open internet, how does Alice send Bob the key without an eavesdropper capturing it in transit?</p>
+          <p>Mailing a key on a USB drive works for some scenarios, but it does not scale to millions of strangers establishing secure connections to a web server every second. This is the <strong>key exchange problem</strong>, and it sat unsolved for the entire history of cryptography until the 1970s. Solving it is the entire reason asymmetric cryptography was invented.</p>
           <p>It is worth being precise about what "secret" means here. In symmetric systems, the key itself must never be observed by an attacker, because possessing the key is equivalent to possessing full read and write access to everything encrypted with it. This is different from asymmetric systems, where half of the key pair is meant to be shared openly. That distinction is the hinge the rest of this chapter turns on.</p>
         </section>
 
         <section class="content-section" id="asymmetric-encryption">
           <h2>Asymmetric Encryption and Public/Private Key Pairs</h2>
-          <p>Asymmetric encryption, also called public-key cryptography, uses two mathematically linked keys instead of one. A public key can be handed to anyone, published on a website, or embedded in a certificate. A private key is kept secret by its owner and never transmitted anywhere. Data encrypted with the public key can only be decrypted with the matching private key, and the two keys are generated together as a pair using number-theoretic problems that are easy to compute in one direction and computationally infeasible to reverse without the private key.</p>
 
-          <p>RSA, developed in 1977, is the older and still widely used asymmetric algorithm, built on the difficulty of factoring the product of two large prime numbers. ECC, elliptic curve cryptography, is the modern successor, built on the algebraic structure of elliptic curves over finite fields. ECC delivers equivalent security to RSA with much shorter key lengths: a 256-bit ECC key provides roughly the same strength as a 3072-bit RSA key. Shorter keys mean less computation and less data to transmit, which is why ECC has become the default choice in modern TLS deployments and mobile devices where efficiency matters more.</p>
+          <h3>Public and Private Keys</h3>
+          <p><strong>Asymmetric encryption</strong>, also called public-key cryptography, uses two mathematically linked keys instead of one. A public key can be handed to anyone, published on a website, or embedded in a certificate. A private key is kept secret by its owner and never transmitted anywhere.</p>
+          <p>Data encrypted with the public key can only be decrypted with the matching private key. The two keys are generated together as a pair using number-theoretic problems that are easy to compute in one direction and computationally infeasible to reverse without the private key.</p>
 
-          <p>Asymmetric encryption solves the key exchange problem directly. Bob publishes his public key. Anyone, including Alice, can encrypt a message with that public key, and only Bob's private key can decrypt it. No secret ever needs to travel over the wire; the public key being intercepted does not matter because it was never secret to begin with. This is the mechanism that lets two strangers who have never communicated before establish a secure channel over an insecure network, and it is the foundation everything in modern web security rests on.</p>
+          <h3>RSA vs ECC</h3>
+          <p><strong>RSA</strong>, developed in 1977, is the older and still widely used asymmetric algorithm, built on the difficulty of factoring the product of two large prime numbers. <strong>ECC</strong>, elliptic curve cryptography, is the modern successor, built on the algebraic structure of elliptic curves over finite fields.</p>
+          <p>ECC delivers equivalent security to RSA with much shorter key lengths: a 256-bit ECC key provides roughly the same strength as a 3072-bit RSA key. Shorter keys mean less computation and less data to transmit, which is why ECC has become the default choice in modern TLS deployments and mobile devices where efficiency matters more.</p>
 
-          <p>In practice, asymmetric encryption is rarely used to encrypt the actual bulk data, because the math involved is orders of magnitude slower than AES. Instead, systems use hybrid encryption: asymmetric cryptography encrypts a randomly generated symmetric session key, and that session key does the heavy lifting of encrypting the actual data with AES. This combines the key-exchange strength of asymmetric crypto with the raw speed of symmetric crypto. Every TLS connection you make works this way, and the handshake section later in this chapter walks through exactly how.</p>
+          <h3>Solving Key Exchange</h3>
+          <p>Asymmetric encryption solves the key exchange problem directly. Bob publishes his public key. Anyone, including Alice, can encrypt a message with that public key, and only Bob's private key can decrypt it.</p>
+          <p>No secret ever needs to travel over the wire; the public key being intercepted does not matter because it was never secret to begin with. This is the mechanism that lets two strangers who have never communicated before establish a secure channel over an insecure network, and it is the foundation everything in modern web security rests on.</p>
+
+          <h3>Hybrid Encryption in Practice</h3>
+          <p>In practice, asymmetric encryption is rarely used to encrypt the actual bulk data, because the math involved is orders of magnitude slower than AES. Instead, systems use <strong>hybrid encryption</strong>: asymmetric cryptography encrypts a randomly generated symmetric session key, and that session key does the heavy lifting of encrypting the actual data with AES.</p>
+          <p>This combines the key-exchange strength of asymmetric crypto with the raw speed of symmetric crypto. Every TLS connection you make works this way, and the handshake section later in this chapter walks through exactly how.</p>
 
           <div class="table-wrap">
             <table>
@@ -178,37 +204,80 @@
 
         <section class="content-section" id="hashing-integrity">
           <h2>Hashing and Integrity</h2>
-          <p>A cryptographic hash function takes an input of any size and produces a fixed-length output called a hash or digest. SHA-256, part of the SHA-2 family, always produces a 256-bit output whether the input is one character or ten gigabytes. Hashing is deterministic: the same input always produces the same hash. It is also one-way, meaning there is no operation that reverses a hash back into its original input. This is the property that makes hashing fundamentally different from encryption, and conflating the two is one of the most common mistakes people make when talking about cryptography.</p>
 
-          <p>Encryption is reversible by design; you encrypt something specifically so an authorized party can decrypt it later. Hashing is not reversible at all, by anyone, under any circumstances, given a well-designed algorithm. There is no hash key and no hash decryption. A good hash function also exhibits the avalanche effect: changing even a single bit of the input produces a completely different, unpredictable output. This means hashes are excellent for detecting whether data has been altered. Download a file, hash it, and compare that hash to the one the publisher listed. If a single byte was tampered with in transit, the hashes will not match, even though nothing about the mismatch tells you what changed.</p>
+          <h3>Hashing vs Encryption</h3>
+          <p>A cryptographic hash function takes an input of any size and produces a fixed-length output called a hash or digest. <strong>SHA-256</strong>, part of the SHA-2 family, always produces a 256-bit output whether the input is one character or ten gigabytes.</p>
 
+          <ul>
+            <li><strong>Deterministic:</strong> the same input always produces the same hash.</li>
+            <li><strong>One-way:</strong> there is no operation that reverses a hash back into its original input.</li>
+            <li><strong>Avalanche effect:</strong> changing even a single bit of the input produces a completely different, unpredictable output.</li>
+          </ul>
+
+          <p>This one-way property is what makes hashing fundamentally different from encryption, and conflating the two is one of the most common mistakes people make when talking about cryptography. Encryption is reversible by design; you encrypt something specifically so an authorized party can decrypt it later.</p>
+          <p>Hashing is not reversible at all, by anyone, under any circumstances, given a well-designed algorithm. There is no hash key and no hash decryption.</p>
+
+          <h3>Why Integrity Matters</h3>
+          <p>The avalanche effect means hashes are excellent for detecting whether data has been altered. Download a file, hash it, and compare that hash to the one the publisher listed. If a single byte was tampered with in transit, the hashes will not match, even though nothing about the mismatch tells you what changed.</p>
           <p>This integrity property is what hashing is actually for. Software vendors publish SHA-256 checksums alongside installers so users can verify the download was not corrupted or tampered with. Git uses hashes to identify commits and detect any change to file content. Malware analysts use hashes to fingerprint samples and check them against known-bad databases. None of these use cases involve secrecy; they involve proving that data is exactly what it claims to be.</p>
 
-          <p>Password storage is where hashing and integrity intersect with authentication. A well-built system never stores a plaintext password; it stores the hash of the password. When a user logs in, the system hashes the entered password and compares it to the stored hash. But hashing a password alone is not enough, because attackers precompute rainbow tables: massive lookup tables mapping common passwords to their hashes. If two users both choose "password123," their unsalted hashes will be identical, and an attacker with a matching table entry recovers both instantly.</p>
-
-          <p>Salting fixes this by appending a unique, random value to each password before hashing, and storing that salt alongside the hash. Even identical passwords produce different hashes once salted, because the salt differs per user. This defeats precomputed rainbow tables entirely, since an attacker would need a separate table for every possible salt value, which is computationally infeasible. Modern password storage goes further with algorithms like bcrypt, scrypt, or Argon2, which are deliberately slow and memory-intensive, making brute-force attempts expensive even against salted hashes.</p>
+          <h3>Password Storage and Salting</h3>
+          <p>Password storage is where hashing and integrity intersect with authentication. A well-built system never stores a plaintext password; it stores the hash of the password. When a user logs in, the system hashes the entered password and compares it to the stored hash.</p>
+          <p>But hashing a password alone is not enough, because attackers precompute rainbow tables: massive lookup tables mapping common passwords to their hashes. If two users both choose "password123," their unsalted hashes will be identical, and an attacker with a matching table entry recovers both instantly.</p>
+          <p><strong>Salting</strong> fixes this by appending a unique, random value to each password before hashing, and storing that salt alongside the hash. Even identical passwords produce different hashes once salted, because the salt differs per user. This defeats precomputed rainbow tables entirely, since an attacker would need a separate table for every possible salt value, which is computationally infeasible.</p>
+          <p>Modern password storage goes further with algorithms like <strong>bcrypt, scrypt, or Argon2</strong>, which are deliberately slow and memory-intensive, making brute-force attempts expensive even against salted hashes.</p>
         </section>
 
         <section class="content-section" id="digital-signatures">
           <h2>Digital Signatures and Non-Repudiation</h2>
-          <p>A digital signature combines hashing and asymmetric encryption to prove two things at once: that a message came from a specific sender, and that it was not altered after signing. The signing process works like this: the sender hashes the message to produce a digest, then encrypts that digest with their own private key. The result is the signature, which gets attached to the original message. Anyone with the sender's public key can decrypt the signature back into the original digest, independently hash the received message, and compare the two. A match proves both authenticity and integrity in one step.</p>
 
-          <p>Note the direction of the keys here, because it is the opposite of confidentiality use cases and trips people up constantly. When encrypting for confidentiality, you encrypt with the recipient's public key so only their private key can decrypt it. When signing, you encrypt with your own private key, because the point is not secrecy, it is proof of origin. Anyone can verify the signature with your public key, but only you could have produced it, since only you hold the matching private key.</p>
+          <h3>How Signing Works</h3>
+          <p>A <strong>digital signature</strong> combines hashing and asymmetric encryption to prove two things at once: that a message came from a specific sender, and that it was not altered after signing.</p>
 
-          <p>Authenticity means the recipient can confirm who actually sent the message, assuming the private key was never compromised. Integrity means the recipient can confirm the message was not modified in transit, since altering even one bit changes the hash and breaks the verification match. Together these two properties are what makes a signed software update, a signed email, or a signed code commit trustworthy in a way an unsigned one is not.</p>
+          <ol>
+            <li><strong>Hash the message.</strong> The sender hashes the message to produce a digest.</li>
+            <li><strong>Sign the digest.</strong> The sender encrypts that digest with their own private key. The result is the signature, which gets attached to the original message.</li>
+            <li><strong>Recover the digest.</strong> Anyone with the sender's public key can decrypt the signature back into the original digest.</li>
+            <li><strong>Verify the match.</strong> The recipient independently hashes the received message and compares the two digests. A match proves both authenticity and integrity in one step.</li>
+          </ol>
 
-          <p>Non-repudiation is the practical consequence of combining authenticity and integrity: the signer cannot credibly deny having signed something, because producing a valid signature requires possession of a private key that, by design, only they hold. This matters legally and operationally. A signed contract, a signed transaction, or a signed commit in a source repository creates an evidentiary trail. If a private key is properly protected, its owner cannot plausibly claim "that wasn't me" once a valid signature exists. This is also exactly why private key compromise is so serious: an attacker with your signing key can produce signatures that appear, cryptographically, to be authentically yours.</p>
+          <h3>Which Key Encrypts What</h3>
+          <p>Note the direction of the keys here, because it is the opposite of confidentiality use cases and trips people up constantly. When encrypting for confidentiality, you encrypt with the recipient's public key so only their private key can decrypt it.</p>
+          <p>When signing, you encrypt with your own private key, because the point is not secrecy, it is proof of origin. Anyone can verify the signature with your public key, but only you could have produced it, since only you hold the matching private key.</p>
+
+          <h3>Authenticity and Integrity Together</h3>
+          <p><strong>Authenticity</strong> means the recipient can confirm who actually sent the message, assuming the private key was never compromised. <strong>Integrity</strong> means the recipient can confirm the message was not modified in transit, since altering even one bit changes the hash and breaks the verification match.</p>
+          <p>Together these two properties are what makes a signed software update, a signed email, or a signed code commit trustworthy in a way an unsigned one is not.</p>
+
+          <h3>Non-Repudiation</h3>
+          <p><strong>Non-repudiation</strong> is the practical consequence of combining authenticity and integrity: the signer cannot credibly deny having signed something, because producing a valid signature requires possession of a private key that, by design, only they hold.</p>
+          <p>This matters legally and operationally. A signed contract, a signed transaction, or a signed commit in a source repository creates an evidentiary trail. If a private key is properly protected, its owner cannot plausibly claim "that wasn't me" once a valid signature exists.</p>
+          <p>This is also exactly why private key compromise is so serious: an attacker with your signing key can produce signatures that appear, cryptographically, to be authentically yours.</p>
         </section>
 
         <section class="content-section" id="pki-certificates">
           <h2>PKI and Certificate Chains</h2>
-          <p>Asymmetric cryptography solves key exchange, but it introduces a new problem: how do you know a public key actually belongs to who it claims to belong to? If an attacker performing a man-in-the-middle attack hands you their own public key while claiming to be your bank, asymmetric encryption alone will not stop you from establishing a perfectly secure, perfectly encrypted connection directly to the attacker. The math works fine. The identity binding is what's missing, and that is the exact gap Public Key Infrastructure exists to close.</p>
 
-          <p>A Certificate Authority, or CA, is a trusted third party that verifies the identity of an entity, such as a website operator, and then issues a digital certificate binding that entity's identity to their public key. The CA signs the certificate with its own private key, and that signature is what a browser or operating system checks. Well-known CAs include DigiCert, Let's Encrypt, and Sectigo, and their root certificates ship pre-installed in browsers and operating systems as trust anchors.</p>
+          <h3>The Identity Problem</h3>
+          <p>Asymmetric cryptography solves key exchange, but it introduces a new problem: how do you know a public key actually belongs to who it claims to belong to? If an attacker performing a man-in-the-middle attack hands you their own public key while claiming to be your bank, asymmetric encryption alone will not stop you from establishing a perfectly secure, perfectly encrypted connection directly to the attacker.</p>
+          <p>The math works fine. The identity binding is what's missing, and that is the exact gap <strong>Public Key Infrastructure (PKI)</strong> exists to close.</p>
 
-          <p>This creates a chain of trust. A root CA rarely signs website certificates directly; instead it signs intermediate CA certificates, and those intermediates sign the leaf certificates that individual websites actually present. When you connect to a site, your browser receives the leaf certificate plus the intermediate certificates needed to build a path back to a root CA it already trusts. It verifies each signature in that chain: the leaf was signed by the intermediate, the intermediate was signed by the root, and the root is one your browser was shipped trusting. If every link verifies, the site's public key is trusted as genuinely belonging to that domain.</p>
+          <h3>Certificate Authorities</h3>
+          <p>A <strong>Certificate Authority (CA)</strong> is a trusted third party that verifies the identity of an entity, such as a website operator, and then issues a digital certificate binding that entity's identity to their public key. The CA signs the certificate with its own private key, and that signature is what a browser or operating system checks.</p>
+          <p>Well-known CAs include DigiCert, Let's Encrypt, and Sectigo, and their root certificates ship pre-installed in browsers and operating systems as trust anchors.</p>
 
-          <p>A browser certificate warning is the browser telling you this chain verification failed somewhere, not that "the site is unencrypted." Common causes include an expired certificate, a certificate issued for a different domain than the one you're visiting, a self-signed certificate with no CA vouching for it at all, or a broken chain missing an intermediate certificate. In every case, the underlying message is the same: the browser can no longer prove that the public key it's about to use actually belongs to the entity you intend to talk to. Encryption might still work perfectly; the identity guarantee is what's broken, and that guarantee is the entire point of PKI.</p>
+          <h3>The Chain of Trust</h3>
+          <p>A root CA rarely signs website certificates directly. Instead it delegates through a short chain:</p>
+          <ol>
+            <li><strong>Root CA.</strong> Signs intermediate CA certificates. Its own certificate ships pre-trusted in the browser or OS.</li>
+            <li><strong>Intermediate CA.</strong> Signs the leaf certificates that individual websites actually present, keeping the root's private key offline and protected.</li>
+            <li><strong>Leaf certificate.</strong> Presented by the website itself, binding its public key to its domain identity.</li>
+          </ol>
+          <p>When you connect to a site, your browser receives the leaf certificate plus the intermediate certificates needed to build a path back to a root CA it already trusts. It verifies each signature in that chain: the leaf was signed by the intermediate, the intermediate was signed by the root, and the root is one your browser was shipped trusting. If every link verifies, the site's public key is trusted as genuinely belonging to that domain.</p>
+
+          <h3>What a Certificate Warning Means</h3>
+          <p>A browser certificate warning is the browser telling you this chain verification failed somewhere, not that "the site is unencrypted." Common causes include an expired certificate, a certificate issued for a different domain than the one you're visiting, a self-signed certificate with no CA vouching for it at all, or a broken chain missing an intermediate certificate.</p>
+          <p>In every case, the underlying message is the same: the browser can no longer prove that the public key it's about to use actually belongs to the entity you intend to talk to. Encryption might still work perfectly; the identity guarantee is what's broken, and that guarantee is the entire point of PKI.</p>
 
           <div class="callout-warning">
             <strong>Warning:</strong> Clicking through a certificate warning does not make the connection safe, it just disables the one mechanism that verifies who is actually on the other end. An attacker running a man-in-the-middle proxy will produce exactly this kind of warning, because they cannot present a certificate signed by a CA for a domain they don't control. The warning is the defense working as intended.
@@ -217,13 +286,15 @@
 
         <section class="content-section" id="tls-handshake">
           <h2>The TLS Handshake, Start to Finish</h2>
-          <p>Every piece of this chapter comes together in the TLS handshake, the process that establishes a secure HTTPS connection before a single byte of your actual traffic is exchanged. A simplified walk through TLS 1.3, the current version, looks like this. First, ClientHello: your browser opens the connection and sends the TLS version it supports, a list of cipher suites it can use, and a randomly generated value used later in key derivation.</p>
+          <p>Every piece of this chapter comes together in the <strong>TLS handshake</strong>, the process that establishes a secure HTTPS connection before a single byte of your actual traffic is exchanged. A simplified walk through TLS 1.3, the current version, looks like this.</p>
 
-          <p>Second, ServerHello with certificate: the server responds with the cipher suite it has chosen, its own random value, and its certificate, which contains its public key along with the chain of intermediate certificates needed to trace back to a trusted root CA. Your browser verifies this chain exactly as described in the previous section: checking each signature, checking expiration, checking that the certificate was issued for the domain you're actually connecting to.</p>
-
-          <p>Third, key exchange: using an asymmetric key exchange mechanism, both sides independently derive a shared symmetric session key without ever transmitting that key in plaintext over the wire. TLS 1.3 typically uses ephemeral Diffie-Hellman key exchange over elliptic curves for this step, which also provides forward secrecy: even if a server's long-term private key is compromised later, past session keys derived this way cannot be reconstructed from it, because they were never derived from the private key alone.</p>
-
-          <p>Fourth, the symmetric session key is now established on both sides. This is the hybrid encryption model from earlier in this chapter in action: asymmetric cryptography did the expensive work of authenticating the server and safely agreeing on a shared secret, and now a fast symmetric cipher, typically AES-GCM or ChaCha20-Poly1305, takes over. Fifth, encrypted application data: every request and response from this point forward, the actual HTML, images, form submissions, and cookies, is encrypted with that symmetric session key. This is the bulk of the connection's lifetime, and it runs on symmetric encryption precisely because symmetric encryption is fast enough to handle continuous traffic.</p>
+          <ol>
+            <li><strong>ClientHello, browser to server.</strong> Your browser opens the connection and sends the TLS version it supports, a list of cipher suites it can use, and a randomly generated value used later in key derivation.</li>
+            <li><strong>ServerHello with certificate, server to browser.</strong> The server responds with the cipher suite it has chosen, its own random value, and its certificate, which contains its public key along with the chain of intermediate certificates needed to trace back to a trusted root CA. Your browser verifies this chain exactly as described in the previous section: checking each signature, checking expiration, checking that the certificate was issued for the domain you're actually connecting to.</li>
+            <li><strong>Key exchange, both sides.</strong> Using an asymmetric key exchange mechanism, both sides independently derive a shared symmetric session key without ever transmitting that key in plaintext over the wire. TLS 1.3 typically uses ephemeral Diffie-Hellman key exchange over elliptic curves for this step, which also provides forward secrecy: even if a server's long-term private key is compromised later, past session keys derived this way cannot be reconstructed from it, because they were never derived from the private key alone.</li>
+            <li><strong>Symmetric session key established.</strong> This is the hybrid encryption model from earlier in this chapter in action: asymmetric cryptography did the expensive work of authenticating the server and safely agreeing on a shared secret, and now a fast symmetric cipher, typically AES-GCM or ChaCha20-Poly1305, takes over.</li>
+            <li><strong>Encrypted application data, both directions.</strong> Every request and response from this point forward, the actual HTML, images, form submissions, and cookies, is encrypted with that symmetric session key. This is the bulk of the connection's lifetime, and it runs on symmetric encryption precisely because symmetric encryption is fast enough to handle continuous traffic.</li>
+          </ol>
 
           <div class="callout-tip">
             <strong>Tip:</strong> This entire sequence, certificate verification through session key establishment, is exactly what the padlock icon in your browser's address bar represents. It is not a vague promise of "security." It is a specific, verifiable claim: the certificate chain checked out, a key exchange happened without exposing a shared secret, and everything from here forward is encrypted with a session key only your browser and the verified server possess.

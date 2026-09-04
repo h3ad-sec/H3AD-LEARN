@@ -143,26 +143,72 @@
 
         <section class="content-section" id="access-tokens">
           <h2>Access Tokens</h2>
-          <p>Every process and thread running under a user's context carries an access token, and that token is the actual object Windows consults when it decides whether an action is allowed. A token is not a password or a credential you can inspect and reuse directly; it is an in-memory kernel object built at logon that summarizes everything the security subsystem needs to know about a security context in one place. When a process tries to open a file, create a registry key, or call a privileged API, the kernel does not go check a password again. It reads the token.</p>
+          <p>Every process and thread running under a user's context carries an access token, and that token is the actual object Windows consults when it decides whether an action is allowed. A token is not a password or a credential you can inspect and reuse directly. It is an in-memory kernel object built at logon that summarizes everything the security subsystem needs to know about a security context in one place.</p>
+          <p>When a process tries to open a file, create a registry key, or call a privileged API, the kernel does not go check a password again. It reads the token.</p>
 
-          <p>The token carries the user's SID, the SID of every group the user belongs to (including nested and well-known groups picked up during logon), and a list of privileges the account has been granted, such as the right to debug other processes or change the system clock. It also carries an integrity level, a default DACL that gets applied to new objects the process creates, and a logon session identifier tying the token back to the session that produced it. All of this gets evaluated together whenever an access check happens, which is why two accounts in the same group can still behave differently if their privilege sets or integrity levels diverge.</p>
+          <h3>What a Token Carries</h3>
+          <ul>
+            <li><strong>User SID and group SIDs.</strong> The account's own SID plus the SID of every group it belongs to, including nested and well-known groups picked up during logon.</li>
+            <li><strong>Privileges.</strong> A list of system-wide capabilities the account has been granted, such as the right to debug other processes or change the system clock.</li>
+            <li><strong>Integrity level.</strong> Caps what the token can touch regardless of group membership.</li>
+            <li><strong>Default DACL.</strong> Gets applied automatically to new objects the process creates.</li>
+            <li><strong>Logon session identifier.</strong> Ties the token back to the session that produced it.</li>
+          </ul>
+          <p>All of this gets evaluated together whenever an access check happens, which is why two accounts in the same group can still behave differently if their privilege sets or integrity levels diverge.</p>
 
-          <p>Tokens come in two flavors that matter a great deal for how attacks and legitimate delegation both work. A primary token is attached directly to a process at creation time and represents the security context the whole process runs under for its lifetime. An impersonation token is different: it is assigned to a single thread, not the whole process, and lets that thread temporarily act using another user's security context for the duration of a specific operation. A file server thread handling a client request is a canonical example, it impersonates the connecting user just long enough to perform the file access on their behalf, then reverts.</p>
+          <h3>Primary vs Impersonation Tokens</h3>
+          <p>Tokens come in two flavors that matter a great deal for how attacks and legitimate delegation both work. A <strong>primary token</strong> is attached directly to a process at creation time. An <strong>impersonation token</strong> is assigned to a single thread instead, letting that thread temporarily act using another user's security context for one specific operation.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Token Type</th><th>Attached To</th><th>Lifetime</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Primary token</td><td>Whole process, at creation</td><td>The full lifetime of the process</td></tr>
+                <tr><td>Impersonation token</td><td>A single thread</td><td>Duration of one operation, then reverts</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>A file server thread handling a client request is a canonical example: it impersonates the connecting user just long enough to perform the file access on their behalf, then reverts.</p>
 
-          <p>Impersonation tokens themselves have levels that cap how far the borrowed identity can be used: Anonymous grants essentially nothing, Identification lets a thread see who it's impersonating without acting as them, Impersonation lets the thread act as the user on the local system, and Delegation extends that ability across the network to other machines. This last level is powerful and is exactly why unconstrained delegation is treated as a high-risk configuration in Active Directory environments; it lets a compromised service reuse a user's identity well beyond the single request that generated it.</p>
+          <div class="callout-info">
+            <strong>Quick glossary, impersonation levels (low to high):</strong>
+            <ul>
+              <li><strong>Anonymous</strong>: grants essentially nothing.</li>
+              <li><strong>Identification</strong>: lets a thread see who it's impersonating without acting as them.</li>
+              <li><strong>Impersonation</strong>: lets the thread act as the user, but only on the local system.</li>
+              <li><strong>Delegation</strong>: extends that ability across the network to other machines.</li>
+            </ul>
+          </div>
+          <p>Delegation is powerful, and is exactly why unconstrained delegation is treated as a high-risk configuration in Active Directory environments. It lets a compromised service reuse a user's identity well beyond the single request that generated it.</p>
 
-          <p>The practical reason to care about this distinction shows up constantly in incident work. A process token tells you the security context an entire process is running under, visible in tools like Process Explorer or via a wmic/PowerShell query. An impersonation token, by contrast, is thread-scoped and short-lived, which is exactly what makes privilege escalation techniques built around stealing or duplicating impersonation tokens both effective and hard to catch in a simple process listing.</p>
+          <h3>Why This Distinction Matters</h3>
+          <p>The practical reason to care about this distinction shows up constantly in incident work. A process token tells you the security context an entire process is running under, visible in tools like Process Explorer or via a wmic/PowerShell query.</p>
+          <p>An impersonation token, by contrast, is thread-scoped and short-lived. That's exactly what makes privilege escalation techniques built around stealing or duplicating impersonation tokens both effective and hard to catch in a simple process listing.</p>
         </section>
 
         <section class="content-section" id="sids">
           <h2>Security Identifiers</h2>
-          <p>A Security Identifier, or SID, is the value Windows actually checks when it decides who you are for access-control purposes. Usernames are a convenience layer for humans; SIDs are the durable identity underneath. Every account, every group, and every security principal, including built-in ones like Everyone or Administrators, has a unique SID, and it is that SID, not the display name, that gets written into every ACL, every token, and every audit log entry.</p>
+          <p>A <strong>Security Identifier</strong>, or SID, is the value Windows actually checks when it decides who you are for access-control purposes. Usernames are a convenience layer for humans; SIDs are the durable identity underneath. Every account, every group, and every security principal, including built-in ones like Everyone or Administrators, has a unique SID.</p>
+          <p>It is that SID, not the display name, that gets written into every ACL, every token, and every audit log entry.</p>
 
-          <p>Conceptually, a SID is a structured string that encodes an authority (who issued it, such as the local machine or a domain) and a series of sub-authority values that narrow it down to a specific principal, ending in a Relative Identifier (RID) that is unique within that authority. A domain user SID and a local user SID look similar in shape but are anchored to different issuing authorities, which is exactly why the same username on two different machines, or a local account versus a domain account with the same name, are not the same security principal at all even though a human reading a report might assume they are.</p>
+          <div class="callout-info">
+            <strong>Quick glossary:</strong>
+            <ul>
+              <li><strong>SID</strong>: a structured string that uniquely identifies a security principal.</li>
+              <li><strong>Authority</strong>: who issued the SID, such as the local machine or a domain.</li>
+              <li><strong>RID</strong> (Relative Identifier): the final value in a SID, unique within its issuing authority.</li>
+              <li><strong>Well-known SID</strong>: a SID whose value is fixed and identical across machines or domains, such as Everyone.</li>
+            </ul>
+          </div>
 
-          <p>A handful of well-known SIDs show up constantly enough to be worth memorizing rather than looking up every time. Everyone (S-1-1-0) represents essentially all users, including anonymous ones in older configurations. Authenticated Users (S-1-5-11) is a narrower and generally safer group to grant access to, since it excludes anonymous and guest access. The local Administrators group carries a well-known relative identifier (RID 544) appended to the machine or domain authority, which is how tooling and threat actors alike can recognize "this is the local admin group" across completely different machines without knowing the hostname in advance.</p>
+          <h3>How a SID Is Structured</h3>
+          <p>A SID encodes an authority plus a series of sub-authority values that narrow it down to a specific principal, ending in a <strong>RID</strong> that is unique within that authority. A domain user SID and a local user SID look similar in shape but are anchored to different issuing authorities.</p>
+          <p>That's exactly why the same username on two different machines, or a local account versus a domain account with the same name, are not the same security principal at all, even though a human reading a report might assume they are.</p>
 
-          <p>The reason SIDs rather than names are the real, persistent identity matters operationally, not just academically. Rename a user account, and its SID does not change, every ACL entry, group membership, and permission that referenced the old name still applies correctly because the underlying SID is untouched. Delete an account and create a new one with the identical username, and the opposite happens: it gets a brand-new SID, and none of the old permissions carry over, even though the name in the UI looks unchanged. Analysts who reason about "the user" purely by name will misread both scenarios; SID history and resolution are what actually determine access.</p>
+          <h3>Well-Known SIDs to Memorize</h3>
+          <p><strong>Everyone</strong> (S-1-1-0) represents essentially all users, including anonymous ones in older configurations. <strong>Authenticated Users</strong> (S-1-5-11) is narrower and generally safer to grant access to, since it excludes anonymous and guest access.</p>
+          <p>The local Administrators group carries a well-known RID (544) appended to the machine or domain authority. That's how tooling and threat actors alike can recognize "this is the local admin group" across completely different machines without knowing the hostname in advance.</p>
 
           <div class="table-wrap">
             <table>
@@ -177,30 +223,67 @@
               </tbody>
             </table>
           </div>
+
+          <h3>Why Names Aren't the Real Identity</h3>
+          <p>Rename a user account, and its SID does not change. Every ACL entry, group membership, and permission that referenced the old name still applies correctly, because the underlying SID is untouched.</p>
+          <p>Delete an account and create a new one with the identical username, and the opposite happens: it gets a brand-new SID, and none of the old permissions carry over, even though the name in the UI looks unchanged. Analysts who reason about "the user" purely by name will misread both scenarios; SID history and resolution are what actually determine access.</p>
         </section>
 
         <section class="content-section" id="acls-dacls">
           <h2>ACLs and DACLs</h2>
-          <p>An Access Control List, or ACL, is attached to a securable object, a file, a registry key, a service, an Active Directory object, and it is the list Windows consults to decide who can do what to that object. There are two kinds attached to most objects: the Discretionary Access Control List (DACL), which actually grants or denies access, and the System Access Control List (SACL), which controls auditing, meaning what gets logged when the object is touched, rather than whether the touch is permitted. When people say "ACL" in the context of permissions, they almost always mean the DACL.</p>
+          <p>An <strong>Access Control List</strong>, or ACL, is attached to a securable object, a file, a registry key, a service, an Active Directory object, and it is the list Windows consults to decide who can do what to that object.</p>
 
-          <p>A DACL is not one monolithic rule, it is an ordered collection of Access Control Entries, or ACEs. Each ACE names a trustee (a SID), specifies an access mask (which rights are being granted or denied, such as read, write, or delete), and carries a type indicating whether it's an allow entry or a deny entry. When a process tries to access an object, the kernel walks the DACL's ACEs in order and evaluates them against the requesting token's SIDs until it reaches a decision. Explicit deny entries are evaluated ahead of allow entries by convention in the standard ACL-ordering rules, which is why a single explicit deny can override an otherwise-generous allow grant elsewhere in the same list.</p>
+          <h3>DACL vs SACL</h3>
+          <p>Most objects carry two kinds of ACL. The <strong>Discretionary Access Control List</strong> (DACL) actually grants or denies access. The <strong>System Access Control List</strong> (SACL) controls auditing, meaning what gets logged when the object is touched, rather than whether the touch is permitted.</p>
+          <p>When people say "ACL" in the context of permissions, they almost always mean the DACL.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>List</th><th>Controls</th><th>Answers</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>DACL</td><td>Access, allow or deny</td><td>"Can this happen?"</td></tr>
+                <tr><td>SACL</td><td>Auditing</td><td>"Should this be logged?"</td></tr>
+              </tbody>
+            </table>
+          </div>
 
-          <p>Inheritance is what lets permissions scale across an object hierarchy instead of requiring every file to be configured individually. When you set permissions on a folder and mark them to apply to child objects, every file and subfolder created underneath inherits those ACEs automatically, shown in tools like icacls or the Windows Security tab as "inherited" rather than "explicit." This is enormously convenient for administration and is also exactly why a single overly permissive change high in a folder tree can silently propagate write access to hundreds of files several levels down without anyone touching those files directly.</p>
+          <h3>Anatomy of an ACE</h3>
+          <p>A DACL is not one monolithic rule, it is an ordered collection of <strong>Access Control Entries</strong>, or ACEs. Each ACE carries three pieces of information:</p>
+          <ul>
+            <li><strong>Trustee.</strong> The SID the entry applies to.</li>
+            <li><strong>Access mask.</strong> Which rights are being granted or denied, such as read, write, or delete.</li>
+            <li><strong>Type.</strong> Whether it's an allow entry or a deny entry.</li>
+          </ul>
+          <p>When a process tries to access an object, the kernel walks the DACL's ACEs in order and evaluates them against the requesting token's SIDs until it reaches a decision. Explicit deny entries are evaluated ahead of allow entries by convention in the standard ACL-ordering rules, which is why a single explicit deny can override an otherwise-generous allow grant elsewhere in the same list.</p>
 
+          <h3>Inheritance and Explicit Overrides</h3>
+          <p>Inheritance is what lets permissions scale across an object hierarchy instead of requiring every file to be configured individually. When you set permissions on a folder and mark them to apply to child objects, every file and subfolder created underneath inherits those ACEs automatically, shown in tools like icacls or the Windows Security tab as "inherited" rather than "explicit."</p>
+          <p>This is enormously convenient for administration. It is also exactly why a single overly permissive change high in a folder tree can silently propagate write access to hundreds of files several levels down without anyone touching those files directly.</p>
           <p>Explicit ACEs set directly on an object always take precedence over inherited ones, which gives administrators an escape hatch to lock down a specific file or subfolder even when the parent folder is more permissive. This is also a common source of access-control drift in real environments: someone adds an explicit ACE to fix an immediate problem, forgets to document why, and years later nobody can explain why one file in an otherwise-consistent folder tree has different permissions than everything around it.</p>
 
-          <p>From a defensive standpoint, ACL misconfiguration is one of the most common and least glamorous privilege escalation vectors in Windows environments, precisely because it doesn't require exploiting a vulnerability, it just requires finding an object where the DACL grants more than it should have. Tools like accesschk and PowerShell's Get-Acl exist specifically to hunt for these gaps, and reading a DACL correctly, trustee, access mask, allow or deny, inherited or explicit, is the core skill that makes those tools useful rather than noisy.</p>
+          <h3>Why This Matters for Defense</h3>
+          <p>ACL misconfiguration is one of the most common and least glamorous privilege escalation vectors in Windows environments, precisely because it doesn't require exploiting a vulnerability. It just requires finding an object where the DACL grants more than it should have.</p>
+          <p>Tools like accesschk and PowerShell's Get-Acl exist specifically to hunt for these gaps. Reading a DACL correctly, trustee, access mask, allow or deny, inherited or explicit, is the core skill that makes those tools useful rather than noisy.</p>
         </section>
 
         <section class="content-section" id="privileges">
           <h2>Windows Privileges</h2>
-          <p>Privileges are a distinct concept from the object permissions covered in the previous section, and conflating the two is a common source of confusion. An object permission, granted through an ACE, controls access to one specific securable object, a file, a key, a service. A privilege, by contrast, is a system-wide capability granted to an account or group through the Local Security Authority, and it applies across the entire machine regardless of any individual object's ACL. Holding a privilege can let you bypass the normal object-permission check entirely for the operations that privilege covers.</p>
+          <p>Privileges are a distinct concept from the object permissions covered in the previous section, and conflating the two is a common source of confusion. An object permission, granted through an ACE, controls access to one specific securable object, a file, a key, a service.</p>
+          <p>A <strong>privilege</strong>, by contrast, is a system-wide capability granted to an account or group through the Local Security Authority, and it applies across the entire machine regardless of any individual object's ACL. Holding a privilege can let you bypass the normal object-permission check entirely for the operations that privilege covers.</p>
 
-          <p>Privileges are assigned through Local Security Policy or Group Policy, visible under User Rights Assignment, and they show up in a token's privilege list at logon, though most start disabled and get enabled programmatically only when a process actually needs them. SeDebugPrivilege is one of the most consequential: it lets a process open a handle to essentially any other process on the machine, including ones owned by other users or running as SYSTEM, and read or write its memory. Legitimate debuggers and some monitoring tools need it; so does any technique that wants to dump LSASS memory to harvest credentials.</p>
+          <h3>How Privileges Are Assigned</h3>
+          <p>Privileges are assigned through Local Security Policy or Group Policy, visible under User Rights Assignment, and they show up in a token's privilege list at logon. Most start disabled and get enabled programmatically only when a process actually needs them.</p>
 
-          <p>SeImpersonatePrivilege is equally significant and arguably more commonly abused in practice. It allows a thread that has already authenticated a client, through a named pipe, RPC call, or COM activation, to impersonate that client's security context for the duration of the operation, as described in the tokens section above. Service accounts commonly hold this privilege because it's exactly what's needed to serve requests on behalf of connecting users. The problem is that many of those service accounts run with far more authority than the requests they're meant to serve.</p>
+          <h3>Two Privileges Worth Knowing First</h3>
+          <ul>
+            <li><strong>SeDebugPrivilege.</strong> Lets a process open a handle to essentially any other process on the machine, including ones owned by other users or running as SYSTEM, and read or write its memory. Legitimate debuggers and some monitoring tools need it; so does any technique that wants to dump LSASS memory to harvest credentials.</li>
+            <li><strong>SeImpersonatePrivilege.</strong> Allows a thread that has already authenticated a client, through a named pipe, RPC call, or COM activation, to impersonate that client's security context for the duration of the operation, as described in the tokens section above. Service accounts commonly hold this privilege because it's exactly what's needed to serve requests on behalf of connecting users. The problem is that many of those service accounts run with far more authority than the requests they're meant to serve.</li>
+          </ul>
 
-          <p>This is the conceptual root of the "Potato" family of token-impersonation escalation techniques. In broad strokes, an attacker who already has code execution as a low-privileged service account that holds SeImpersonatePrivilege can coerce a SYSTEM-level component into authenticating to a listener they control, capture the resulting SYSTEM impersonation token, and use the privilege they already legitimately held to act as SYSTEM for further actions. The privilege itself was never misconfigured, it does exactly what it's designed to do; the escalation comes from combining it with a way to trick a higher-privileged process into authenticating unexpectedly.</p>
+          <h3>The Potato Techniques</h3>
+          <p>SeImpersonatePrivilege is the conceptual root of the "Potato" family of token-impersonation escalation techniques. In broad strokes, an attacker who already has code execution as a low-privileged service account that holds SeImpersonatePrivilege can coerce a SYSTEM-level component into authenticating to a listener they control.</p>
+          <p>From there, the attacker captures the resulting SYSTEM impersonation token and uses the privilege they already legitimately held to act as SYSTEM for further actions. The privilege itself was never misconfigured, it does exactly what it's designed to do; the escalation comes from combining it with a way to trick a higher-privileged process into authenticating unexpectedly.</p>
 
           <div class="callout-warning">
             <strong>Warning:</strong> SeDebugPrivilege and SeImpersonatePrivilege are the two privileges worth memorizing first, because they show up disproportionately often in both legitimate service accounts and real-world escalation chains. Seeing either one held by a service account is not itself an incident, most IIS application pool identities and many built-in services legitimately hold SeImpersonatePrivilege, but it is exactly the kind of context that should shape how seriously you treat code execution gained through that account.
@@ -209,13 +292,23 @@
 
         <section class="content-section" id="uac-mechanics">
           <h2>How UAC Actually Works</h2>
-          <p>User Account Control is frequently misunderstood as a security boundary that stops malware, when its actual design goal is narrower: it exists to keep processes running with standard-user rights by default even when the logged-on account is a member of the local Administrators group, so that everyday actions can't silently make system-wide changes without a deliberate, visible step. Microsoft has been explicit that UAC elevation is a convenience feature, not a security boundary, which matters when you're deciding how much weight to put on a UAC prompt appearing, or not appearing, during an investigation.</p>
+          <p><strong>User Account Control</strong> is frequently misunderstood as a security boundary that stops malware, when its actual design goal is narrower: it exists to keep processes running with standard-user rights by default even when the logged-on account is a member of the local Administrators group. That way everyday actions can't silently make system-wide changes without a deliberate, visible step.</p>
+          <p>Microsoft has been explicit that UAC elevation is a convenience feature, not a security boundary, which matters when you're deciding how much weight to put on a UAC prompt appearing, or not appearing, during an investigation.</p>
 
-          <p>The mechanism behind this is the split-token model. When a member of the local Administrators group logs on, Windows actually creates two tokens for that session. A filtered, standard-user token is what gets attached to the initial desktop session and to every process launched from it by default, with the Administrators group SID marked deny-only and most administrative privileges stripped or disabled. A separate full administrator token is also created and held in reserve, carrying the complete group membership and privilege set the account is actually entitled to. Ordinary applications, Explorer, a browser, a text editor, all run under the filtered token and simply cannot perform admin-level actions no matter what the user clicks inside them.</p>
+          <h3>The Split-Token Model</h3>
+          <p>The mechanism behind UAC is the split-token model. When a member of the local Administrators group logs on, Windows actually creates two tokens for that session:</p>
+          <ol>
+            <li><strong>A filtered, standard-user token</strong> is attached to the initial desktop session and to every process launched from it by default, with the Administrators group SID marked deny-only and most administrative privileges stripped or disabled. Ordinary applications, Explorer, a browser, a text editor, all run under this token and simply cannot perform admin-level actions no matter what the user clicks inside them.</li>
+            <li><strong>A full administrator token</strong> is also created and held in reserve, carrying the complete group membership and privilege set the account is actually entitled to. It only gets attached to a process after an explicit elevation.</li>
+          </ol>
 
-          <p>An elevation prompt is what happens when a process requests to run with the full administrator token instead. The consent.exe process renders that prompt on the secure desktop, a separate desktop session that ordinary applications cannot draw into or send synthetic input to, specifically to prevent malware from auto-clicking through the dialog or spoofing its appearance. Approving the prompt causes a new process to be created using the full, unfiltered token rather than elevating the existing process in place, which is why an elevated window sometimes appears as a distinct new process rather than the original one simply gaining new powers.</p>
+          <h3>The Elevation Prompt</h3>
+          <p>An elevation prompt is what happens when a process requests to run with the full administrator token instead. The consent.exe process renders that prompt on the secure desktop, a separate desktop session that ordinary applications cannot draw into or send synthetic input to, specifically to prevent malware from auto-clicking through the dialog or spoofing its appearance.</p>
+          <p>Approving the prompt causes a new process to be created using the full, unfiltered token rather than elevating the existing process in place. That's why an elevated window sometimes appears as a distinct new process rather than the original one simply gaining new powers.</p>
 
-          <p>Not every elevation requires a visible prompt. Windows maintains a set of binaries signed by Microsoft and manifested for auto-elevation that can request the full token silently, provided they were launched from a trusted location like System32 and meet signature requirements. This convenience is also the doorway that UAC bypass techniques exploit as a category: rather than attacking UAC's cryptography or process model directly, they look for ways to get attacker-controlled code to run inside, or in place of, one of those already-trusted, auto-elevating components, so the elevation happens without ever showing the user a prompt at all.</p>
+          <h3>Auto-Elevation and Bypass Techniques</h3>
+          <p>Not every elevation requires a visible prompt. Windows maintains a set of binaries signed by Microsoft and manifested for auto-elevation that can request the full token silently, provided they were launched from a trusted location like System32 and meet signature requirements.</p>
+          <p>This convenience is also the doorway that UAC bypass techniques exploit as a category. Rather than attacking UAC's cryptography or process model directly, they look for ways to get attacker-controlled code to run inside, or in place of, one of those already-trusted, auto-elevating components, so the elevation happens without ever showing the user a prompt at all.</p>
 
           <div class="callout-info">
             <strong>Note:</strong> Because UAC is not a hard security boundary, an account that is already a local administrator is considered to already have that level of trust from a threat-modeling standpoint. A UAC bypass in that context isn't crossing a privilege boundary the account didn't already have, it's just removing the visible prompt and audit trail that would normally accompany the account exercising authority it already possessed.
@@ -226,13 +319,16 @@
           <h2>Common Privilege Escalation Patterns</h2>
           <p>The concepts covered in this chapter, tokens, SIDs, ACLs, and privileges, are not independent trivia. They are the load-bearing pieces behind nearly every local Windows privilege escalation technique you'll encounter, and seeing the common thread between them is more useful than memorizing any single technique in isolation.</p>
 
-          <p>Misconfigured service permissions are one of the most reliable patterns. Windows services run under a security context, frequently SYSTEM, and the service object itself has its own DACL controlling who can query, start, stop, and reconfigure it. If that DACL grants a low-privileged user or group the right to change the service's configuration, for instance the SERVICE_CHANGE_CONFIG right, that user can repoint the service's executable path to a binary of their choosing and then restart the service, at which point their chosen binary runs with whatever privileged account the service was configured to use. The ACL gap is the vulnerability; the service's elevated run-as context is what makes that gap worth exploiting.</p>
+          <h3>Three Patterns Worth Knowing</h3>
+          <ul>
+            <li><strong>Misconfigured service permissions.</strong> Windows services run under a security context, frequently SYSTEM, and the service object itself has its own DACL controlling who can query, start, stop, and reconfigure it. If that DACL grants a low-privileged user or group the right to change the service's configuration, for instance the SERVICE_CHANGE_CONFIG right, that user can repoint the service's executable path to a binary of their choosing and then restart the service. Their chosen binary then runs with whatever privileged account the service was configured to use. The ACL gap is the vulnerability; the service's elevated run-as context is what makes that gap worth exploiting.</li>
+            <li><strong>Unquoted service path vulnerabilities.</strong> A narrower, purely mechanical version of the same idea. When a service's executable path contains spaces and is not wrapped in quotation marks, for example C:\Program Files\My App\service.exe, Windows will try each space-delimited segment in order as a potential executable before falling back to the full intended path, meaning it will attempt C:\Program.exe, then C:\Program Files\My.exe, and so on. If an attacker can write a file to one of those intermediate locations, typically because a writable folder sits earlier in the path than it should, that planted executable runs instead, again inheriting whatever privileged context the service was configured with. No ACL was even misconfigured on the service object itself; the weakness is in how an unquoted path string gets parsed.</li>
+            <li><strong>Token impersonation abuse.</strong> The Potato-style techniques introduced in the privileges section sit alongside these as a third distinct pattern rather than a variation on the same theme. Instead of exploiting a permissions gap or a path-parsing quirk, it exploits the combination of a legitimately held privilege, SeImpersonatePrivilege, with a way to coerce a higher-privileged process into authenticating to attacker-controlled code. The account never needed an ACL misconfiguration or a service to abuse; it already had exactly the capability it used, just not the intended trigger for using it.</li>
+          </ul>
 
-          <p>Unquoted service path vulnerabilities are a narrower, purely mechanical version of the same idea. When a service's executable path contains spaces and is not wrapped in quotation marks, for example C:\Program Files\My App\service.exe, Windows will try each space-delimited segment in order as a potential executable before falling back to the full intended path, meaning it will attempt C:\Program.exe, then C:\Program Files\My.exe, and so on. If an attacker can write a file to one of those intermediate locations, typically because a writable folder sits earlier in the path than it should, that planted executable runs instead, again inheriting whatever privileged context the service was configured with. No ACL was even misconfigured on the service object itself; the weakness is in how an unquoted path string gets parsed.</p>
-
-          <p>Token impersonation abuse, the Potato-style techniques introduced in the privileges section, sits alongside these as a third distinct pattern rather than a variation on the same theme. Instead of exploiting a permissions gap or a path-parsing quirk, it exploits the combination of a legitimately held privilege, SeImpersonatePrivilege, with a way to coerce a higher-privileged process into authenticating to attacker-controlled code. The account never needed an ACL misconfiguration or a service to abuse; it already had exactly the capability it used, just not the intended trigger for using it.</p>
-
-          <p>The common thread across all three is that Windows enforces privilege boundaries through a specific set of checkpoints, object ACLs, service configuration rights, and held privileges, and each checkpoint only works correctly if it was configured with the actual threat model in mind. A service DACL that's more permissive than intended, a path string that's missing quotes, or a privilege granted to an account without considering what it enables in combination with normal system behavior are all failures of the same underlying kind: the gap between what an object or account is supposed to be able to do and what the OS will actually let it do once you look closely enough.</p>
+          <h3>The Common Thread</h3>
+          <p>Windows enforces privilege boundaries through a specific set of checkpoints, object ACLs, service configuration rights, and held privileges. Each checkpoint only works correctly if it was configured with the actual threat model in mind.</p>
+          <p>A service DACL that's more permissive than intended, a path string that's missing quotes, or a privilege granted to an account without considering what it enables in combination with normal system behavior, are all failures of the same underlying kind: the gap between what an object or account is supposed to be able to do and what the OS will actually let it do once you look closely enough.</p>
         </section>
 
         <div class="chapter-summary">

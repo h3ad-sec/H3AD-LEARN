@@ -140,13 +140,42 @@
 
         <section class="content-section" id="fundamentals-to-roles">
           <h2>How These Fundamentals Map to Real Roles</h2>
-          <p>Nobody gets hired to "know the CIA triad." But every interviewer in this field is quietly checking whether you actually understand it, because it is the mental model behind almost every decision a security professional makes. When a SOC analyst decides whether an alert matters, they are implicitly asking which leg of the triad is at risk. When a CTI analyst assesses an actor's intent, they are asking what the actor is after: confidentiality (data theft), integrity (manipulation), or availability (disruption). The seven chapters before this one were not abstract theory. They were the load-bearing concepts underneath every job description you are about to read.</p>
+          <p>Nobody gets hired to "know the CIA triad." But every interviewer in this field is quietly checking whether you actually understand it, because it is the mental model behind almost every decision a security professional makes. When a SOC analyst decides whether an alert matters, they are implicitly asking which leg of the triad is at risk.</p>
+          <p>When a CTI analyst assesses an actor's intent, they are asking what the actor is after: confidentiality (data theft), integrity (manipulation), or availability (disruption). The seven chapters before this one were not abstract theory, they were the load-bearing concepts underneath every job description you are about to read.</p>
 
-          <p>Authentication and access control is the chapter that shows up fastest in real work. SOC Tier 1 triage is largely an access-control problem: is this login from a new location, does this account have privileges it should not, did MFA get bypassed. Cryptography shows up less often day to day but matters enormously the moment it does, in TLS inspection, hash verification during forensics, or explaining why a "encrypted" ransomware note is not actually a crypto failure on your part. The common attacks and kill chain chapter is the connective tissue for almost every specialization below: SOC, hunting, CTI, and IR all use some version of a kill chain or ATT&CK to organize what they are looking at.</p>
+          <div class="callout-info">
+            <strong>Quick glossary, the five tracks this chapter covers:</strong>
+            <ul>
+              <li><strong>SOC Analyst</strong>: triages and investigates alerts, tiered from Tier 1 through Tier 3.</li>
+              <li><strong>Threat Hunter</strong>: proactively searches for adversary activity that existing alerts would miss.</li>
+              <li><strong>Detection Engineer</strong>: turns hunt findings and CTI reporting into durable, tuned detection rules.</li>
+              <li><strong>CTI Analyst</strong>: researches threat actors and campaigns and produces reporting other teams act on.</li>
+              <li><strong>IR / Forensics</strong>: contains active incidents and reconstructs exactly what an attacker did.</li>
+            </ul>
+          </div>
 
-          <p>Frameworks and compliance matters more the further you move from pure technical work and the closer you get to GRC, audit, or leadership. Risk and vulnerability management is the chapter that determines whether your organization patches the right things in the right order, and it is foundational for vulnerability management analyst and risk analyst roles specifically. SOC operations basics, the chapter right before this one, is the most directly transferable of all seven, because almost every track below either starts in a SOC or interacts with one constantly.</p>
+          <h3>Where Each Fundamentals Chapter Shows Up on the Job</h3>
+          <p>Some of the first seven chapters earn their keep faster than others once you are actually working. The table below maps each one to where it shows up first.</p>
 
-          <p>The point of laying this out is not to tell you which chapter to reread. It is to make the case that specialization is additive, not a replacement. A threat hunter who is fuzzy on access control models will misjudge lateral movement. A CTI analyst who does not understand the kill chain cannot map an actor's TTPs to anything actionable. Every track below assumes chapters 1 through 7 as a baseline and builds a specific skill set on top of them.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Fundamentals Chapter</th><th>Where It Shows Up First</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>Authentication & Access Control</strong></td><td>Fastest to show up. SOC Tier 1 triage is largely an access-control problem: is this login from a new location, does this account have privileges it should not, did MFA get bypassed.</td></tr>
+                <tr><td><strong>Cryptography</strong></td><td>Shows up less often day to day but matters enormously the moment it does, in TLS inspection, hash verification during forensics, or explaining why an "encrypted" ransomware note is not a crypto failure on your part.</td></tr>
+                <tr><td><strong>Common Attacks & Kill Chain</strong></td><td>Connective tissue for almost every specialization below. SOC, hunting, CTI, and IR all use some version of a kill chain or ATT&CK to organize what they are looking at.</td></tr>
+                <tr><td><strong>Frameworks & Compliance</strong></td><td>Matters more the further you move from pure technical work and the closer you get to GRC, audit, or leadership.</td></tr>
+                <tr><td><strong>Risk & Vulnerability Management</strong></td><td>Determines whether your organization patches the right things in the right order. Foundational for vulnerability management analyst and risk analyst roles specifically.</td></tr>
+                <tr><td><strong>SOC Operations Basics</strong></td><td>The most directly transferable of all seven, because almost every track below either starts in a SOC or interacts with one constantly.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Specialization Builds on This Foundation, It Doesn't Replace It</h3>
+          <p>The point of laying this out is not to tell you which chapter to reread. It is to make the case that specialization is additive, not a replacement.</p>
+          <p>A threat hunter who is fuzzy on access control models will misjudge lateral movement. A CTI analyst who does not understand the kill chain cannot map an actor's TTPs to anything actionable. Every track below assumes chapters 1 through 7 as a baseline and builds a specific skill set on top of them.</p>
 
           <div class="callout-info">
             <strong>Note:</strong> If any of the five tracks below feels shaky when you read the "maps to" section, that is a signal to revisit the specific fundamentals chapter named, not to skip ahead. A weak foundation shows up as a plateau six months into the job, not on day one.
@@ -155,66 +184,104 @@
 
         <section class="content-section" id="soc-analyst-track">
           <h2>The SOC Analyst Track</h2>
-          <p>The SOC analyst track is the most common entry point into security, and for most people reading this it is the next real step. It runs in tiers, and the tiers describe a genuine progression in judgment, not just seniority for its own sake. Tier 1 analysts triage the incoming alert queue: they look at what fired, gather basic context, and decide whether to close it as benign, escalate it, or take a scripted first action. The job is high volume and pattern-recognition heavy. You are not expected to have deep judgment yet; you are expected to follow playbooks accurately and know when a case does not fit the playbook.</p>
+          <p>The SOC analyst track is the most common entry point into security, and for most people reading this it is the next real step. It runs in tiers, and the tiers describe a genuine progression in judgment, not just seniority for its own sake.</p>
 
-          <p>Tier 2 analysts handle what Tier 1 escalates. The work shifts from "does this match a known pattern" to "what actually happened here." A Tier 2 analyst pivots across log sources, correlates an alert with related activity elsewhere in the environment, and makes judgment calls about scope and severity without a script to follow. This is where the auth and access control chapter earns its keep daily: distinguishing a legitimate password reset from an account takeover, or a service account behaving normally from one that has been compromised, is exactly the kind of decision Tier 2 exists to make.</p>
+          <ol>
+            <li><strong>Tier 1: alert triage.</strong> Look at what fired, gather basic context, and decide whether to close it as benign, escalate it, or take a scripted first action.</li>
+            <li><strong>Tier 2: investigation.</strong> Pivot across log sources, correlate an alert with related activity elsewhere in the environment, and judge scope and severity without a script to follow.</li>
+            <li><strong>Tier 3: tuning and escalation backstop.</strong> Close the alerts nobody else could, tune the detection logic that generates the queue, and mentor Tier 1 and Tier 2.</li>
+          </ol>
 
-          <p>Tier 3 analysts, sometimes titled senior analyst or SOC lead, handle the alerts nobody else could close, tune the detection logic that generates the queue in the first place, and often mentor Tier 1 and Tier 2. At this level the kill chain and ATT&CK chapter becomes a working tool rather than background knowledge: a Tier 3 analyst is expected to look at a cluster of alerts and place them on a kill chain to reason about what the adversary is doing next, not just what already happened.</p>
+          <h3>Tier 1: Alert Triage</h3>
+          <p>Tier 1 analysts triage the incoming alert queue: they look at what fired, gather basic context, and decide whether to close it as benign, escalate it, or take a scripted first action. The job is high volume and pattern-recognition heavy.</p>
+          <p>You are not expected to have deep judgment yet. You are expected to follow playbooks accurately and know when a case does not fit the playbook.</p>
 
+          <h3>Tier 2: Investigation and Correlation</h3>
+          <p>Tier 2 analysts handle what Tier 1 escalates. The work shifts from "does this match a known pattern" to "what actually happened here."</p>
+          <p>A Tier 2 analyst pivots across log sources, correlates an alert with related activity elsewhere in the environment, and makes judgment calls about scope and severity without a script to follow. This is where the auth and access control chapter earns its keep daily: distinguishing a legitimate password reset from an account takeover, or a service account behaving normally from one that has been compromised, is exactly the kind of decision Tier 2 exists to make.</p>
+
+          <h3>Tier 3: Tuning the Detection Logic</h3>
+          <p>Tier 3 analysts, sometimes titled senior analyst or SOC lead, handle the alerts nobody else could close, tune the detection logic that generates the queue in the first place, and often mentor Tier 1 and Tier 2.</p>
+          <p>At this level the kill chain and ATT&CK chapter becomes a working tool rather than background knowledge: a Tier 3 analyst is expected to look at a cluster of alerts and place them on a kill chain to reason about what the adversary is doing next, not just what already happened.</p>
+
+          <h3>Why Start Here</h3>
           <p>What makes the SOC track attractive as a starting point is that it is the fastest way to build pattern recognition against real traffic and real alerts, which every other track in this chapter eventually depends on. Nobody skips this experience successfully; they either get it in a SOC seat or they get it more slowly and painfully somewhere else.</p>
-
           <p>The direct skill mapping from this module: the auth/access control chapter is your Tier 1 and Tier 2 triage toolkit, the kill chain and common attacks chapter is your alert-context toolkit at every tier, and the SOC operations basics chapter you just finished is a preview of the actual daily rhythm: shift handoffs, ticket queues, escalation paths, and the tooling you will live in.</p>
         </section>
 
         <section class="content-section" id="hunter-detection-track">
           <h2>Threat Hunter and Detection Engineer Track</h2>
-          <p>Threat hunting and detection engineering are often bundled together because they answer the same underlying question from opposite directions: what are we missing. A SOC analyst reacts to alerts that already fired. A threat hunter starts from a hypothesis about what an adversary might be doing that would not trigger any existing alert, and goes looking for evidence of it directly in the data. That is a fundamentally different posture. It requires comfort with ambiguity, because most hunts find nothing, and the ones that do find something are validating a guess rather than confirming a rule.</p>
+          <p>Threat hunting and detection engineering are often bundled together because they answer the same underlying question from opposite directions: what are we missing. A SOC analyst reacts to alerts that already fired.</p>
 
+          <h3>What Threat Hunters Do</h3>
+          <p>A threat hunter starts from a hypothesis about what an adversary might be doing that would not trigger any existing alert, and goes looking for evidence of it directly in the data. That is a fundamentally different posture. It requires comfort with ambiguity, because most hunts find nothing, and the ones that do find something are validating a guess rather than confirming a rule.</p>
           <p>A typical hunt starts with a trigger: a new CTI report on an actor's TTPs, a gap identified in ATT&CK coverage, or a hunch based on an environment's specific risk profile. The hunter forms a testable hypothesis, for example "if this actor's living-off-the-land technique were used here, it would show up as this specific parent-child process relationship," and then queries the data to test it. This is where the kill chain and common attacks chapter from this module stops being background reading and becomes the raw material you hunt with.</p>
 
-          <p>Detection engineering is the other half of this track: turning what a hunt finds, or what CTI reports, into a durable, tuned detection rule so the SOC does not have to rediscover the same activity manually next time. This work lives in Sigma, KQL, or whatever query language your SIEM speaks, and it demands a genuinely different skill than hunting itself: writing a rule specific enough to avoid drowning Tier 1 in false positives, but broad enough to still catch variants of the same behavior.</p>
+          <h3>What Detection Engineers Do</h3>
+          <p>Detection engineering is the other half of this track: turning what a hunt finds, or what CTI reports, into a durable, tuned detection rule so the SOC does not have to rediscover the same activity manually next time. This work lives in Sigma, KQL, or whatever query language your SIEM speaks.</p>
+          <p>It demands a genuinely different skill than hunting itself: writing a rule specific enough to avoid drowning Tier 1 in false positives, but broad enough to still catch variants of the same behavior.</p>
 
+          <h3>Where to Go Next on H3AD-LEARN</h3>
           <p>If this track sounds like where you want to go, the next stop on H3AD-LEARN is direct: the <a href="../threat-hunting/index.html">Threat Hunting module</a> is live and picks up exactly where this leaves off, covering hypothesis-driven hunting methodology and hunt documentation. The <a href="../lolbas/index.html">LOLBAS module</a>, also live, is a natural companion, since living-off-the-land binaries are one of the most common blind spots that hunting and detection engineering exist to close.</p>
 
+          <h3>Is This Track for You</h3>
           <p>This track suits people who got more energy from writing hunt queries than from clearing tickets during their SOC time, and who like the open-ended "what if" of a hypothesis better than the closed-loop nature of alert triage. It is rarely a true entry-level role; most hunters and detection engineers spend real time in a SOC first to build the pattern library they are now hunting against.</p>
         </section>
 
         <section class="content-section" id="cti-analyst-track">
           <h2>CTI Analyst Track</h2>
-          <p>Cyber threat intelligence analysts research adversaries rather than react to alerts. The core work is tracking specific threat actors and campaigns over time: what infrastructure they use, what tools and techniques they favor, who they target, and how their behavior shifts as defenders adapt. That research gets written up as intelligence reporting aimed at a specific consumer, whether that is a SOC that needs new detection content, an executive who needs a sector risk briefing, or an incident response team that needs actor attribution mid-incident.</p>
-
+          <h3>What CTI Analysts Do</h3>
+          <p>Cyber threat intelligence analysts research adversaries rather than react to alerts. The core work is tracking specific threat actors and campaigns over time: what infrastructure they use, what tools and techniques they favor, who they target, and how their behavior shifts as defenders adapt.</p>
+          <p>That research gets written up as intelligence reporting aimed at a specific consumer, whether that is a SOC that needs new detection content, an executive who needs a sector risk briefing, or an incident response team that needs actor attribution mid-incident.</p>
           <p>What distinguishes CTI from adjacent tracks is the emphasis on writing and communication alongside the technical research. A CTI analyst who can pivot through OSINT sources and correlate infrastructure but cannot produce a report a CISO will actually read has only done half the job. The output has to feed decisions, whether that is a detection engineer building a new rule from the TTPs described, or leadership deciding whether to brief the board on a sector-targeted campaign.</p>
 
-          <p>CTI work also depends heavily on the frameworks chapter from this module. Actor profiling commonly uses the Diamond Model to structure adversary, infrastructure, capability, and victim relationships, and ATT&CK to normalize TTPs across different vendor naming conventions for the same group. Without that shared vocabulary, CTI reporting becomes idiosyncratic and hard for other teams to consume or act on.</p>
+          <h3>Skills This Module Maps to CTI</h3>
+          <p>CTI work also depends heavily on the frameworks chapter from this module. Actor profiling commonly uses the <strong>Diamond Model</strong> to structure adversary, infrastructure, capability, and victim relationships, and <strong>ATT&CK</strong> to normalize TTPs across different vendor naming conventions for the same group. Without that shared vocabulary, CTI reporting becomes idiosyncratic and hard for other teams to consume or act on.</p>
 
+          <h3>Where to Go Next on H3AD-LEARN</h3>
           <p>H3AD-LEARN's <a href="../threat-intel/index.html">Threat Intelligence module</a> is live and is the direct next step for this track. It starts with the same foundational split this chapter just described, intelligence types and the intelligence cycle, then moves through IOC confidence scoring, actor profiling, structured sharing formats like STIX and TAXII, and finally how to turn a finished report into detection content, which closes the loop back to the hunting and detection track above.</p>
 
+          <h3>Is This Track for You</h3>
           <p>CTI suits people who enjoyed the research and writing side of security more than the live-fire pace of a SOC queue, and who are comfortable holding uncertainty in an assessment rather than needing a clean yes or no answer. It is a track where strong writing is a genuine competitive advantage, not a nice-to-have.</p>
         </section>
 
         <section class="content-section" id="ir-forensics-track">
           <h2>Incident Responder and Forensics Track</h2>
-          <p>Incident response is what happens after detection has already worked and the question becomes what to do about it. The IR lifecycle most teams use, drawn from NIST, runs through preparation, detection and analysis, containment, eradication, recovery, and post-incident lessons learned. A responder's job during an active incident is to stop the bleeding without destroying the evidence needed to understand what happened, which is a harder balance than it sounds under time pressure with an executive asking for a status update every twenty minutes.</p>
-
+          <h3>What Incident Responders Do</h3>
+          <p>Incident response is what happens after detection has already worked and the question becomes what to do about it. The IR lifecycle most teams use, drawn from NIST, runs through preparation, detection and analysis, containment, eradication, recovery, and post-incident lessons learned.</p>
+          <p>A responder's job during an active incident is to stop the bleeding without destroying the evidence needed to understand what happened, which is a harder balance than it sounds under time pressure with an executive asking for a status update every twenty minutes.</p>
           <p>Containment decisions are where IR diverges sharply from SOC triage. A SOC analyst closes or escalates a single alert. An IR responder decides whether to isolate a host immediately (fast, but tips off an adversary who might have persistence elsewhere) or monitor quietly to map the full scope of a compromise first (slower, but reduces the risk of missing a second foothold). Neither choice is automatically correct; it depends on the incident, the environment, and organizational risk tolerance, which is exactly the kind of judgment the risk management chapter in this module is meant to build.</p>
 
-          <p>Digital forensics is a closely related but distinct discipline focused on evidence: acquiring disk and memory images in a forensically sound way, maintaining chain of custody, and reconstructing a precise timeline of what an attacker did on a specific system. Some organizations keep IR and forensics as one combined role, especially smaller teams; larger organizations split them, with forensics examiners supporting IR responders on cases that may end up in legal or regulatory proceedings.</p>
+          <h3>Digital Forensics: A Related but Distinct Discipline</h3>
+          <p>Digital forensics is a closely related but distinct discipline focused on evidence: acquiring disk and memory images in a forensically sound way, maintaining chain of custody, and reconstructing a precise timeline of what an attacker did on a specific system.</p>
+          <p>Some organizations keep IR and forensics as one combined role, especially smaller teams. Larger organizations split them, with forensics examiners supporting IR responders on cases that may end up in legal or regulatory proceedings.</p>
 
-          <p>This is the one track in this chapter where H3AD-LEARN does not yet have a live module to send you to directly. Incident Response and Digital Forensics are both planned domains for the platform and are coming soon. In the meantime, the strongest preparation is solid ground in this Fundamentals module plus the <a href="../threat-hunting/index.html">Threat Hunting module</a>, since a huge share of IR work is the same pattern-matching and pivoting-through-logs skill that hunting teaches, just applied under a much tighter clock and with formal documentation requirements attached.</p>
+          <h3>No Live Module Yet, What to Study Instead</h3>
+          <p>This is the one track in this chapter where H3AD-LEARN does not yet have a live module to send you to directly. Incident Response and Digital Forensics are both planned domains for the platform and are coming soon.</p>
+          <p>In the meantime, the strongest preparation is solid ground in this Fundamentals module plus the <a href="../threat-hunting/index.html">Threat Hunting module</a>, since a huge share of IR work is the same pattern-matching and pivoting-through-logs skill that hunting teaches, just applied under a much tighter clock and with formal documentation requirements attached.</p>
 
+          <h3>Is This Track for You</h3>
           <p>IR and forensics suit people who handle pressure well, write precisely under time constraints, and do not mind that the job is fundamentally reactive: you do not choose when an incident happens, and the first hour of a bad one rarely goes the way anyone planned.</p>
         </section>
 
         <section class="content-section" id="study-order-roadmap">
           <h2>Suggested Study Order Through H3AD-LEARN</h2>
-          <p>You do not need to pick exactly one track today and never look at the others. Most people entering this field sample two or three tracks in their first couple of years before settling into one, and the fundamentals plus a broad first pass through the live modules is what makes that sampling possible without starting over each time. What follows is a recommended order, not a rigid requirement: adjust it based on which track from this chapter pulled at you the most.</p>
+          <p>You do not need to pick exactly one track today and never look at the others. Most people entering this field sample two or three tracks in their first couple of years before settling into one, and the fundamentals plus a broad first pass through the live modules is what makes that sampling possible without starting over each time.</p>
+          <p>What follows is a recommended order, not a rigid requirement: adjust it based on which track from this chapter pulled at you the most.</p>
 
-          <p>After finishing this Fundamentals module, the most efficient next step for almost everyone is the <a href="../networking/index.html">Networking module</a>: it is foundational in the same way this one is, and nearly every other domain on this platform assumes the packet-level and protocol literacy it builds. From there, <a href="../threat-hunting/index.html">Threat Hunting</a> reinforces and extends the kill chain and attack-pattern thinking you just built, and it is useful regardless of which track you eventually land in. <a href="../threat-intel/index.html">Threat Intelligence</a> deepens the actor and campaign context that makes hunts and detections sharper, and <a href="../lolbas/index.html">LOLBAS</a> gives you a deep, practical reference for one of the most common blind spots in both hunting and detection. <a href="../cloud-security/index.html">Cloud Security</a>, also live, is worth prioritizing early if your target environment or target employer is cloud-first, since on-prem assumptions baked into classic SOC training do not transfer cleanly.</p>
+          <h3>General Study Order</h3>
+          <p>After finishing this Fundamentals module, the most efficient next step for almost everyone is the <a href="../networking/index.html">Networking module</a>: it is foundational in the same way this one is, and nearly every other domain on this platform assumes the packet-level and protocol literacy it builds.</p>
+          <p>From there, <a href="../threat-hunting/index.html">Threat Hunting</a> reinforces and extends the kill chain and attack-pattern thinking you just built, and it is useful regardless of which track you eventually land in. <a href="../threat-intel/index.html">Threat Intelligence</a> deepens the actor and campaign context that makes hunts and detections sharper, and <a href="../lolbas/index.html">LOLBAS</a> gives you a deep, practical reference for one of the most common blind spots in both hunting and detection.</p>
+          <p><a href="../cloud-security/index.html">Cloud Security</a>, also live, is worth prioritizing early if your target environment or target employer is cloud-first, since on-prem assumptions baked into classic SOC training do not transfer cleanly.</p>
 
-          <p>Beyond the six modules currently live, H3AD-LEARN has a set of additional domains planned: Windows Internals, Linux, SOC Operations (a deeper standalone module beyond the basics chapter you just read), Detection Engineering, Incident Response, Digital Forensics, Malware Analysis, and AI in Security. Watch for these as they ship; several of them, especially Windows Internals, are prerequisite-adjacent for almost every track above even though they are not framed as prerequisites here.</p>
+          <h3>Modules Still Planned</h3>
+          <p>Beyond the six modules currently live, H3AD-LEARN has a set of additional domains planned: Windows Internals, Linux, SOC Operations (a deeper standalone module beyond the basics chapter you just read), Detection Engineering, Incident Response, Digital Forensics, Malware Analysis, and AI in Security.</p>
+          <p>Watch for these as they ship. Several of them, especially Windows Internals, are prerequisite-adjacent for almost every track above even though they are not framed as prerequisites here.</p>
 
+          <h3>Interview Prep: Save It for Last</h3>
           <p>One module deserves a separate mention regardless of which track you are aiming for: <a href="../interview-prep/index.html">Interview Prep</a> is live now and is worth using once you are actually preparing to interview, not before. It is built around scenario-based questions across domains rather than trivia recall, which mirrors how security interviews are actually run at most competent employers.</p>
 
+          <h3>Track-by-Track Study Order</h3>
           <p>The table below is a rough guide, not a strict gate. Overlap between tracks is real and expected; a working SOC analyst benefits from the CTI module even if they never move into a CTI role, because it sharpens how they read the threat feeds already in front of them every shift.</p>
 
           <div class="table-wrap">

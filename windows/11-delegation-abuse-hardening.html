@@ -143,13 +143,42 @@
 
         <section class="content-section" id="unconstrained-delegation">
           <h2>Unconstrained Delegation and Why It's Dangerous</h2>
-          <p>Unconstrained delegation is the oldest and bluntest form of Kerberos delegation in Active Directory. When a computer or service account is configured for unconstrained delegation, any user who authenticates to that service via Kerberos hands over more than a service ticket. Their full Ticket Granting Ticket (TGT) rides along inside the authenticator and gets cached in the delegating service's memory, specifically in LSASS on that host. The service was never supposed to need the user's TGT to do its job, it only needed a way to prove the user's identity to a downstream resource, but unconstrained delegation grants it the TGT anyway, with no restriction on what that TGT can later be used for.</p>
+          <p>Unconstrained delegation is the oldest and bluntest form of Kerberos delegation in Active Directory. It was designed to let a front-end service act on a user's behalf, but it does so with no restriction on where that access can later be used. The three delegation models covered in this chapter differ mainly in who decides the trust and how tightly that trust is scoped.</p>
 
-          <p>The practical effect is that a delegating service does not just get to act as the user toward one downstream target. It gets to act as that user anywhere in the domain, for as long as the cached TGT remains valid. If the account that authenticated happens to be a Domain Admin, or a domain controller machine account performing a routine operation against the delegating host, the service now holds a TGT that can be replayed to impersonate that highly privileged identity without limit. This is why unconstrained delegation is treated as one of the highest-value objectives an attacker can chase in an AD environment: compromising a single host configured this way is not a foothold, it is a waiting room for a privileged credential to walk in on its own.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Type</th><th>Who Decides Trust</th><th>Key Attribute</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Unconstrained delegation</td><td>Nobody, whichever service is configured can act as the user anywhere</td><td>Full TGT cached in the service's memory (LSASS)</td></tr>
+                <tr><td>Constrained delegation</td><td>The delegating service's administrator, via an explicit SPN allowlist</td><td>msDS-AllowedToDelegateTo</td></tr>
+                <tr><td>Resource-based constrained delegation (RBCD)</td><td>The back-end resource's owner</td><td>msDS-AllowedToActOnBehalfOfOtherIdentity</td></tr>
+              </tbody>
+            </table>
+          </div>
 
-          <p>Attackers do not need to do anything sophisticated to exploit this once they control a host with unconstrained delegation enabled. They wait, or they actively coerce a high-value account into authenticating to that host, and then extract the cached TGT from LSASS using the same credential-dumping tradecraft covered earlier in this module. From there, the stolen TGT is replayed exactly like any other stolen ticket, granting the attacker whatever access the impersonated account actually has. No exploit is required against the delegation mechanism itself, because unconstrained delegation is functioning exactly as designed. The design is the vulnerability.</p>
+          <h3>What Unconstrained Delegation Grants</h3>
+          <p>When a computer or service account is configured for unconstrained delegation, any user who authenticates to it via Kerberos hands over more than a service ticket. Their full <strong>Ticket Granting Ticket (TGT)</strong> rides along inside the authenticator and gets cached in the delegating service's memory, specifically in LSASS on that host.</p>
+          <p>The service was never supposed to need the user's TGT to do its job, it only needed a way to prove the user's identity to a downstream resource. Unconstrained delegation grants it the TGT anyway, with no restriction on what that TGT can later be used for.</p>
 
-          <p>Because of this risk, unconstrained delegation is now disabled by default on new domain trusts in current Windows Server releases, and Microsoft's own guidance is to migrate any remaining unconstrained delegation configurations to constrained delegation wherever possible. Legacy environments still commonly carry unconstrained delegation on older application servers, print servers, or infrastructure that predates a security review, and an inventory of every account and computer object with the unconstrained delegation flag set should be one of the first things a hardening effort produces, since each one represents a standing amplification path for whatever credential happens to touch it next.</p>
+          <h3>Why It's a High-Value Target</h3>
+          <p>The practical effect is that a delegating service does not just get to act as the user toward one downstream target. It gets to act as that user anywhere in the domain, for as long as the cached TGT remains valid.</p>
+          <p>If the account that authenticated happens to be a Domain Admin, or a domain controller machine account performing a routine operation against the delegating host, the service now holds a TGT that can be replayed to impersonate that highly privileged identity without limit. This is why unconstrained delegation is treated as one of the highest-value objectives an attacker can chase in an AD environment: compromising a single host configured this way is not a foothold, it is a waiting room for a privileged credential to walk in on its own.</p>
+
+          <h3>How Attackers Exploit It</h3>
+          <p>Attackers do not need to do anything sophisticated to exploit this once they control a host with unconstrained delegation enabled:</p>
+          <ol>
+            <li><strong>Control a host</strong> configured for unconstrained delegation.</li>
+            <li><strong>Wait, or actively coerce,</strong> a high-value account into authenticating to that host.</li>
+            <li><strong>Extract the cached TGT</strong> from LSASS using the same credential-dumping tradecraft covered earlier in this module.</li>
+            <li><strong>Replay the stolen TGT</strong> exactly like any other stolen ticket, gaining whatever access the impersonated account actually has.</li>
+          </ol>
+          <p>No exploit is required against the delegation mechanism itself, because unconstrained delegation is functioning exactly as designed. The design is the vulnerability.</p>
+
+          <h3>Current Guidance</h3>
+          <p>Because of this risk, unconstrained delegation is now disabled by default on new domain trusts in current Windows Server releases. Microsoft's own guidance is to migrate any remaining unconstrained delegation configurations to constrained delegation wherever possible.</p>
+          <p>Legacy environments still commonly carry unconstrained delegation on older application servers, print servers, or infrastructure that predates a security review. An inventory of every account and computer object with the unconstrained delegation flag set should be one of the first things a hardening effort produces, since each one represents a standing amplification path for whatever credential happens to touch it next.</p>
 
           <div class="callout-warning">
             <strong>Warning:</strong> A domain controller itself routinely authenticates to other hosts for legitimate reasons. If a domain controller's machine account, or any Domain Admin service account, ever authenticates to a host configured for unconstrained delegation, that host effectively becomes a domain controller from an attacker's perspective the moment it is compromised.
@@ -158,14 +187,36 @@
 
         <section class="content-section" id="constrained-delegation">
           <h2>Constrained Delegation and Protocol Transition</h2>
-          <p>Constrained delegation, introduced to correct the open-ended risk of unconstrained delegation, narrows what a delegating account is allowed to do. Instead of receiving a user's full TGT and being trusted to use it anywhere, a constrained delegation account is explicitly restricted to a specific list of Service Principal Names it is permitted to request tickets for on the user's behalf. That list lives in the msDS-AllowedToDelegateTo attribute on the delegating account's AD object. If a front-end web service needs to reach a specific SQL Server instance as the logged-in user, an administrator populates msDS-AllowedToDelegateTo with that SQL service's SPN, and the KDC will only issue delegated service tickets targeting exactly that resource, nothing else.</p>
+          <p>Constrained delegation, introduced to correct the open-ended risk of unconstrained delegation, narrows what a delegating account is allowed to do. Instead of receiving a user's full TGT and being trusted to use it anywhere, a constrained delegation account is explicitly restricted to a specific list of resources it is permitted to request tickets for on the user's behalf.</p>
 
-          <p>Under the hood, constrained delegation relies on two Kerberos extensions working together. S4U2Self lets a service request a service ticket to itself on behalf of a user, which is what allows the front-end to establish that it is acting for that user in the first place. S4U2Proxy is the step that actually produces the delegated ticket toward the downstream resource, and it is S4U2Proxy that gets checked against the msDS-AllowedToDelegateTo list. Because the KDC enforces that allowlist at ticket-issuance time, a compromised constrained-delegation account cannot simply be pointed at an arbitrary target the way a compromised unconstrained-delegation account can. The blast radius of compromising the account is capped at whatever is on its allowlist.</p>
+          <div class="callout-info">
+            <strong>Quick glossary:</strong>
+            <ul>
+              <li><strong>SPN</strong> (Service Principal Name): identifies the specific service instance a Kerberos ticket can be issued for.</li>
+              <li><strong>msDS-AllowedToDelegateTo</strong>: the attribute on a delegating account listing exactly which SPNs it may request tickets for on a user's behalf.</li>
+              <li><strong>S4U2Self</strong>: the Kerberos extension a service uses to request a ticket to itself on behalf of a user.</li>
+              <li><strong>S4U2Proxy</strong>: the extension that produces the actual delegated ticket toward the downstream resource, checked against msDS-AllowedToDelegateTo.</li>
+              <li><strong>TRUSTED_TO_AUTH_FOR_DELEGATION</strong>: the userAccountControl flag that enables protocol transition.</li>
+            </ul>
+          </div>
 
-          <p>Protocol transition extends this model to cover a real-world gap: not every client authenticates to the front-end service using Kerberos in the first place. A web application might authenticate a user with a form-based login, a certificate, or another non-Kerberos mechanism entirely, and still need to delegate that user's identity onward to a Kerberos-speaking back end. Protocol transition, enabled via the TRUSTED_TO_AUTH_FOR_DELEGATION flag set in the account's userAccountControl attribute, allows the service to use S4U2Self to obtain a ticket on behalf of a user it authenticated by some other means, then chain into S4U2Proxy exactly as it would for a Kerberos-authenticated user.</p>
+          <h3>The Allowlist: msDS-AllowedToDelegateTo</h3>
+          <p>That list lives in the <strong>msDS-AllowedToDelegateTo</strong> attribute on the delegating account's AD object. If a front-end web service needs to reach a specific SQL Server instance as the logged-in user, an administrator populates msDS-AllowedToDelegateTo with that SQL service's SPN.</p>
+          <p>The KDC will then only issue delegated service tickets targeting exactly that resource, nothing else.</p>
 
-          <p>Protocol transition is also where constrained delegation's guardrail gets weaker in one specific way: because S4U2Self does not require the target user to have actually authenticated to the service via Kerberos at all, an account with protocol transition enabled can request a ticket on behalf of almost any user in the domain, including users who never interacted with that service. Combined with a permissive msDS-AllowedToDelegateTo entry, an attacker who compromises an account configured with both constrained delegation and protocol transition can impersonate arbitrary users toward whatever is on that account's allowed target list, without needing to wait for or coerce a real authentication event first. That combination is why security reviews of delegation configurations treat "Kerberos only" and "any authentication protocol" as materially different risk levels, even though both fall under the same constrained delegation umbrella.</p>
+          <h3>S4U2Self and S4U2Proxy</h3>
+          <p>Under the hood, constrained delegation relies on two Kerberos extensions working together. <strong>S4U2Self</strong> lets a service request a service ticket to itself on behalf of a user, which is what allows the front-end to establish that it is acting for that user in the first place. <strong>S4U2Proxy</strong> is the step that actually produces the delegated ticket toward the downstream resource, and it is S4U2Proxy that gets checked against the msDS-AllowedToDelegateTo list.</p>
+          <p>Because the KDC enforces that allowlist at ticket-issuance time, a compromised constrained-delegation account cannot simply be pointed at an arbitrary target the way a compromised unconstrained-delegation account can. The blast radius of compromising the account is capped at whatever is on its allowlist.</p>
 
+          <h3>Protocol Transition: Delegating Non-Kerberos Logons</h3>
+          <p>Protocol transition extends this model to cover a real-world gap: not every client authenticates to the front-end service using Kerberos in the first place. A web application might authenticate a user with a form-based login, a certificate, or another non-Kerberos mechanism entirely, and still need to delegate that user's identity onward to a Kerberos-speaking back end.</p>
+          <p>Protocol transition, enabled via the <strong>TRUSTED_TO_AUTH_FOR_DELEGATION</strong> flag set in the account's userAccountControl attribute, allows the service to use S4U2Self to obtain a ticket on behalf of a user it authenticated by some other means. It then chains into S4U2Proxy exactly as it would for a Kerberos-authenticated user.</p>
+
+          <h3>Where the Guardrail Weakens</h3>
+          <p>Protocol transition is also where constrained delegation's guardrail gets weaker in one specific way: because S4U2Self does not require the target user to have actually authenticated to the service via Kerberos at all, an account with protocol transition enabled can request a ticket on behalf of almost any user in the domain, including users who never interacted with that service.</p>
+          <p>Combined with a permissive msDS-AllowedToDelegateTo entry, an attacker who compromises an account configured with both constrained delegation and protocol transition can impersonate arbitrary users toward whatever is on that account's allowed target list, without needing to wait for or coerce a real authentication event first. That combination is why security reviews of delegation configurations treat "Kerberos only" and "any authentication protocol" as materially different risk levels, even though both fall under the same constrained delegation umbrella.</p>
+
+          <p class="muted" style="font-size:0.85rem;">Quick reference for the two configurations:</p>
           <div class="table-wrap">
             <table>
               <thead>
@@ -181,24 +232,57 @@
 
         <section class="content-section" id="resource-based-constrained-delegation">
           <h2>Resource-Based Constrained Delegation (RBCD)</h2>
-          <p>Resource-Based Constrained Delegation, introduced with Windows Server 2012, flips who holds the trust decision. Classic constrained delegation configures the trust on the front-end account: an administrator with rights over the delegating service account decides which downstream SPNs it is allowed to reach. RBCD moves that decision to the back end instead. The resource being accessed carries its own attribute, msDS-AllowedToActOnBehalfOfOtherIdentity, which lists which front-end accounts are permitted to delegate to it. The resource, not the service requesting access, is the one that grants trust.</p>
+          <h3>Who Holds the Trust Decision</h3>
+          <p><strong>Resource-Based Constrained Delegation (RBCD)</strong>, introduced with Windows Server 2012, flips who holds the trust decision. Classic constrained delegation configures the trust on the front-end account: an administrator with rights over the delegating service account decides which downstream SPNs it is allowed to reach.</p>
+          <p>RBCD moves that decision to the back end instead. The resource being accessed carries its own attribute, msDS-AllowedToActOnBehalfOfOtherIdentity, which lists which front-end accounts are permitted to delegate to it. The resource, not the service requesting access, is the one that grants trust.</p>
 
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th></th><th>Classic Constrained Delegation</th><th>Resource-Based Constrained Delegation</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Who grants trust</td><td>The front-end service's administrator</td><td>The back-end resource's owner</td></tr>
+                <tr><td>Attribute</td><td>msDS-AllowedToDelegateTo (on the front-end account)</td><td>msDS-AllowedToActOnBehalfOfOtherIdentity (on the back-end resource)</td></tr>
+                <tr><td>Typical use case</td><td>Same-domain delegation configured by a central admin</td><td>Cross-domain/cross-forest delegation, or self-service by the resource owner</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Why RBCD Exists</h3>
           <p>This reversal exists for legitimate operational reasons, mainly to make delegation configurable across domain and forest boundaries where an administrator managing the front-end service account might not have the rights to modify a downstream resource in a different domain, and vice versa. Letting the resource owner grant the trust on their own object sidesteps that cross-domain permission problem cleanly.</p>
 
-          <p>It also creates a distinct abuse path that has nothing to do with domain admin rights. Configuring RBCD only requires write access to the target computer object's msDS-AllowedToActOnBehalfOfOtherIdentity attribute, which in practice means any principal holding GenericAll, GenericWrite, or WriteDACL over that specific computer object can set it. Plenty of ordinary users end up with exactly that kind of write access over a specific machine account through delegated IT administration, help-desk tooling, or plain misconfiguration, with no privileged group membership involved at all. An attacker who controls such an account, or who controls a computer account they created themselves, since a default AD setting historically let any authenticated user join a limited number of computers to the domain, can write their own controlled computer account into the target's msDS-AllowedToActOnBehalfOfOtherIdentity attribute. From there they use S4U2Self and S4U2Proxy exactly as legitimate constrained delegation would, impersonating any user, including a domain admin, toward that one specific resource.</p>
+          <h3>The Abuse Path</h3>
+          <p>It also creates a distinct abuse path that has nothing to do with domain admin rights. Configuring RBCD only requires write access to the target computer object's msDS-AllowedToActOnBehalfOfOtherIdentity attribute, which in practice means any principal holding GenericAll, GenericWrite, or WriteDACL over that specific computer object can set it.</p>
+          <ol>
+            <li><strong>Hold write access</strong> over a target computer object, commonly gained through delegated IT administration, help-desk tooling, or plain misconfiguration, with no privileged group membership involved at all. Plenty of ordinary users end up with exactly this kind of access.</li>
+            <li><strong>Control a computer account</strong>, either one already held or one created directly, since a default AD setting historically let any authenticated user join a limited number of computers to the domain.</li>
+            <li><strong>Write that controlled computer account</strong> into the target's msDS-AllowedToActOnBehalfOfOtherIdentity attribute.</li>
+            <li><strong>Use S4U2Self and S4U2Proxy</strong> exactly as legitimate constrained delegation would, impersonating any user, including a domain admin, toward that one specific resource.</li>
+          </ol>
 
-          <p>RBCD is a good illustration of why delegation review cannot stop at checking who holds Domain Admin. The relevant question for RBCD is narrower and easy to miss: which accounts hold write permissions on which computer objects. A single overlooked ACL on a server's computer object can be a complete path to impersonating a privileged user against that server, with nothing about the attack requiring the attacker to already be privileged themselves.</p>
+          <h3>The Takeaway</h3>
+          <p>RBCD is a good illustration of why delegation review cannot stop at checking who holds Domain Admin. The relevant question for RBCD is narrower and easy to miss: which accounts hold write permissions on which computer objects.</p>
+          <p>A single overlooked ACL on a server's computer object can be a complete path to impersonating a privileged user against that server, with nothing about the attack requiring the attacker to already be privileged themselves.</p>
         </section>
 
         <section class="content-section" id="laps">
           <h2>LAPS: Local Administrator Password Solution</h2>
-          <p>LAPS addresses a problem that has nothing to do with Kerberos delegation and everything to do with how most organizations built their local administrator accounts: identically, using the same password across every machine in the fleet, usually set once at imaging time and never rotated. That single shared password turns compromising the local Administrator account on any one workstation into an all-you-can-eat pass-the-hash campaign across every other machine using the same credential, which is exactly the lateral movement pattern that made tools like Mimikatz effective for years.</p>
+          <h3>The Problem: One Shared Password, Fleet-Wide</h3>
+          <p>LAPS addresses a problem that has nothing to do with Kerberos delegation and everything to do with how most organizations built their local administrator accounts: identically, using the same password across every machine in the fleet, usually set once at imaging time and never rotated.</p>
+          <p>That single shared password turns compromising the local Administrator account on any one workstation into an all-you-can-eat pass-the-hash campaign across every other machine using the same credential, which is exactly the lateral movement pattern that made tools like Mimikatz effective for years.</p>
 
-          <p>LAPS solves this by generating a unique, randomized local administrator password on each domain-joined machine and rotating it automatically on a defined schedule. Windows LAPS lets administrators configure the password length, complexity, and rotation age through policy, and the password is written back to a protected attribute on the computer's own AD object rather than being stored anywhere a normal user could read it. Access to read the current password is controlled entirely through standard AD access control lists, so only accounts explicitly delegated the right to retrieve it can do so, and every retrieval is auditable the same way any other directory read is.</p>
+          <h3>The Solution: Per-Machine Random Passwords</h3>
+          <p><strong>LAPS</strong> solves this by generating a unique, randomized local administrator password on each domain-joined machine and rotating it automatically on a defined schedule. Windows LAPS lets administrators configure the password length, complexity, and rotation age through policy.</p>
+          <p>The password is written back to a protected attribute on the computer's own AD object rather than being stored anywhere a normal user could read it. Access to read the current password is controlled entirely through standard AD access control lists, so only accounts explicitly delegated the right to retrieve it can do so, and every retrieval is auditable the same way any other directory read is.</p>
 
-          <p>Password expiration is tracked directly in Active Directory as well, through a dedicated expiration-time attribute on the computer object. The client on each machine checks that value and rotates the password once it has passed, which means the rotation schedule is enforced centrally through the directory rather than relying on each endpoint to independently decide when to change its own password.</p>
+          <h3>How Rotation Is Enforced</h3>
+          <p>Password expiration is tracked directly in Active Directory as well, through a dedicated expiration-time attribute on the computer object. The client on each machine checks that value and rotates the password once it has passed.</p>
+          <p>This means the rotation schedule is enforced centrally through the directory rather than relying on each endpoint to independently decide when to change its own password.</p>
 
-          <p>The security payoff is proportional to how completely LAPS gets deployed. Partial deployment leaves the same weakness on whatever machines were skipped, and those become the obvious pivot point for anyone doing basic reconnaissance. Full coverage across the fleet directly closes off one of the highest-return lateral movement techniques available to an attacker who has already landed on one endpoint, because compromising the local admin password on one machine no longer says anything at all about the local admin password on any other.</p>
+          <h3>Deployment Coverage Matters</h3>
+          <p>The security payoff is proportional to how completely LAPS gets deployed. Partial deployment leaves the same weakness on whatever machines were skipped, and those become the obvious pivot point for anyone doing basic reconnaissance.</p>
+          <p>Full coverage across the fleet directly closes off one of the highest-return lateral movement techniques available to an attacker who has already landed on one endpoint, because compromising the local admin password on one machine no longer says anything at all about the local admin password on any other.</p>
 
           <div class="callout-info">
             <strong>Note:</strong> LAPS manages the local Administrator account, not domain accounts. It does nothing on its own to protect domain-level credentials, service accounts, or Kerberos tickets. It is one control among several in this chapter, not a substitute for the others.
@@ -207,13 +291,20 @@
 
         <section class="content-section" id="gmsa">
           <h2>Group Managed Service Accounts (gMSA)</h2>
-          <p>Service accounts have historically carried the worst password hygiene in most AD environments, for reasons covered in Chapter 8's look at Kerberoasting: they get created once during a deployment, given a password that is rarely rotated because rotating it risks breaking whatever depends on it, and sometimes granted broad privileges out of convenience rather than necessity. A Group Managed Service Account removes the human from that equation entirely. Active Directory itself generates a long, complex, random password for the account and rotates it automatically on a schedule, commonly every 30 days by default, and no administrator ever needs to know, type, or store that password anywhere.</p>
+          <h3>The Problem: Human-Managed Service Account Passwords</h3>
+          <p>Service accounts have historically carried the worst password hygiene in most AD environments, for reasons covered in Chapter 8's look at Kerberoasting: they get created once during a deployment, given a password that is rarely rotated because rotating it risks breaking whatever depends on it, and sometimes granted broad privileges out of convenience rather than necessity.</p>
 
+          <h3>The Solution: AD-Managed Random Passwords</h3>
+          <p>A <strong>Group Managed Service Account (gMSA)</strong> removes the human from that equation entirely. Active Directory itself generates a long, complex, random password for the account and rotates it automatically on a schedule, commonly every 30 days by default, and no administrator ever needs to know, type, or store that password anywhere.</p>
           <p>Only the specific hosts explicitly authorized to run the gMSA are permitted to retrieve its current password from AD at service start time, enforced the same way LAPS enforces password retrieval, through access control on the account object itself. There is no configuration file, no script, and no application settings dialog anywhere holding a static credential that could leak, get committed to a repository, or get reused by an administrator out of habit.</p>
 
-          <p>This directly undercuts Kerberoasting as described in Chapter 8. Kerberoasting works because an attacker can request a service ticket encrypted with a service account's password hash and then crack that hash offline at their leisure, and the entire attack depends on the target account having a password weak enough, or old enough, to be crackable in a reasonable amount of time. A gMSA's password is long and fully random, which makes offline cracking against it impractical with currently known methods. Converting legacy service accounts to gMSAs wherever the application supports it, alongside the AES-over-RC4 guidance covered in Chapter 8, is one of the more effective single changes an organization can make against the Kerberoasting attack surface.</p>
+          <h3>Why This Undercuts Kerberoasting</h3>
+          <p>This directly undercuts Kerberoasting as described in Chapter 8. Kerberoasting works because an attacker can request a service ticket encrypted with a service account's password hash and then crack that hash offline at their leisure, and the entire attack depends on the target account having a password weak enough, or old enough, to be crackable in a reasonable amount of time.</p>
+          <p>A gMSA's password is long and fully random, which makes offline cracking against it impractical with currently known methods. Converting legacy service accounts to gMSAs wherever the application supports it, alongside the AES-over-RC4 guidance covered in Chapter 8, is one of the more effective single changes an organization can make against the Kerberoasting attack surface.</p>
 
-          <p>gMSAs also intersect with the AD Certificate Services content from Chapter 10. Certificate-based authentication and service accounts both ultimately rely on the strength of whatever credential material backs them, and an environment that has hardened its certificate templates but left its service accounts on decade-old static passwords has only closed half the door. Treating gMSA adoption and AD CS template hardening as two parts of the same credential-hygiene effort, rather than unrelated projects, is the more realistic way most environments actually get through both.</p>
+          <h3>gMSA and AD CS Hardening: One Effort, Not Two</h3>
+          <p>gMSAs also intersect with the AD Certificate Services content from Chapter 10. Certificate-based authentication and service accounts both ultimately rely on the strength of whatever credential material backs them, and an environment that has hardened its certificate templates but left its service accounts on decade-old static passwords has only closed half the door.</p>
+          <p>Treating gMSA adoption and AD CS template hardening as two parts of the same credential-hygiene effort, rather than unrelated projects, is the more realistic way most environments actually get through both.</p>
 
           <div class="callout-tip">
             <strong>Tip:</strong> Not every legacy application supports gMSAs out of the box, particularly older software that expects to manage its own credential storage. Where conversion is not immediately possible, treat that account as a standing exception requiring its own compensating controls, not a permanent gap to ignore.
@@ -224,13 +315,10 @@
           <h2>The Tiered Administration Model</h2>
           <p>Every attack covered across this module, Kerberoasting, DCSync, Golden Tickets, AD CS abuse, and the delegation techniques earlier in this chapter, shares one precondition: a credential from somewhere gets used somewhere else it should not be trusted. The tiered administration model is Microsoft's answer to that precondition, and it is less a technical control than an operational discipline about where credentials are allowed to be used at all.</p>
 
-          <p>Tier 0 is the control plane of the domain: domain controllers, AD CS servers, and any other system or account that has direct or indirect administrative control over the entire forest. Anything that can compromise Tier 0 can compromise everything else, which is why Tier 0 administrative credentials are meant to log on interactively only to Tier 0 systems. Tier 1 covers domain member servers and the applications running on them, including the file servers, database servers, and line-of-business applications that hold an organization's actual data. Tier 2 covers end-user workstations and devices, the tier with the largest number of systems, the widest exposure to phishing and drive-by compromise, and correspondingly the lowest trust level.</p>
-
-          <p>The rule that makes the model work is simple to state and consistently hard to enforce in practice: a credential from a higher tier should never be used to log into a system in a lower tier. A Tier 0 domain admin should never type their password into a Tier 2 workstation to fix a user's laptop, because doing so leaves that credential's hash sitting in memory on a machine with far weaker defenses and far greater exposure to compromise than a domain controller. This is precisely the mechanism behind a huge share of real-world domain compromises: an admin with Domain Admin rights logs into a compromised or soon-to-be-compromised workstation for routine support, and an attacker who has already landed on that workstation harvests the credential the moment it authenticates.</p>
-
-          <p>Enforcing tiering in practice means giving administrators separate accounts for each tier they manage, so a person who administers both domain controllers and end-user workstations holds two distinct credentials rather than one, and never uses the Tier 0 credential outside Tier 0 systems. It also means separate administrative workstations for higher-tier work, since a Tier 0 admin account logging on from a general-purpose, internet-browsing Tier 2 machine defeats the separation regardless of how carefully the account itself is scoped.</p>
-
-          <p>The reason tiering earns a section in this chapter rather than a footnote is that it is the single practice that prevents most of the credential-theft-then-escalate chains this entire module has walked through. Kerberoasting, DCSync, and Golden Ticket forgery all become dramatically less consequential when the credential an attacker manages to steal was never permitted to authenticate anywhere near Tier 0 in the first place. Detection and hardening controls narrow individual attack techniques. Tiering narrows what any single stolen credential, regardless of technique, is actually worth.</p>
+          <h3>Tier 0, 1, and 2 Defined</h3>
+          <p><strong>Tier 0</strong> is the control plane of the domain: domain controllers, AD CS servers, and any other system or account that has direct or indirect administrative control over the entire forest. Anything that can compromise Tier 0 can compromise everything else, which is why Tier 0 administrative credentials are meant to log on interactively only to Tier 0 systems.</p>
+          <p><strong>Tier 1</strong> covers domain member servers and the applications running on them, including the file servers, database servers, and line-of-business applications that hold an organization's actual data.</p>
+          <p><strong>Tier 2</strong> covers end-user workstations and devices, the tier with the largest number of systems, the widest exposure to phishing and drive-by compromise, and correspondingly the lowest trust level.</p>
 
           <div class="table-wrap">
             <table>
@@ -244,28 +332,63 @@
               </tbody>
             </table>
           </div>
+
+          <h3>The Core Rule</h3>
+          <div class="callout-warning">
+            <strong>The rule that makes the model work:</strong> a credential from a higher tier should never be used to log into a system in a lower tier. This single discipline limits the blast radius of nearly every credential-theft technique covered in this module.
+          </div>
+          <p>A Tier 0 domain admin should never type their password into a Tier 2 workstation to fix a user's laptop, because doing so leaves that credential's hash sitting in memory on a machine with far weaker defenses and far greater exposure to compromise than a domain controller.</p>
+          <p>This is precisely the mechanism behind a huge share of real-world domain compromises: an admin with Domain Admin rights logs into a compromised or soon-to-be-compromised workstation for routine support, and an attacker who has already landed on that workstation harvests the credential the moment it authenticates.</p>
+
+          <h3>Enforcing Tiering in Practice</h3>
+          <ul>
+            <li><strong>Separate accounts per tier.</strong> A person who administers both domain controllers and end-user workstations holds two distinct credentials rather than one, and never uses the Tier 0 credential outside Tier 0 systems.</li>
+            <li><strong>Separate administrative workstations.</strong> A Tier 0 admin account logging on from a general-purpose, internet-browsing Tier 2 machine defeats the separation regardless of how carefully the account itself is scoped.</li>
+          </ul>
+
+          <h3>Why It Matters More Than Any Single Detection Rule</h3>
+          <p>The reason tiering earns a section in this chapter rather than a footnote is that it is the single practice that prevents most of the credential-theft-then-escalate chains this entire module has walked through. Kerberoasting, DCSync, and Golden Ticket forgery all become dramatically less consequential when the credential an attacker manages to steal was never permitted to authenticate anywhere near Tier 0 in the first place.</p>
+          <p>Detection and hardening controls narrow individual attack techniques. Tiering narrows what any single stolen credential, regardless of technique, is actually worth.</p>
         </section>
 
         <section class="content-section" id="detection-for-delegation-abuse">
           <h2>Detection for Delegation Abuse</h2>
-          <p>Chapter 6 covered the Windows Security event logging pipeline in depth, and delegation abuse leaves signal in exactly the part of that pipeline built to track directory object changes. Event ID 5136, "A directory service object was modified," fires whenever an attribute on an AD object changes, and it carries the specific attribute name that was modified. Filtering that event stream for changes to msDS-AllowedToDelegateTo or msDS-AllowedToActOnBehalfOfOtherIdentity gives direct visibility into exactly the two attributes that configuring delegation, legitimately or maliciously, depends on.</p>
+          <h3>Monitoring Attribute Changes (Event 5136)</h3>
+          <p>Chapter 6 covered the Windows Security event logging pipeline in depth, and delegation abuse leaves signal in exactly the part of that pipeline built to track directory object changes. <strong>Event ID 5136</strong>, "A directory service object was modified," fires whenever an attribute on an AD object changes, and it carries the specific attribute name that was modified.</p>
+          <p>Filtering that event stream for changes to msDS-AllowedToDelegateTo or msDS-AllowedToActOnBehalfOfOtherIdentity gives direct visibility into exactly the two attributes that configuring delegation, legitimately or maliciously, depends on.</p>
+          <p>The value of monitoring these two attributes specifically is that legitimate changes to them are rare and usually planned. Most environments do not reconfigure delegation targets or RBCD trust relationships as part of routine daily administration, which makes a 5136 event against either attribute a high-signal candidate for investigation rather than background noise to be filtered out.</p>
 
-          <p>The value of monitoring these two attributes specifically is that legitimate changes to them are rare and usually planned. Most environments do not reconfigure delegation targets or RBCD trust relationships as part of routine daily administration, which makes a 5136 event against either attribute a high-signal candidate for investigation rather than background noise to be filtered out. The follow-up questions are consistent with the rest of this module's detection approach: which account made the change, does that account normally have rights to modify that specific object, and does the newly configured delegation target make sense for that service's actual function.</p>
+          <h3>Follow-Up Questions When It Fires</h3>
+          <p>The follow-up questions are consistent with the rest of this module's detection approach:</p>
+          <ul>
+            <li><strong>Which account made the change?</strong></li>
+            <li><strong>Does that account normally have rights</strong> to modify that specific object?</li>
+            <li><strong>Does the newly configured delegation target make sense</strong> for that service's actual function?</li>
+          </ul>
 
-          <p>Unconstrained delegation abuse is harder to catch at the moment of configuration, since the dangerous flag is often set long before an attacker arrives, but it leaves a different kind of trail once exploited. A host configured for unconstrained delegation that is not a domain controller should not normally be the source of TGT-based authentication for a broad range of unrelated accounts. Correlating 4624 logon activity from a delegation-enabled host against the accounts that authenticated to it, and watching for a privileged account showing up in that pattern shortly before that same privileged identity is used from an unexpected location, is the practical way to catch a TGT that was harvested and replayed rather than legitimately issued.</p>
+          <h3>Catching Unconstrained Delegation Abuse After the Fact</h3>
+          <p>Unconstrained delegation abuse is harder to catch at the moment of configuration, since the dangerous flag is often set long before an attacker arrives, but it leaves a different kind of trail once exploited. A host configured for unconstrained delegation that is not a domain controller should not normally be the source of TGT-based authentication for a broad range of unrelated accounts.</p>
+          <p>Correlating 4624 logon activity from a delegation-enabled host against the accounts that authenticated to it, and watching for a privileged account showing up in that pattern shortly before that same privileged identity is used from an unexpected location, is the practical way to catch a TGT that was harvested and replayed rather than legitimately issued.</p>
 
-          <p>None of these signals are conclusive on their own, consistent with the theme running through this entire module: a single 5136 event, a single unusual logon, a single delegation configuration is rarely enough to act on by itself. What makes delegation abuse detectable is the same discipline applied to Kerberoasting and DCSync in Chapter 8, building a baseline of what normal delegation configuration and normal TGT usage look like in a specific environment, then treating deviations from that baseline as the trigger for investigation rather than waiting for a single alertable event that delegation abuse, by its nature, rarely produces.</p>
+          <h3>Baseline, Don't Wait for a Single Alert</h3>
+          <p>None of these signals are conclusive on their own, consistent with the theme running through this entire module: a single 5136 event, a single unusual logon, a single delegation configuration is rarely enough to act on by itself.</p>
+          <p>What makes delegation abuse detectable is the same discipline applied to Kerberoasting and DCSync in Chapter 8, building a baseline of what normal delegation configuration and normal TGT usage look like in a specific environment, then treating deviations from that baseline as the trigger for investigation rather than waiting for a single alertable event that delegation abuse, by its nature, rarely produces.</p>
         </section>
 
         <section class="content-section" id="closing-the-module">
           <h2>Closing the Module</h2>
-          <p>Eleven chapters have built a single, connected picture of Windows and Active Directory security, starting from the process model and access token mechanics, moving through authentication and the registry, into event logging, common attack techniques, the core AD attacks and their detection, PowerShell logging, AD CS abuse, and now delegation and the hardening controls that blunt most of what came before it. None of these chapters stand alone. Kerberoasting only makes sense once the ticket exchange from earlier chapters is understood. DCSync only makes sense once tokens and privileges are understood. Delegation abuse in this chapter only makes sense against the same Kerberos foundation the whole module was built on.</p>
+          <h3>A Connected Picture</h3>
+          <p>Eleven chapters have built a single, connected picture of Windows and Active Directory security, starting from the process model and access token mechanics, moving through authentication and the registry, into event logging, common attack techniques, the core AD attacks and their detection, PowerShell logging, AD CS abuse, and now delegation and the hardening controls that blunt most of what came before it.</p>
+          <p>None of these chapters stand alone. Kerberoasting only makes sense once the ticket exchange from earlier chapters is understood. DCSync only makes sense once tokens and privileges are understood. Delegation abuse in this chapter only makes sense against the same Kerberos foundation the whole module was built on.</p>
 
-          <p>That connected picture extends past this module's boundary in every direction. The <a href="../threat-hunting/index.html">Threat Hunting</a> module's hypothesis-driven methodology is the direct next step for everything covered here: forming a specific, falsifiable hypothesis about an unexpected msDS-AllowedToActOnBehalfOfOtherIdentity change or an anomalous TGT reuse pattern, then pivoting through logs to confirm or rule it out, is exactly how a hunter would go looking for the abuse patterns this chapter described before they ever trigger a canned alert.</p>
-
-          <p>The <a href="../lolbas/index.html">LOLBAS</a> module covers the living-off-the-land techniques that frequently get chained with credential and delegation abuse once an attacker has working access, since forging a ticket or abusing an RBCD misconfiguration is rarely the final objective, it is the enabler for lateral movement using tools already sitting on the target systems. Understanding both halves, how a credential or trust relationship gets obtained and how it gets used to move afterward, is what turns an isolated finding into a complete incident narrative.</p>
-
-          <p>Underneath all of it sit the <a href="../fundamentals/index.html">Fundamentals</a> and <a href="../networking/index.html">Networking</a> modules, the baseline this entire Windows module assumed from its first chapter onward. The security vocabulary, the protocol mechanics, the packet-level view of Kerberos on the wire, none of the material in this chapter would hold together without that foundation already in place. Whichever direction comes next, threat hunting, threat intelligence, cloud security, or living-off-the-land detection, the ticket exchange, the logging pipeline, and the hardening controls this module built from the ground up are what everything else gets layered onto.</p>
+          <h3>What Comes Next</h3>
+          <p>That connected picture extends past this module's boundary in every direction:</p>
+          <ul>
+            <li><strong><a href="../threat-hunting/index.html">Threat Hunting</a>:</strong> its hypothesis-driven methodology is the direct next step for everything covered here. Forming a specific, falsifiable hypothesis about an unexpected msDS-AllowedToActOnBehalfOfOtherIdentity change or an anomalous TGT reuse pattern, then pivoting through logs to confirm or rule it out, is exactly how a hunter would go looking for the abuse patterns this chapter described before they ever trigger a canned alert.</li>
+            <li><strong><a href="../lolbas/index.html">LOLBAS</a>:</strong> covers the living-off-the-land techniques that frequently get chained with credential and delegation abuse once an attacker has working access, since forging a ticket or abusing an RBCD misconfiguration is rarely the final objective, it is the enabler for lateral movement using tools already sitting on the target systems. Understanding both halves, how a credential or trust relationship gets obtained and how it gets used to move afterward, is what turns an isolated finding into a complete incident narrative.</li>
+            <li><strong><a href="../fundamentals/index.html">Fundamentals</a> and <a href="../networking/index.html">Networking</a>:</strong> sit underneath all of it, the baseline this entire Windows module assumed from its first chapter onward. The security vocabulary, the protocol mechanics, the packet-level view of Kerberos on the wire, none of the material in this chapter would hold together without that foundation already in place.</li>
+          </ul>
+          <p>Whichever direction comes next, threat hunting, threat intelligence, cloud security, or living-off-the-land detection, the ticket exchange, the logging pipeline, and the hardening controls this module built from the ground up are what everything else gets layered onto.</p>
         </section>
 
         <div class="chapter-summary">

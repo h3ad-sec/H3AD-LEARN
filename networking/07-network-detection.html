@@ -142,13 +142,30 @@
 
         <section class="content-section" id="flow-data-vs-full-capture">
           <h2>Flow Data vs Full Packet Capture</h2>
-          <p>NetFlow, and its more modern open standard IPFIX, describe traffic as a series of flow records rather than a stream of packets. A flow record captures metadata about a conversation between two endpoints: source and destination IP, source and destination port, protocol, start and end time, and counts of packets and bytes transferred in each direction. What it does not capture is the payload. You know that 10.1.4.22 talked to 185.220.101.4 on TCP/443 for six seconds and exchanged 42KB, but you have no visibility into what was actually inside those packets.</p>
+          <p>NetFlow, and its more modern open standard IPFIX, describe traffic as a series of flow records rather than a stream of packets. A flow record captures metadata about a conversation between two endpoints: source and destination IP, source and destination port, protocol, start and end time, and counts of packets and bytes transferred in each direction. What it does not capture is the payload.</p>
+          <p>You know that 10.1.4.22 talked to 185.220.101.4 on TCP/443 for six seconds and exchanged 42KB, but you have no visibility into what was actually inside those packets.</p>
 
-          <p>That absence of payload is the entire point. A flow record for a conversation is a few hundred bytes regardless of how much data actually moved, because it is a summary rather than a copy. A network pushing tens of gigabits per second generates flow data that a modest server can ingest and retain for months. The same link captured at full fidelity, header and payload both, generates a volume that most organizations can only afford to keep for a matter of days before storage costs force rotation.</p>
+          <div class="callout-info">
+            <strong>Quick glossary, keep these four straight:</strong>
+            <ul>
+              <li><strong>Flow record</strong>: a metadata summary of one conversation between two endpoints, no payload included.</li>
+              <li><strong>NetFlow</strong>: Cisco's original flow-export format, still the de facto standard for flow metadata.</li>
+              <li><strong>IPFIX</strong>: the modern, vendor-neutral standard that succeeded NetFlow.</li>
+              <li><strong>PCAP</strong>: full packet capture, every byte of every packet including payload.</li>
+            </ul>
+          </div>
 
-          <p>Full packet capture (PCAP) is the opposite end of the spectrum. It stores every byte of every packet that crosses the tap point: headers, payload, TLS handshake bytes, everything. This is the only source that lets you reconstruct exactly what was sent, replay a session, extract a transferred file, or examine unencrypted payload byte for byte. It is also the most expensive telemetry an organization can collect, both in storage and in the compute needed to write and query it at line rate.</p>
+          <h3>Why Flow Data Is Cheap</h3>
+          <p>That absence of payload is the entire point. A flow record for a conversation is a few hundred bytes regardless of how much data actually moved, because it is a summary rather than a copy.</p>
+          <p>A network pushing tens of gigabits per second generates flow data that a modest server can ingest and retain for months. The same link captured at full fidelity, header and payload both, generates a volume that most organizations can only afford to keep for a matter of days before storage costs force rotation.</p>
 
-          <p>The practical tradeoff shows up as a retention curve. Flow data is cheap enough to keep for six to twelve months and gives you long-horizon visibility into volumetric patterns: which hosts talk to which, how much, how often. Full capture is precise enough to answer exactly what happened in a specific incident but expensive enough that most organizations only retain it for a rolling window of one to two weeks, sometimes triggered selectively rather than run continuously across every segment. Neither source replaces the other. Flow data tells you where to look. Full capture tells you what happened there.</p>
+          <h3>What Full Packet Capture Adds</h3>
+          <p><strong>Full packet capture (PCAP)</strong> is the opposite end of the spectrum. It stores every byte of every packet that crosses the tap point: headers, payload, TLS handshake bytes, everything.</p>
+          <p>This is the only source that lets you reconstruct exactly what was sent, replay a session, extract a transferred file, or examine unencrypted payload byte for byte. It is also the most expensive telemetry an organization can collect, both in storage and in the compute needed to write and query it at line rate.</p>
+
+          <h3>The Retention Tradeoff</h3>
+          <p>The practical tradeoff shows up as a retention curve. Flow data is cheap enough to keep for six to twelve months and gives you long-horizon visibility into volumetric patterns: which hosts talk to which, how much, how often.</p>
+          <p>Full capture is precise enough to answer exactly what happened in a specific incident but expensive enough that most organizations only retain it for a rolling window of one to two weeks, sometimes triggered selectively rather than run continuously across every segment. Neither source replaces the other: flow data tells you where to look, full capture tells you what happened there.</p>
 
           <div class="table-wrap">
             <table>
@@ -168,13 +185,30 @@
 
         <section class="content-section" id="zeek-logs">
           <h2>What Zeek Actually Logs</h2>
-          <p>Zeek, formerly known as Bro, is an open-source network security monitor that sits between flow data and full packet capture in both detail and cost. Rather than storing raw packets or reducing traffic to bare metadata, Zeek parses traffic protocol by protocol and writes structured, human-readable logs describing what actually happened at the application layer. It does not usually retain payload by default, but it extracts the meaningful fields out of that payload before discarding the raw bytes, which is what makes it so useful for detection work.</p>
+          <p><strong>Zeek</strong>, formerly known as Bro, is an open-source network security monitor that sits between flow data and full packet capture in both detail and cost. Rather than storing raw packets or reducing traffic to bare metadata, Zeek parses traffic protocol by protocol and writes structured, human-readable logs describing what actually happened at the application layer.</p>
+          <p>It does not usually retain payload by default, but it extracts the meaningful fields out of that payload before discarding the raw bytes, which is what makes it so useful for detection work.</p>
 
-          <p>conn.log is the foundation and the closest thing Zeek has to a flow record: every TCP, UDP, and ICMP connection gets an entry with source and destination, ports, duration, bytes transferred, and a connection state field that tells you whether the handshake completed normally, was rejected, or was cut short. Because every other Zeek log links back to a connection via a shared UID, conn.log is usually the starting point for an investigation before pivoting into protocol-specific detail.</p>
+          <h3>The Five Core Logs</h3>
+          <p>Every other Zeek log links back to a connection via a shared UID, so conn.log is usually the starting point for an investigation before pivoting into protocol-specific detail.</p>
 
-          <p>dns.log records every DNS query and response Zeek observes: the query name, query type, response codes, and the answers returned, including TTLs. This is the log analysts reach for when hunting DGA activity, unusual TXT record usage, or a beacon resolving through a domain that only started appearing in traffic recently. http.log does the equivalent for HTTP: method, URI, user-agent, response code, content type, and file sizes for both request and response, all without needing the raw payload. ssl.log covers the TLS handshake specifically: the negotiated version and cipher, the SNI value the client requested, and certificate details such as issuer and validity period, all visible even though the encrypted application data inside the session is not.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Log</th><th>What It Records</th><th>Best For</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>conn.log</td><td>Every TCP, UDP, and ICMP connection: source/destination, ports, duration, bytes transferred, connection state</td><td>Foundation log, closest thing Zeek has to a flow record, starting point before pivoting elsewhere</td></tr>
+                <tr><td>dns.log</td><td>Every DNS query and response: query name, query type, response codes, answers, TTLs</td><td>Hunting DGA activity, unusual TXT records, a beacon domain that just started resolving</td></tr>
+                <tr><td>http.log</td><td>Method, URI, user-agent, response code, content type, file sizes for request and response</td><td>HTTP-based investigation without needing the raw payload</td></tr>
+                <tr><td>ssl.log</td><td>Negotiated TLS version and cipher, the SNI value requested, certificate issuer and validity period</td><td>Inspecting the handshake even when the session's application data is encrypted</td></tr>
+                <tr><td>files.log</td><td>MIME type, size, and computed hashes for files transferred across any supported protocol</td><td>Pivoting from a suspicious binary hash back to the connection and host that pulled it down</td></tr>
+              </tbody>
+            </table>
+          </div>
 
-          <p>files.log tracks files Zeek observes being transferred across any supported protocol, recording MIME type, size, and computed hashes, which lets an analyst pivot from a suspicious binary hash straight back to the connection and host that pulled it down. The reason this structured, protocol-aware approach often beats raw packets for detection work is simple: an analyst can run a query against dns.log for anomalous query patterns across a month of traffic in seconds, something that would require decoding and reassembling raw PCAP at a cost nobody wants to pay for the same time window.</p>
+          <h3>Why Structured Logs Beat Raw Packets Here</h3>
+          <p>The reason this structured, protocol-aware approach often beats raw packets for detection work is simple: an analyst can run a query against dns.log for anomalous query patterns across a month of traffic in seconds.</p>
+          <p>Decoding and reassembling raw PCAP to answer the same question over the same time window would cost far more, in both storage and compute, than anyone wants to pay.</p>
 
           <div class="callout-info">
             <strong>Note:</strong> Zeek logs are not a replacement for full packet capture when you truly need the raw bytes, such as extracting an exact malicious payload for reverse engineering. But for the large majority of detection and triage questions, structured logs answer "what happened" faster and cheaper than reconstructing it from packets.
@@ -183,46 +217,98 @@
 
         <section class="content-section" id="signature-based-ids">
           <h2>Signature-Based IDS</h2>
-          <p>Signature-based intrusion detection tools, Snort and Suricata being the two most widely deployed, work by comparing observed traffic against a database of rules describing known-bad patterns. A rule might match a specific byte sequence in a packet payload associated with a particular exploit, a known malicious file hash, a C2 beacon's distinctive header structure, or a regex pattern matching a known malware family's command string. When traffic matches a rule, the engine fires an alert, and in inline deployments can drop the packet outright.</p>
 
-          <p>The strength of this approach is precision and speed. When a signature matches, you know with high confidence exactly what was detected, because the rule was written against a specific, documented threat. Rule sets such as the Emerging Threats or Snort community rules are updated constantly as new exploits and malware families are published, so a well-maintained signature engine keeps pace with known threats relatively well and generates alerts that are cheap to triage since the rule name itself tells the analyst what matched.</p>
+          <h3>How Signature Matching Works</h3>
+          <p><strong>Signature-based</strong> intrusion detection tools, Snort and Suricata being the two most widely deployed, work by comparing observed traffic against a database of rules describing known-bad patterns. A rule might match a specific byte sequence in a packet payload associated with a particular exploit, a known malicious file hash, a C2 beacon's distinctive header structure, or a regex pattern matching a known malware family's command string.</p>
+          <p>When traffic matches a rule, the engine fires an alert, and in inline deployments can drop the packet outright.</p>
 
-          <p>The blind spot is equally fundamental: signature-based detection can only catch what it has a signature for. A novel exploit, a slightly repacked piece of malware, or an attacker who deliberately alters a byte sequence to avoid a known pattern will simply not trigger any rule. This is not a tuning problem that better rule-writing solves; it is a structural limitation of matching against known patterns. Attackers who know a target runs Suricata with public rule sets can and do test their tooling against those exact rule sets before deployment specifically to confirm it slips through clean.</p>
+          <h3>Strengths</h3>
+          <p>The strength of this approach is precision and speed. When a signature matches, you know with high confidence exactly what was detected, because the rule was written against a specific, documented threat.</p>
+          <p>Rule sets such as the Emerging Threats or Snort community rules are updated constantly as new exploits and malware families are published, so a well-maintained signature engine keeps pace with known threats relatively well. Alerts are also cheap to triage, since the rule name itself tells the analyst what matched.</p>
 
+          <h3>Limitations</h3>
+          <p>The blind spot is equally fundamental: signature-based detection can only catch what it has a signature for. A novel exploit, a slightly repacked piece of malware, or an attacker who deliberately alters a byte sequence to avoid a known pattern will simply not trigger any rule.</p>
+          <p>This is not a tuning problem that better rule-writing solves, it is a structural limitation of matching against known patterns. Attackers who know a target runs Suricata with public rule sets can and do test their tooling against those exact rule sets before deployment specifically to confirm it slips through clean.</p>
           <p>This limitation is why signature engines are best understood as one layer rather than a complete detection strategy. They are extremely good at cheaply and reliably catching the large volume of commodity, previously-seen threats that make up most day-to-day traffic, which frees analyst attention for the harder cases that require a different detection approach entirely.</p>
         </section>
 
         <section class="content-section" id="behavioral-detection">
           <h2>Behavioral and Anomaly-Based Detection</h2>
-          <p>Behavioral, or anomaly-based, detection takes the opposite starting point from signatures. Instead of asking "does this match something known-bad," it first establishes a baseline of what normal traffic looks like for a given host, segment, or user, and then flags activity that deviates meaningfully from that baseline. A baseline might describe which ports a server typically listens on, what volume of outbound traffic is normal for a workstation, what hours a service account typically authenticates during, or what set of external hosts a given segment usually talks to.</p>
 
-          <p>Once that baseline exists, the engine watches for deviation: a workstation that suddenly starts making large outbound transfers at 3am, a server that starts listening on a port it has never used before, a host that begins beaconing to an external IP at suspiciously regular intervals. None of these observations require a known signature. The system is not asking whether this traffic matches a documented threat; it is asking whether this traffic is unusual for this environment, which is exactly the kind of question that catches genuinely novel activity a signature engine would sail past.</p>
+          <h3>How Behavioral Detection Works</h3>
+          <p><strong>Behavioral</strong>, or anomaly-based, detection takes the opposite starting point from signatures. Instead of asking "does this match something known-bad," it first establishes a baseline of what normal traffic looks like for a given host, segment, or user, and then flags activity that deviates meaningfully from that baseline.</p>
+          <p>A baseline might describe which ports a server typically listens on, what volume of outbound traffic is normal for a workstation, what hours a service account typically authenticates during, or what set of external hosts a given segment usually talks to.</p>
+          <p>Once that baseline exists, the engine watches for deviation: a workstation that suddenly starts making large outbound transfers at 3am, a server that starts listening on a port it has never used before, a host that begins beaconing to an external IP at suspiciously regular intervals.</p>
+          <p>None of these observations require a known signature. The system is not asking whether this traffic matches a documented threat, it is asking whether this traffic is unusual for this environment, which is exactly the kind of question that catches genuinely novel activity a signature engine would sail past.</p>
 
-          <p>The tradeoff is false positive rate. Real environments are messy. A legitimate software update, an unusual but authorized backup job, or a new business process can all produce traffic that looks anomalous against a baseline built from a quieter period. Tuning a behavioral system well takes real time investment: baselines have to be built over a long enough window to capture normal variation, and thresholds have to be adjusted per environment rather than taken as vendor defaults. Poorly tuned behavioral detection drowns analysts in noise fast enough that they start ignoring the tool entirely.</p>
+          <h3>The Tradeoff: False Positives</h3>
+          <p>The tradeoff is false positive rate. Real environments are messy. A legitimate software update, an unusual but authorized backup job, or a new business process can all produce traffic that looks anomalous against a baseline built from a quieter period.</p>
+          <p>Tuning a behavioral system well takes real time investment: baselines have to be built over a long enough window to capture normal variation, and thresholds have to be adjusted per environment rather than taken as vendor defaults. Poorly tuned behavioral detection drowns analysts in noise fast enough that they start ignoring the tool entirely.</p>
 
-          <p>Because signatures and behavioral analysis fail in opposite directions, one missing novel threats, the other generating noise on legitimate-but-unusual activity, mature detection programs run both together rather than choosing one. Signatures handle the high-confidence, well-understood threat volume cheaply. Behavioral detection catches the threats that were designed specifically to avoid triggering a signature, at the cost of requiring ongoing tuning and a higher analyst triage burden on the alerts it does produce.</p>
+          <h3>Why Programs Run Both</h3>
+          <p>Because signatures and behavioral analysis fail in opposite directions, one missing novel threats, the other generating noise on legitimate-but-unusual activity, mature detection programs run both together rather than choosing one.</p>
+          <p>Signatures handle the high-confidence, well-understood threat volume cheaply. Behavioral detection catches the threats that were designed specifically to avoid triggering a signature, at the cost of requiring ongoing tuning and a higher analyst triage burden on the alerts it does produce.</p>
         </section>
 
         <section class="content-section" id="ids-vs-ips">
           <h2>IDS vs IPS: Passive Detection vs Inline Blocking</h2>
-          <p>IDS and IPS often run the exact same detection engine and rule set. What differs is where the sensor sits in the network path and what it is allowed to do with a match. An IDS is deployed passively, watching a copy of traffic mirrored to it via a SPAN port or a network tap. It sees everything that crosses the monitored link, but because it is only looking at a copy, it can alert on what it finds but cannot stop the original traffic from reaching its destination. If an IDS detects an exploit mid-flight, the exploit has already been delivered by the time the alert fires.</p>
+          <p>IDS and IPS often run the exact same detection engine and rule set. What differs is where the sensor sits in the network path and what it is allowed to do with a match.</p>
 
-          <p>An IPS sits inline, directly in the path the traffic must physically traverse to reach its destination. Because every packet passes through the IPS on its way through the network, the IPS can make a real-time decision to drop or reject a packet that matches a rule before it ever reaches the target host. This is the meaningful capability upgrade IPS offers over IDS: the ability to actually stop an attack rather than just observe and alert on it after the fact.</p>
+          <h3>Where Each Sits</h3>
+          <p>An <strong>IDS</strong> is deployed passively, watching a copy of traffic mirrored to it via a SPAN port or a network tap. It sees everything that crosses the monitored link, but because it is only looking at a copy, it can alert on what it finds but cannot stop the original traffic from reaching its destination. If an IDS detects an exploit mid-flight, the exploit has already been delivered by the time the alert fires.</p>
+          <p>An <strong>IPS</strong> sits inline, directly in the path the traffic must physically traverse to reach its destination. Because every packet passes through the IPS on its way through the network, it can make a real-time decision to drop or reject a packet that matches a rule before it ever reaches the target host. This is the meaningful capability upgrade IPS offers over IDS: the ability to actually stop an attack rather than just observe and alert on it after the fact.</p>
 
-          <p>That capability comes with real operational risk. Because an inline IPS can block traffic, a false positive is no longer just a wasted analyst triage cycle, it is an outage. A rule that misfires on legitimate business traffic can drop a critical application connection, break a partner integration, or take down a service, and it will do so silently from the perspective of anyone not watching the IPS logs. The blast radius of a bad rule in IDS mode is analyst annoyance. The blast radius of the same bad rule in IPS mode is a production incident.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Attribute</th><th>IDS</th><th>IPS</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Position</td><td>Passive, watching a mirrored copy via SPAN port or tap</td><td>Inline, directly in the traffic's physical path</td></tr>
+                <tr><td>Action on match</td><td>Alert only, cannot stop the original traffic</td><td>Can drop or reject the packet before it reaches the target</td></tr>
+                <tr><td>Cost of a false positive</td><td>A wasted analyst triage cycle</td><td>A potential outage, dropped legitimate traffic</td></tr>
+                <tr><td>Typical rollout</td><td>Default staging ground for new rules</td><td>Promoted here only once a rule's hit rate is confirmed clean</td></tr>
+              </tbody>
+            </table>
+          </div>
 
-          <p>Because of that asymmetry, organizations typically stage new detection content through IDS mode first. A new rule, or a newly deployed sensor, runs passively for a defined period, sometimes weeks, while the team observes what it fires on and confirms the hit rate against real traffic is clean before promoting it to blocking mode. Even mature IPS deployments commonly keep a subset of rules, particularly ones with any history of false positives or ones covering less-understood traffic patterns, permanently in alert-only mode rather than blocking, accepting slower response on those specific rules in exchange for not risking an outage.</p>
+          <h3>Why a False Positive Means More in IPS Mode</h3>
+          <p>That capability comes with real operational risk. Because an inline IPS can block traffic, a false positive is no longer just a wasted analyst triage cycle, it is an outage.</p>
+          <p>A rule that misfires on legitimate business traffic can drop a critical application connection, break a partner integration, or take down a service, and it will do so silently from the perspective of anyone not watching the IPS logs. The blast radius of a bad rule in IDS mode is analyst annoyance. The blast radius of the same bad rule in IPS mode is a production incident.</p>
+
+          <h3>Staged Rollout</h3>
+          <p>Because of that asymmetry, organizations typically stage new detection content through IDS mode first. A new rule, or a newly deployed sensor, runs passively for a defined period, sometimes weeks, while the team observes what it fires on and confirms the hit rate against real traffic is clean before promoting it to blocking mode.</p>
+          <p>Even mature IPS deployments commonly keep a subset of rules, particularly ones with any history of false positives or ones covering less-understood traffic patterns, permanently in alert-only mode rather than blocking, accepting slower response on those specific rules in exchange for not risking an outage.</p>
         </section>
 
         <section class="content-section" id="choosing-telemetry-sources">
           <h2>Choosing the Right Telemetry Source</h2>
-          <p>None of these sources compete with each other; they answer different questions at different cost points, and a mature detection program uses all of them deliberately rather than defaulting to whichever is easiest to deploy. The practical skill is matching the question you are asking to the source that can actually answer it without overspending on detail you do not need.</p>
+          <p>None of these sources compete with each other, they answer different questions at different cost points, and a mature detection program uses all of them deliberately rather than defaulting to whichever is easiest to deploy. The practical skill is matching the question you are asking to the source that can actually answer it without overspending on detail you do not need.</p>
 
-          <p>NetFlow is enough when the question is fundamentally about volume, timing, or relationship patterns rather than content. Detecting a host beaconing to an external IP at suspiciously regular intervals does not require knowing what was in the payload, it requires knowing that connections happened on a repeating cadence, which is exactly what a flow record captures. The same is true for spotting a sudden spike in outbound data volume from a segment that normally sees little traffic, or mapping which internal hosts are talking to which external ranges across a long time window. Flow data's low cost makes it the right default for this class of long-horizon, pattern-level question.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Source</th><th>Reach For It When</th><th>Example Question</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>NetFlow</td><td>The question is about volume, timing, or relationship patterns, not content</td><td>Is this host beaconing on a regular interval? Which internal hosts talk to which external ranges?</td></tr>
+                <tr><td>Zeek logs</td><td>The investigation needs protocol-specific facts rather than just volume</td><td>What domain did this host resolve? What certificate did this TLS session present?</td></tr>
+                <tr><td>Full packet capture</td><td>The investigation has narrowed to a specific incident and needs byte-for-byte reconstruction</td><td>What file was dropped? What data actually left during exfiltration?</td></tr>
+              </tbody>
+            </table>
+          </div>
 
-          <p>Zeek logs are the right level of detail once the investigation needs protocol-specific facts rather than just volume. If you need to know what domain a host actually resolved, what user-agent a suspicious HTTP request carried, or what certificate a TLS session presented, that information lives in Zeek's structured logs and does not exist in a flow record at all. This is the tier most tactical investigation and hunt work actually happens at: specific enough to answer real questions, cheap enough to query across weeks of history.</p>
+          <h3>NetFlow: Volume and Pattern Questions</h3>
+          <p>NetFlow is enough when the question is fundamentally about volume, timing, or relationship patterns rather than content. Detecting a host beaconing to an external IP at suspiciously regular intervals does not require knowing what was in the payload, it requires knowing that connections happened on a repeating cadence, which is exactly what a flow record captures.</p>
+          <p>The same is true for spotting a sudden spike in outbound data volume from a segment that normally sees little traffic, or mapping which internal hosts are talking to which external ranges across a long time window. Flow data's low cost makes it the right default for this class of long-horizon, pattern-level question.</p>
 
-          <p>Full packet capture earns its storage cost only when the investigation has narrowed to a specific incident and the team needs to reconstruct exactly what happened, byte for byte: extracting a dropped file for malware analysis, confirming exactly what data left in an exfiltration event, or replaying a session to settle a dispute about what a host actually sent. Because of the storage cost involved, PCAP is generally not run as a blanket, always-on capture across every segment; it is triggered selectively, often by an alert from one of the cheaper sources, and retained only for the window an active investigation needs. The next chapter walks through exactly that kind of deep forensic reconstruction using PCAP once an incident has narrowed to a specific host and time window.</p>
+          <h3>Zeek: Protocol-Specific Facts</h3>
+          <p>Zeek logs are the right level of detail once the investigation needs protocol-specific facts rather than just volume. If you need to know what domain a host actually resolved, what user-agent a suspicious HTTP request carried, or what certificate a TLS session presented, that information lives in Zeek's structured logs and does not exist in a flow record at all.</p>
+          <p>This is the tier most tactical investigation and hunt work actually happens at: specific enough to answer real questions, cheap enough to query across weeks of history.</p>
+
+          <h3>Full Packet Capture: Byte-for-Byte Reconstruction</h3>
+          <p>Full packet capture earns its storage cost only when the investigation has narrowed to a specific incident and the team needs to reconstruct exactly what happened, byte for byte: extracting a dropped file for malware analysis, confirming exactly what data left in an exfiltration event, or replaying a session to settle a dispute about what a host actually sent.</p>
+          <p>Because of the storage cost involved, PCAP is generally not run as a blanket, always-on capture across every segment. It is triggered selectively, often by an alert from one of the cheaper sources, and retained only for the window an active investigation needs. The next chapter walks through exactly that kind of deep forensic reconstruction using PCAP once an incident has narrowed to a specific host and time window.</p>
         </section>
 
         <div class="chapter-summary">

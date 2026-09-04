@@ -143,25 +143,42 @@
 
         <section class="content-section" id="kerberos-concepts">
           <h2>Kerberos Core Concepts</h2>
-          <p>Kerberos is the default authentication protocol in an Active Directory domain, and it is built on a trusted-third-party model. Instead of a client proving its identity directly to every server it wants to use, both the client and the server trust a shared intermediary that vouches for both sides. That intermediary is the Key Distribution Center, or KDC. In a Windows domain, the KDC runs as a service on every domain controller, and it holds a copy of the credentials (or credential-derived keys) for every account in the domain.</p>
+          <p>Kerberos runs on a <strong>trusted-third-party model</strong>. A client never proves its identity directly to every server it wants to use. Instead, both sides trust a shared intermediary that vouches for both of them.</p>
 
-          <p>The KDC is really two services glued together. The Authentication Service, or AS, handles the first step of the process: proving who a user is and issuing them a starting credential. The Ticket Granting Service, or TGS, handles every step after that: taking a user's already-proven identity and issuing them credentials for specific resources. Splitting the work this way means a user only has to prove their password once per session, not once per server they touch.</p>
+          <div class="callout-info">
+            <strong>Quick glossary, keep these four straight:</strong>
+            <ul>
+              <li><strong>KDC</strong> (Key Distribution Center): the trusted intermediary. Runs on every domain controller.</li>
+              <li><strong>AS</strong> (Authentication Service): half of the KDC. Proves who you are, once.</li>
+              <li><strong>TGS</strong> (Ticket Granting Service): the other half. Issues credentials for specific resources.</li>
+              <li><strong>krbtgt</strong>: a disabled built-in account. Its password hash is the domain's root of trust.</li>
+            </ul>
+          </div>
 
-          <p>The trusted-third-party idea only works if both sides can verify that anything the KDC hands them is genuine and untampered. Kerberos achieves that with symmetric encryption. The KDC shares a long-term secret key with every account in the domain, derived from that account's password hash, and it shares a separate long-term key with itself, used specifically to protect data meant only for domain controllers. Anything the KDC encrypts with an account's key can only be decrypted by that account. Anything it encrypts with its own key can only be decrypted by another domain controller. That property is what lets a server trust a piece of data it never directly asked the KDC to send.</p>
+          <h3>The KDC Splits Into Two Jobs</h3>
+          <p>The <strong>AS</strong> handles the first step: proving who a user is and issuing a starting credential. The <strong>TGS</strong> handles everything after that: taking an already-proven identity and issuing credentials for specific resources. Splitting the work this way means a user proves their password once per session, not once per server they touch.</p>
 
-          <p>One more piece completes the model: the krbtgt account. This is a built-in, disabled domain account that exists purely to hold the long-term key used to protect Ticket Granting Tickets. Its password hash never rotates automatically on a normal schedule, which is precisely why it becomes a critical target later in this module. For now, treat krbtgt as the domain's root of trust for everything Kerberos issues.</p>
+          <h3>Why a Server Can Trust Data It Never Asked For</h3>
+          <p>The KDC shares a long-term secret key with every account, derived from that account's password hash. It also holds a separate key used only to protect domain-controller-only data.</p>
+          <p>Anything encrypted with an account's key can only be decrypted by that account. Anything encrypted with the KDC's own key can only be decrypted by another domain controller. That's the whole trick: a server can trust a piece of data it never directly requested, because only the KDC could have produced it.</p>
+
+          <h3>krbtgt: The Root of Trust</h3>
+          <p>The <strong>krbtgt</strong> account exists purely to hold the key that protects Ticket Granting Tickets. It's disabled, and its password hash does not rotate on any normal schedule. That combination is exactly why it becomes a critical target later in this module, covered in full in Chapter 8.</p>
         </section>
 
         <section class="content-section" id="tgt-tgs-flow">
           <h2>The Full Ticket Exchange, Step by Step</h2>
-          <p>A Kerberos logon is a sequence of four exchanges, and understanding the order matters more than memorizing acronyms. The first exchange happens between the client and the AS. The client sends an AS-REQ, which includes the username and, in modern Windows deployments, a timestamp encrypted with a key derived from the user's password (this is pre-authentication, and it exists specifically to stop an attacker from harvesting AS-REP traffic offline without already knowing something derived from the password). The KDC looks up the account, decrypts the timestamp using its own copy of that same derived key, and confirms it is recent. If that check succeeds, the AS has confirmed the client knows the password without the password ever crossing the network.</p>
+          <p>A Kerberos logon is four exchanges in a fixed order. The order matters more than the acronyms, so walk through it as a sequence, not a list of terms to memorize.</p>
 
-          <p>The KDC then responds with an AS-REP. This message contains two things, encrypted differently. The first is a session key, encrypted with the user's long-term key, so only the user can read it. The second is the Ticket Granting Ticket itself, encrypted entirely with the krbtgt account's long-term key, so only a domain controller can read it. The client cannot decrypt the TGT and does not need to. It just needs to store it and present it later. The TGT's contents (the user's identity, group memberships, and the session key copy) are what every future domain controller will trust without re-checking the password.</p>
+          <ol>
+            <li><strong>AS-REQ, client to AS.</strong> The client sends its username plus a timestamp encrypted with a key derived from the user's password. This is <strong>pre-authentication</strong>: it stops an attacker from harvesting AS-REP traffic offline without already knowing something derived from the password. The password itself never crosses the network.</li>
+            <li><strong>AS-REP, AS to client.</strong> The KDC decrypts the timestamp with its own copy of the same key and checks it's recent. If that succeeds, it replies with two things encrypted differently: a <strong>session key</strong> (readable only by the user) and the <strong>TGT</strong> itself, encrypted entirely with krbtgt's key. The client can't decrypt the TGT and doesn't need to; it just stores it.</li>
+            <li><strong>TGS-REQ, client to TGS.</strong> When the user wants a specific resource (a file share, a web app), the client doesn't go back to the AS. It sends the TGS the stored TGT, the target's Service Principal Name (SPN), and a fresh authenticator encrypted with the session key. The KDC decrypts the TGT with krbtgt's key, pulls the session key back out, and re-verifies the client's identity without ever touching a password.</li>
+            <li><strong>TGS-REP, TGS to client.</strong> The KDC replies with a service ticket for that SPN, encrypted not with krbtgt's key but with the <strong>target service account's own key</strong>. Hold onto that distinction; it's the entire reason Kerberoasting is possible, covered later in this chapter.</li>
+            <li><strong>AP-REQ, client to target service.</strong> The client presents the service ticket directly to the server, which decrypts it with its own key and grants access. No password, and no further contact with a domain controller was needed for this specific service.</li>
+          </ol>
 
-          <p>When the user wants to access a specific resource, say a file share or a web application with its own service account, the client does not go back to the AS. It goes to the TGS with a TGS-REQ: the stored TGT, plus the Service Principal Name (SPN) of the target service, plus a fresh authenticator encrypted with the session key from the AS-REP. The domain controller decrypts the TGT using krbtgt's key, pulls the session key back out, uses it to validate the authenticator, and confirms the user really is who the TGT claims. It has now re-verified the client's identity without ever touching a password.</p>
-
-          <p>The KDC answers with a TGS-REP: a service ticket for the requested SPN. This ticket is encrypted not with krbtgt's key but with the target service account's own long-term key, derived from that service account's password. That single design choice is what makes Kerberoasting possible later, and it is worth sitting with now. Finally, the client presents that service ticket directly to the target server in an AP-REQ. The server decrypts it with its own key, confirms the identity and any authorization data inside, and grants access. No password, and after the initial AS-REQ, no further contact with a domain controller was required for that specific service.</p>
-
+          <p class="muted" style="font-size:0.85rem;">Quick reference for the same five messages:</p>
           <div class="table-wrap">
             <table>
               <thead>
@@ -180,54 +197,82 @@
 
         <section class="content-section" id="ntlm-authentication">
           <h2>NTLM Authentication</h2>
-          <p>NTLM predates Kerberos in Windows and works on a completely different model: challenge-response, with no trusted third party involved in the actual exchange. When a client tries to authenticate to a server using NTLM, the server generates a random challenge value and sends it to the client. The client takes that challenge, combines it with a value derived from the user's NTLM hash (itself derived from the password), and sends back a response. The server, or a domain controller acting on the server's behalf via Netlogon, performs the same computation using its own stored copy of the hash and checks whether the response matches.</p>
+          <p>NTLM predates Kerberos and works on a completely different model: <strong>challenge-response</strong>, with no trusted third party in the exchange at all.</p>
 
-          <p>Notice what never happens in that exchange: at no point does the client verify that the server is legitimate. The client just answers whatever challenge it receives. NTLM authenticates the client to the server, but it provides no mechanism for the server to prove its own identity back to the client. Kerberos does not have this gap, because the client's trust is placed in the KDC, not in the individual server, and the service ticket itself proves the server holds the correct long-term key.</p>
-
-          <p>The practical consequence of that missing mutual authentication is the relay attack. If an attacker sits between a client and the intended server, or convinces a client to authenticate to an attacker-controlled listener, the attacker can simply forward the challenge and response pair to a real target server the attacker actually wants to access. The target server has no way of knowing the response did not originate from a session the attacker legitimately controls, because nothing in the NTLM handshake ties the response to a specific destination unless additional protections (like SMB signing or Extended Protection for Authentication) are enforced.</p>
-
-          <p>NTLM also never transmits the password, and technically never even transmits the raw hash. But the response is deterministic given the hash and the challenge, which is exactly why an attacker who captures an NTLM hash through other means (dumping LSASS, cracking a captured hash offline, or relaying it live) can authenticate as the user without ever knowing the plaintext password. This is the foundation of pass-the-hash, and it works precisely because NTLM treats "possession of a value derived from the hash" as equivalent to "proof of identity," with no session-specific ticket or third-party validation layered on top.</p>
+          <h3>How the Exchange Works</h3>
+          <p>The server sends the client a random challenge. The client combines it with a value derived from the user's NTLM hash and sends back a response. The server (or a domain controller acting on its behalf via Netlogon) redoes the same computation with its own stored copy of the hash and checks for a match.</p>
 
           <div class="callout-warning">
-            <strong>Warning:</strong> NTLM's lack of mutual authentication is not a bug that got patched over the protocol's lifetime, it is a structural property of challenge-response with no trusted intermediary. Relay attacks against NTLM remain effective in modern environments specifically because so many networks still permit NTLM authentication and leave SMB signing or channel binding unenforced.
+            <strong>Three things to remember about NTLM:</strong>
+            <ul>
+              <li><strong>No mutual authentication.</strong> The client never verifies the server is legitimate, it just answers whatever challenge arrives.</li>
+              <li><strong>Relayable by design.</strong> An attacker who sits between client and server, or lures a client to an attacker-controlled listener, can forward the challenge/response pair to a real target and get in. Nothing ties the response to a specific destination unless SMB signing or Extended Protection for Authentication is enforced.</li>
+              <li><strong>Deterministic response = pass-the-hash.</strong> The response is fully determined by the hash and the challenge. Anyone who captures the hash (via LSASS dumping, offline cracking, or live relay) can authenticate as the user without ever knowing the plaintext password.</li>
+            </ul>
           </div>
+
+          <p>This isn't a bug that slipped through, it's a structural property of challenge-response with no trusted intermediary. Kerberos doesn't have this gap: the client's trust sits with the KDC, not the individual server, and the service ticket itself proves the server holds the correct key.</p>
         </section>
 
         <section class="content-section" id="kerberos-vs-ntlm">
           <h2>Kerberos vs NTLM in Practice</h2>
-          <p>On a fully modern, correctly configured Active Directory domain, Kerberos is the default authentication protocol for essentially all domain-joined interaction: logging into a workstation, mapping a file share, accessing a domain-joined web application configured for Integrated Windows Authentication. Windows negotiates this automatically through a mechanism called Negotiate, which prefers Kerberos and only drops to NTLM when Kerberos genuinely cannot be used.</p>
+          <p>On a fully modern domain, Kerberos handles essentially all domain-joined interaction: workstation logon, file shares, Integrated Windows Authentication web apps. Windows picks the protocol automatically through <strong>Negotiate</strong>, which prefers Kerberos and only drops to NTLM when Kerberos genuinely can't be used.</p>
 
-          <p>NTLM has not disappeared, and it will not, because several legitimate scenarios still require it. Authentication to a server by raw IP address rather than hostname breaks Kerberos, because a Kerberos service ticket is bound to a specific SPN tied to a DNS name, and no SPN registration exists for a bare IP. Workgroup machines and standalone systems that are not domain members have no KDC to talk to at all, so NTLM is their only option. Some legacy applications and older third-party systems were simply never updated to support Kerberos. And local logons to a machine, where there is no domain controller in the loop at all, always use NTLM-style challenge-response against the local SAM database.</p>
+          <h3>Four Scenarios Where NTLM Is Still Required</h3>
+          <ul>
+            <li><strong>IP-based access.</strong> A Kerberos service ticket is bound to an SPN tied to a DNS name. No SPN exists for a bare IP, so Kerberos breaks.</li>
+            <li><strong>Workgroup and standalone machines.</strong> No domain membership means no KDC to talk to at all.</li>
+            <li><strong>Legacy applications.</strong> Some older third-party systems were simply never updated to support Kerberos.</li>
+            <li><strong>Local logons.</strong> With no domain controller in the loop, local logon always uses NTLM-style challenge-response against the SAM database.</li>
+          </ul>
 
-          <p>Because Negotiate silently falls back to NTLM rather than failing when Kerberos is unavailable, NTLM stays enabled by default across most domains even when the vast majority of daily authentication happens over Kerberos. That fallback is exactly what keeps NTLM relevant to attackers: it does not need to be the primary protocol to be exploitable, it only needs to be enabled somewhere reachable. A single legacy application configured for IP-based access, or one service with signing disabled, is enough of a foothold.</p>
+          <p>Because Negotiate silently falls back rather than failing, NTLM stays enabled by default across most domains, even when Kerberos handles the vast majority of daily authentication. That's exactly what keeps it relevant to attackers: NTLM doesn't need to be the primary protocol to be exploitable, just enabled somewhere reachable. One legacy app on IP-based access, or one service with signing disabled, is enough of a foothold.</p>
 
-          <p>The security implication is straightforward once you see it this way: disabling NTLM outright is rarely feasible in a real enterprise, so the practical posture is restriction rather than elimination. Group Policy settings that restrict NTLM to specific systems, enforce SMB signing, and require Extended Protection for Authentication all exist because the protocol cannot be assumed away. Understanding which protocol is actually in use for a given connection, and why, is a prerequisite for correctly scoping any of those defensive controls.</p>
+          <p>Disabling NTLM outright is rarely feasible in a real enterprise, so the practical posture is <strong>restriction, not elimination</strong>: Group Policy settings that restrict NTLM to specific systems, enforce SMB signing, and require Extended Protection for Authentication. Knowing which protocol is actually in use for a given connection is a prerequisite for scoping any of those controls correctly.</p>
         </section>
 
         <section class="content-section" id="why-tickets-are-a-target">
           <h2>Why Tickets Are a Target</h2>
-          <p>Two structural properties of Kerberos, both covered in this chapter, are what make tickets themselves an attack surface rather than just a transport mechanism. This section previews the concepts at a conceptual level; the actual attack techniques get full treatment in Chapter 8.</p>
+          <p>Two structural properties of Kerberos, both already covered above, are what make tickets an attack surface rather than just a transport mechanism. This is a conceptual preview; full attack mechanics wait for Chapter 8.</p>
 
-          <p>The first property is how service tickets are encrypted. Recall from the ticket exchange section that a TGS-REP is encrypted with the target service account's own long-term key, which is derived from that account's password. Any authenticated domain user can request a service ticket for any SPN registered in the domain, no special privilege required, because requesting a ticket is a normal part of everyday Kerberos use. That means any domain user can obtain data encrypted with a service account's password-derived key on demand, then attempt to crack it offline at their own pace, with no further contact with the domain controller and no failed-logon events generated. Service accounts registered against an SPN, particularly ones with weak or old passwords, become an offline-crackable target purely because of this design. This is the conceptual seed of Kerberoasting.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Property</th><th>Why It's Exploitable</th><th>Seeds This Attack</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Service tickets are encrypted with the <strong>target account's</strong> key</td><td>Any authenticated user can request a ticket for any SPN, no special privilege needed, then crack it offline with zero further DC contact and no failed-logon events</td><td>Kerberoasting</td></tr>
+                <tr><td>The KDC trusts a ticket's contents purely because <strong>krbtgt</strong> encrypted it</td><td>A DC never re-checks a TGT's claims against a live database, it trusts the encryption. Whoever holds the krbtgt hash can forge a TGT with any identity offline</td><td>Golden / Silver Tickets</td></tr>
+              </tbody>
+            </table>
+          </div>
 
-          <p>The second property is the trust the KDC places in a ticket's contents, backed entirely by encryption with the krbtgt key. A domain controller does not re-verify a TGT's claims about group membership or privilege against a live database on every use, it trusts what is inside the ticket because only the KDC could have encrypted it correctly. If an attacker ever obtains the krbtgt account's password hash, they can forge a TGT from scratch, offline, containing whatever identity and group memberships they choose, and the domain controller will accept it as genuine. A similar, narrower abuse is possible against an individual service account's key to forge a service ticket directly. This is the conceptual seed of golden and silver tickets.</p>
+          <p>Weak or old passwords on SPN-registered service accounts make the first property practical. Compromising the krbtgt hash makes the second one catastrophic.</p>
 
           <div class="callout-info">
-            <strong>Note:</strong> Nothing in this section is exploit detail, and that is deliberate. The point here is to understand precisely why these two properties (crackable service tickets and forgeable trust) exist as unavoidable consequences of how Kerberos is designed, not bugs bolted on afterward. Chapter 8 covers Kerberoasting, golden tickets, and silver tickets in full, including detection.
+            <strong>Note:</strong> Nothing above is exploit detail, that's deliberate. These are unavoidable consequences of how Kerberos is designed, not bugs bolted on afterward. Chapter 8 covers Kerberoasting, golden tickets, and silver tickets in full, including detection.
           </div>
         </section>
 
         <section class="content-section" id="auth-in-logs">
           <h2>Authentication Events in the Logs</h2>
-          <p>Every exchange described in this chapter leaves a corresponding entry in the Windows Security event log on the domain controller or the target machine, and four Event IDs form the backbone of authentication visibility. Learning to map a log line back to a specific step in the ticket exchange is what turns this chapter from theory into something you can actually use in an investigation.</p>
+          <p>Every exchange in this chapter leaves a matching entry in the Windows Security event log. Four Event IDs form the backbone of authentication visibility, mapping each log line back to a specific step above is what turns this chapter from theory into something you can use in an investigation.</p>
 
-          <p>Event ID 4768 fires on a domain controller when a TGT is requested, corresponding to the AS-REQ/AS-REP exchange. It records the account name, the source IP the request came from, and the encryption type used. A 4768 for an account at an unusual hour or from an unexpected source is often the first visible sign of credential misuse, because it represents the very first step of a Kerberos logon.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Event ID</th><th>Fires When</th><th>What to Watch</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>4768</td><td>TGT requested (AS-REQ/AS-REP)</td><td>Unusual hour or unexpected source IP, often the first visible sign of credential misuse</td></tr>
+                <tr><td>4769</td><td>Service ticket requested (TGS-REQ/TGS-REP)</td><td>Burst against many different SPNs from one account in a short window, a direct Kerberoasting signal (full detection in Chapter 8)</td></tr>
+                <tr><td>4624</td><td>Successful logon, any protocol</td><td>Check the Logon Type and Authentication Package Name fields, the latter tells you Kerberos vs NTLM directly</td></tr>
+                <tr><td>4625</td><td>Failed logon, any protocol</td><td>A string of these against one account followed by a single 4624 is the classic successful-password-guess signature</td></tr>
+              </tbody>
+            </table>
+          </div>
 
-          <p>Event ID 4769 fires when a service ticket is requested, corresponding to the TGS-REQ/TGS-REP exchange covered earlier. It records the account requesting the ticket and the SPN of the service being accessed. Because Kerberoasting depends entirely on requesting service tickets for SPNs tied to service accounts, a burst of 4769 events against many different SPNs from a single account in a short window is one of the most direct signals of that technique, and it is worth remembering now even though the full detection logic waits until Chapter 8.</p>
-
-          <p>Event ID 4624 records a successful logon on the machine where the logon occurred, and it applies regardless of whether Kerberos or NTLM was used underneath. It carries a Logon Type field (interactive, network, service, and several others) and, critically, an Authentication Package Name field that tells you directly whether the logon used Kerberos or NTLM. Event ID 4625 records the equivalent failure. A string of 4625 events against one account followed by a single 4624 is the classic signature of a successful password guess, while repeated 4625s alone without a following success is ordinary brute-force noise.</p>
-
-          <p>Together, 4768 and 4769 give visibility into the Kerberos ticket layer specifically, while 4624 and 4625 give visibility into the outcome of any logon attempt regardless of protocol. Correlating all four by account and timestamp is the foundation of authentication log analysis, and Chapter 6 builds directly on these four Event IDs when it covers logging and detection engineering in depth.</p>
+          <p><strong>4768</strong> and <strong>4769</strong> give visibility into the Kerberos ticket layer specifically. <strong>4624</strong> and <strong>4625</strong> give visibility into any logon's outcome regardless of protocol. Correlating all four by account and timestamp is the foundation of authentication log analysis, and Chapter 6 builds directly on them when it covers logging and detection engineering in depth.</p>
         </section>
 
         <div class="chapter-summary">

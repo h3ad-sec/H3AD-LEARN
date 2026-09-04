@@ -143,51 +143,134 @@
 
         <section class="content-section" id="kerberoasting">
           <h2>Kerberoasting</h2>
-          <p>Kerberoasting targets the ticket-granting service exchange that Chapter 3 walked through in detail. Recall that once a user holds a valid TGT, they can request a service ticket (TGS) for any resource by presenting that TGT to the KDC and naming the Service Principal Name (SPN) they want to access. The KDC does not verify that the requester actually needs that service, it simply encrypts the resulting TGS using the target service account's password hash and hands it back. That single design detail is what makes Kerberoasting possible: any authenticated domain user, with no special privileges at all, can request a TGS for every SPN-registered account in the domain.</p>
+          <p>Kerberoasting targets the ticket-granting service exchange that Chapter 3 walked through in detail. Once a user holds a valid TGT, they can request a service ticket (<strong>TGS</strong>) for any resource by presenting that TGT to the KDC and naming the Service Principal Name (<strong>SPN</strong>) they want to access. The KDC does not verify that the requester actually needs that service, it simply encrypts the resulting TGS using the target service account's password hash and hands it back.</p>
 
-          <p>The attack itself has no exploitation step in the traditional sense. An attacker enumerates SPNs registered in Active Directory, typically through an LDAP query against servicePrincipalName attributes, then requests a TGS for each one. Because that TGS is encrypted with the service account's NTLM password hash, the attacker walks away with a piece of ciphertext they can attempt to crack completely offline, with no further contact with the domain controller and no failed-logon events generated in the process. If the cracking succeeds, the attacker now holds the plaintext password for that service account.</p>
+          <p>That single design detail is what makes Kerberoasting possible: any authenticated domain user, with no special privileges at all, can request a TGS for every SPN-registered account in the domain. The attack itself has no exploitation step in the traditional sense.</p>
 
-          <p>Service accounts are prime targets precisely because they tend to have the weakest passwords in the environment. They are often created once during an application deployment, set with a long or complex password at the time, and then never rotated again because rotating them risks breaking whatever service depends on them. Some are decades old. Many run with elevated privileges, including Domain Admin membership in poorly segmented environments, because it was easier to grant broad rights during initial setup than to scope permissions correctly. An attacker does not need to crack every roasted ticket, they only need one weak service account to open a path to real privilege.</p>
+          <h3>The Attack, Step by Step</h3>
+          <ol>
+            <li><strong>Enumerate SPNs.</strong> The attacker queries Active Directory, typically through an LDAP query against the servicePrincipalName attribute, to find every account registered to a service.</li>
+            <li><strong>Request a TGS for each SPN.</strong> Using an already-authenticated session, the attacker requests a service ticket for every SPN found, generating no failed-logon events in the process.</li>
+            <li><strong>Take the ticket offline.</strong> Because the TGS is encrypted with the service account's NTLM password hash, the attacker walks away with ciphertext to crack independently, with no further contact with the domain controller.</li>
+            <li><strong>Crack it.</strong> If the offline cracking succeeds, the attacker now holds the plaintext password for that service account.</li>
+          </ol>
 
-          <p>The most direct mitigation is using Group Managed Service Accounts (gMSAs), which have long, automatically rotated passwords that are never known to a human and therefore effectively resist offline cracking. Where legacy service accounts cannot be converted to gMSAs, enforcing long randomly generated passwords and requiring AES rather than RC4 ticket encryption removes most of the practical risk, since RC4-encrypted tickets crack dramatically faster than AES-encrypted ones.</p>
+          <h3>Why Service Accounts Are Prime Targets</h3>
+          <p>Service accounts tend to have the weakest passwords in the environment. They are often created once during an application deployment and never rotated again, because rotating them risks breaking whatever service depends on them. Some are decades old.</p>
+          <p>Many run with elevated privileges, including Domain Admin membership in poorly segmented environments, because it was easier to grant broad rights during initial setup than to scope permissions correctly. An attacker does not need to crack every roasted ticket, they only need one weak service account to open a path to real privilege.</p>
+
+          <h3>Mitigation</h3>
+          <p>The most direct mitigation is using Group Managed Service Accounts (<strong>gMSAs</strong>), which have long, automatically rotated passwords that are never known to a human and therefore effectively resist offline cracking.</p>
+          <p>Where legacy service accounts cannot be converted to gMSAs, enforcing long randomly generated passwords and requiring AES rather than RC4 ticket encryption removes most of the practical risk, since RC4-encrypted tickets crack dramatically faster than AES-encrypted ones.</p>
         </section>
 
         <section class="content-section" id="asreproasting">
           <h2>AS-REP Roasting</h2>
-          <p>AS-REP Roasting is Kerberoasting's companion technique, and it targets an earlier point in the same exchange: the initial AS-REQ/AS-REP step that produces the TGT in the first place, rather than the TGS step. Normally, Kerberos pre-authentication requires a client to prove knowledge of the account's password before the KDC will issue anything, by encrypting a timestamp with the account's password hash and sending it along with the request. Some accounts have this pre-authentication requirement explicitly disabled, usually to support a legacy application that cannot perform the pre-auth handshake correctly.</p>
+          <p>AS-REP Roasting is Kerberoasting's companion technique. It targets an earlier point in the same exchange, the initial AS-REQ/AS-REP step that produces the TGT in the first place, rather than the TGS step.</p>
+          <p>Normally, Kerberos <strong>pre-authentication</strong> requires a client to prove knowledge of the account's password before the KDC will issue anything, by encrypting a timestamp with the account's password hash. Some accounts have this pre-authentication requirement explicitly disabled, usually to support a legacy application that cannot perform the pre-auth handshake correctly.</p>
 
-          <p>When pre-authentication is disabled on an account, an attacker who simply knows the account's username, with no password required at all, can request an AS-REP for that account directly from the KDC. The KDC will return that AS-REP without ever asking for proof of the password, and part of that response is encrypted with the account's password hash. The attacker takes that ciphertext offline and attempts to crack it exactly the way they would a roasted TGS. The critical difference from Kerberoasting is the starting requirement: Kerberoasting needs a valid, authenticated session first, while AS-REP Roasting needs nothing but a valid account name, which makes it viable even very early in an intrusion, often straight after basic domain user enumeration.</p>
+          <h3>How the Attack Works</h3>
+          <ol>
+            <li><strong>Identify pre-auth-disabled accounts.</strong> The attacker only needs a valid username, no password, no authenticated session at all.</li>
+            <li><strong>Request an AS-REP directly.</strong> The KDC returns the AS-REP without ever asking for proof of the password.</li>
+            <li><strong>Extract the encrypted portion.</strong> Part of that response is encrypted with the account's own password hash.</li>
+            <li><strong>Crack it offline.</strong> The attacker takes the ciphertext away and cracks it exactly the way they would a roasted TGS.</li>
+          </ol>
 
-          <p>Finding vulnerable accounts is trivial for an attacker with any domain visibility, since the "Do not require Kerberos preauthentication" setting is a single readable UserAccountControl flag on the account object. Defensively, the fix is usually just as simple: disabling pre-authentication should be treated as an exception that requires justification and periodic review, not a default anyone can toggle without oversight.</p>
+          <h3>AS-REP Roasting vs Kerberoasting</h3>
+          <p>The critical difference is the starting requirement. Kerberoasting needs a valid, authenticated session first. AS-REP Roasting needs nothing but a valid account name, which makes it viable very early in an intrusion, often straight after basic domain user enumeration.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Property</th><th>Kerberoasting</th><th>AS-REP Roasting</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Prerequisite</td><td>A valid, authenticated session</td><td>Just a valid account name</td></tr>
+                <tr><td>Exchange targeted</td><td>TGS-REQ / TGS-REP</td><td>AS-REQ / AS-REP</td></tr>
+                <tr><td>What's cracked</td><td>Service account's password hash</td><td>Target account's own password hash</td></tr>
+                <tr><td>Requires</td><td>SPN-registered service account</td><td>Pre-authentication disabled on the account</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Finding and Fixing Vulnerable Accounts</h3>
+          <p>Finding vulnerable accounts is trivial for an attacker with any domain visibility. The "Do not require Kerberos preauthentication" setting is a single readable UserAccountControl flag on the account object.</p>
+          <p>Defensively, the fix is usually just as simple. Disabling pre-authentication should be treated as an exception that requires justification and periodic review, not a default anyone can toggle without oversight.</p>
         </section>
 
         <section class="content-section" id="dcsync">
           <h2>DCSync</h2>
-          <p>DCSync does not exploit a bug. It abuses a legitimate, necessary piece of Active Directory's own architecture: domain controllers replicate directory data, including password hashes, between each other constantly using the Directory Replication Service Remote Protocol (DRSUAPI). A domain controller that wants a copy of another DC's data, including password hashes, simply requests it as part of normal replication. DCSync works by having a compromised account issue that same replication request, impersonating a peer domain controller even though it is not one.</p>
+          <p>DCSync does not exploit a bug. It abuses a legitimate, necessary piece of Active Directory's own architecture: domain controllers replicate directory data, including password hashes, between each other constantly using the Directory Replication Service Remote Protocol (<strong>DRSUAPI</strong>).</p>
 
-          <p>What makes this possible is a pair of extended rights on the domain object: Replicating Directory Changes and Replicating Directory Changes All. Any account holding both of these rights, by default this means Domain Admins, Enterprise Admins, and the domain controllers themselves, can call the DRSUAPI interface and request password hash data for any account in the domain, including krbtgt, without ever touching a domain controller's file system or running code on it. In practice, an attacker reaches this point either by compromising an account already in one of those privileged groups, or by finding a misconfigured ACL where the replication rights were granted too broadly, something that happens more often than it should through delegated administration mistakes.</p>
+          <h3>How Replication Is Abused</h3>
+          <ol>
+            <li><strong>Normal replication.</strong> A domain controller that wants a copy of another DC's data, including password hashes, simply requests it as part of routine replication.</li>
+            <li><strong>Impersonation.</strong> DCSync works by having a compromised account issue that same replication request, impersonating a peer domain controller even though it is not one.</li>
+            <li><strong>Hash retrieval.</strong> The receiving DC responds as it would to any peer, handing back password hash data for the requested account.</li>
+          </ol>
 
-          <p>The reason DCSync is treated as functionally equivalent to full domain compromise is straightforward: once an attacker can pull arbitrary password hashes on demand, they can retrieve the krbtgt account's hash directly, which is the single most damaging piece of data in the domain because it enables the Golden Ticket attack described next. They can also pull hashes for every privileged account, every service account, and every domain controller's machine account, all without deploying any malware or touching disk on a single additional host. It is quiet, it is fast, and it requires nothing more than a network path to a domain controller and the right permissions.</p>
+          <div class="callout-info">
+            <strong>The rights that make it possible:</strong>
+            <ul>
+              <li><strong>Replicating Directory Changes</strong> and <strong>Replicating Directory Changes All</strong>: a pair of extended rights on the domain object. Any account holding both can call the DRSUAPI interface and request password hash data for any account in the domain, including krbtgt.</li>
+              <li><strong>Default holders:</strong> Domain Admins, Enterprise Admins, and the domain controllers themselves.</li>
+              <li><strong>No file or disk contact needed.</strong> The request never touches a domain controller's file system or runs code on it.</li>
+            </ul>
+          </div>
 
+          <p>In practice, an attacker reaches this point either by compromising an account already in one of those privileged groups, or by finding a misconfigured ACL where the replication rights were granted too broadly. That second path happens more often than it should, usually through delegated administration mistakes.</p>
+
+          <h3>Why It's Equivalent to Full Domain Compromise</h3>
+          <p>Once an attacker can pull arbitrary password hashes on demand, they can retrieve the krbtgt account's hash directly. That is the single most damaging piece of data in the domain, because it enables the Golden Ticket attack described next.</p>
+          <p>They can also pull hashes for every privileged account, every service account, and every domain controller's machine account, all without deploying any malware or touching disk on a single additional host. It is quiet, it is fast, and it requires nothing more than a network path to a domain controller and the right permissions.</p>
           <p>Because DCSync rides on a protocol domain controllers use with each other constantly, the defensive question is never "did replication happen," it is "who initiated it and does that make sense." That distinction drives the detection approach covered later in this chapter.</p>
         </section>
 
         <section class="content-section" id="golden-silver-tickets">
           <h2>Golden and Silver Tickets</h2>
-          <p>A Golden Ticket is the endgame of a krbtgt compromise. The krbtgt account's password hash is what the KDC uses to sign every TGT it issues, and an attacker who obtains that hash, typically via DCSync, can forge a TGT for any account, including accounts that do not exist, entirely offline. There is no request to a domain controller involved in creating the forged ticket at all. The attacker builds the ticket data themselves, signs it with the stolen krbtgt hash, and it will be accepted as legitimate by any domain controller because cryptographically it is indistinguishable from a ticket the KDC actually issued.</p>
+          <p>A <strong>Golden Ticket</strong> is the endgame of a krbtgt compromise. The krbtgt account's password hash is what the KDC uses to sign every TGT it issues, and an attacker who obtains that hash, typically via DCSync, can forge a TGT for any account, including accounts that do not exist, entirely offline.</p>
+          <p>There is no request to a domain controller involved in creating the forged ticket at all. The attacker builds the ticket data themselves, signs it with the stolen krbtgt hash, and it will be accepted as legitimate by any domain controller because cryptographically it is indistinguishable from a ticket the KDC actually issued.</p>
 
-          <p>This is what makes Golden Tickets so persistent: an attacker can set the ticket's validity to years, embed membership in Domain Admins or any other group they want, and use it to authenticate anywhere in the domain without ever needing valid credentials again. Rotating a compromised user's password does nothing, because the forged ticket was never tied to that user's own credential material. The only real remediation is resetting the krbtgt password itself, and it must be reset twice, with time between resets, because Active Directory retains the previous krbtgt password in a two-generation history and will still accept tickets signed with the immediately prior hash. A single reset leaves attackers able to keep forging tickets using the hash from before the reset.</p>
+          <p>A <strong>Silver Ticket</strong> is the more surgical sibling of the same idea. Instead of forging a TGT signed with the krbtgt hash, the attacker forges a TGS directly, signed with a compromised service account's own password hash, the same hash targeted by Kerberoasting.</p>
+          <p>Because a Silver Ticket is scoped to one specific service, it grants access only to that service rather than the whole domain. It comes with a meaningful advantage for the attacker: since it never requires contact with a domain controller at all, not even the initial forgery step, there is effectively no domain controller Kerberos event generated for its creation or use.</p>
 
-          <p>A Silver Ticket is the more surgical sibling of the same idea. Instead of forging a TGT signed with the krbtgt hash, the attacker forges a TGS directly, signed with a compromised service account's own password hash, the same hash targeted by Kerberoasting. Because a Silver Ticket is scoped to one specific service, it grants access only to that service rather than the whole domain, but it comes with a meaningful advantage for the attacker: since a Silver Ticket never requires contact with a domain controller at all, not even the initial forgery step, there is effectively no domain controller Kerberos event generated for its creation or its use against the target service. Detection has to move to the endpoint or the application logging the service itself controls.</p>
+          <h3>Golden vs Silver Ticket</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Property</th><th>Golden Ticket</th><th>Silver Ticket</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Forged with</td><td>krbtgt account's hash</td><td>A service account's own hash</td></tr>
+                <tr><td>What's forged</td><td>A TGT</td><td>A TGS (service ticket)</td></tr>
+                <tr><td>Scope of access</td><td>The entire domain</td><td>One specific service</td></tr>
+                <tr><td>Domain controller contact</td><td>None needed to forge; may still hit a DC when used</td><td>None at all, forging and use both bypass the DC</td></tr>
+                <tr><td>Detection surface</td><td>DC-side Kerberos events, ticket lifetime, PAC validation</td><td>Endpoint and service/application logs only</td></tr>
+              </tbody>
+            </table>
+          </div>
 
-          <p>Both techniques share the same root cause: once an attacker holds the right symmetric key, whether that is krbtgt for domain-wide forgery or a single service account's hash for scoped forgery, Kerberos has no mechanism to distinguish a forged ticket from a genuine one at the cryptographic level. Defense has to happen at the level of protecting those keys and detecting anomalous consequences of their misuse, not at the protocol level.</p>
+          <div class="callout-warning">
+            <strong>Golden Ticket remediation:</strong> resetting the krbtgt password once is not enough. Active Directory retains the previous krbtgt password in a two-generation history and will still accept tickets signed with the immediately prior hash. The krbtgt password must be reset <strong>twice</strong>, with adequate replication time between resets, to invalidate both the current and previous hash.
+          </div>
+
+          <h3>Same Root Cause</h3>
+          <p>Both techniques share the same root cause. Once an attacker holds the right symmetric key, whether that is krbtgt for domain-wide forgery or a single service account's hash for scoped forgery, Kerberos has no mechanism to distinguish a forged ticket from a genuine one at the cryptographic level.</p>
+          <p>Defense has to happen at the level of protecting those keys and detecting anomalous consequences of their misuse, not at the protocol level.</p>
         </section>
 
         <section class="content-section" id="detection-strategy-for-each">
           <h2>Detection Strategy for Each Attack</h2>
-          <p>Chapter 6 covered the Windows Security event logging pipeline in depth, and every one of these attacks leaves a signal somewhere in that pipeline, even when, as with Silver Tickets, the signal is largely an absence rather than a presence. The common thread across all four techniques is that none of them are a single alertable event on their own. A single 4769 is normal domain activity thousands of times a day. What matters is volume, pattern, and context around the baseline your environment actually produces.</p>
+          <p>Chapter 6 covered the Windows Security event logging pipeline in depth, and every one of these attacks leaves a signal somewhere in that pipeline. Even with Silver Tickets, the signal is largely an absence rather than a presence.</p>
+          <p>The common thread across all four techniques is that none of them are a single alertable event on their own. A single 4769 is normal domain activity thousands of times a day. What matters is volume, pattern, and context around the baseline your environment actually produces.</p>
 
-          <p>Kerberoasting shows up as an unusual concentration of 4769 (Kerberos Service Ticket Operations) events, particularly a single account requesting TGS tickets for many distinct SPNs in a short window, and particularly when the ticket encryption type field shows 0x17 (RC4) rather than AES, since attacker tooling has historically defaulted to requesting the weaker encryption type to speed up offline cracking. AS-REP Roasting shows up as 4768 (Authentication Ticket Request) events for accounts that never generate a corresponding 4771 pre-authentication failure, correlated with 4625 failed logon or account enumeration activity that typically precedes an attacker identifying which accounts have pre-auth disabled in the first place. DCSync shows up as 4662 (An operation was performed on an object) events carrying the Replicating Directory Changes or Replicating Directory Changes All extended right GUIDs, sourced from an account or host that is not a domain controller, which is the single highest-fidelity signal in this entire chapter because that combination almost never has a legitimate explanation. Golden Ticket use shows up less as one event and more as an inconsistency: TGTs with lifetimes that exceed policy, 4624 logon events tied to tickets whose issuing domain controller cannot be corroborated, authentication for accounts that were deleted or disabled after the krbtgt hash was likely stolen, and failures in PAC validation where a domain controller cannot verify the privilege data embedded in a presented ticket.</p>
+          <h3>What Each Attack Looks Like in the Logs</h3>
+          <ul>
+            <li><strong>Kerberoasting:</strong> an unusual concentration of 4769 (Kerberos Service Ticket Operations) events, particularly one account requesting TGS tickets for many distinct SPNs in a short window, especially when the ticket encryption type field shows 0x17 (RC4) rather than AES, since attacker tooling has historically defaulted to the weaker encryption type to speed up offline cracking.</li>
+            <li><strong>AS-REP Roasting:</strong> 4768 (Authentication Ticket Request) events for accounts that never generate a corresponding 4771 pre-authentication failure, correlated with 4625 failed logons or account enumeration activity that typically precedes an attacker identifying which accounts have pre-auth disabled.</li>
+            <li><strong>DCSync:</strong> 4662 (An operation was performed on an object) events carrying the Replicating Directory Changes or Replicating Directory Changes All extended right GUIDs, sourced from an account or host that is not a domain controller. This is the single highest-fidelity signal in this entire chapter, because that combination almost never has a legitimate explanation.</li>
+            <li><strong>Golden Ticket use:</strong> less a single event, more an inconsistency: TGTs with lifetimes that exceed policy, 4624 logon events tied to tickets whose issuing domain controller cannot be corroborated, authentication for accounts deleted or disabled after the krbtgt hash was likely stolen, and PAC validation failures where a domain controller cannot verify the privilege data embedded in a presented ticket.</li>
+          </ul>
 
           <div class="table-wrap">
             <table>
@@ -203,18 +286,30 @@
             </table>
           </div>
 
-          <p>Silver Tickets deserve a special note here because they are the exception to "check the event log": since the forged TGS never touches a domain controller, there may be no anomalous Kerberos event at all on the DC side. Detection shifts to the target service itself, unusual PAC contents in the ticket presented to the application, service-level authentication logs that do not correlate with any domain controller ticket issuance, and endpoint telemetry showing the tooling used to forge the ticket in the first place. This is a good reminder that log-based detection is only as strong as the logging surface an attack actually touches, and building detection coverage means thinking about where in the exchange each technique deliberately avoids leaving evidence.</p>
+          <h3>The Silver Ticket Exception</h3>
+          <p>Silver Tickets deserve a special note here because they are the exception to "check the event log." Since the forged TGS never touches a domain controller, there may be no anomalous Kerberos event at all on the DC side.</p>
+          <p>Detection shifts to the target service itself: unusual PAC contents in the ticket presented to the application, service-level authentication logs that do not correlate with any domain controller ticket issuance, and endpoint telemetry showing the tooling used to forge the ticket in the first place.</p>
+          <p>This is a good reminder that log-based detection is only as strong as the logging surface an attack actually touches. Building detection coverage means thinking about where in the exchange each technique deliberately avoids leaving evidence.</p>
         </section>
 
         <section class="content-section" id="closing-the-loop">
           <h2>Where This Module Fits in H3AD-LEARN</h2>
-          <p>This chapter is a capstone, not an endpoint. The four attacks covered here are exactly the kind of activity the rest of the platform assumes you can recognize by name. The <a href="../threat-hunting/index.html">Threat Hunting</a> module's hypothesis-driven methodology is precisely how a hunter would go looking for the DCSync and Kerberoasting patterns described in this chapter: forming a specific, falsifiable hypothesis about anomalous replication traffic or an SPN enumeration spike, then pivoting through logs to confirm or rule it out, rather than waiting for a signature-based alert to fire.</p>
+          <p>This chapter is a capstone, not an endpoint. The four attacks covered here are exactly the kind of activity the rest of the platform assumes you can recognize by name.</p>
 
-          <p>The <a href="../lolbas/index.html">LOLBAS module</a> covers the living-off-the-land binaries that attackers frequently pair with these Active Directory attacks once they have working credentials or a forged ticket in hand, since gaining domain-level access is rarely the final objective, it is the enabler for lateral movement using tools already present on the target systems. Understanding both halves, how the credential was obtained and how it gets used to move, is what turns an isolated detection into a full incident narrative.</p>
+          <h3>Threat Hunting</h3>
+          <p>The <a href="../threat-hunting/index.html">Threat Hunting</a> module's hypothesis-driven methodology is precisely how a hunter would go looking for the DCSync and Kerberoasting patterns described in this chapter. That means forming a specific, falsifiable hypothesis about anomalous replication traffic or an SPN enumeration spike, then pivoting through logs to confirm or rule it out, rather than waiting for a signature-based alert to fire.</p>
 
-          <p>The <a href="../threat-intel/index.html">Threat Intelligence module</a>'s actor-profiling content is what turns a raw finding like "someone performed a DCSync operation" into something genuinely actionable: "this replication pattern, combined with this ticket lifetime and this lateral movement tooling, matches a known APT group's documented TTPs." Detection tells you something happened. Intelligence tells you who is likely behind it and what they typically do next. And the <a href="../networking/index.html">Networking module</a>'s Kerberos-on-the-wire content, sibling material to its TLS chapter, gives you the network-level view of the exact same protocol this module has covered from the Windows host and domain controller side. Seeing both views, the packet capture and the Security event log, is what makes Kerberos anomalies obvious instead of theoretical.</p>
+          <h3>LOLBAS</h3>
+          <p>The <a href="../lolbas/index.html">LOLBAS module</a> covers the living-off-the-land binaries that attackers frequently pair with these Active Directory attacks once they have working credentials or a forged ticket in hand. Gaining domain-level access is rarely the final objective, it is the enabler for lateral movement using tools already present on the target systems.</p>
+          <p>Understanding both halves, how the credential was obtained and how it gets used to move, is what turns an isolated detection into a full incident narrative.</p>
 
-          <p>Taken together, the <a href="../fundamentals/index.html">Fundamentals module</a>, the <a href="../networking/index.html">Networking module</a>, and this Windows module form the technical baseline underneath nearly every specialization on this platform. Whichever direction you take next, threat hunting, threat intelligence, cloud security, or living-off-the-land detection, you will be drawing on the ticket exchange, the logging pipeline, and the attack patterns this module built from the ground up.</p>
+          <h3>Threat Intelligence and Networking</h3>
+          <p>The <a href="../threat-intel/index.html">Threat Intelligence module</a>'s actor-profiling content is what turns a raw finding like "someone performed a DCSync operation" into something genuinely actionable: "this replication pattern, combined with this ticket lifetime and this lateral movement tooling, matches a known APT group's documented TTPs." Detection tells you something happened. Intelligence tells you who is likely behind it and what they typically do next.</p>
+          <p>The <a href="../networking/index.html">Networking module</a>'s Kerberos-on-the-wire content, sibling material to its TLS chapter, gives you the network-level view of the exact same protocol this module has covered from the Windows host and domain controller side. Seeing both views, the packet capture and the Security event log, is what makes Kerberos anomalies obvious instead of theoretical.</p>
+
+          <h3>The Technical Baseline</h3>
+          <p>Taken together, the <a href="../fundamentals/index.html">Fundamentals module</a>, the <a href="../networking/index.html">Networking module</a>, and this Windows module form the technical baseline underneath nearly every specialization on this platform.</p>
+          <p>Whichever direction you take next, threat hunting, threat intelligence, cloud security, or living-off-the-land detection, you will be drawing on the ticket exchange, the logging pipeline, and the attack patterns this module built from the ground up.</p>
         </section>
 
         <div class="chapter-summary">

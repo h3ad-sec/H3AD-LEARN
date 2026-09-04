@@ -143,13 +143,27 @@
 
         <section class="content-section" id="credential-dumping-lsass">
           <h2>Credential Dumping from LSASS</h2>
-          <p>The Local Security Authority Subsystem Service, lsass.exe, is the process Windows uses to enforce local security policy and handle interactive and network authentication. Part of that job requires it to hold credential material in memory for as long as a user's session is active. When you log on interactively, unlock your machine, connect to a network share, or authenticate to an RDP session, Windows caches enough of that credential, an NT hash, a Kerberos ticket, sometimes a reversibly encrypted or plaintext secret depending on configuration, so you are not prompted to re-enter your password every time a process needs to prove who you are. This is a usability feature, single sign-on, not a bug. It is also the reason LSASS memory is one of the most consistently valuable targets on any Windows host.</p>
 
-          <p>Reading that memory requires a handle to the lsass.exe process with sufficient access rights, and Windows does not hand that out casually. This is where Chapter 4's discussion of SeDebugPrivilege becomes directly relevant. A process needs that privilege enabled in its token, combined in practice with local administrator or SYSTEM context, to open LSASS with the access mask that permits reading its memory. Tools built for credential access, Mimikatz being the best known example, enable SeDebugPrivilege, open a handle to lsass.exe, and either dump the process memory to a file for offline parsing or walk the relevant memory structures live to extract credential material directly. Some approaches avoid dropping a suspicious binary entirely by calling a legitimate Windows component, such as the MiniDump export inside comsvcs.dll, to produce the dump, blending the action into what looks like a routine diagnostic operation.</p>
+          <h3>Why LSASS Holds Value</h3>
+          <p>The Local Security Authority Subsystem Service, <strong>lsass.exe</strong>, is the process Windows uses to enforce local security policy and handle interactive and network authentication. Part of that job requires it to hold credential material in memory for as long as a user's session is active.</p>
+          <p>When you log on interactively, unlock your machine, connect to a network share, or authenticate to an RDP session, Windows caches enough of that credential, an NT hash, a Kerberos ticket, sometimes a reversibly encrypted or plaintext secret depending on configuration, so you are not prompted to re-enter your password every time a process needs to prove who you are. This is a usability feature, single sign-on, not a bug, and it is also the reason LSASS memory is one of the most consistently valuable targets on any Windows host.</p>
 
-          <p>What makes this technique so consistently valuable is the yield relative to the effort. A single successful dump on one compromised host can return credentials for every account that has authenticated to that machine since boot, not just the currently logged-on user. On a workstation that is one or two accounts. On a jump box, a Remote Desktop server, or any host where administrators regularly connect to perform routine work, a dump can return domain admin credentials, service account credentials, and help desk credentials in one pass. That single event on one low-value box is frequently the pivot point that turns a contained incident into a domain-wide one.</p>
+          <h3>How the Access Happens</h3>
+          <p>Reading that memory requires a handle to the lsass.exe process with sufficient access rights, and Windows does not hand that out casually. This is where Chapter 4's discussion of <strong>SeDebugPrivilege</strong> becomes directly relevant.</p>
+          <ol>
+            <li><strong>Enable the privilege.</strong> A process needs SeDebugPrivilege enabled in its token, combined in practice with local administrator or SYSTEM context, before it can attempt to open LSASS with the access mask that permits reading its memory.</li>
+            <li><strong>Open a handle to lsass.exe.</strong> Tools built for credential access, Mimikatz being the best known example, use that privilege to open the process directly.</li>
+            <li><strong>Extract the credential material.</strong> The tool either dumps the process memory to a file for offline parsing, or walks the relevant memory structures live to pull credentials out directly.</li>
+            <li><strong>Optionally blend in.</strong> Some approaches avoid dropping a suspicious binary entirely by calling a legitimate Windows component, such as the MiniDump export inside comsvcs.dll, to produce the dump, making the action look like a routine diagnostic operation.</li>
+          </ol>
 
-          <p>Modern Windows includes mitigations that raise the cost of this technique without eliminating it. Credential Guard isolates a subset of secrets in a virtualization-based security container that ordinary LSASS memory access cannot reach. LSA Protection, when enabled, marks lsass.exe as a protected process so that only signed, trusted callers can open it with the access rights credential dumping requires. Neither is universally deployed, and both can be bypassed or downgraded under the right conditions, which is why detecting the attempt still matters even in a hardened environment.</p>
+          <h3>The Yield</h3>
+          <p>What makes this technique so consistently valuable is the yield relative to the effort. A single successful dump on one compromised host can return credentials for every account that has authenticated to that machine since boot, not just the currently logged-on user.</p>
+          <p>On a workstation that is one or two accounts. On a jump box, a Remote Desktop server, or any host where administrators regularly connect to perform routine work, a dump can return domain admin credentials, service account credentials, and help desk credentials in one pass. That single event on one low-value box is frequently the pivot point that turns a contained incident into a domain-wide one.</p>
+
+          <h3>Mitigations</h3>
+          <p>Modern Windows includes mitigations that raise the cost of this technique without eliminating it. <strong>Credential Guard</strong> isolates a subset of secrets in a virtualization-based security container that ordinary LSASS memory access cannot reach. <strong>LSA Protection</strong>, when enabled, marks lsass.exe as a protected process so that only signed, trusted callers can open it with the access rights credential dumping requires.</p>
+          <p>Neither is universally deployed, and both can be bypassed or downgraded under the right conditions, which is why detecting the attempt still matters even in a hardened environment.</p>
 
           <div class="callout-warning">
             <strong>Detection angle:</strong> The access attempt itself is the durable signal, not the toolset making it. Sysmon Event ID 10 (ProcessAccess) targeting lsass.exe, with a GrantedAccess mask that includes PROCESS_VM_READ, is worth alerting on regardless of what process requested it. Tool names and file hashes change constantly. The behavior of reaching into LSASS memory does not.
@@ -158,24 +172,49 @@
 
         <section class="content-section" id="pass-the-hash">
           <h2>Pass-the-Hash</h2>
-          <p>Chapter 3 covered how NTLM authentication works: a client proves it knows a password by using the NT hash of that password to compute a response to a challenge issued by the server, without ever transmitting the plaintext password itself. The hash is what does the cryptographic work in that handshake. That single fact is what makes pass-the-hash possible. If the NT hash is functionally equivalent to the password for the purposes of the protocol, then an attacker who obtains the hash, typically pulled from LSASS memory the way the previous section describes, can plug it directly into the same handshake and authenticate successfully. They never see the plaintext password, never crack it, and do not need to.</p>
+          <p>Chapter 3 covered how NTLM authentication works: a client proves it knows a password by using the <strong>NT hash</strong> of that password to compute a response to a challenge issued by the server, without ever transmitting the plaintext password itself. The hash is what does the cryptographic work in that handshake. That single fact is what makes pass-the-hash possible.</p>
+          <p>If the NT hash is functionally equivalent to the password for the purposes of the protocol, then an attacker who obtains the hash, typically pulled from LSASS memory the way the previous section describes, can plug it directly into the same handshake and authenticate successfully. They never see the plaintext password, never crack it, and do not need to.</p>
 
-          <p>The mechanics are a substitution, not a bypass. On a legitimate logon, the client's own machine performs the NT hash computation locally from the password the user typed, then uses that hash to answer the server's challenge. In pass-the-hash, the attacker's machine uses a hash it obtained by other means, from a dump on a compromised host, and skips straight to the response computation. From the server's point of view, a correctly computed response to its challenge is proof of authentication. It has no way to tell whether that response was derived from a freshly typed password or a hash lifted from another machine hours earlier.</p>
+          <h3>A Substitution, Not a Bypass</h3>
+          <p>The mechanics only swap out one input in an otherwise normal handshake. From the server's point of view, a correctly computed response to its challenge is proof of authentication. It has no way to tell whether that response was derived from a freshly typed password or a hash lifted from another machine hours earlier.</p>
 
-          <p>The technique's reach is bounded by where NTLM is accepted and by what that authenticated identity is authorized to do. Any service that will accept NTLM as an authentication mechanism, SMB administrative shares, WMI, RPC-based management interfaces, is a viable target as long as the account behind the stolen hash has meaningful rights on the destination host. This is why credential dumping and pass-the-hash are so often chained together in the same incident: dump a hash on one machine, replay it against a second machine where that account has local admin, and the attacker now has code execution somewhere new without ever needing the plaintext.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Step</th><th>Legitimate Logon</th><th>Pass-the-Hash</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Source of the NT hash</td><td>Computed locally from the password the user just typed</td><td>Obtained by other means, typically dumped from LSASS on a different host</td></tr>
+                <tr><td>Response computation</td><td>Client computes the challenge response from that freshly derived hash</td><td>Attacker's machine skips straight to the response computation using the stolen hash</td></tr>
+                <tr><td>What the server sees</td><td>A correctly computed response</td><td>The same correctly computed response, indistinguishable to the server</td></tr>
+              </tbody>
+            </table>
+          </div>
 
-          <p>Kerberos-preferred environments reduce but do not eliminate exposure to this technique. Where NTLM fallback is still permitted, and it frequently is for compatibility reasons, pass-the-hash remains viable. A closely related technique, pass-the-ticket, applies the same substitution idea to Kerberos tickets instead of NTLM hashes and is worth knowing exists even though the underlying protocol mechanics differ. The defensive takeaway is the same either way: restricting NTLM where it is not needed and limiting how widely privileged accounts are permitted to authenticate reduces how far a single stolen credential can travel.</p>
+          <h3>Where It Reaches</h3>
+          <p>The technique's reach is bounded by where NTLM is accepted and by what that authenticated identity is authorized to do. Any service that will accept NTLM as an authentication mechanism, SMB administrative shares, WMI, RPC-based management interfaces, is a viable target as long as the account behind the stolen hash has meaningful rights on the destination host.</p>
+          <p>This is why credential dumping and pass-the-hash are so often chained together in the same incident. Dump a hash on one machine, replay it against a second machine where that account has local admin, and the attacker has code execution somewhere new without ever needing the plaintext.</p>
+
+          <h3>Mitigating Exposure</h3>
+          <p>Kerberos-preferred environments reduce but do not eliminate exposure to this technique. Where NTLM fallback is still permitted, and it frequently is for compatibility reasons, pass-the-hash remains viable.</p>
+          <p>A closely related technique, <strong>pass-the-ticket</strong>, applies the same substitution idea to Kerberos tickets instead of NTLM hashes and is worth knowing exists even though the underlying protocol mechanics differ. The defensive takeaway is the same either way: restricting NTLM where it is not needed, and limiting how widely privileged accounts are permitted to authenticate, reduces how far a single stolen credential can travel.</p>
         </section>
 
         <section class="content-section" id="lateral-movement-psexec-wmi-winrm">
           <h2>Lateral Movement: PsExec, WMI, and WinRM</h2>
           <p>Once an attacker holds usable credentials for an account with rights on another host, whether recovered by cracking, replayed via pass-the-hash, or simply reused because it was weak, they need a mechanism to actually execute code on that host. Three built-in Windows facilities cover the overwhelming majority of real-world lateral movement, and each one leaves a distinct fingerprint that a defender can learn to recognize.</p>
 
-          <p>PsExec, and tools that replicate its approach, work by writing an executable or a service binary to the target's ADMIN$ administrative share, then using the Service Control Manager API to remotely create and start a temporary Windows service that runs that binary, typically as SYSTEM. Output is relayed back over a named pipe. The service is usually deleted immediately after use, but the act of creating and starting it is logged before that cleanup happens, and the file transfer over ADMIN$ leaves its own trace.</p>
+          <h3>PsExec: Service Creation over ADMIN$</h3>
+          <p>PsExec, and tools that replicate its approach, work by writing an executable or a service binary to the target's ADMIN$ administrative share, then using the Service Control Manager API to remotely create and start a temporary Windows service that runs that binary, typically as SYSTEM. Output is relayed back over a named pipe.</p>
+          <p>The service is usually deleted immediately after use, but the act of creating and starting it is logged before that cleanup happens, and the file transfer over ADMIN$ leaves its own trace.</p>
 
-          <p>WMI-based lateral movement takes a different path. It uses DCOM or WMI's own RPC-based protocol, communicating over TCP 135 plus a dynamically negotiated high port, to invoke the Win32_Process class's Create method on the remote host. This spawns a process directly through the WMI provider host without writing a new service or dropping an executable through a file share first, which is exactly why it is popular with attackers trying to minimize artifacts. The trade-off is that WmiPrvSE.exe becomes the parent of whatever process gets created, and that parent-child relationship is unusual enough in most environments to be a strong detection signal on its own.</p>
+          <h3>WMI: Process Creation Without a File Drop</h3>
+          <p>WMI-based lateral movement takes a different path. It uses DCOM or WMI's own RPC-based protocol, communicating over TCP 135 plus a dynamically negotiated high port, to invoke the <strong>Win32_Process</strong> class's Create method on the remote host.</p>
+          <p>This spawns a process directly through the WMI provider host without writing a new service or dropping an executable through a file share first, which is exactly why it is popular with attackers trying to minimize artifacts. The trade-off is that <strong>WmiPrvSE.exe</strong> becomes the parent of whatever process gets created, and that parent-child relationship is unusual enough in most environments to be a strong detection signal on its own.</p>
 
-          <p>WinRM, PowerShell remoting, runs over the WS-Management protocol on TCP 5985 for HTTP or 5986 for HTTPS. A successful connection spawns wsmprovhost.exe on the target and gives the attacker an interactive PowerShell session rather than a single fire-and-forget command, which makes it attractive for anything beyond a one-shot execution. Because it is a full PowerShell session, everything Chapter 6 covered about script block logging and the PowerShell Operational log applies directly here: commands run over a WinRM session are visible in that telemetry if logging is configured to capture them.</p>
+          <h3>WinRM: An Interactive PowerShell Session</h3>
+          <p>WinRM, PowerShell remoting, runs over the WS-Management protocol on TCP 5985 for HTTP or 5986 for HTTPS. A successful connection spawns <strong>wsmprovhost.exe</strong> on the target and gives the attacker an interactive PowerShell session rather than a single fire-and-forget command, which makes it attractive for anything beyond a one-shot execution.</p>
+          <p>Because it is a full PowerShell session, everything Chapter 6 covered about script block logging and the PowerShell Operational log applies directly here: commands run over a WinRM session are visible in that telemetry if logging is configured to capture them.</p>
 
           <div class="table-wrap">
             <table>
@@ -193,31 +232,66 @@
 
         <section class="content-section" id="persistence-recap-attacker-view">
           <h2>Persistence from the Attacker's Perspective</h2>
-          <p>Chapter 5 walked through registry-based persistence, Run keys, scheduled tasks, and malicious services, mostly as mechanisms in isolation: what each one is, where it lives, how it survives a reboot. Seen from the attacker's side of an active intrusion, those mechanisms are not a checklist item to get to eventually. They are usually one of the first things established once code execution on a target is achieved, often before any lateral movement or objective-focused activity begins.</p>
+          <p>Chapter 5 walked through registry-based persistence, Run keys, scheduled tasks, and malicious services, mostly as mechanisms in isolation: what each one is, where it lives, how it survives a reboot. Seen from the attacker's side of an active intrusion, those mechanisms are not a checklist item to get to eventually.</p>
+          <p>They are usually one of the first things established once code execution on a target is achieved, often before any lateral movement or objective-focused activity begins.</p>
 
-          <p>The reasoning is practical. An attacker cannot predict when their initial foothold will disappear. The user might reboot the machine for a routine patch cycle. A help desk ticket might trigger a reimage. EDR might flag the initial payload hours after execution and quarantine it. None of these events are under the attacker's control, and any one of them can end an access that took real effort to obtain, whether through a phishing lure, an exploited vulnerability, or purchased initial access from a broker. Persistence is the insurance policy against all of that uncertainty. It converts a single, fragile foothold into a durable one that survives the ordinary churn of a managed endpoint.</p>
+          <h3>Why Persistence Comes Early</h3>
+          <p>The reasoning is practical. An attacker cannot predict when their initial foothold will disappear, and any of the following can end an access that took real effort to obtain in the first place, whether through a phishing lure, an exploited vulnerability, or purchased initial access from a broker:</p>
+          <ul>
+            <li><strong>A routine reboot.</strong> The user restarts the machine for a normal patch cycle.</li>
+            <li><strong>A help desk reimage.</strong> A support ticket triggers a full rebuild of the endpoint.</li>
+            <li><strong>An EDR detection.</strong> The initial payload gets flagged and quarantined hours after execution.</li>
+          </ul>
+          <p>None of these events are under the attacker's control. Persistence is the insurance policy against all of that uncertainty, converting a single fragile foothold into a durable one that survives the ordinary churn of a managed endpoint.</p>
 
-          <p>This is especially visible in access broker and ransomware precursor activity, where the group establishing initial access is frequently not the group that will eventually deploy the final payload. There can be a gap of days or weeks between the two. That entire gap depends on persistence mechanisms quietly surviving reboots, patches, and routine administrative activity without drawing attention. A Run key pointing to an innocuous-looking binary, a scheduled task disguised as a system maintenance job, or a service installed under a name that resembles a legitimate one, any of these can bridge that gap.</p>
+          <h3>The Access Broker Gap</h3>
+          <p>This is especially visible in access broker and ransomware precursor activity, where the group establishing initial access is frequently not the group that will eventually deploy the final payload. There can be a gap of days or weeks between the two.</p>
+          <p>That entire gap depends on persistence mechanisms quietly surviving reboots, patches, and routine administrative activity without drawing attention. A Run key pointing to an innocuous-looking binary, a scheduled task disguised as a system maintenance job, or a service installed under a name that resembles a legitimate one, any of these can bridge that gap.</p>
 
-          <p>The practical implication for a defender is that persistence should be treated as an early-stage indicator, not a late-stage one. Finding a suspicious autorun entry or an unfamiliar service is not evidence that an intrusion is winding down. It is frequently evidence that it just began, and that credential access, lateral movement, and further objectives are still ahead rather than behind.</p>
+          <h3>What This Means for a Defender</h3>
+          <p>The practical implication is that persistence should be treated as an early-stage indicator, not a late-stage one. Finding a suspicious autorun entry or an unfamiliar service is not evidence that an intrusion is winding down.</p>
+          <p>It is frequently evidence that it just began, and that credential access, lateral movement, and further objectives are still ahead rather than behind.</p>
         </section>
 
         <section class="content-section" id="living-off-the-land-windows">
           <h2>Living Off the Land on Windows</h2>
-          <p>A LOLBin, short for "living off the land binary," is a legitimate, Microsoft-signed executable that ships as part of Windows or a common Windows component, and that has some documented, legitimate function which an attacker can repurpose for a malicious task. Tools like certutil, mshta, rundll32, and regsvr32 all fall into this category. None of them were designed as attack tools. All of them can, under the right circumstances, be used to download a file, execute a script, or load code, which is the reason they show up so often in real intrusions.</p>
+          <div class="callout-info">
+            <strong>Quick glossary:</strong>
+            <ul>
+              <li><strong>LOLBin</strong> ("living off the land binary"): a legitimate, Microsoft-signed executable that ships as part of Windows or a common Windows component, and that has some documented, legitimate function an attacker can repurpose for a malicious task.</li>
+              <li><strong>Application allowlisting</strong>: solutions like AppLocker or WDAC that block unknown binaries from running, but generally permit LOLBins by default to avoid breaking legitimate administrative workflows.</li>
+            </ul>
+          </div>
 
-          <p>The appeal to an attacker is straightforward. A signed Microsoft binary that is already present on essentially every Windows install does not trigger the same suspicion that a custom, unsigned executable does. Application allowlisting solutions like AppLocker or WDAC, which are designed specifically to stop unknown binaries from running, generally permit these tools by default because blocking them would break legitimate administrative workflows. Antivirus signature detection, built around recognizing known-malicious files, has nothing unusual to flag when the binary in question is a stock component of the operating system. The malicious part is not the file. It is the arguments passed to it and the context in which it runs.</p>
+          <h3>What Counts as a LOLBin</h3>
+          <p>Tools like <strong>certutil</strong>, <strong>mshta</strong>, <strong>rundll32</strong>, and <strong>regsvr32</strong> all fall into this category. None of them were designed as attack tools.</p>
+          <p>All of them can, under the right circumstances, be used to download a file, execute a script, or load code, which is the reason they show up so often in real intrusions.</p>
 
-          <p>This chapter only touches the concept at a high level, because the depth of coverage it deserves lives elsewhere on this platform. H3AD-LEARN's dedicated <a href="../lolbas/index.html">LOLBAS module</a> catalogs specific binaries, the techniques associated with each one, and how to build detections around their abuse patterns rather than their static identity. If you want the full inventory beyond the handful of examples named here, that module is the place to go next.</p>
+          <h3>Why They Evade Detection</h3>
+          <p>The appeal to an attacker is straightforward. A signed Microsoft binary that is already present on essentially every Windows install does not trigger the same suspicion that a custom, unsigned executable does.</p>
+          <p>Application allowlisting solutions generally permit these tools by default, and antivirus signature detection has nothing unusual to flag when the binary in question is a stock component of the operating system. The malicious part is not the file. It is the arguments passed to it and the context in which it runs.</p>
+
+          <h3>Where to Go Deeper</h3>
+          <p>This chapter only touches the concept at a high level, because the depth of coverage it deserves lives elsewhere on this platform. H3AD-LEARN's dedicated <a href="../lolbas/index.html">LOLBAS module</a> catalogs specific binaries, the techniques associated with each one, and how to build detections around their abuse patterns rather than their static identity.</p>
+          <p>If you want the full inventory beyond the handful of examples named here, that module is the place to go next.</p>
         </section>
 
         <section class="content-section" id="detection-mindset-for-attack-chains">
           <h2>Detection Mindset for Attack Chains</h2>
-          <p>Every technique in this chapter looks unremarkable on its own if you only have one piece of telemetry to look at. A process accessing lsass.exe could be legitimate diagnostic tooling. A WinRM connection could be routine remote administration. A new scheduled task could be a normal deployment artifact. The techniques described here become detectable not because any single event is definitively malicious, but because Chapter 1's process tree thinking and Chapter 6's logging coverage let a defender line up several weak signals in a short window of time and recognize the shape of a chain.</p>
+          <p>Every technique in this chapter looks unremarkable on its own if you only have one piece of telemetry to look at. A process accessing lsass.exe could be legitimate diagnostic tooling. A WinRM connection could be routine remote administration. A new scheduled task could be a normal deployment artifact.</p>
+          <p>The techniques described here become detectable not because any single event is definitively malicious, but because Chapter 1's process tree thinking and Chapter 6's logging coverage let a defender line up several weak signals in a short window of time and recognize the shape of a chain.</p>
 
-          <p>Take a concrete sequence. Sysmon Event ID 10 shows an unusual process, one that has no ordinary reason to touch LSASS, opening a handle to lsass.exe with a GrantedAccess mask consistent with memory reading. On its own, worth a look, not necessarily an incident. Now the same host, within a short window afterward, shows an outbound connection on port 5985 to a host it has never talked to before, followed by a wsmprovhost.exe process appearing on that second host with a parent chain that traces back to a legitimate-looking but recently modified service account. Individually, each event might survive a first-pass triage. Correlated, in sequence, on a tight timeline, they describe credential access followed by lateral movement using the credential just obtained, which is exactly the chain this chapter has been building toward.</p>
+          <h3>A Concrete Chain</h3>
+          <ol>
+            <li><strong>LSASS access.</strong> Sysmon Event ID 10 shows an unusual process, one with no ordinary reason to touch LSASS, opening a handle to lsass.exe with a GrantedAccess mask consistent with memory reading. On its own, worth a look, not necessarily an incident.</li>
+            <li><strong>Outbound WinRM connection.</strong> Within a short window afterward, the same host shows an outbound connection on port 5985 to a host it has never talked to before.</li>
+            <li><strong>Process spawn on the second host.</strong> A wsmprovhost.exe process appears on that second host with a parent chain that traces back to a legitimate-looking but recently modified service account.</li>
+          </ol>
+          <p>Individually, each event might survive a first-pass triage. Correlated, in sequence, on a tight timeline, they describe credential access followed by lateral movement using the credential just obtained, which is exactly the chain this chapter has been building toward.</p>
 
-          <p>This is the practical payoff of everything the last six chapters covered. Process trees tell you what spawned what. Tokens and privileges tell you whether an action was even possible for the account performing it. The registry and service-based persistence mechanisms tell you what an attacker is trying to make permanent. Event logging and Sysmon are what make all of the above visible and correlatable in the first place. None of these are separate skills in a real investigation. They are the same skill, applied to different layers of the same host.</p>
+          <h3>Why This Ties Everything Together</h3>
+          <p>This is the practical payoff of everything the last six chapters covered. Process trees tell you what spawned what. Tokens and privileges tell you whether an action was even possible for the account performing it.</p>
+          <p>The registry and service-based persistence mechanisms tell you what an attacker is trying to make permanent. Event logging and Sysmon are what make all of the above visible and correlatable in the first place. None of these are separate skills in a real investigation; they are the same skill, applied to different layers of the same host.</p>
 
           <div class="callout-info">
             <strong>Looking ahead:</strong> Chapter 8 applies this exact integrated mindset to Active Directory specifically, where the same building blocks, credential access, lateral movement, and persistence, take on domain-specific forms like Kerberoasting, DCSync, and Golden Ticket attacks. The chain-thinking developed here carries over directly.

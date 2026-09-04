@@ -143,26 +143,68 @@
 
         <section class="content-section" id="windows-event-log-architecture">
           <h2>Windows Event Log Architecture</h2>
-          <p>Windows organizes its native logging into a set of channels, and three of them matter for almost all day-to-day work: Security, System, and Application. Each is stored as a separate .evtx file under C:\Windows\System32\winevt\Logs and each is browsable through Event Viewer (eventvwr.msc), which lets you filter by log, source, level, and Event ID, or build a custom view that spans multiple channels at once. In a real environment you rarely work directly in Event Viewer on individual hosts; these logs get forwarded to a SIEM so they can be correlated across the fleet. But understanding what each channel holds locally is what makes that forwarding and correlation meaningful.</p>
+          <p>Windows organizes its native logging into a set of channels. Each is stored as a separate .evtx file under C:\Windows\System32\winevt\Logs and each is browsable through Event Viewer (eventvwr.msc), which lets you filter by log, source, level, and Event ID, or build a custom view spanning multiple channels. In a real environment you rarely work directly in Event Viewer on individual hosts; these logs get forwarded to a SIEM so they can be correlated across the fleet. Understanding what each channel holds locally is what makes that forwarding and correlation meaningful.</p>
 
-          <p>The Security log is the one analysts spend the most time in. It records auditable security events: logons and logoffs, object access, privilege use, policy changes, and account or group lifecycle events. Critically, it only records what the active audit policy tells it to record. An unconfigured system logs a surprisingly small slice of what the Security log is capable of, which is the subject of the next two sections. Because of what it contains, the Security log is also access-restricted by default; only administrators and the LocalSystem/Event Log service can read it.</p>
+          <div class="callout-info">
+            <strong>Quick glossary, the three core channels:</strong>
+            <ul>
+              <li><strong>Security log:</strong> auditable security events, logons/logoffs, object access, privilege use, policy changes, and account or group lifecycle. Access-restricted by default.</li>
+              <li><strong>System log:</strong> the operating system itself, driver load failures, service start/stop events, unexpected shutdowns, hardware warnings.</li>
+              <li><strong>Application log:</strong> a catch-all for whatever installed software writes into it, crash reports, licensing messages, update notifications.</li>
+            </ul>
+          </div>
 
-          <p>The System log covers the operating system itself: driver load failures, service start and stop events, unexpected shutdowns, disk and hardware-related warnings. It is useful for stability troubleshooting and occasionally for detection, for example spotting an Event Log service being stopped and restarted, which sometimes accompanies log-clearing activity. The Application log is a catch-all for whatever installed software chooses to write into it: crash reports, licensing messages, update notifications. Its usefulness for security work is inconsistent because it depends entirely on what each vendor decided to log and how.</p>
+          <h3>What Each Channel Actually Holds</h3>
+          <p>The <strong>Security log</strong> is the one analysts spend the most time in. It only records what the active audit policy tells it to record, and an unconfigured system logs a surprisingly small slice of what it's capable of, the subject of the next two sections.</p>
+          <p>The <strong>System log</strong> is useful for stability troubleshooting and occasionally for detection, for example spotting an Event Log service being stopped and restarted, which sometimes accompanies log-clearing activity. The <strong>Application log</strong>'s usefulness for security work is inconsistent, since it depends entirely on what each vendor decided to log and how.</p>
 
-          <p>Every event record shares a basic structure regardless of which channel it lives in. The Event ID is a numeric identifier for the type of event, but it is only unique within the context of its Source or Provider, the component that generated it, so the same numeric ID can mean something completely different coming from two different providers. The Level field marks severity (Critical, Error, Warning, Information, Verbose), and Keywords carries flags like Audit Success or Audit Failure that let you filter for outcome rather than just event type. Underneath the general header sits the EventData block, which holds the fields specific to that event type: for a logon event that means the account name, the logon type, the source IP, and a Logon ID that ties the session together across later events.</p>
+          <h3>Event Record Structure</h3>
+          <p>Every event record shares a basic structure regardless of which channel it lives in.</p>
+          <ul>
+            <li><strong>Event ID:</strong> a numeric identifier for the event type, unique only within the context of its Source or Provider, the component that generated it. The same numeric ID can mean something completely different coming from two different providers.</li>
+            <li><strong>Level:</strong> marks severity, Critical, Error, Warning, Information, or Verbose.</li>
+            <li><strong>Keywords:</strong> flags like Audit Success or Audit Failure that let you filter for outcome rather than just event type.</li>
+            <li><strong>EventData:</strong> the fields specific to that event type. For a logon event that means the account name, the logon type, the source IP, and a Logon ID that ties the session together across later events.</li>
+          </ul>
 
-          <p>That Logon ID field deserves attention early, because it is the thread that lets you stitch a single session together across multiple log entries. A user's 4624 logon carries a Logon ID that reappears in every subsequent event tied to that session, which is exactly how you connect "who logged on" to "what they did afterward" once you start pulling in Sysmon data alongside Security log data later in this chapter.</p>
+          <h3>Logon ID Threads a Session Together</h3>
+          <p>The <strong>Logon ID</strong> field deserves attention early, because it is the thread that lets you stitch a single session together across multiple log entries. A user's 4624 logon carries a Logon ID that reappears in every subsequent event tied to that session.</p>
+          <p>That is exactly how you connect "who logged on" to "what they did afterward" once you start pulling in Sysmon data alongside Security log data later in this chapter.</p>
         </section>
 
         <section class="content-section" id="key-security-event-ids">
           <h2>Key Security Event IDs</h2>
           <p>A small handful of Event IDs cover most of the detection value the Security log offers, and nearly all of them cluster around identity: who authenticated, with what kind of session, and what changed about accounts and group membership. Learning these by number, not just by description, is worth the effort because they show up constantly in queries, playbooks, and other people's detection logic.</p>
 
-          <p>Event ID 4624 records a successful logon, and 4625 records a failed one. Neither is useful on its own without the Logon Type field, which tells you what kind of session was being attempted. Type 2 is an interactive logon at the local console, type 3 is a network logon such as accessing a file share, type 4 is a batch logon typically tied to a scheduled task, type 5 is a service logon, type 7 is a workstation unlock, type 8 is a network logon sending credentials in cleartext, type 9 is NewCredentials, generated by tools like RunAs /netonly, and type 10 is RemoteInteractive, which is RDP. A wave of 4625 events with Logon Type 10 from an external address looks like RDP brute forcing; the same pattern with Logon Type 3 against multiple hosts in a short window looks like lateral movement via SMB or a remote admin tool.</p>
+          <h3>Logons: 4624, 4625, and Logon Type</h3>
+          <p>Event ID <strong>4624</strong> records a successful logon, and <strong>4625</strong> records a failed one. Neither is useful on its own without the <strong>Logon Type</strong> field, which tells you what kind of session was being attempted.</p>
 
-          <p>Event ID 4672 fires when a logon session is granted special, admin-equivalent privileges, things like SeDebugPrivilege or SeBackupPrivilege. It appears alongside the matching 4624 and gives you a fast way to flag privileged sessions without parsing the full privilege list attached to every single logon. Any unexpected account triggering 4672 outside its normal pattern is worth a second look.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Logon Type</th><th>Meaning</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>2</td><td>Interactive, at the local console</td></tr>
+                <tr><td>3</td><td>Network logon, such as accessing a file share</td></tr>
+                <tr><td>4</td><td>Batch, typically tied to a scheduled task</td></tr>
+                <tr><td>5</td><td>Service logon</td></tr>
+                <tr><td>7</td><td>Workstation unlock</td></tr>
+                <tr><td>8</td><td>Network logon sending credentials in cleartext</td></tr>
+                <tr><td>9</td><td>NewCredentials, generated by tools like RunAs /netonly</td></tr>
+                <tr><td>10</td><td>RemoteInteractive, which is RDP</td></tr>
+              </tbody>
+            </table>
+          </div>
 
-          <p>Account lifecycle events matter just as much as logon events. 4720 records a new user account being created. Group membership changes split by group scope: 4728 records a member added to a security-enabled global group, which includes Domain Admins by default since that group is global scope, while 4732 records a member added to a security-enabled local group, which is what you see when an account is added to the local Administrators group on a specific machine. Both are core signals for spotting backdoor accounts, and the pairing of a 4720 with a privileged group addition shortly after is one of the clearest identity-based persistence patterns you can build a detection around, covered in the final section of this chapter.</p>
+          <p>A wave of 4625 events with Logon Type 10 from an external address looks like RDP brute forcing. The same pattern with Logon Type 3 against multiple hosts in a short window looks like lateral movement via SMB or a remote admin tool.</p>
+
+          <h3>Privileged Sessions: 4672</h3>
+          <p>Event ID <strong>4672</strong> fires when a logon session is granted special, admin-equivalent privileges, things like SeDebugPrivilege or SeBackupPrivilege. It appears alongside the matching 4624 and gives you a fast way to flag privileged sessions without parsing the full privilege list attached to every single logon. Any unexpected account triggering 4672 outside its normal pattern is worth a second look.</p>
+
+          <h3>Account and Group Lifecycle: 4720, 4728, 4732</h3>
+          <p>Account lifecycle events matter just as much as logon events. <strong>4720</strong> records a new user account being created. Group membership changes split by group scope: <strong>4728</strong> records a member added to a security-enabled global group, which includes Domain Admins by default since that group is global scope, while <strong>4732</strong> records a member added to a security-enabled local group, which is what you see when an account is added to the local Administrators group on a specific machine.</p>
+          <p>Both are core signals for spotting backdoor accounts. The pairing of a 4720 with a privileged group addition shortly after is one of the clearest identity-based persistence patterns you can build a detection around, covered in the final section of this chapter.</p>
 
           <div class="table-wrap">
             <table>
@@ -183,13 +225,24 @@
 
         <section class="content-section" id="audit-policy">
           <h2>Audit Policy</h2>
-          <p>None of the Event IDs in the previous section appear reliably unless the corresponding audit policy is turned on. Windows ships with a conservative default audit policy that logs only a narrow set of events, largely account logon success and failure, and leaves most of the categories that security teams actually care about disabled or only partially enabled. A freshly built server or workstation running default settings will not generate 4732 when someone is added to a local group, and it will not generate object access events at all, no matter how sensitive the file being touched is.</p>
+          <p>None of the Event IDs in the previous section appear reliably unless the corresponding audit policy is turned on. Windows ships with a conservative default audit policy that logs only a narrow set of events, largely account logon success and failure, and leaves most of the categories that security teams actually care about disabled or only partially enabled.</p>
+          <p>A freshly built server or workstation running default settings will not generate 4732 when someone is added to a local group, and it will not generate object access events at all, no matter how sensitive the file being touched is.</p>
 
-          <p>The fix is Advanced Audit Policy Configuration, found under Local Security Policy or pushed through Group Policy. It replaces the nine broad legacy categories with ten categories broken into far more granular subcategories, each independently toggleable for Success, Failure, or both. To make sure the advanced settings actually take precedence over any legacy Local Security Policy configuration sitting alongside them, the "Force audit policy subcategory settings to override audit policy category settings" option, backed by the SCENoApplyLegacyAuditPolicy registry value, needs to be enabled too. Skipping that step is a common reason advanced audit settings appear configured but do not actually change what gets logged.</p>
+          <h3>Advanced Audit Policy Configuration</h3>
+          <p>The fix is <strong>Advanced Audit Policy Configuration</strong>, found under Local Security Policy or pushed through Group Policy. It replaces the nine broad legacy categories with ten categories broken into far more granular subcategories, each independently toggleable for Success, Failure, or both.</p>
+          <p>To make sure the advanced settings actually take precedence over any legacy Local Security Policy configuration sitting alongside them, the "Force audit policy subcategory settings to override audit policy category settings" option, backed by the <strong>SCENoApplyLegacyAuditPolicy</strong> registry value, needs to be enabled too. Skipping that step is a common reason advanced audit settings appear configured but do not actually change what gets logged.</p>
 
-          <p>Four categories carry most of the weight for detection work. Account Logon records authentication against a domain controller, including Kerberos ticket activity. Account Management covers the account and group lifecycle events from the previous section: creation, deletion, password resets, and membership changes. Object Access covers access to files, folders, registry keys, and other securable objects, but it has a second requirement beyond just enabling the category: the object itself needs a System Access Control List (SACL) defining what to audit. Enabling Object Access auditing without also placing a SACL on the specific file share or registry key you care about produces nothing. Privilege Use records the exercise of sensitive privileges tied to Event ID 4672 and its companions, and needs some tuning since a handful of routine system privileges generate constant, low-value noise if left unfiltered.</p>
+          <h3>The Four Categories That Matter Most</h3>
+          <ul>
+            <li><strong>Account Logon</strong> records authentication against a domain controller, including Kerberos ticket activity.</li>
+            <li><strong>Account Management</strong> covers the account and group lifecycle events from the previous section: creation, deletion, password resets, and membership changes.</li>
+            <li><strong>Object Access</strong> covers access to files, folders, registry keys, and other securable objects, but it has a second requirement beyond just enabling the category: the object itself needs a System Access Control List (SACL) defining what to audit. Enabling Object Access auditing without also placing a SACL on the specific file share or registry key you care about produces nothing.</li>
+            <li><strong>Privilege Use</strong> records the exercise of sensitive privileges tied to Event ID 4672 and its companions, and needs some tuning since a handful of routine system privileges generate constant, low-value noise if left unfiltered.</li>
+          </ul>
 
-          <p>Most organizations do not build an audit policy from a blank slate. Microsoft publishes a recommended baseline audit policy, and frameworks like the CIS benchmarks and NSA hardening guidance build on it with their own recommendations. Adopting one of these baselines through GPO is the practical starting point, followed by tuning specific subcategories up or down based on what your SIEM can actually absorb and what your detections actually need.</p>
+          <h3>Starting From a Baseline</h3>
+          <p>Most organizations do not build an audit policy from a blank slate. Microsoft publishes a recommended baseline audit policy, and frameworks like the CIS benchmarks and NSA hardening guidance build on it with their own recommendations.</p>
+          <p>Adopting one of these baselines through GPO is the practical starting point, followed by tuning specific subcategories up or down based on what your SIEM can actually absorb and what your detections actually need.</p>
 
           <div class="callout-warning">
             <strong>Warning:</strong> Enabling the Object Access audit category and expecting file or registry access events to start appearing is the single most common audit policy mistake. The category only controls whether Windows checks for a SACL at all; without a SACL configured on the specific object, enabling the category by itself produces zero events for that object.
@@ -198,24 +251,59 @@
 
         <section class="content-section" id="sysmon-overview">
           <h2>What Sysmon Adds</h2>
-          <p>Sysmon, short for System Monitor, is a free tool from the Sysinternals suite, originally written by Mark Russinovich and Thomas Garnier. It installs as a Windows service backed by a kernel driver and logs to its own dedicated channel, Microsoft-Windows-Sysmon/Operational, separate from the Security log entirely. Where the Security log's auditing was designed for general accountability, Sysmon was designed specifically for detection and forensics, and it captures a level of process and network detail that native Windows auditing was never built to provide.</p>
+          <p><strong>Sysmon</strong>, short for System Monitor, is a free tool from the Sysinternals suite, originally written by Mark Russinovich and Thomas Garnier. It installs as a Windows service backed by a kernel driver and logs to its own dedicated channel, Microsoft-Windows-Sysmon/Operational, separate from the Security log entirely.</p>
+          <p>Where the Security log's auditing was designed for general accountability, Sysmon was designed specifically for detection and forensics, and it captures a level of process and network detail that native Windows auditing was never built to provide.</p>
 
-          <p>Event ID 1, process creation, is the single most valuable event Sysmon produces. It records the full command line of every process that starts, which matters enormously: a process name alone tells you powershell.exe ran, but the command line tells you it ran with -EncodedCommand and a base64 blob, which is the difference between noise and an actionable lead. It also captures the parent process, a process and file hash, and the account context the process ran under, giving you the ancestry chain that native Windows logging mostly leaves out.</p>
+          <h3>The Core Event Types</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Event ID</th><th>Name</th><th>What It Captures</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>1</td><td>Process creation</td><td>Full command line, parent process, process and file hash, account context</td></tr>
+                <tr><td>3</td><td>Network connection</td><td>Source/destination IP and port, plus the process responsible for the connection</td></tr>
+                <tr><td>7</td><td>Image loaded</td><td>DLL loads into a process</td></tr>
+                <tr><td>12-14</td><td>Registry event</td><td>Key creation/deletion (12), value set (13), rename (14)</td></tr>
+              </tbody>
+            </table>
+          </div>
 
-          <p>Event ID 3, network connection, records the source and destination IP, port, and the process responsible for the connection. This is what lets you tie an outbound beacon to the exact process that made it, rather than just seeing traffic at the network layer with no process attribution. It is also one of the noisiest event types by default, since it fires for every browser tab and background update check, which is exactly why the configuration discussed in the next section matters so much.</p>
+          <h3>Event ID 1: Process Creation</h3>
+          <p>Event ID 1 is the single most valuable event Sysmon produces. It records the full command line of every process that starts, which matters enormously: a process name alone tells you powershell.exe ran, but the command line tells you it ran with -EncodedCommand and a base64 blob, the difference between noise and an actionable lead.</p>
+          <p>It also captures the parent process, a process and file hash, and the account context the process ran under, giving you the ancestry chain that native Windows logging mostly leaves out.</p>
 
-          <p>Event ID 7, image loaded, records DLL loads, which is directly useful for hunting DLL side-loading and process injection style techniques where a legitimate process is made to load a malicious library. Like Event ID 3, it is extremely high-volume in its default state and needs deliberate filtering to be usable rather than overwhelming.</p>
+          <h3>Event IDs 3 and 7: Network and Image Load</h3>
+          <p>Event ID 3, network connection, records the source and destination IP, port, and the process responsible for the connection. This is what lets you tie an outbound beacon to the exact process that made it, rather than just seeing traffic at the network layer with no process attribution.</p>
+          <p>Event ID 7, image loaded, records DLL loads, directly useful for hunting DLL side-loading and process injection style techniques where a legitimate process is made to load a malicious library. Both are extremely high-volume in their default state, since Event ID 3 fires for every browser tab and background update check, which is exactly why the configuration discussed in the next section matters so much.</p>
 
-          <p>Event IDs 12 through 14 cover registry object modification: 12 for key creation or deletion, 13 for a value being set, and 14 for a rename operation. This directly connects back to the registry persistence techniques covered in the previous chapter. A Run key being written, a service's ImagePath being modified, or a new AppInit_DLLs entry appearing are all things the Security log's native auditing generally will not surface on its own, but Sysmon's registry events will.</p>
+          <h3>Event IDs 12-14: Registry Modification</h3>
+          <p>Event IDs 12 through 14 cover registry object modification: 12 for key creation or deletion, 13 for a value being set, and 14 for a rename operation. This directly connects back to the registry persistence techniques covered in the previous chapter.</p>
+          <p>A Run key being written, a service's ImagePath being modified, or a new AppInit_DLLs entry appearing are all things the Security log's native auditing generally will not surface on its own, but Sysmon's registry events will.</p>
         </section>
 
         <section class="content-section" id="sysmon-configuration">
           <h2>Configuring Sysmon</h2>
           <p>Installed with no configuration, Sysmon logs everything it is capable of logging, and on a moderately busy endpoint that volume becomes unmanageable within hours, especially from Event ID 3 and Event ID 7. Making Sysmon usable in production means giving it a configuration XML that tells it, per event type, what to include and what to exclude, so the operational log fills up with signal instead of routine background activity.</p>
 
-          <p>The configuration works around rule groups scoped to each event type, and each rule group carries an onmatch attribute set to either include or exclude. An include ruleset flips the default to deny: only events matching one of the listed conditions get logged, everything else is dropped. An exclude ruleset flips the default to allow: everything gets logged except events matching the listed conditions. Conditions themselves are simple field comparisons, an image path equals a value, a command line contains a string, a destination port is one of a list, and so on. Most production configs mix both approaches: broad excludes to cut known-benign volume for noisy event types, and tighter includes for event types where only specific activity is worth keeping.</p>
+          <h3>Include vs Exclude Rule Groups</h3>
+          <p>The configuration works around rule groups scoped to each event type, and each rule group carries an onmatch attribute set to either include or exclude.</p>
+          <div class="callout-info">
+            <strong>Quick glossary:</strong>
+            <ul>
+              <li><strong>Include ruleset:</strong> flips the default to deny. Only events matching one of the listed conditions get logged, everything else is dropped.</li>
+              <li><strong>Exclude ruleset:</strong> flips the default to allow. Everything gets logged except events matching the listed conditions.</li>
+            </ul>
+          </div>
+          <p>Conditions themselves are simple field comparisons: an image path equals a value, a command line contains a string, a destination port is one of a list, and so on. Most production configs mix both approaches, broad excludes to cut known-benign volume for noisy event types, and tighter includes for event types where only specific activity is worth keeping.</p>
 
-          <p>Very few teams write a Sysmon config from scratch. The community has converged on a small number of well-known starting points, the most widely referenced being the SwiftOnSecurity baseline, which ships sensible defaults tuned to cut common Windows and application noise while preserving the events that matter for detection. Olaf Hartong's modular configuration is another common choice, built to align more explicitly with ATT&CK technique coverage. The practical approach is to adopt one of these as a base, deploy it, watch what volume and false positives look like in your own environment, and then layer targeted includes and excludes on top rather than building the whole thing from first principles.</p>
+          <h3>Community Baseline Configs</h3>
+          <p>Very few teams write a Sysmon config from scratch. The community has converged on a small number of well-known starting points.</p>
+          <ul>
+            <li><strong>SwiftOnSecurity baseline:</strong> the most widely referenced starting point, shipping sensible defaults tuned to cut common Windows and application noise while preserving the events that matter for detection.</li>
+            <li><strong>Olaf Hartong's modular configuration:</strong> another common choice, built to align more explicitly with ATT&CK technique coverage.</li>
+          </ul>
+          <p>The practical approach is to adopt one of these as a base, deploy it, watch what volume and false positives look like in your own environment, and then layer targeted includes and excludes on top rather than building the whole thing from first principles.</p>
 
           <div class="callout-tip">
             <strong>Tip:</strong> Treat your Sysmon config as a living document, not a one-time deployment. Revisit it whenever a new detection depends on an event type you are currently excluding, and remember that Sysmon-Operational is a separate channel from the Security log with its own size and retention settings that need to be sized deliberately, not left at the default.
@@ -224,11 +312,19 @@
 
         <section class="content-section" id="building-detections-from-logs">
           <h2>Building Detections from These Logs</h2>
-          <p>Neither log source is complete on its own. The Security log tells you what changed in the identity and access state of the system: an account was created, a group membership changed. What it does not tell you is what process or command caused that change, or whether it fits the pattern of routine administration. Sysmon tells you exactly that: the process, its full command line, and its parent, but Sysmon alone has no concept of "this account now has domain admin rights." Real detections combine both.</p>
+          <p>Neither log source is complete on its own. The Security log tells you what changed in the identity and access state of the system: an account was created, a group membership changed. What it does not tell you is what process or command caused that change, or whether it fits the pattern of routine administration.</p>
+          <p>Sysmon tells you exactly that: the process, its full command line, and its parent, but Sysmon alone has no concept of "this account now has domain admin rights." Real detections combine both.</p>
 
-          <p>Take the classic backdoor account pattern. A 4720 fires when a new account is created. On its own, that event is ambiguous, it could be legitimate onboarding work by an IT admin using their normal tooling. Correlating that 4720 against Sysmon Event ID 1 around the same timestamp and Logon ID adds the missing context: was the account created from an interactive PowerShell session with an admin's expected process ancestry, or was it created by net.exe or net1.exe spawned from an unusual parent, such as a web shell process or a script host running under a service account that has no business creating users? Shortly afterward, a 4732 records that same account being added to the local Administrators group, or a 4728 if it was instead added to a domain-wide group like Domain Admins. A new account followed within minutes by a privileged group addition, tied to a process ancestry that does not match normal admin activity, is a strong and fairly specific signal.</p>
+          <h3>The Backdoor Account Pattern, Step by Step</h3>
+          <ol>
+            <li><strong>A 4720 fires when a new account is created.</strong> On its own, that event is ambiguous, it could be legitimate onboarding work by an IT admin using their normal tooling.</li>
+            <li><strong>Correlate that 4720 against Sysmon Event ID 1</strong> around the same timestamp and Logon ID. This adds the missing context: was the account created from an interactive PowerShell session with an admin's expected process ancestry, or was it created by net.exe or net1.exe spawned from an unusual parent, such as a web shell process or a script host running under a service account that has no business creating users?</li>
+            <li><strong>Shortly afterward, a 4732 records that same account being added to the local Administrators group</strong>, or a 4728 if it was instead added to a domain-wide group like Domain Admins. A new account followed within minutes by a privileged group addition, tied to a process ancestry that does not match normal admin activity, is a strong and fairly specific signal.</li>
+          </ol>
 
-          <p>The detection logic follows naturally from that chain: alert when a 4720 for a given account is followed within a short window, minutes rather than hours, by a 4732 or 4728 adding that same account to a privileged group. Raise the priority further when the Sysmon process chain around the 4720 shows net.exe, net1.exe, or a directory service tool invoked by a parent process that is not part of your organization's known admin workflow, a browser, an Office application, or a script interpreter rather than an interactive admin session.</p>
+          <h3>Turning the Pattern Into a Detection</h3>
+          <p>The detection logic follows naturally from that chain: alert when a 4720 for a given account is followed within a short window, minutes rather than hours, by a 4732 or 4728 adding that same account to a privileged group.</p>
+          <p>Raise the priority further when the Sysmon process chain around the 4720 shows net.exe, net1.exe, or a directory service tool invoked by a parent process that is not part of your organization's known admin workflow, a browser, an Office application, or a script interpreter rather than an interactive admin session.</p>
 
           <p>This pairing is the template for most identity-focused detection work in a Windows environment. Use the Security log to establish what changed about access, and use Sysmon to establish what process and command chain caused that change. Detections built on only one of the two sources tend to either miss the attack entirely or generate so many false positives on routine admin work that nobody trusts them.</p>
         </section>
