@@ -4,19 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>H3AD-LEARN: Windows · Internals to Attacks</title>
-  <meta name="description" content="Eight-chapter Windows curriculum. Process architecture, Active Directory, Kerberos/NTLM, tokens and privileges, the registry, event logging, and AD attack detection." />
+  <meta name="description" content="Eleven-chapter Windows curriculum: process internals, AD, Kerberos/NTLM, tokens, registry, event logging, PowerShell logging, AD CS attacks, delegation abuse." />
   <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/windows/" />
 
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="H3AD-SEC" />
   <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/windows/" />
   <meta property="og:title" content="H3AD-LEARN: Windows · Internals to Attacks" />
-  <meta property="og:description" content="Eight-chapter Windows curriculum. Process architecture, Active Directory, Kerberos/NTLM, tokens and privileges, the registry, event logging, and AD attack detection." />
+  <meta property="og:description" content="Eleven-chapter Windows curriculum: process internals, AD, Kerberos/NTLM, tokens, registry, event logging, PowerShell logging, AD CS attacks, delegation abuse." />
   <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="H3AD-LEARN: Windows · Internals to Attacks" />
-  <meta name="twitter:description" content="Eight-chapter Windows curriculum. Process architecture, Active Directory, Kerberos/NTLM, tokens and privileges, the registry, event logging, and AD attack detection." />
+  <meta name="twitter:description" content="Eleven-chapter Windows curriculum: process internals, AD, Kerberos/NTLM, tokens, registry, event logging, PowerShell logging, AD CS attacks, delegation abuse." />
   <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" />
 
   <meta name="theme-color" content="#080c14" />
@@ -41,7 +41,7 @@
     .module-progress-wrap { display: flex; flex-direction: column; gap: 0.5rem; }
     .module-progress-bar-outer { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
     .module-progress-bar-inner { height: 100%; background: linear-gradient(90deg, var(--accent), var(--secondary)); border-radius: 3px; transition: width 0.6s ease; width: 0%; }
-    .module-progress-meta { display: flex; justify-content: space-between; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+    .module-progress-meta { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; justify-content: space-between; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--muted); }
     .module-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
     .module-tag { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--secondary); background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.15); border-radius: 3px; padding: 0.2em 0.55em; }
 
@@ -101,7 +101,7 @@
     "@context": "https://schema.org",
     "@type": "Course",
     "name": "Windows",
-    "description": "Eight-chapter Windows curriculum. Process architecture, Active Directory, Kerberos/NTLM, tokens and privileges, the registry, event logging, and AD attack detection.",
+    "description": "Eleven-chapter Windows curriculum: process internals, AD, Kerberos/NTLM, tokens, registry, event logging, PowerShell logging, AD CS attacks, delegation abuse.",
     "url": "https://h3ad-sec.github.io/H3AD-LEARN/windows/",
     "provider": {
       "@type": "Organization",
@@ -189,7 +189,7 @@
     <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
   </div>
 
-  <div class="container" style="padding-top: 1.25rem; padding-bottom: 0;">
+  <div class="container" style="padding-top: calc(var(--header-h) + 1.25rem); padding-bottom: 0;">
     <nav aria-label="Breadcrumb" style="font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; color: var(--muted); display: flex; align-items: center; gap: 0.5rem;">
       <a href="../index.html" style="color: var(--muted); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">Home</a>
       <span aria-hidden="true">&#8250;</span>
