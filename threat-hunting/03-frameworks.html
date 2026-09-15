@@ -6,19 +6,19 @@
   <meta name="chapter-id" content="03">
   <meta name="module-id" content="threat-hunting">
   <title>Hunting Frameworks · Threat Hunting · H3AD-LEARN</title>
-  <meta name="description" content="Compare the Sqrrl Hunting Loop, PEAK, TaHiTI, SANS PAM, and OTRF ThreatHunter-Playbook frameworks, and learn which to apply for repeatable, consistent hunts." />
+  <meta name="description" content="The Cyber Kill Chain and its relationship to ATT&CK, plus the Sqrrl Hunting Loop, PEAK, TaHiTI, SANS PAM, and OTRF ThreatHunter-Playbook frameworks, and when to apply each for repeatable, consistent hunts." />
   <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/threat-hunting/03-frameworks.html" />
 
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="H3AD-SEC" />
   <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/threat-hunting/03-frameworks.html" />
   <meta property="og:title" content="Hunting Frameworks · Threat Hunting · H3AD-LEARN" />
-  <meta property="og:description" content="Compare the Sqrrl Hunting Loop, PEAK, TaHiTI, SANS PAM, and OTRF ThreatHunter-Playbook frameworks, and learn which to apply for repeatable, consistent hunts." />
+  <meta property="og:description" content="The Cyber Kill Chain and its relationship to ATT&CK, plus the Sqrrl Hunting Loop, PEAK, TaHiTI, SANS PAM, and OTRF ThreatHunter-Playbook frameworks, and when to apply each for repeatable, consistent hunts." />
   <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Hunting Frameworks · Threat Hunting · H3AD-LEARN" />
-  <meta name="twitter:description" content="Compare the Sqrrl Hunting Loop, PEAK, TaHiTI, SANS PAM, and OTRF ThreatHunter-Playbook frameworks, and learn which to apply for repeatable, consistent hunts." />
+  <meta name="twitter:description" content="The Cyber Kill Chain and its relationship to ATT&CK, plus the Sqrrl Hunting Loop, PEAK, TaHiTI, SANS PAM, and OTRF ThreatHunter-Playbook frameworks, and when to apply each for repeatable, consistent hunts." />
   <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" />
 
   <meta name="theme-color" content="#080c14" />
@@ -33,7 +33,7 @@
     "@context": "https://schema.org",
     "@type": "LearningResource",
     "name": "Hunting Frameworks",
-    "description": "Compare the Sqrrl Hunting Loop, PEAK, TaHiTI, SANS PAM, and OTRF ThreatHunter-Playbook frameworks, and learn which to apply for repeatable, consistent hunts.",
+    "description": "The Cyber Kill Chain and its relationship to ATT&CK, plus the Sqrrl Hunting Loop, PEAK, TaHiTI, SANS PAM, and OTRF ThreatHunter-Playbook frameworks, and when to apply each for repeatable, consistent hunts.",
     "url": "https://h3ad-sec.github.io/H3AD-LEARN/threat-hunting/03-frameworks.html",
     "isPartOf": {
       "@type": "Course",
@@ -113,8 +113,8 @@
     <aside class="toc-sidebar" id="tocSidebar">
       <a href="index.html" class="toc-back-link">← Threat Hunting</a>
       <div class="toc-chapter-info">
-        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 03 of 8</span>
-        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 03 of 11</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">40 MIN READ</span>
       </div>
       <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
       <div class="toc-progress">
@@ -129,7 +129,7 @@
         <header class="chapter-header">
           <div class="chapter-meta">
             <span class="badge-module mono">CHAPTER 03</span>
-            <span class="badge-time muted mono">35 MIN READ</span>
+            <span class="badge-time muted mono">40 MIN READ</span>
             <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
           </div>
           <h1 class="chapter-title">Hunting Frameworks</h1>
@@ -137,7 +137,7 @@
           <div class="chapter-tags">
             <span class="tag">PEAK</span>
             <span class="tag">TaHiTI</span>
-            <span class="tag">lifecycle</span>
+            <span class="tag">Kill Chain</span>
           </div>
         </header>
 
@@ -160,6 +160,73 @@
         </section>
 
         <!-- SECTION 2 -->
+        <section class="content-section" id="cyber-kill-chain">
+          <h2>The Cyber Kill Chain and Its Relationship to ATT&amp;CK</h2>
+          <p>Lockheed Martin published the Cyber Kill Chain in 2011, in the paper "Intelligence-Driven Computer Network Defense Informed by Analysis of Adversary Campaigns and Intrusion Kill Chains." It adapted a military targeting concept &mdash; break any one link in the chain and the whole attack fails &mdash; into a seven-stage model of a cyber intrusion. It predates every framework in this chapter by at least four years and is still the most commonly assumed piece of background knowledge in threat hunting job postings and interviews, which is exactly why it earns a dedicated look here rather than being left as an assumed prerequisite.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Stage</th>
+                  <th>Adversary Activity</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>1. Reconnaissance</strong></td>
+                  <td>Research and select targets: harvest email addresses, identify internet-facing infrastructure, profile employees on social media</td>
+                </tr>
+                <tr>
+                  <td><strong>2. Weaponization</strong></td>
+                  <td>Pair a remote-access payload with an exploit into a deliverable artifact, such as a malicious document or trojanized installer</td>
+                </tr>
+                <tr>
+                  <td><strong>3. Delivery</strong></td>
+                  <td>Transmit the weaponized artifact to the target: phishing email, watering-hole website, infected USB drive</td>
+                </tr>
+                <tr>
+                  <td><strong>4. Exploitation</strong></td>
+                  <td>Trigger the payload by exploiting a vulnerability or abusing a user action (macro execution, opening an attachment)</td>
+                </tr>
+                <tr>
+                  <td><strong>5. Installation</strong></td>
+                  <td>Install a persistence mechanism (backdoor, scheduled task, service) so access survives a reboot</td>
+                </tr>
+                <tr>
+                  <td><strong>6. Command and Control (C2)</strong></td>
+                  <td>Establish a channel for the adversary to remotely direct the compromised system</td>
+                </tr>
+                <tr>
+                  <td><strong>7. Actions on Objectives</strong></td>
+                  <td>Achieve the original goal: data exfiltration, destruction, lateral movement toward a higher-value target, or fraud</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>The Kill Chain's defensive value is its core insight: an adversary must succeed at every stage in sequence, but a defender only has to break one link to stop the intrusion. That reframes detection engineering as a portfolio problem &mdash; coverage spread across multiple stages is more resilient than a single strong control at one stage, because a single missed stage does not doom the entire defense.</p>
+
+          <h3>Where the Kill Chain Falls Short for Hunting</h3>
+          <p>The Kill Chain was written for malware-delivered, perimeter-breach intrusions, and it shows. Three limitations are why ATT&CK, not the Kill Chain, is the primary technique taxonomy used throughout this course:</p>
+          <ul>
+            <li><strong>It is linear and single-pass.</strong> Real intrusions loop: an adversary who lands on a low-value workstation repeats reconnaissance, lateral movement, and privilege escalation multiple times before reaching "actions on objectives." The seven stages do not represent that iteration.</li>
+            <li><strong>Post-compromise behavior is under-specified.</strong> Everything from credential dumping to lateral movement to collection collapses into a single "Actions on Objectives" stage. That stage is where the vast majority of a hunter's actual work happens, and the Kill Chain gives it one line where ATT&CK gives it eleven tactics and hundreds of techniques.</li>
+            <li><strong>It assumes a malware-and-perimeter attack path.</strong> Identity-centric intrusions (Chapter 10) and insider threats do not cleanly map to "weaponization" or "delivery" at all &mdash; there is no payload to weaponize when the entire attack is a stolen, valid credential logging in through the front door.</li>
+          </ul>
+
+          <div class="callout-info">
+            <strong>Note:</strong> ATT&CK's fourteen enterprise tactics can be read as a more granular, non-linear successor to the Kill Chain's seven stages: Reconnaissance and Resource Development expand the old "Reconnaissance/Weaponization" pair; Initial Access, Execution, Persistence, Privilege Escalation, and Defense Evasion unpack "Delivery/Exploitation/Installation" into distinct, individually-detectable tactics; and Credential Access, Discovery, Lateral Movement, Collection, Command and Control, Exfiltration, and Impact do the granular work the Kill Chain compressed into one "Actions on Objectives" stage. Hypothesis generation in Chapter 2 uses ATT&CK precisely because that granularity is what makes a hypothesis testable against a specific data source.
+          </div>
+
+          <p>None of this makes the Kill Chain obsolete. It remains the fastest way to explain an intrusion's overall shape to a non-technical stakeholder, and "which kill-chain stage does this hypothesis test" is still a useful scoping question when briefing a hunt to a manager who has not internalized all fourteen ATT&CK tactics. Use it as a communication tool and a defense-in-depth mental model; use ATT&CK as the actual hunting taxonomy.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> The Diamond Model of Intrusion Analysis (covered in Chapter 6 alongside the Pyramid of Pain) is a useful complement, not a competitor, to the Kill Chain. The Kill Chain describes the sequence of an intrusion across time; the Diamond Model describes the four core features &mdash; adversary, infrastructure, capability, victim &mdash; of any single event within that sequence. Mature hunt teams plot Diamond Model events along a Kill Chain timeline to get both dimensions at once.
+          </div>
+        </section>
+
+        <!-- SECTION 3 -->
         <section class="content-section" id="sqrrl-loop">
           <h2>The Sqrrl Hunting Loop</h2>
           <p>Sqrrl, a threat intelligence startup acquired by AWS in 2017, published the first formal model of threat hunting as an iterative discipline in 2015. Before Sqrrl, hunting was ad hoc. After Sqrrl, it had a language and a structure. Their hunting loop is the conceptual foundation every subsequent framework builds on.</p>
@@ -226,7 +293,7 @@
           </div>
         </section>
 
-        <!-- SECTION 3 -->
+        <!-- SECTION 4 -->
         <section class="content-section" id="peak-framework">
           <h2>PEAK: Prepare, Execute, Act with Knowledge</h2>
           <p>PEAK was developed by the Splunk SURGe research team and published in 2023. It is available on GitHub under splunk/PEAK. The framework solves the Sqrrl loop's main gaps: it adds explicit preparation before the hunt, formalizes the documentation and detection-creation phase after the hunt, and introduces a taxonomy of three distinct hunt types.</p>
@@ -331,7 +398,7 @@ Planned queries:
           </div>
         </section>
 
-        <!-- SECTION 4 -->
+        <!-- SECTION 5 -->
         <section class="content-section" id="tahiti-framework">
           <h2>TaHiTI: Targeted Hunting Integrating Threat Intelligence</h2>
           <p>TaHiTI was developed by the Dutch Financial Sector ISAC (FI-ISAC) in 2018. It was designed specifically for regulated enterprise environments where threat intelligence is mature and documentation requirements are formal. The name describes the method: every hunt phase is explicitly integrated with the organization's CTI function.</p>
@@ -402,7 +469,7 @@ Planned queries:
           <p>Compared to PEAK: TaHiTI is more prescriptive and explicitly intel-anchored. PEAK is more flexible and covers all three hunt types (hypothesis, baseline, M-ATH). Use TaHiTI when CTI drives every trigger and documentation formality is required. Use PEAK when you need flexibility across hunt types and the team is smaller or less CTI-mature.</p>
         </section>
 
-        <!-- SECTION 5 -->
+        <!-- SECTION 6 -->
         <section class="content-section" id="sans-pam">
           <h2>SANS PAM Model</h2>
           <p>The SANS Practical Analysis Model (PAM) was authored by Dan Gunter and published as a SANS whitepaper. Its six stages follow a linear flow with one structural innovation that distinguishes it from every other framework: a mandatory peer review step before execution begins.</p>
@@ -468,7 +535,7 @@ Planned queries:
           </div>
         </section>
 
-        <!-- SECTION 6 -->
+        <!-- SECTION 7 -->
         <section class="content-section" id="otrf-playbook">
           <h2>OTRF ThreatHunter-Playbook</h2>
           <p>The Open Threat Research Foundation (OTRF) maintains the ThreatHunter-Playbook as a community-driven, GitHub-hosted library of curated hunt playbooks. Each playbook covers a specific ATT&CK technique with pre-built queries, expected telemetry, and a documented hypothesis. The defining feature of the OTRF approach is the use of Jupyter notebooks as the hunt artifact.</p>
@@ -543,7 +610,7 @@ rights 0x1FFFFF (PROCESS_ALL_ACCESS) to extract credentials.
           </div>
         </section>
 
-        <!-- SECTION 7 -->
+        <!-- SECTION 8 -->
         <section class="content-section" id="choosing-framework">
           <h2>Choosing Your Framework</h2>
           <p>No framework fits every team. The right choice depends on team size, CTI maturity, documentation requirements, and whether speed or rigor is the primary constraint.</p>
@@ -669,6 +736,7 @@ rights 0x1FFFFF (PROCESS_ALL_ACCESS) to extract credentials.
           <h3 class="chapter-summary-label">Key Takeaways</h3>
           <ul>
             <li>A framework converts hunting from a one-time event into a compounding detection-building program. Without one, knowledge stays siloed and cannot scale.</li>
+            <li>The Cyber Kill Chain (2011) models an intrusion's sequential shape and remains useful for stakeholder communication, but it compresses nearly all post-compromise behavior into one stage &mdash; ATT&CK's granular tactics are the actual hunting taxonomy this course builds on.</li>
             <li>The Sqrrl Loop (2015) established the foundational concept: hunting is iterative, not linear. Every hunt generates the seeds of the next.</li>
             <li>PEAK (Prepare, Execute, Act) is the most general-purpose framework. Its ACT phase, which most hunters skip, is what builds lasting detection coverage from hunt findings.</li>
             <li>TaHiTI was developed by the Dutch FI-ISAC for regulated environments. It explicitly targets TTP-level hunting over IOC hunting and requires CTI integration at every phase.</li>
@@ -684,7 +752,18 @@ rights 0x1FFFFF (PROCESS_ALL_ACCESS) to extract credentials.
           <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
 
           <div class="kc-question">
-            <p class="kc-q-text"><strong>Q1.</strong> What are the three phases of the PEAK framework?</p>
+            <p class="kc-q-text"><strong>Q1.</strong> Why does ATT&amp;CK largely supersede the Cyber Kill Chain as a hunting taxonomy, despite the Kill Chain predating it by years?</p>
+            <ul class="kc-options">
+              <li class="kc-option" data-correct="false">A. Because the Kill Chain has been formally deprecated by Lockheed Martin</li>
+              <li class="kc-option" data-correct="true">B. Because the Kill Chain compresses nearly all post-compromise behavior into a single "Actions on Objectives" stage, where ATT&CK provides eleven granular tactics and hundreds of individually-detectable techniques</li>
+              <li class="kc-option" data-correct="false">C. Because the Kill Chain only applies to nation-state actors, not criminal groups</li>
+              <li class="kc-option" data-correct="false">D. Because ATT&CK is linear and the Kill Chain is not</li>
+            </ul>
+            <div class="kc-answer hidden">B is correct. The Kill Chain's seven stages were written around a malware-delivery, perimeter-breach model. Everything a hunter spends most of their time on &mdash; credential access, discovery, lateral movement, collection &mdash; collapses into one line, "Actions on Objectives." ATT&CK unpacks that same territory into eleven tactics with hundreds of techniques, which is what makes ATT&CK-driven hypotheses (Chapter 2) testable against specific data sources. The Kill Chain is not deprecated (A) and is not itself linear-only in critique (D is backwards: linearity is the Kill Chain's limitation, not ATT&CK's advantage over it); it applies to any intrusion, not just nation-state actors (C).</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-q-text"><strong>Q2.</strong> What are the three phases of the PEAK framework?</p>
             <ul class="kc-options">
               <li class="kc-option" data-correct="false">A. Plan, Execute, Report</li>
               <li class="kc-option" data-correct="false">B. Purpose, Execute, Analyze</li>
@@ -695,7 +774,7 @@ rights 0x1FFFFF (PROCESS_ALL_ACCESS) to extract credentials.
           </div>
 
           <div class="kc-question">
-            <p class="kc-q-text"><strong>Q2.</strong> TaHiTI was developed by which organization and for what environment?</p>
+            <p class="kc-q-text"><strong>Q3.</strong> TaHiTI was developed by which organization and for what environment?</p>
             <ul class="kc-options">
               <li class="kc-option" data-correct="false">A. Splunk SURGe, for general-purpose enterprise environments</li>
               <li class="kc-option" data-correct="false">B. SANS Institute, for compliance-driven organizations</li>
@@ -706,7 +785,7 @@ rights 0x1FFFFF (PROCESS_ALL_ACCESS) to extract credentials.
           </div>
 
           <div class="kc-question">
-            <p class="kc-q-text"><strong>Q3.</strong> How many stages does the Sqrrl Hunting Loop have?</p>
+            <p class="kc-q-text"><strong>Q4.</strong> How many stages does the Sqrrl Hunting Loop have?</p>
             <ul class="kc-options">
               <li class="kc-option" data-correct="false">A. 3</li>
               <li class="kc-option" data-correct="true">B. 4</li>
@@ -717,7 +796,7 @@ rights 0x1FFFFF (PROCESS_ALL_ACCESS) to extract credentials.
           </div>
 
           <div class="kc-question">
-            <p class="kc-q-text"><strong>Q4.</strong> What is the unique contribution of the SANS PAM model that no other framework includes?</p>
+            <p class="kc-q-text"><strong>Q5.</strong> What is the unique contribution of the SANS PAM model that no other framework includes?</p>
             <ul class="kc-options">
               <li class="kc-option" data-correct="false">A. Using Jupyter notebooks as hunt artifacts</li>
               <li class="kc-option" data-correct="false">B. Explicit CTI integration at every phase</li>
@@ -728,7 +807,7 @@ rights 0x1FFFFF (PROCESS_ALL_ACCESS) to extract credentials.
           </div>
 
           <div class="kc-question">
-            <p class="kc-q-text"><strong>Q5.</strong> What artifact does the OTRF ThreatHunter-Playbook use to capture each hunt, and why is this format valuable?</p>
+            <p class="kc-q-text"><strong>Q6.</strong> What artifact does the OTRF ThreatHunter-Playbook use to capture each hunt, and why is this format valuable?</p>
             <ul class="kc-options">
               <li class="kc-option" data-correct="false">A. PDF reports, because they are easy to share and archive</li>
               <li class="kc-option" data-correct="false">B. Sigma rules, because they are platform-agnostic detection rules</li>

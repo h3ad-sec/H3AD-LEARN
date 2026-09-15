@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="10">
+  <meta name="module-id" content="threat-hunting">
+  <title>Identity and Cloud-Native Hunting · Threat Hunting · H3AD-LEARN</title>
+  <meta name="description" content="Hunt identity-centric attacks across Entra ID, AWS IAM, and OAuth/SaaS token abuse. Impossible travel, risky sign-ins, STS token misuse, and cloud hunt hypotheses." />
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/threat-hunting/10-identity-cloud-hunting.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="H3AD-SEC" />
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/threat-hunting/10-identity-cloud-hunting.html" />
+  <meta property="og:title" content="Identity and Cloud-Native Hunting · Threat Hunting · H3AD-LEARN" />
+  <meta property="og:description" content="Hunt identity-centric attacks across Entra ID, AWS IAM, and OAuth/SaaS token abuse. Impossible travel, risky sign-ins, STS token misuse, and cloud hunt hypotheses." />
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Identity and Cloud-Native Hunting · Threat Hunting · H3AD-LEARN" />
+  <meta name="twitter:description" content="Hunt identity-centric attacks across Entra ID, AWS IAM, and OAuth/SaaS token abuse. Impossible travel, risky sign-ins, STS token misuse, and cloud hunt hypotheses." />
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" />
+
+  <meta name="theme-color" content="#080c14" />
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Identity and Cloud-Native Hunting",
+    "description": "Hunt identity-centric attacks across Entra ID, AWS IAM, and OAuth/SaaS token abuse. Impossible travel, risky sign-ins, STS token misuse, and cloud hunt hypotheses.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/threat-hunting/10-identity-cloud-hunting.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Threat Hunting",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/threat-hunting/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://h3ad-sec.github.io/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "H3AD-LEARN",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Threat Hunting",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/threat-hunting/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "Identity and Cloud-Native Hunting",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/threat-hunting/10-identity-cloud-hunting.html"
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">IDENTITY &amp; CLOUD</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub nav-current">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Threat Hunting</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 10 of 11</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">40 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 7 sections</span>
+      </div>
+    </aside>
+
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 10</span>
+            <span class="badge-time muted mono">40 MIN READ</span>
+            <span class="badge-diff badge-advanced">ADVANCED</span>
+          </div>
+          <h1 class="chapter-title">Identity and Cloud-Native Hunting</h1>
+          <p class="chapter-intro">Every technique in the first nine chapters assumes a host with a process tree, a file system, and Sysmon telemetry. Identity and cloud attacks break that assumption. There is no process to inject into when the entire attack is a stolen bearer token replayed from an attacker-controlled laptop, and no file system to scan when a role-assumption chain grants an adversary access to production data three cloud accounts away from the account they compromised. This chapter builds a hunting model for a world where the perimeter is identity and the artifact is a log line, not a process.</p>
+          <div class="chapter-tags">
+            <span class="tag">Entra ID</span>
+            <span class="tag">AWS IAM</span>
+            <span class="tag">OAuth</span>
+          </div>
+        </header>
+
+        <!-- SECTION 1 -->
+        <section class="content-section" id="identity-new-perimeter">
+          <h2>Why Identity Is the New Perimeter</h2>
+          <p>A traditional intrusion has a shape a network defender recognizes: a dropper touches disk, a process injects into another process, a beacon calls out over a socket. An identity-centric intrusion has none of that shape. The adversary authenticates. That is the entire "exploit." CrowdStrike's annual threat reporting has tracked this for several years running: a majority of detected intrusions now involve valid credentials rather than malware, because credential theft is cheaper, faster, and far less likely to trip an EDR signature than dropping a binary.</p>
+
+          <p>Three structural facts make identity and cloud environments require a different hunting model than the endpoint-centric approach used in Chapters 1 through 9:</p>
+          <ul>
+            <li><strong>There is no fixed network boundary.</strong> A SaaS application, an IaaS console, and an on-prem workstation are all reachable from the same stolen session token, from any IP address on the internet. "Inside" and "outside" the network stopped being a meaningful distinction the moment authentication became the control point.</li>
+            <li><strong>The artifact is a control-plane log line, not a file or a process.</strong> An adversary who assumes an IAM role, grants an OAuth application access to a mailbox, or adds themselves to a privileged group leaves a JSON audit record, not a PE file on disk. Hunting here means reading structured API call logs, not parsing Sysmon.</li>
+            <li><strong>Blast radius is defined by trust relationships, not network segments.</strong> A single compromised service principal, break-glass account, or federated identity provider can cascade into every tenant, subscription, or workspace that trusts it. VLANs and firewalls do not describe that topology; role assignments and trust policies do.</li>
+          </ul>
+
+          <p>This chapter does not replace the ATT&CK-driven hypothesis process from Chapter 2 or the PEAK/TaHiTI lifecycle from Chapter 3. It applies the same discipline to a different set of data sources: identity provider sign-in logs, cloud control-plane audit trails, and SaaS/OAuth grant records. The relevant ATT&CK techniques are <strong>T1078.004 (Valid Accounts: Cloud Accounts)</strong>, <strong>T1021.007/.008 (Remote Services: Cloud Services / Direct Cloud VM Connections)</strong>, and <strong>T1550.001 (Use Alternate Authentication Material: Application Access Token)</strong>. TTPHUNT carries full hunting playbooks for the first two; this chapter builds the identity-specific hunting model that sits underneath them.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> This chapter uses Microsoft Entra ID (formerly Azure AD) and AWS IAM as worked examples because they cover the two most common enterprise identity/cloud stacks. The hunting model, not the specific product, is the transferable skill: every major identity provider and cloud platform exposes an equivalent sign-in log, risk-scoring engine, and control-plane audit trail.
+          </div>
+        </section>
+
+        <!-- SECTION 2 -->
+        <section class="content-section" id="entra-id-hunting">
+          <h2>Hunting Signals in Microsoft Entra ID</h2>
+          <p>Entra ID Protection generates risk detections against every sign-in and every user, based on signals Microsoft correlates across its global identity telemetry. These detections are hunt leads, not verdicts: a risk score is a hypothesis generator, and the hunter's job is to investigate whether the underlying sign-in was actually the adversary or a benign edge case the algorithm has not learned yet.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Risk Detection</th>
+                  <th>What It Means</th>
+                  <th>Common False Positive Source</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Anonymous IP address</strong></td>
+                  <td>Sign-in from a Tor exit node or a known anonymizing VPN service</td>
+                  <td>Privacy-conscious users on personal devices; rarely legitimate on corporate accounts</td>
+                </tr>
+                <tr>
+                  <td><strong>Atypical travel</strong></td>
+                  <td>Sign-in from a location statistically inconsistent with the user's recent history, without necessarily being physically impossible</td>
+                  <td>New office locations, first use of a corporate VPN gateway, contractors working from a new country</td>
+                </tr>
+                <tr>
+                  <td><strong>Impossible travel</strong></td>
+                  <td>Two sign-ins from locations that could not both be reached by the same person given the time elapsed between them</td>
+                  <td>Corporate VPN egress points that do not match the user's physical location; mobile carrier IP relocation</td>
+                </tr>
+                <tr>
+                  <td><strong>Malicious IP address</strong></td>
+                  <td>Sign-in from an IP address with a known association to malicious activity, per Microsoft's threat intelligence</td>
+                  <td>Shared NAT/CGNAT IP ranges where a malicious actor and a legitimate user share an egress IP</td>
+                </tr>
+                <tr>
+                  <td><strong>Unfamiliar sign-in properties</strong></td>
+                  <td>A sign-in that deviates from the user's established pattern of device, browser, OS, or ISP</td>
+                  <td>New device purchase, browser reinstall, first sign-in after a long absence (parental/medical leave)</td>
+                </tr>
+                <tr>
+                  <td><strong>Token issuer anomaly</strong></td>
+                  <td>A SAML token was issued by a token issuer that does not match the expected federation configuration &mdash; a strong indicator of a forged token (Golden SAML)</td>
+                  <td>Very low false-positive rate; recent federation reconfiguration is the only common benign cause</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>The sign-in log itself (Entra ID's <code>SigninLogs</code> table in Log Analytics/Sentinel) is the primary hunting surface. Fields worth building hypotheses around: <code>ResultType</code> (the exact auth error/success code), <code>ConditionalAccessStatus</code>, <code>AppDisplayName</code>, <code>ClientAppUsed</code> (legacy authentication protocols like IMAP and POP bypass modern MFA and are a high-value hunt target on their own), <code>DeviceDetail.trustType</code>, and <code>RiskLevelDuringSignIn</code>.</p>
+
+          <div class="code-block">
+            <span class="lang-label">KQL</span>
+            <button class="copy-btn" aria-label="Copy">copy</button>
+            <pre><code>// Hunt: legacy authentication protocol use bypassing modern MFA/Conditional Access
+SigninLogs
+| where ClientAppUsed in ("Other clients", "IMAP4", "POP3", "Authenticated SMTP", "Exchange ActiveSync")
+| where ResultType == 0
+| summarize SignInCount = count(), Apps = make_set(AppDisplayName), IPs = make_set(IPAddress)
+    by UserPrincipalName
+| where SignInCount > 0
+| order by SignInCount desc</code></pre>
+          </div>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> Legacy authentication protocols cannot enforce Conditional Access or per-app MFA in the same way modern auth does. An adversary in possession of a valid username/password pair but no second factor will frequently probe legacy protocols first, specifically because they are the path of least resistance around an otherwise well-configured tenant. Any legacy-protocol sign-in success on an account that has MFA enabled is a hunt lead worth investigating, not just an inventory item to note for deprecation.
+          </div>
+        </section>
+
+        <!-- SECTION 3 -->
+        <section class="content-section" id="aws-iam-hunting">
+          <h2>Hunting Signals in AWS IAM and CloudTrail</h2>
+          <p>AWS has no single "sign-in log" equivalent to Entra ID's <code>SigninLogs</code>. Identity activity is scattered across CloudTrail management events, and the hunter has to know which event names matter. GuardDuty pre-correlates a subset of these into managed findings, which are excellent hunt leads but do not replace direct CloudTrail hunting &mdash; GuardDuty only detects patterns its managed detectors already know about.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Signal</th>
+                  <th>Source</th>
+                  <th>What To Hunt For</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>ConsoleLogin</strong></td>
+                  <td>CloudTrail</td>
+                  <td>Root account logins (should be zero in a healthy account), console logins without MFA, logins immediately followed by IAM policy changes</td>
+                </tr>
+                <tr>
+                  <td><strong>AssumeRole / AssumeRoleWithSAML / AssumeRoleWithWebIdentity</strong></td>
+                  <td>CloudTrail</td>
+                  <td>Long or unusual role-assumption chains (role A assumes role B assumes role C), cross-account assumption to an account outside the organization, assumption from an unfamiliar source IP</td>
+                </tr>
+                <tr>
+                  <td><strong>CreateAccessKey / GetSessionToken</strong></td>
+                  <td>CloudTrail</td>
+                  <td>New long-lived access keys created for an existing IAM user shortly after other suspicious activity; session tokens requested from an IP inconsistent with the user's normal pattern</td>
+                </tr>
+                <tr>
+                  <td><strong>UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration</strong></td>
+                  <td>GuardDuty</td>
+                  <td>EC2 instance metadata service (IMDS) credentials used from outside the instance &mdash; a strong signal of SSRF-driven credential theft (T1552.005)</td>
+                </tr>
+                <tr>
+                  <td><strong>UnauthorizedAccess:IAMUser/TorIPCaller</strong> / <strong>Recon:IAMUser/TorIPCaller</strong></td>
+                  <td>GuardDuty</td>
+                  <td>API calls made using IAM credentials from a Tor exit node</td>
+                </tr>
+                <tr>
+                  <td><strong>IAMUser/ConsoleLoginSuccess.B</strong></td>
+                  <td>GuardDuty</td>
+                  <td>Console login pattern anomalous relative to the account's history &mdash; GuardDuty's closest analog to Entra's impossible-travel detection</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>The single highest-value hunt in AWS identity is tracing role-assumption chains. A compromised low-privilege IAM user is only dangerous in proportion to what it can assume its way into. A hunt hypothesis worth running quarterly regardless of any specific trigger: enumerate every <code>AssumeRole</code> event in the last 90 days, build a graph of which principals assumed which roles, and flag any chain longer than two hops or any chain that crosses an account boundary the security team was not aware of.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> CloudTrail records the <code>sourceIPAddress</code> and <code>userAgent</code> for every API call, including role assumptions made entirely from the AWS SDK with no browser involved. An <code>AssumeRole</code> call with a <code>userAgent</code> of a generic scripting library (Python <code>botocore</code>, raw <code>curl</code>) from an IP outside your known CI/CD or VPN ranges is a stronger lead than the GuardDuty finding alone, because it is not filtered through a managed detector's threshold.
+          </div>
+        </section>
+
+        <!-- SECTION 4 -->
+        <section class="content-section" id="oauth-saas-abuse">
+          <h2>OAuth and SaaS Token Abuse</h2>
+          <p>Once an organization's identity provider federates into dozens of SaaS applications, the OAuth consent grant becomes a persistence mechanism that survives a password reset. An adversary who tricks a user into approving a malicious OAuth application (an "illicit consent grant" attack) obtains a refresh token scoped to whatever permissions the app requested &mdash; mail read, file access, calendar access &mdash; that keeps working even after the victim changes their password, because OAuth tokens are not password-derived.</p>
+
+          <p>This maps to <strong>T1550.001, Use Alternate Authentication Material: Application Access Token</strong>. The hunting surface is the tenant's OAuth application/service principal inventory and consent audit log, not the sign-in log.</p>
+
+          <ul>
+            <li><strong>Hunt newly registered applications with high-privilege scopes.</strong> An app requesting <code>Mail.Read</code>, <code>Files.ReadWrite.All</code>, or <code>offline_access</code> (which grants a refresh token) within days of being registered, especially one published by an unverified developer, is a lead worth manual review regardless of whether any user has consented yet.</li>
+            <li><strong>Hunt for admin consent granted outside a change window.</strong> Tenant-wide admin consent bypasses the per-user consent prompt entirely. Any admin-consent event that does not correlate to a documented procurement or IT change ticket is worth investigating immediately, not queuing for the next audit cycle.</li>
+            <li><strong>Hunt for consent grants immediately following a phishing-adjacent sign-in.</strong> A common attack chain is: phishing email delivers a link to a legitimate Microsoft/Google consent page for an attacker-registered app &rarr; user approves &rarr; attacker never needs the user's password again. The temporal correlation between a suspicious sign-in risk event and a consent grant within the same session is a strong compound signal.</li>
+          </ul>
+
+          <div class="callout-example">
+            <strong>Worked Example:</strong>
+            <p>A hunter reviewing the OAuth application inventory in a mid-size tenant finds an app named "Document Viewer" registered six days earlier, published by a developer with no verified domain, requesting <code>Mail.Read</code> and <code>Files.Read.All</code> with <code>offline_access</code>. Three users have granted consent. Cross-referencing sign-in logs, all three consent events occurred within two minutes of a sign-in flagged with the "unfamiliar sign-in properties" risk detection. The pattern is consistent with a phishing campaign that delivered a consent-phishing link rather than a credential-harvesting page &mdash; explaining why no risky password-reset or MFA-fatigue activity was ever observed on these accounts. Revoking the app's consent grants and disabling the service principal cuts off access immediately, without requiring a password reset for any of the three users.</p>
+          </div>
+        </section>
+
+        <!-- SECTION 5 -->
+        <section class="content-section" id="direct-cloud-vm-hunting">
+          <h2>Direct Cloud VM Connections and Hybrid Blind Spots</h2>
+          <p><strong>T1021.008, Direct Cloud VM Connections</strong>, is a lateral movement technique unique to IaaS: an adversary with cloud control-plane credentials can use native connectivity services (AWS Systems Manager Session Manager, Azure Bastion, Google Cloud IAP tunneling) to open an interactive session directly to a VM without ever touching the corporate network or triggering a traditional RDP/SSH detection.</p>
+
+          <p>This is a genuine hunting blind spot in organizations that built their detection stack around network-based lateral movement (RDP event 4624/4625 Logon Type 10, SSH auth logs). A session opened through AWS SSM Session Manager or Azure Bastion generates a control-plane API event (<code>StartSession</code> in CloudTrail, or an Azure Activity Log entry for the Bastion resource), not a network-visible RDP/SSH handshake. A network-centric hunt program that never extends into the cloud control plane will never see this technique at all.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Platform</th>
+                  <th>Service</th>
+                  <th>Where the Hunt Signal Lives</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>AWS</td>
+                  <td>Systems Manager Session Manager</td>
+                  <td>CloudTrail <code>StartSession</code> / <code>TerminateSession</code> events; SSM session logs in S3/CloudWatch if session logging is enabled</td>
+                </tr>
+                <tr>
+                  <td>Azure</td>
+                  <td>Azure Bastion / Just-In-Time VM Access</td>
+                  <td>Azure Activity Log entries for the Bastion resource; JIT access request approvals in Microsoft Defender for Cloud</td>
+                </tr>
+                <tr>
+                  <td>GCP</td>
+                  <td>Identity-Aware Proxy (IAP) TCP forwarding</td>
+                  <td>Cloud Audit Logs for the IAP tunnel resource; VPC Flow Logs showing the IAP relay IP range as the source</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout-info">
+            <strong>Note:</strong> Session logging for these services is frequently disabled by default or configured as opt-in. Before writing a single hunt query against SSM or Bastion session data, verify the logging is actually enabled and retained &mdash; the SANS PAM "Equip" stage from Chapter 3 applies directly here. A hunt that returns zero results because logging was never turned on is a false negative, not a clean bill of health.
+          </div>
+        </section>
+
+        <!-- SECTION 6 -->
+        <section class="content-section" id="cloud-hunt-hypotheses">
+          <h2>Building Cloud and Identity Hunt Hypotheses</h2>
+          <p>The ABLE framework from Chapter 2 (Actor, Behavior, Location, Evidence) applies to identity and cloud hunts exactly as it does to endpoint hunts. The difference is that "Location" now means a tenant, subscription, or SaaS application rather than a subnet, and "Evidence" is a control-plane log field rather than a Sysmon event ID.</p>
+
+          <div class="code-block">
+            <span class="lang-label">TEMPLATE</span>
+            <button class="copy-btn" aria-label="Copy">copy</button>
+            <pre><code>HUNT PLAN
+Analyst: [name]
+Hypothesis: An adversary who compromised a low-privilege IAM user credential
+  used AssumeRole chaining to escalate into a role with S3 read access on a
+  data-classification-restricted bucket (T1078.004)
+ATT&CK: T1078.004 - Valid Accounts: Cloud Accounts
+
+Scope:
+- Accounts: Production AWS Organization, all member accounts
+- Time window: Last 90 days
+- Data sources: CloudTrail management events (AssumeRole, AssumeRoleWithSAML),
+  S3 data-event logging on the restricted bucket, GuardDuty findings
+
+Expected evidence if hypothesis TRUE:
+- AssumeRole chain of 2+ hops terminating in a role with s3:GetObject
+  on the restricted bucket
+- Source IP or user agent on the final AssumeRole call inconsistent with
+  the known CI/CD or human-user baseline for that role
+- S3 data-event log showing GetObject calls shortly after the role assumption
+
+Expected evidence if hypothesis FALSE:
+- All AssumeRole chains into the restricted role originate from documented
+  CI/CD service accounts with consistent source IPs and user agents
+
+Planned queries:
+1. Extract all AssumeRole/AssumeRoleWithSAML events, 90-day window
+2. Build a directed graph: source principal -> assumed role
+3. Filter to chains of length >= 2 terminating in roles with access to the
+   restricted bucket's resource policy
+4. Cross-reference terminal AssumeRole source IP/user agent against baseline</code></pre>
+          </div>
+
+          <p>Three ready-to-adapt hypotheses for a first pass at an identity/cloud hunt program:</p>
+          <ul>
+            <li><strong>Legacy auth bypass:</strong> "An adversary with a valid password but no MFA device used a legacy authentication protocol (IMAP/POP/ActiveSync) to bypass Conditional Access." (T1078.004) &mdash; test against <code>SigninLogs</code> filtered on <code>ClientAppUsed</code>.</li>
+            <li><strong>Consent phishing:</strong> "An adversary registered or leveraged a malicious OAuth application to obtain a persistent refresh token without needing the victim's password." (T1550.001) &mdash; test against the tenant's app consent audit log.</li>
+            <li><strong>Cloud lateral movement blind spot:</strong> "An adversary used SSM Session Manager or Azure Bastion to move laterally to a production VM without generating a network-visible RDP/SSH event." (T1021.008) &mdash; test against CloudTrail <code>StartSession</code> events correlated with the absence of any corresponding network-layer logon.</li>
+          </ul>
+        </section>
+
+        <!-- SECTION 7 -->
+        <section class="content-section" id="identity-hunt-pitfalls">
+          <h2>Common False Positives and Pitfalls</h2>
+          <p>Identity and cloud hunting has a different false-positive profile than endpoint hunting, and analysts who transfer endpoint intuition directly will burn credibility with noisy escalations.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Pitfall</th>
+                  <th>Why It Happens</th>
+                  <th>How To Handle It</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Corporate VPN egress triggers impossible/atypical travel</td>
+                  <td>The identity provider sees the VPN's public egress IP location, not the user's actual location, and the two may be different countries</td>
+                  <td>Register the VPN's egress IP ranges as named/trusted locations in the identity provider before treating this detection as high-confidence</td>
+                </tr>
+                <tr>
+                  <td>Service principals and CI/CD accounts flagged as anomalous</td>
+                  <td>Automated principals do not have a stable "typical behavior" baseline the way a human user does across weeks of activity, so behavioral risk scoring performs worse on them</td>
+                  <td>Maintain a separate baseline and hunt cadence for non-human identities; do not apply the same risk-score threshold used for human users</td>
+                </tr>
+                <tr>
+                  <td>Break-glass / emergency-access accounts trigger every detection in the book</td>
+                  <td>These accounts are rarely used, by design, so any usage is statistically anomalous even when it is the legitimate emergency procedure being executed</td>
+                  <td>Alert on break-glass account usage unconditionally (any use is worth a phone call to confirm), rather than relying on risk scoring to distinguish legitimate from malicious use</td>
+                </tr>
+                <tr>
+                  <td>Shared NAT/CGNAT ranges pollute IP-based reputation signals</td>
+                  <td>Large mobile carriers and some corporate networks share a small pool of public IPs across thousands of unrelated users, so a malicious IP reputation hit may reflect a different user entirely</td>
+                  <td>Weight IP reputation lower than behavioral/device-based signals when the source IP falls in a known CGNAT or mobile carrier range</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> Do not build an identity hunt program that only reacts to vendor risk scores. Entra ID Protection and GuardDuty are excellent triage layers, but both only detect patterns their vendor has already modeled. AssumeRole chain graphing, legacy-auth hunting, and OAuth consent review in this chapter all surface activity that never generates a managed finding at all, because no vendor detector is looking for that specific pattern in your specific environment.
+          </div>
+        </section>
+
+        <!-- SUMMARY -->
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>Identity-centric intrusions have no process tree or file system artifact. The hunting surface is control-plane log lines: sign-in logs, CloudTrail management events, and OAuth consent audit records.</li>
+            <li>Entra ID Protection risk detections (impossible travel, atypical travel, anonymous IP, token issuer anomaly) are hunt leads to investigate, not verdicts to act on directly &mdash; each has a known false-positive source worth ruling out first.</li>
+            <li>AWS identity hunting centers on tracing AssumeRole chains. A compromised low-privilege IAM user is dangerous only in proportion to what roles it can assume its way into.</li>
+            <li>OAuth consent-grant abuse (T1550.001) creates persistence that survives a password reset, because refresh tokens are not password-derived. Hunt the app inventory and consent log, not just the sign-in log.</li>
+            <li>Direct Cloud VM Connections (T1021.008) via SSM Session Manager, Azure Bastion, or GCP IAP is a genuine blind spot for network-centric lateral movement detection, since these sessions never generate a traditional RDP/SSH event.</li>
+            <li>Non-human identities (service principals, CI/CD accounts) and break-glass accounts need separate baselines and hunt cadences &mdash; applying human-user risk thresholds to them produces either alert fatigue or missed abuse.</li>
+          </ul>
+        </div>
+
+        <!-- KNOWLEDGE CHECK -->
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-q-text"><strong>Q1.</strong> Why does a stolen bearer token or OAuth refresh token survive a victim's password reset?</p>
+            <ul class="kc-options">
+              <li class="kc-option" data-correct="false">A. Because tokens are cached locally on the identity provider's servers and cannot be revoked</li>
+              <li class="kc-option" data-correct="true">B. Because OAuth tokens are not password-derived; they are independent credentials issued at consent time and remain valid until explicitly revoked</li>
+              <li class="kc-option" data-correct="false">C. Because password resets only apply to the primary authentication factor, never to secondary factors</li>
+              <li class="kc-option" data-correct="false">D. Because tokens are stored in Active Directory and replicate independently of the user object</li>
+            </ul>
+            <div class="kc-answer hidden">B is correct. An OAuth refresh token is generated at the time a user grants consent to an application and is cryptographically independent of the user's password. Resetting the password does not invalidate previously issued tokens; only explicit consent revocation or token revocation does. This is exactly why consent-phishing (illicit consent grant) attacks are so persistent.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-q-text"><strong>Q2.</strong> A hunter sees repeated Entra ID "atypical travel" risk detections for employees using the corporate VPN. What is the correct response?</p>
+            <ul class="kc-options">
+              <li class="kc-option" data-correct="false">A. Disable the atypical travel detection tenant-wide since it is clearly broken</li>
+              <li class="kc-option" data-correct="false">B. Force a password reset for every affected user immediately</li>
+              <li class="kc-option" data-correct="true">C. Register the VPN's egress IP ranges as named/trusted locations so the detection stops false-flagging known-good egress points</li>
+              <li class="kc-option" data-correct="false">D. Ignore all future atypical travel detections tenant-wide</li>
+            </ul>
+            <div class="kc-answer hidden">C is correct. The detection is firing correctly on the technical signal (the VPN's public egress location differs from the user's physical location) but the signal is not malicious in this case. Registering named locations is the documented method for reducing this specific false-positive source without disabling the detection for genuinely anomalous travel elsewhere.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-q-text"><strong>Q3.</strong> Why is tracing AssumeRole chains a high-value AWS identity hunt?</p>
+            <ul class="kc-options">
+              <li class="kc-option" data-correct="false">A. Because AssumeRole calls are always malicious and require no further investigation</li>
+              <li class="kc-option" data-correct="true">B. Because a compromised low-privilege IAM user's actual blast radius is defined by every role it can assume its way into, which a single-event view of CloudTrail will not reveal</li>
+              <li class="kc-option" data-correct="false">C. Because GuardDuty cannot see AssumeRole events at all</li>
+              <li class="kc-option" data-correct="false">D. Because role assumption is deprecated in favor of long-lived access keys</li>
+            </ul>
+            <div class="kc-answer hidden">B is correct. A low-privilege credential is only as dangerous as the escalation path available to it. Graphing AssumeRole chains reveals multi-hop paths (role A assumes role B assumes role C) that no single CloudTrail event, viewed in isolation, would expose as a connected escalation path.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-q-text"><strong>Q4.</strong> What makes T1021.008 (Direct Cloud VM Connections) a blind spot for network-centric detection programs?</p>
+            <ul class="kc-options">
+              <li class="kc-option" data-correct="false">A. It uses encrypted RDP, which network sensors cannot decrypt</li>
+              <li class="kc-option" data-correct="true">B. Services like SSM Session Manager and Azure Bastion open the session through the cloud control plane, generating an API event rather than a network-visible RDP/SSH handshake</li>
+              <li class="kc-option" data-correct="false">C. It only works on-premises, so cloud logging never captures it</li>
+              <li class="kc-option" data-correct="false">D. It requires physical access to the data center</li>
+            </ul>
+            <div class="kc-answer hidden">B is correct. AWS Systems Manager Session Manager, Azure Bastion, and GCP IAP TCP forwarding all establish the interactive session through a cloud-managed relay, authenticated and authorized entirely at the control-plane API level. A detection program built around watching for network-layer RDP (Logon Type 10, event 4624) or SSH auth logs will never see this connection method, because no such network-layer event is ever generated.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-q-text"><strong>Q5.</strong> Why do service principals and CI/CD accounts need a separate hunting baseline from human users?</p>
+            <ul class="kc-options">
+              <li class="kc-option" data-correct="false">A. Because non-human identities are immune to compromise</li>
+              <li class="kc-option" data-correct="true">B. Because behavioral risk scoring relies on a stable pattern of "typical" activity built over time, and automated principals do not exhibit the same kind of consistent, individually-distinguishable behavior a human user does</li>
+              <li class="kc-option" data-correct="false">C. Because service principals cannot generate CloudTrail or sign-in log events</li>
+              <li class="kc-option" data-correct="false">D. Because non-human identities are always excluded from Conditional Access policies</li>
+            </ul>
+            <div class="kc-answer hidden">B is correct. Human-user risk scoring depends on learning individual behavioral patterns (typical device, location, time of day) over weeks of activity. Automated principals often run on schedules or in response to triggers that look statistically different from human behavior even when entirely legitimate, which means applying human-user risk thresholds to them produces high false-positive rates or, if tuned down to compensate, missed genuine abuse.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="09-hunting-lolbins.html" class="chapter-nav-prev">← Hunting LOLBin Abuse</a>
+          <a href="11-container-kubernetes-hunting.html" class="chapter-nav-next">Container and Kubernetes Hunting →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Threat Hunting</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('10', 7));</script>
+</body>
+</html>

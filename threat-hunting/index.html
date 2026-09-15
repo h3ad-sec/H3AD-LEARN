@@ -4,19 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>H3AD-LEARN: Threat Hunting · Complete Guide</title>
-  <meta name="description" content="Eight-chapter threat hunting curriculum. PEAK, TaHiTI, hypothesis generation, KQL, evidence scoring, and advanced techniques." />
+  <meta name="description" content="Eleven-chapter threat hunting curriculum. PEAK, TaHiTI, hypothesis generation, KQL, evidence scoring, identity/cloud and container hunting, and advanced techniques." />
   <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/threat-hunting/" />
 
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="H3AD-SEC" />
   <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/threat-hunting/" />
   <meta property="og:title" content="H3AD-LEARN: Threat Hunting · Complete Guide" />
-  <meta property="og:description" content="Eight-chapter threat hunting curriculum. PEAK, TaHiTI, hypothesis generation, KQL, evidence scoring, and advanced techniques." />
+  <meta property="og:description" content="Eleven-chapter threat hunting curriculum. PEAK, TaHiTI, hypothesis generation, KQL, evidence scoring, identity/cloud and container hunting, and advanced techniques." />
   <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="H3AD-LEARN: Threat Hunting · Complete Guide" />
-  <meta name="twitter:description" content="Eight-chapter threat hunting curriculum. PEAK, TaHiTI, hypothesis generation, KQL, evidence scoring, and advanced techniques." />
+  <meta name="twitter:description" content="Eleven-chapter threat hunting curriculum. PEAK, TaHiTI, hypothesis generation, KQL, evidence scoring, identity/cloud and container hunting, and advanced techniques." />
   <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" />
 
   <meta name="theme-color" content="#080c14" />
@@ -104,7 +104,7 @@
     "@context": "https://schema.org",
     "@type": "Course",
     "name": "Threat Hunting",
-    "description": "Eight-chapter threat hunting curriculum. PEAK, TaHiTI, hypothesis generation, KQL, evidence scoring, and advanced techniques.",
+    "description": "Eleven-chapter threat hunting curriculum. PEAK, TaHiTI, hypothesis generation, KQL, evidence scoring, identity/cloud and container hunting, and advanced techniques.",
     "url": "https://h3ad-sec.github.io/H3AD-LEARN/threat-hunting/",
     "provider": {
       "@type": "Organization",
@@ -206,15 +206,15 @@
         <a href="../index.html" class="back-link">All Modules</a>
         <span class="module-badge">THREAT HUNTING</span>
         <h1 class="module-hero-title">Threat Hunting · Complete Guide</h1>
-        <p class="module-hero-desc">A field-focused curriculum built from the methodologies of CrowdStrike OverWatch, Red Canary, Elastic Security, Mandiant, and the PEAK/TaHiTI/SANS frameworks. Nine chapters covering the full hunt lifecycle, including an applied LOLBin abuse hunting chapter.</p>
+        <p class="module-hero-desc">A field-focused curriculum built from the methodologies of CrowdStrike OverWatch, Red Canary, Elastic Security, Mandiant, and the PEAK/TaHiTI/SANS frameworks. Eleven chapters covering the full hunt lifecycle, including applied LOLBin abuse, identity/cloud-native, and container/Kubernetes hunting chapters.</p>
 
         <div class="module-stats-strip">
           <div class="module-stat">
-            <span class="module-stat-value">9</span>
+            <span class="module-stat-value">11</span>
             <span class="module-stat-label">CHAPTERS</span>
           </div>
           <div class="module-stat">
-            <span class="module-stat-value">~13 HRS</span>
+            <span class="module-stat-value">~14 HRS</span>
             <span class="module-stat-label">CONTENT</span>
           </div>
           <div class="module-stat">
@@ -230,7 +230,7 @@
         <div class="module-progress-wrap">
           <div class="module-progress-meta">
             <span>MODULE PROGRESS</span>
-            <span id="th-progress-label">0 / 8 chapters complete</span>
+            <span id="th-progress-label">0 / 11 chapters complete</span>
           </div>
           <div class="module-progress-bar-outer">
             <div class="module-progress-bar-inner" id="th-progress-bar"></div>
@@ -245,6 +245,8 @@
           <span class="module-tag">KQL</span>
           <span class="module-tag">Sigma</span>
           <span class="module-tag">evidence scoring</span>
+          <span class="module-tag">cloud &amp; identity</span>
+          <span class="module-tag">containers</span>
         </div>
       </div>
     </div>
@@ -320,15 +322,15 @@
             <span class="chapter-num">03</span>
             <div class="chapter-badges">
               <span class="chapter-diff-intermediate">INTERMEDIATE</span>
-              <span class="chapter-time">35 min</span>
+              <span class="chapter-time">40 min</span>
             </div>
           </div>
           <h3 class="chapter-title">Hunting Frameworks</h3>
-          <p class="chapter-desc">Sqrrl Loop, PEAK, TaHiTI, SANS PAM model, and OTRF Playbook. When to use which framework and how to combine them.</p>
+          <p class="chapter-desc">The Cyber Kill Chain and how it relates to ATT&amp;CK, plus Sqrrl Loop, PEAK, TaHiTI, SANS PAM model, and OTRF Playbook. When to use which framework and how to combine them.</p>
           <div class="chapter-tags">
+            <span class="chapter-tag">Kill Chain</span>
             <span class="chapter-tag">PEAK</span>
             <span class="chapter-tag">TaHiTI</span>
-            <span class="chapter-tag">lifecycle</span>
           </div>
           <div class="chapter-footer">
             <div class="chapter-status" data-chapter-id="03">
@@ -490,6 +492,56 @@
           </div>
         </a>
 
+        <!-- CHAPTER 10 -->
+        <a class="chapter-card" href="./10-identity-cloud-hunting.html" aria-label="Chapter 10: Identity and Cloud-Native Hunting">
+          <div class="chapter-card-top">
+            <span class="chapter-num">10</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-advanced">ADVANCED</span>
+              <span class="chapter-time">40 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Identity and Cloud-Native Hunting</h3>
+          <p class="chapter-desc">Hunt identity-centric attacks across Entra ID sign-in risk, AWS IAM role-assumption chains, and OAuth/SaaS token abuse. No process tree, no file system &mdash; just control-plane logs.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">Entra ID</span>
+            <span class="chapter-tag">AWS IAM</span>
+            <span class="chapter-tag">OAuth</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="10">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">→</span>
+          </div>
+        </a>
+
+        <!-- CHAPTER 11 -->
+        <a class="chapter-card" href="./11-container-kubernetes-hunting.html" aria-label="Chapter 11: Container and Kubernetes Hunting">
+          <div class="chapter-card-top">
+            <span class="chapter-num">11</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-advanced">ADVANCED</span>
+              <span class="chapter-time">40 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Container and Kubernetes Hunting</h3>
+          <p class="chapter-desc">Hunt container escapes, privileged pods, and Kubernetes API abuse using ATT&amp;CK for Containers, the K8s audit log, and Falco runtime rules.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">Kubernetes</span>
+            <span class="chapter-tag">Falco</span>
+            <span class="chapter-tag">T1611</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="11">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">→</span>
+          </div>
+        </a>
+
       </div><!-- /chapters-grid -->
     </div>
   </section>
@@ -522,6 +574,7 @@
             <li>Hunting query writing in KQL, SPL, and Sigma</li>
             <li>Evidence scoring using Admiralty, Diamond Model, and Pyramid of Pain</li>
             <li>How to build and measure a hunt program using KPIs</li>
+            <li>How to hunt identity-centric attacks (Entra ID, AWS IAM, OAuth) and container/Kubernetes environments</li>
           </ul>
         </div>
 
@@ -615,7 +668,7 @@
         const progress  = initProgress();
         const chapters  = progress.modules?.['threat-hunting']?.chapters || {};
         const completed = Object.values(chapters).filter(c => c.status === 'complete').length;
-        label.textContent = completed + ' / 9 chapters complete';
+        label.textContent = completed + ' / 11 chapters complete';
       }
 
       // Chapter status dots

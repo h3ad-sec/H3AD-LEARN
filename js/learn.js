@@ -24,10 +24,11 @@ const MODULES = {
   'fundamentals':   { chapters: ['01','02','03','04','05','06','07','08','09','10'], totalHours: 13 },
   'networking':     { chapters: ['01','02','03','04','05','06','07','08','09','10'], totalHours: 13 },
   'windows':        { chapters: ['01','02','03','04','05','06','07','08','09','10','11'], totalHours: 16 },
-  'threat-hunting': { chapters: ['01','02','03','04','05','06','07','08','09'], totalHours: 13 },
+  'threat-hunting': { chapters: ['01','02','03','04','05','06','07','08','09','10','11'], totalHours: 14 },
   'lolbas':         { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 10 },
   'threat-intel':   { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 11 },
-  'cloud-security': { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 11 }
+  'cloud-security': { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 11 },
+  'malware-analysis': { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 12 }
 };
 
 /* ---------------------------------------------------------

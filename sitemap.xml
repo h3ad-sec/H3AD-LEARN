@@ -384,6 +384,18 @@
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/threat-hunting/10-identity-cloud-hunting.html</loc>
+    <lastmod>2026-09-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/threat-hunting/11-container-kubernetes-hunting.html</loc>
+    <lastmod>2026-09-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
 
   <url>
     <loc>https://h3ad-sec.github.io/H3AD-LEARN/threat-intel/</loc>
