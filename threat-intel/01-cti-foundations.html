@@ -146,11 +146,33 @@
 
         <section class="content-section" id="what-is-cti">
           <h2>What Is Threat Intelligence?</h2>
-          <p>Threat intelligence is analyzed information about adversaries and their capabilities that enables better security decisions. That definition has three load-bearing words. Analyzed means raw data has been processed and interpreted, not just collected. Adversaries means the focus is on human actors with intent, not generic vulnerability data. Decisions means intelligence exists to reduce uncertainty at a specific choice point, whether blocking an IP, escalating an alert, or briefing an executive on sector risk.</p>
+          <p>Threat intelligence is analyzed information about adversaries and their capabilities that enables better security decisions. That definition has three load-bearing words.</p>
 
-          <p>The intelligence community distinguishes between data, information, and intelligence. Data is unprocessed observations: log lines, packet captures, domain registration records. Information is data that has been parsed and structured into something meaningful: a domain registered to a known hosting provider in a country associated with threat activity. Intelligence is information that has been analyzed, contextualized, and assessed against a specific question: "Is this domain part of the actor campaign our IR team is working? What is the confidence level? What should we do?"</p>
+          <h3>The Three Load-Bearing Words</h3>
+          <ul>
+            <li><strong>Analyzed</strong>: raw data has been processed and interpreted, not just collected.</li>
+            <li><strong>Adversaries</strong>: the focus is on human actors with intent, not generic vulnerability data.</li>
+            <li><strong>Decisions</strong>: intelligence exists to reduce uncertainty at a specific choice point, whether blocking an IP, escalating an alert, or briefing an executive on sector risk.</li>
+          </ul>
 
-          <p>Most of what gets called threat intelligence in vendor feeds is actually data or information. A file hash list is data. An IP reputation score is information. A finished analysis explaining which APT group is using a specific toolset, what their targeting patterns look like in your sector, and which TTPs to prioritize for detection is intelligence. The difference is not pedantic. Analysts who treat raw feeds as finished intelligence make worse decisions and waste triage time on low-confidence, decontextualized indicators.</p>
+          <h3>Data vs. Information vs. Intelligence</h3>
+          <p>The intelligence community distinguishes three tiers of maturity for the same underlying observation:</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Tier</th><th>Definition</th><th>Example</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Data</td><td>Unprocessed observations</td><td>Log lines, packet captures, domain registration records</td></tr>
+                <tr><td>Information</td><td>Data parsed and structured into something meaningful</td><td>A domain registered to a known hosting provider in a country associated with threat activity</td></tr>
+                <tr><td>Intelligence</td><td>Information analyzed, contextualized, and assessed against a specific question</td><td>"Is this domain part of the actor campaign our IR team is working? What is the confidence level? What should we do?"</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Why the Distinction Matters</h3>
+          <p>Most of what gets called threat intelligence in vendor feeds is actually data or information. A file hash list is data. An IP reputation score is information. A finished analysis explaining which APT group is using a specific toolset, what their targeting patterns look like in your sector, and which TTPs to prioritize for detection is intelligence.</p>
+          <p>The difference is not pedantic. Analysts who treat raw feeds as finished intelligence make worse decisions and waste triage time on low-confidence, decontextualized indicators.</p>
 
           <div class="callout-info">
             <strong>Note:</strong> Intelligence requires a consumer. A perfectly analyzed report that no one reads or acts on is not intelligence in practice. Before producing any CTI product, identify who will use it and what decision it supports. That question shapes everything: what to include, how to structure it, what level of confidence language to use.
@@ -159,17 +181,70 @@
 
         <section class="content-section" id="intelligence-cycle">
           <h2>The Intelligence Cycle</h2>
-          <p>The intelligence cycle is the repeating process through which raw collection becomes finished intelligence and eventually feeds back into new requirements. Most frameworks break it into five or six phases. The specifics vary by organization, but the core sequence is consistent: requirements drive collection, collection feeds processing, processing enables analysis, analysis produces dissemination, and dissemination generates feedback that refines requirements.</p>
+          <p>The intelligence cycle is the repeating process through which raw collection becomes finished intelligence and eventually feeds back into new requirements. Most frameworks break it into five or six phases, and the specifics vary by organization, but the core sequence is consistent.</p>
 
-          <p>Direction is where the cycle begins. Someone with a decision to make articulates what they need to know. These are formalized as Priority Intelligence Requirements (PIRs) or Standing Intelligence Requirements (SIRs). A SOC team might define: "What are the current active C2 infrastructure ranges for ransomware groups targeting healthcare?" A CISO preparing for a board meeting might need: "What is the current threat landscape for financial institutions in APAC?" The specificity of the requirement determines how useful the eventual intelligence will be.</p>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Direction</div>
+              <div class="flow-step-desc">A consumer articulates what they need to know as a PIR or SIR.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Collection</div>
+              <div class="flow-step-desc">Raw data is acquired from OSINT, commercial, technical, and human sources.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Processing</div>
+              <div class="flow-step-desc">Raw collection is parsed, normalized, translated, and deduplicated.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Analysis</div>
+              <div class="flow-step-desc">An analyst contextualizes, assesses confidence, and produces an assessment.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">5</span>
+              <div class="flow-step-title">Dissemination</div>
+              <div class="flow-step-desc">Finished intelligence reaches the consumer in a format they can act on.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">6</span>
+              <div class="flow-step-title">Feedback</div>
+              <div class="flow-step-desc">Consumers report what was missing, refining the next cycle's requirements.</div>
+            </div>
+          </div>
 
-          <p>Collection is the systematic acquisition of raw data that could answer the requirement. Sources include open-source intelligence (OSINT) such as public threat reports, vendor advisories, and social media; commercial intelligence feeds from providers like Recorded Future, Mandiant, or CrowdStrike; technical sources such as malware sandbox analysis, network traffic, and honeypot data; and human sources including ISAC sharing communities and vendor briefings.</p>
+          <h3>Direction: Where the Cycle Begins</h3>
+          <p>Someone with a decision to make articulates what they need to know. These are formalized as Priority Intelligence Requirements (PIRs) or Standing Intelligence Requirements (SIRs). The specificity of the requirement determines how useful the eventual intelligence will be.</p>
+          <ul>
+            <li>A SOC team might define: "What are the current active C2 infrastructure ranges for ransomware groups targeting healthcare?"</li>
+            <li>A CISO preparing for a board meeting might need: "What is the current threat landscape for financial institutions in APAC?"</li>
+          </ul>
 
-          <p>Processing converts raw collection into something analyzable. This includes parsing structured data, translating foreign-language reports, normalizing IOC formats, and deduplicating entries across feeds. A significant portion of CTI team time goes into processing work that never appears in finished products but determines whether analysis is possible at all.</p>
+          <h3>Collection: Acquiring Raw Data</h3>
+          <p>Collection is the systematic acquisition of raw data that could answer the requirement, drawn from four kinds of sources:</p>
+          <ul>
+            <li><strong>Open-source intelligence (OSINT):</strong> public threat reports, vendor advisories, and social media.</li>
+            <li><strong>Commercial intelligence feeds:</strong> providers like Recorded Future, Mandiant, or CrowdStrike.</li>
+            <li><strong>Technical sources:</strong> malware sandbox analysis, network traffic, and honeypot data.</li>
+            <li><strong>Human sources:</strong> ISAC sharing communities and vendor briefings.</li>
+          </ul>
 
-          <p>Analysis is where collected information becomes intelligence. An analyst applies context, draws connections, assesses confidence, identifies gaps, and produces an assessment. This is the cognitive core of CTI work. Good analysis requires knowing what you do not know as clearly as what you do, and communicating both.</p>
+          <h3>Processing: Making Data Analyzable</h3>
+          <p>Processing converts raw collection into something analyzable: parsing structured data, translating foreign-language reports, normalizing IOC formats, and deduplicating entries across feeds. A significant portion of CTI team time goes into processing work that never appears in finished products but determines whether analysis is possible at all.</p>
 
-          <p>Dissemination delivers the finished intelligence to the consumer in a format they can act on. Timing matters. A report about an active campaign delivered three days after the actor moved off that infrastructure is useless. Format matters. An executive brief with 40 IOC appendices will not be read. Feedback from consumers closes the loop: did the intelligence support the decision? What was missing? What should be prioritized next cycle?</p>
+          <h3>Analysis: The Cognitive Core</h3>
+          <p>Analysis is where collected information becomes intelligence. An analyst applies context, draws connections, assesses confidence, identifies gaps, and produces an assessment. Good analysis requires knowing what you do not know as clearly as what you do, and communicating both.</p>
+
+          <h3>Dissemination and Feedback</h3>
+          <p>Dissemination delivers the finished intelligence to the consumer in a format they can act on. Timing matters: a report about an active campaign delivered three days after the actor moved off that infrastructure is useless. Format matters too: an executive brief with 40 IOC appendices will not be read. Feedback from consumers closes the loop, reporting whether the intelligence supported the decision, what was missing, and what should be prioritized next cycle.</p>
 
           <div class="table-wrap">
             <table>
@@ -190,15 +265,48 @@
 
         <section class="content-section" id="intel-types">
           <h2>Types of Intelligence</h2>
-          <p>Intelligence is commonly divided into four types based on the time horizon and consumer it serves. Each type requires different sources, different analytical techniques, and different output formats. Conflating them is one of the most common failures in CTI programs: a team producing only tactical IOC feeds for a CISO is not serving that audience, and a team producing only strategic assessments for a SOC is leaving analysts without actionable data.</p>
+          <p>Intelligence is commonly divided into four types based on the time horizon and consumer it serves. Each type requires different sources, different analytical techniques, and different output formats. Conflating them is one of the most common failures in CTI programs.</p>
 
-          <p>Strategic intelligence serves senior decision-makers: CISOs, boards, and executive teams. It operates on long time horizons, covering trends across months or years. It answers questions like: "Is our sector being targeted more frequently than last year? Are nation-state actors shifting their focus toward our supply chain?" Strategic intel rarely contains IOCs. It contains assessments, trend lines, and recommendations. The consumer uses it to allocate budget, adjust security programs, and communicate risk to stakeholders.</p>
-
-          <p>Operational intelligence serves security managers, incident response leads, and threat hunt teams. It covers active campaigns and ongoing adversary operations on a time horizon of weeks to months. It answers: "There is an active ransomware campaign targeting mid-size logistics companies using a specific initial access vector. Here is what we know about the actor, the delivery mechanism, and the affected regions." Operational intel helps teams prioritize hunts, plan IR exercises, and scope defenses against current campaigns.</p>
-
-          <p>Tactical intelligence is where most SOC analysts work. It covers specific adversary TTPs: the techniques, tools, and procedures an actor uses. Time horizon is days to weeks. It answers: "This actor uses T1059.001 (PowerShell) with a specific base64 encoding pattern and drops a RAT to C:\Users\Public\svchost.exe before making a beacon to a DGA domain." Tactical intel feeds directly into detection rule development, hunt hypotheses, and IR playbook updates.</p>
-
-          <p>Technical intelligence is the most granular tier: individual IOCs such as IP addresses, file hashes, domains, and URLs. Time horizon is hours to days. A malicious IP that was active yesterday may be abandoned or repurposed today. Technical intel is high-volume, fast-decaying, and requires automated processing to be useful. It feeds SIEM blocklists, firewall rules, and EDR deny lists. It is the tier most commonly mislabeled as "threat intelligence" when it is really just data.</p>
+          <h3>Four Types, Four Audiences</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Type</th><th>Consumer</th><th>Time Horizon</th><th>Typical Question</th><th>Content</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Strategic</td>
+                  <td>CISOs, boards, executive teams</td>
+                  <td>Months to years</td>
+                  <td>"Is our sector being targeted more frequently than last year? Are nation-state actors shifting focus toward our supply chain?"</td>
+                  <td>Assessments, trend lines, and recommendations; rarely contains IOCs</td>
+                </tr>
+                <tr>
+                  <td>Operational</td>
+                  <td>Security managers, IR leads, threat hunt teams</td>
+                  <td>Weeks to months</td>
+                  <td>"There is an active ransomware campaign targeting mid-size logistics companies using a specific initial access vector. What do we know about the actor, delivery mechanism, and affected regions?"</td>
+                  <td>Active campaign context that helps teams prioritize hunts, plan IR exercises, and scope defenses</td>
+                </tr>
+                <tr>
+                  <td>Tactical</td>
+                  <td>SOC analysts (where most work happens)</td>
+                  <td>Days to weeks</td>
+                  <td>"This actor uses T1059.001 (PowerShell) with a specific base64 encoding pattern and drops a RAT to C:\Users\Public\svchost.exe before beaconing to a DGA domain."</td>
+                  <td>Adversary TTPs that feed detection rule development, hunt hypotheses, and IR playbook updates</td>
+                </tr>
+                <tr>
+                  <td>Technical</td>
+                  <td>SIEM, firewall, and EDR automation</td>
+                  <td>Hours to days</td>
+                  <td>Individual IOCs: IP addresses, file hashes, domains, URLs</td>
+                  <td>High-volume, fast-decaying data; the tier most commonly mislabeled as "threat intelligence" when it is really just data</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>Conflating the Tiers Is a Common Failure</h3>
+          <p>A team producing only tactical IOC feeds for a CISO is not serving that audience, and a team producing only strategic assessments for a SOC is leaving analysts without actionable data.</p>
 
           <div class="callout-warning">
             <strong>Warning:</strong> The common mistake is building a CTI program that only produces technical intel because it is the easiest to automate and deliver. Without operational and tactical context, analysts block IOCs without understanding the campaign behind them, miss behavioral signals that survive infrastructure rotation, and cannot answer the question their leadership actually cares about: "Are we a target, and what should we do about it?"
@@ -207,17 +315,43 @@
 
         <section class="content-section" id="tlp-framework">
           <h2>The TLP Framework</h2>
-          <p>Traffic Light Protocol (TLP) is the sharing classification system used across the security community to control how intelligence can be distributed. It was developed by FIRST (Forum of Incident Response and Security Teams) and has become the de facto standard. Every piece of shared intelligence should carry a TLP marking. Understanding TLP is required before engaging in any sharing community, ISAC, or intel exchange.</p>
+          <p>Traffic Light Protocol (TLP) is the sharing classification system used across the security community to control how intelligence can be distributed. It was developed by FIRST (Forum of Incident Response and Security Teams) and has become the de facto standard. Understanding TLP is required before engaging in any sharing community, ISAC, or intel exchange.</p>
 
-          <p>TLP:CLEAR means information can be distributed without restriction. The source has assessed that public release creates no harm. Public threat reports, blog posts, and vendor whitepapers typically carry TLP:CLEAR or no marking at all. When you receive TLP:CLEAR material you may share it, publish it, and reference it openly.</p>
-
-          <p>TLP:GREEN means information is appropriate for the community but not for public release. ISACs and sector sharing groups typically operate at TLP:GREEN. You can share it with peers in your sector and your organization, but not with media, public forums, or parties outside the relevant community. When in doubt about who counts as "community," ask the source before sharing.</p>
-
-          <p>TLP:AMBER means sharing is limited to the recipient organization and its clients. This marking appears on vendor briefings, incident-specific reporting, and intelligence about active campaigns that could harm third parties if widely disclosed. You may share within your organization on a need-to-know basis but should not distribute externally without explicit permission from the originating source.</p>
-
-          <p>TLP:AMBER+STRICT narrows distribution further to the immediate recipient only. It does not extend to clients or subsidiaries. This is used when the source has a specific reason to limit distribution even within the recipient organization.</p>
-
-          <p>TLP:RED means not for disclosure outside the specific individuals or group it was shared with. This classification typically covers highly sensitive information about active nation-state operations, unpatched zero-days, or ongoing law enforcement actions. Mishandling TLP:RED material can compromise ongoing investigations or harm victims.</p>
+          <h3>The Five Markings</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Marking</th><th>Distribution Scope</th><th>Typical Use</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>TLP:CLEAR</td>
+                  <td>Unrestricted. The source has assessed that public release creates no harm.</td>
+                  <td>Public threat reports, blog posts, and vendor whitepapers typically carry TLP:CLEAR or no marking at all. You may share, publish, and reference it openly.</td>
+                </tr>
+                <tr>
+                  <td>TLP:GREEN</td>
+                  <td>Community, not public release.</td>
+                  <td>ISACs and sector sharing groups typically operate here. Share with peers in your sector and your organization, but not with media, public forums, or parties outside the relevant community. When in doubt about who counts as "community," ask the source first.</td>
+                </tr>
+                <tr>
+                  <td>TLP:AMBER</td>
+                  <td>Recipient organization and its clients.</td>
+                  <td>Appears on vendor briefings, incident-specific reporting, and intelligence about active campaigns that could harm third parties if widely disclosed. Share within your organization on a need-to-know basis; do not distribute externally without explicit permission from the originating source.</td>
+                </tr>
+                <tr>
+                  <td>TLP:AMBER+STRICT</td>
+                  <td>Immediate recipient only, not clients or subsidiaries.</td>
+                  <td>Used when the source has a specific reason to limit distribution even within the recipient organization.</td>
+                </tr>
+                <tr>
+                  <td>TLP:RED</td>
+                  <td>Named individuals or group only.</td>
+                  <td>Covers highly sensitive information about active nation-state operations, unpatched zero-days, or ongoing law enforcement actions. Mishandling it can compromise ongoing investigations or harm victims.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
           <div class="callout-info">
             <strong>Note:</strong> TLP is a guideline system based on trust, not a technical access control. Honoring TLP markings is a community norm. Organizations that routinely mishandle TLP:RED or TLP:AMBER materials get excluded from trust communities. The practical consequence for a CTI practitioner is significant: losing access to a high-quality ISAC or vendor briefing program because someone forwarded a TLP:AMBER report to a third party is an expensive mistake.
@@ -226,24 +360,36 @@
 
         <section class="content-section" id="intelligence-requirements">
           <h2>Intelligence Requirements</h2>
-          <p>Intelligence requirements are formal statements of what a consumer needs to know to make a decision. They are the mechanism that prevents CTI programs from producing interesting-but-useless research. Every CTI product should trace back to a documented requirement. If it does not, the team is doing analysis for its own sake rather than serving the organization.</p>
+          <p>Intelligence requirements are formal statements of what a consumer needs to know to make a decision. They are the mechanism that prevents CTI programs from producing interesting-but-useless research. Every CTI product should trace back to a documented requirement, or the team is doing analysis for its own sake rather than serving the organization.</p>
 
-          <p>Priority Intelligence Requirements (PIRs) are the highest-priority questions an organization needs answered. A PIR might be: "What threat groups are currently targeting critical infrastructure in our region, and what initial access vectors are they using?" PIRs are set by organizational leadership in consultation with the security team and are revisited regularly, usually quarterly. They define what the CTI team collects against and what gets resourced.</p>
+          <h3>Three Requirement Types</h3>
+          <div class="callout-info">
+            <strong>PIRs, SIRs, and RFIs:</strong>
+            <ul>
+              <li><strong>Priority Intelligence Requirements (PIRs)</strong>: the highest-priority questions an organization needs answered, for example "What threat groups are currently targeting critical infrastructure in our region, and what initial access vectors are they using?" Set by organizational leadership in consultation with the security team and revisited regularly, usually quarterly. PIRs define what the CTI team collects against and what gets resourced.</li>
+              <li><strong>Specific Intelligence Requirements (SIRs)</strong>: sub-requirements that must be answered to satisfy a PIR. If the PIR asks about initial access vectors for regional threat groups, SIRs would include "What phishing lure types does this actor group use?", "What exploit does the group use for internet-facing appliances?", and "What are the known C2 protocol signatures for the group's toolset?" SIRs guide specific collection tasks and analysis efforts.</li>
+              <li><strong>Requests for Information (RFIs)</strong>: ad-hoc requirements from consumers outside the normal PIR process, for example an incident responder on an active case asking "Do you have any intel on infrastructure tied to this IP range or this file hash pattern?" RFIs are time-sensitive and should be triaged quickly: can this be answered from existing collection, or does it require new tasking? RFIs that recur frequently are candidates for elevation into standing SIRs.</li>
+            </ul>
+          </div>
 
-          <p>Specific Intelligence Requirements (SIRs) are sub-requirements that must be answered to satisfy a PIR. If the PIR asks about initial access vectors for regional threat groups, SIRs would include: "What phishing lure types does this actor group use?", "What exploit does the group use for internet-facing appliances?", and "What are the known C2 protocol signatures for the group's toolset?" SIRs guide specific collection tasks and analysis efforts.</p>
-
-          <p>Requests for Information (RFIs) are ad-hoc requirements from consumers outside the normal PIR process. An incident responder on an active case might RFI: "Do you have any intel on infrastructure tied to this IP range or this file hash pattern?" RFIs are time-sensitive and should be triaged quickly: can this be answered from existing collection, or does it require new tasking? RFIs that recur frequently are candidates for elevation into standing SIRs.</p>
-
+          <h3>The Anti-Pattern Requirements Discipline Prevents</h3>
           <p>The discipline of requirements management prevents a common CTI anti-pattern: the team that tracks everything interesting but produces nothing actionable. Every hour spent collecting and analyzing something should be justified by a requirement. When it is not, the team is building reports no one will read and missing the questions that actually matter to the organization.</p>
         </section>
 
         <section class="content-section" id="module-roadmap">
           <h2>What This Module Covers</h2>
-          <p>Eight chapters build a complete CTI practitioner skill set from vocabulary through production-grade output. Chapter 1 (this chapter) establishes the foundational concepts: intelligence vs data, the intelligence cycle, the four types, TLP, and requirements. These are the concepts everything else builds on.</p>
+          <p>Eight chapters build a complete CTI practitioner skill set from vocabulary through production-grade output. Chapter 1 (this chapter) establishes the foundational concepts that everything else builds on: intelligence vs data, the intelligence cycle, the four types, TLP, and requirements.</p>
 
-          <p>Chapter 2 covers IOC types and confidence scoring. Not all indicators are equal, and treating a file hash the same as a TTP is one of the most common analytical errors. Chapter 3 covers threat actor profiling using the Diamond Model, ATT&CK Groups, and naming conventions across vendors. Chapter 4 covers structured sharing: STIX 2.1, TAXII, MISP, and how to participate in a trust community without creating liability for yourself or your organization.</p>
-
-          <p>Chapter 5 bridges CTI and threat hunting directly: how to take a finished intelligence report and produce hunt hypotheses, pivot chains, and search queries from it. Chapter 6 covers malware and campaign intelligence: reading sandbox reports, clustering samples to campaigns, and writing basic YARA rules from behavioral analysis. Chapter 7 covers CTI report writing: how to produce finished intelligence products that executives will read and analysts can act on. Chapter 8 closes the loop by covering how to convert intelligence directly into detection rules, ATT&CK coverage mappings, and tuned Sigma/KQL queries.</p>
+          <h3>Chapter Breakdown</h3>
+          <ul>
+            <li><strong>Chapter 2, IOC Types and Confidence Scoring:</strong> not all indicators are equal, and treating a file hash the same as a TTP is one of the most common analytical errors.</li>
+            <li><strong>Chapter 3, Threat Actor Profiling:</strong> the Diamond Model, ATT&amp;CK Groups, and naming conventions across vendors.</li>
+            <li><strong>Chapter 4, Structured Sharing:</strong> STIX 2.1, TAXII, MISP, and how to participate in a trust community without creating liability for yourself or your organization.</li>
+            <li><strong>Chapter 5, Intel-Driven Hunting:</strong> how to take a finished intelligence report and produce hunt hypotheses, pivot chains, and search queries from it.</li>
+            <li><strong>Chapter 6, Malware and Campaign Intelligence:</strong> reading sandbox reports, clustering samples to campaigns, and writing basic YARA rules from behavioral analysis.</li>
+            <li><strong>Chapter 7, CTI Report Writing:</strong> producing finished intelligence products that executives will read and analysts can act on.</li>
+            <li><strong>Chapter 8, Detection From Intel:</strong> converting intelligence directly into detection rules, ATT&amp;CK coverage mappings, and tuned Sigma/KQL queries.</li>
+          </ul>
 
           <div class="callout-tip">
             <strong>Tip:</strong> If you work in a SOC and are reading this to support alert triage rather than to build a CTI program, focus on Chapters 2, 3, and 5. Understanding IOC confidence scoring will immediately improve how you handle threat feed hits. Understanding threat actor profiling will help you contextualize alerts. Chapter 5 will teach you to extract hunt value from any CTI report you encounter.

@@ -144,11 +144,37 @@
           <h2>From Report to Hypothesis</h2>
           <p>A CTI report contains raw material for hunting. The job is to extract it. When you open a threat report, you are looking for three categories of huntable content: IOCs that can be used for direct indicator matching, TTPs expressed as ATT&CK techniques or procedure descriptions that can be translated into behavioral searches, and infrastructure patterns that reveal how the actor builds and operates their attack infrastructure.</p>
 
-          <p>Start by skimming the executive summary for the campaign summary and actor attribution. Then go directly to the technical indicators section and the TTP breakdown. Most well-structured reports include an IOC appendix and either an ATT&CK navigator layer or a technique table. Extract these first. They are the raw material for your hunts.</p>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Skim for attribution</div>
+              <div class="flow-step-desc">Read the executive summary for the campaign summary and actor attribution.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Extract the raw material</div>
+              <div class="flow-step-desc">Go to the technical indicators section and TTP breakdown; pull the IOC appendix and ATT&CK technique table.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Ask "can I search for this?"</div>
+              <div class="flow-step-desc">For each TTP, form a plain-language hunt question your telemetry could answer.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Structure with ABLE</div>
+              <div class="flow-step-desc">Actor, Behavior, Location, Evidence: a structured hypothesis that maps directly to a search query.</div>
+            </div>
+          </div>
 
-          <p>For each TTP or technique description in the report, ask: "Can I search for this behavior in my environment?" If the report says the actor uses encoded PowerShell commands for initial execution, the hunt hypothesis is: "Has any process in my environment executed PowerShell with base64-encoded content outside of known administrative tools in the last 30 days?" If the report says the actor uses BITS jobs for lateral movement, the hunt hypothesis is: "Have any BITS transfer jobs been created outside of our known software deployment tools?"</p>
+          <h3>Turning a TTP Into a Hypothesis</h3>
+          <p>If the report says the actor uses encoded PowerShell commands for initial execution, the hunt hypothesis is: "Has any process in my environment executed PowerShell with base64-encoded content outside of known administrative tools in the last 30 days?" If the report says the actor uses BITS jobs for lateral movement, the hunt hypothesis is: "Have any BITS transfer jobs been created outside of our known software deployment tools?"</p>
 
-          <p>Translate each hunt hypothesis into a structured statement using the ABLE framework from the Threat Hunting module: Actor (who), Behavior (what they do), Location (where in the kill chain), Evidence (what telemetry source). Example: "An actor resembling [GROUP] (A) uses BITS jobs for lateral file transfer (B) during the lateral movement phase (L) visible in Windows Event ID 59 and BITSAdmin logs (E)." This structured hypothesis maps directly to a search query.</p>
+          <h3>The ABLE Framework</h3>
+          <p>Translate each hunt hypothesis into a structured statement using the ABLE framework from the Threat Hunting module: Actor (who), Behavior (what they do), Location (where in the kill chain), Evidence (what telemetry source). Example: "An actor resembling [GROUP] (A) uses BITS jobs for lateral file transfer (B) during the lateral movement phase (L) visible in Windows Event ID 59 and BITSAdmin logs (E)."</p>
 
           <div class="callout-tip">
             <strong>Tip:</strong> Not every technique in a report is worth hunting immediately. Prioritize by: (1) technique prevalence in your environment (some LOL techniques generate too much noise to hunt efficiently), (2) techniques that appear at the top of the Pyramid of Pain (behavioral TTPs, not hashes), and (3) techniques for which you have telemetry coverage. Hunting for a technique your environment cannot observe is a futile exercise.
@@ -159,24 +185,77 @@
           <h2>Pivot Chains</h2>
           <p>A pivot chain is a sequence of analytic steps in which the output of one step becomes the input to the next, progressively expanding your view of an actor's infrastructure or operation. Starting from a single IOC, a skilled analyst can frequently map a significant portion of an actor's active infrastructure within a few hours of open-source research. This is one of the highest-value activities in CTI because it converts a single data point into a full picture that survives infrastructure rotation.</p>
 
-          <p>The classic pivot chain starts with a domain. Take the domain and query passive DNS: what IPs has this domain historically resolved to? Each of those IPs is a pivot point. Query each IP for co-hosted domains: what other domains have resolved to this IP? Look for naming patterns: if one malicious domain is "cdn-update-service[.]com", other domains on the same IP that follow similar naming conventions are likely part of the same infrastructure. Check registration data: same registrar, same registration date window, same privacy service, same payment email are all signals of shared ownership.</p>
+          <h3>The Classic Domain-to-Infrastructure Chain</h3>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Query passive DNS</div>
+              <div class="flow-step-desc">What IPs has the starting domain historically resolved to? Each IP is a pivot point.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Find co-hosted domains</div>
+              <div class="flow-step-desc">What other domains have resolved to each pivot IP?</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Match naming patterns</div>
+              <div class="flow-step-desc">Domains on the same IP that follow a similar naming convention, such as "cdn-update-service[.]com", are likely the same infrastructure.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Check registration data</div>
+              <div class="flow-step-desc">Same registrar, registration date window, privacy service, or payment email are all signals of shared ownership.</div>
+            </div>
+          </div>
 
-          <p>Certificate fingerprints are a particularly durable pivot. Actors who self-sign TLS certificates or use consistent certificate configurations across their infrastructure create a fingerprint that survives IP changes. Certificate Subject fields, Organization fields, and Common Name patterns can tie together infrastructure across multiple campaigns and years. Censys and Shodan both support certificate searches. A unique certificate Subject/Issuer combination that appears on three IPs across two campaigns is strong evidence of shared actor infrastructure.</p>
+          <h3>Certificate Fingerprints</h3>
+          <p>A particularly durable pivot. Actors who self-sign TLS certificates or use consistent certificate configurations across their infrastructure create a fingerprint that survives IP changes. Certificate Subject fields, Organization fields, and Common Name patterns can tie together infrastructure across multiple campaigns and years. Censys and Shodan both support certificate searches. A unique certificate Subject/Issuer combination that appears on three IPs across two campaigns is strong evidence of shared actor infrastructure.</p>
 
-          <p>ASN and hosting provider patterns persist even when specific IPs and domains rotate. Some actors consistently use specific bulletproof hosting providers, specific ASNs, or specific geographic clusters of VPS providers. If you observe three malicious IPs associated with an actor and all three are hosted in the same small ASN in the same Eastern European hosting provider, new infrastructure appearing in that ASN from that provider is elevated priority for investigation even before specific IOC matches.</p>
+          <h3>ASN and Hosting Provider Patterns</h3>
+          <p>These persist even when specific IPs and domains rotate. Some actors consistently use specific bulletproof hosting providers, specific ASNs, or specific geographic clusters of VPS providers. If you observe three malicious IPs associated with an actor and all three are hosted in the same small ASN in the same Eastern European hosting provider, new infrastructure appearing in that ASN from that provider is elevated priority for investigation even before specific IOC matches.</p>
 
-          <p>Open-source pivot tools include VirusTotal Graph (visualizes relationships between files, URLs, domains, and IPs), Maltego (graph-based OSINT pivot tool with connectors to numerous data sources), Shodan (internet-connected device search with certificate and banner data), Censys (similar to Shodan with strong certificate search), SecurityTrails (passive DNS and domain history), and DNSLYTICS (name server and registrar pivot data). H3AD-SEC's own DNSCOPE and X-VERDIKT tools cover significant portions of this workflow without requiring external accounts.</p>
+          <h3>Open-Source Pivot Tools</h3>
+          <ul>
+            <li><strong>VirusTotal Graph:</strong> visualizes relationships between files, URLs, domains, and IPs.</li>
+            <li><strong>Maltego:</strong> graph-based OSINT pivot tool with connectors to numerous data sources.</li>
+            <li><strong>Shodan:</strong> internet-connected device search with certificate and banner data.</li>
+            <li><strong>Censys:</strong> similar to Shodan with strong certificate search.</li>
+            <li><strong>SecurityTrails:</strong> passive DNS and domain history.</li>
+            <li><strong>DNSLYTICS:</strong> name server and registrar pivot data.</li>
+          </ul>
+          <p>H3AD-SEC's own DNSCOPE and X-VERDIKT tools cover significant portions of this workflow without requiring external accounts.</p>
         </section>
 
         <section class="content-section" id="enrichment-workflow">
           <h2>Enrichment Workflow</h2>
           <p>Enrichment transforms a bare IOC into an intelligence object with enough context to support a decision. A raw IP address requires enrichment before you can determine whether it warrants blocking, investigation, or no action. The enrichment workflow is a series of queries against multiple data sources that build up a contextual picture around the indicator.</p>
 
-          <p>For an IP address, the enrichment sequence is: geolocation and ASN (where is it, who hosts it), VirusTotal (has it been flagged by any vendor, is it associated with any files or domains), Shodan or Censys (what services is it running, what ports are open, what does its banner data look like), AbuseIPDB (what abuse reports have been filed against it), and passive DNS history (what domains has it hosted). This takes under five minutes for a single IP and produces enough context to make a confident triage decision.</p>
+          <h3>IP Address Enrichment Sequence</h3>
+          <ol>
+            <li><strong>Geolocation and ASN:</strong> where is it, who hosts it.</li>
+            <li><strong>VirusTotal:</strong> has it been flagged by any vendor, is it associated with any files or domains.</li>
+            <li><strong>Shodan or Censys:</strong> what services is it running, what ports are open, what does its banner data look like.</li>
+            <li><strong>AbuseIPDB:</strong> what abuse reports have been filed against it.</li>
+            <li><strong>Passive DNS history:</strong> what domains has it hosted.</li>
+          </ol>
+          <p>This takes under five minutes for a single IP and produces enough context to make a confident triage decision.</p>
 
-          <p>For a domain, the enrichment sequence is: WHOIS (registration date, registrar, privacy service, nameservers), passive DNS (current and historical IP resolutions), VirusTotal URL scan (has this domain been flagged, what files is it associated with), certificate transparency logs (what certificates have been issued for it and its subdomains), and subsite enumeration (what paths exist on the domain that may reveal actor tools or staging content). A recently registered domain using a privacy registrar, with a nameserver associated with bulletproof hosting, and a VirusTotal detection from a recognized malware family is a high-confidence malicious indicator even before behavioral evidence is available.</p>
+          <h3>Domain Enrichment Sequence</h3>
+          <ol>
+            <li><strong>WHOIS:</strong> registration date, registrar, privacy service, nameservers.</li>
+            <li><strong>Passive DNS:</strong> current and historical IP resolutions.</li>
+            <li><strong>VirusTotal URL scan:</strong> has this domain been flagged, what files is it associated with.</li>
+            <li><strong>Certificate transparency logs:</strong> what certificates have been issued for it and its subdomains.</li>
+            <li><strong>Subsite enumeration:</strong> what paths exist on the domain that may reveal actor tools or staging content.</li>
+          </ol>
+          <p>A recently registered domain using a privacy registrar, with a nameserver associated with bulletproof hosting, and a VirusTotal detection from a recognized malware family is a high-confidence malicious indicator even before behavioral evidence is available.</p>
 
-          <p>For a file hash, enrichment includes VirusTotal submission history (when was it first seen, by which sandbox or vendor), behavioral analysis from sandbox reports (Hybrid Analysis, Any.run, Triage), YARA rule matches (which community YARA rules match this file), and code similarity analysis (does this file share code with known malware families). The combination of first-seen date, sandbox behavior, and YARA matches can often attribute a file to a specific malware family and actor group without the need for a dedicated reverse engineering session.</p>
+          <h3>File Hash Enrichment</h3>
+          <p>Includes VirusTotal submission history (when was it first seen, by which sandbox or vendor), behavioral analysis from sandbox reports (Hybrid Analysis, Any.run, Triage), YARA rule matches (which community YARA rules match this file), and code similarity analysis (does this file share code with known malware families). The combination of first-seen date, sandbox behavior, and YARA matches can often attribute a file to a specific malware family and actor group without the need for a dedicated reverse engineering session.</p>
 
           <div class="table-wrap">
             <table>
@@ -197,6 +276,7 @@
           <h2>Intel-Driven Query Building</h2>
           <p>The goal of intel-driven query building is to convert a TTP description from a CTI report into a search query that can be executed against your telemetry. The input is prose from a threat report; the output is KQL, SPL, Sigma, or XQL. The conversion process requires understanding what telemetry captures the described behavior and what fields in that telemetry are relevant.</p>
 
+          <h3>Example: Scheduled Task Persistence</h3>
           <p>Consider a report describing an actor that establishes persistence by creating a scheduled task that executes a PowerShell one-liner with an encoded command at user logon. The telemetry target is Windows Event ID 4698 (scheduled task created) and/or Sysmon Event ID 1 (process create for schtasks.exe or PowerShell with encoded content). The query structure is: look for scheduled task creation (Event ID 4698 or schtasks.exe process) where the command contains -enc or -EncodedCommand, created outside of known-good administrative tools, in the last 30 days.</p>
 
           <div class="code-block"><code>// KQL (Microsoft Sentinel / MDE): Intel-driven scheduled task hunt
@@ -208,6 +288,7 @@ DeviceProcessEvents
 | project Timestamp, DeviceName, InitiatingProcessFileName, ProcessCommandLine, AccountName
 | order by Timestamp desc</code></div>
 
+          <h3>Example: C2 Beaconing</h3>
           <p>For a report describing C2 beaconing with a specific User-Agent string or beaconing interval, the query targets network telemetry: proxy logs, DNS query logs, or network flow data. The pattern to search for is the specific User-Agent in web proxy logs, or domains matching the described naming convention, or connections at regular intervals (beaconing detection) to external IPs outside of known services.</p>
 
           <div class="code-block"><code>// KQL: Hunt for suspicious beaconing pattern (regular intervals to external IP)
@@ -231,21 +312,39 @@ DeviceNetworkEvents
           <h2>Campaign Tracking During a Hunt</h2>
           <p>When a hunt produces positive results, the work is not done. A positive hit is the beginning of a campaign tracking exercise. The question shifts from "is this actor present in our environment" to "what have they done, when did they arrive, how far have they moved, and what do they still have access to." Answering these questions requires correlating hunt findings with actor intelligence to reconstruct the campaign timeline.</p>
 
-          <p>Map each finding to the kill chain. A malicious domain hit in DNS logs maps to initial access or C2. A scheduled task creation maps to persistence. A LDAP query to enumerate group members maps to discovery. A large data staging directory maps to exfiltration preparation. The kill chain position of each finding tells you where in the intrusion timeline you are and what has probably already occurred that you have not yet found.</p>
+          <h3>Map Each Finding to the Kill Chain</h3>
+          <p>The kill chain position of each finding tells you where in the intrusion timeline you are and what has probably already occurred that you have not yet found.</p>
+          <ul>
+            <li>A malicious domain hit in DNS logs maps to initial access or C2.</li>
+            <li>A scheduled task creation maps to persistence.</li>
+            <li>An LDAP query to enumerate group members maps to discovery.</li>
+            <li>A large data staging directory maps to exfiltration preparation.</li>
+          </ul>
 
-          <p>Use actor profile knowledge to guide the next pivot. If the actor profile says this group consistently moves laterally via valid credentials stolen from an initial access host, the next hunt after finding C2 communication is: what credential access activity (Mimikatz indicators, LSASS dump, Kerberoasting) occurred on the systems that communicated with the C2 infrastructure? If the profile says this group uses WMIC for remote execution during lateral movement, pivot to WMI activity logs from the identified hosts.</p>
+          <h3>Use the Actor Profile to Guide the Next Pivot</h3>
+          <p>If the actor profile says this group consistently moves laterally via valid credentials stolen from an initial access host, the next hunt after finding C2 communication is: what credential access activity (Mimikatz indicators, LSASS dump, Kerberoasting) occurred on the systems that communicated with the C2 infrastructure? If the profile says this group uses WMIC for remote execution during lateral movement, pivot to WMI activity logs from the identified hosts.</p>
 
-          <p>Track findings against the Diamond Model. Update the adversary vertex as attribution confidence grows. Update the capability vertex with any new techniques you observe that are not in the existing profile. Update the infrastructure vertex with any new IOCs identified during the hunt. Update the victim vertex with the full scope of affected systems. This living Diamond record becomes the evidentiary foundation for the IR team and, eventually, for the after-action report and sharing contribution.</p>
+          <h3>Track Findings Against the Diamond Model</h3>
+          <ul>
+            <li>Update the <strong>adversary</strong> vertex as attribution confidence grows.</li>
+            <li>Update the <strong>capability</strong> vertex with any new techniques you observe that are not in the existing profile.</li>
+            <li>Update the <strong>infrastructure</strong> vertex with any new IOCs identified during the hunt.</li>
+            <li>Update the <strong>victim</strong> vertex with the full scope of affected systems.</li>
+          </ul>
+          <p>This living Diamond record becomes the evidentiary foundation for the IR team and, eventually, for the after-action report and sharing contribution.</p>
         </section>
 
         <section class="content-section" id="closing-loop">
           <h2>Closing the Loop</h2>
           <p>The intelligence cycle does not end when a hunt completes. The findings from an intel-driven hunt are themselves intelligence that should feed back into the collection requirements and the actor profile that drove the hunt. This feedback loop is what distinguishes a mature CTI program from a team that reads reports and forgets about them.</p>
 
-          <p>If the hunt confirmed the actor is present in your environment, that is the highest-confidence intelligence update possible: direct victim telemetry. Update the actor profile with any techniques, infrastructure, or procedures you observed that were not already documented. Submit your IOCs to your ISAC with appropriate TLP markings. Update your PIRs to reflect the new priority: this actor has confirmed presence, so requirements shift from "are they targeting us" to "what is their current level of access and objective."</p>
+          <h3>If the Hunt Confirmed the Actor Is Present</h3>
+          <p>That is the highest-confidence intelligence update possible: direct victim telemetry. Update the actor profile with any techniques, infrastructure, or procedures you observed that were not already documented. Submit your IOCs to your ISAC with appropriate TLP markings. Update your PIRs to reflect the new priority: this actor has confirmed presence, so requirements shift from "are they targeting us" to "what is their current level of access and objective."</p>
 
-          <p>If the hunt found nothing, document the negative result. A negative hunt result against good telemetry and a well-structured hypothesis is evidence that either the actor is not present, the actor has adapted their TTPs since the report was written, or your telemetry has gaps that would prevent detection. Each of these is a meaningful intelligence outcome. The third case should drive a gap analysis and telemetry improvement effort.</p>
+          <h3>If the Hunt Found Nothing</h3>
+          <p>Document the negative result. A negative hunt result against good telemetry and a well-structured hypothesis is evidence that either the actor is not present, the actor has adapted their TTPs since the report was written, or your telemetry has gaps that would prevent detection. Each of these is a meaningful intelligence outcome. The third case should drive a gap analysis and telemetry improvement effort.</p>
 
+          <h3>Converting Hits Into Standing Detections</h3>
           <p>Techniques and queries that produced positive results during the hunt are candidates for permanent detection rules. A hunt that succeeds demonstrates the technique is observable in your telemetry and produces actionable results. Convert successful hunt queries to standing detection rules in your SIEM. Chapter 8 covers the full detection-from-intelligence workflow in detail.</p>
 
           <div class="callout-info">
