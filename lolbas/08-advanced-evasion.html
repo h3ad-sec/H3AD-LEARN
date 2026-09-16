@@ -137,17 +137,46 @@
       <!-- SECTION 1 -->
       <section class="content-section" id="amsi-bypass">
         <h2>AMSI Bypass Techniques</h2>
+        <h3>What AMSI Does</h3>
         <p>AMSI (Antimalware Scan Interface) is a Windows API that hooks into PowerShell, JScript, VBScript, and .NET to scan code before execution. Endpoint security products register as AMSI providers, receiving each script block for analysis before it runs.</p>
 
-        <p>How the scan chain works: when a process loads amsi.dll, the registered security provider receives each script block via AmsiScanBuffer() before the scripting engine executes it. If the provider returns a malicious classification, execution is blocked before the code runs.</p>
+        <h3>How the Scan Chain Works</h3>
+        <div class="process-flow">
+          <div class="flow-step">
+            <span class="flow-step-num">1</span>
+            <div class="flow-step-title">Process Loads amsi.dll</div>
+            <div class="flow-step-desc">The scripting engine loads the AMSI library.</div>
+          </div>
+          <div class="flow-arrow">&#8594;</div>
+          <div class="flow-step">
+            <span class="flow-step-num">2</span>
+            <div class="flow-step-title">Provider Scans the Script Block</div>
+            <div class="flow-step-desc">The registered security provider receives each script block via AmsiScanBuffer() before execution.</div>
+          </div>
+          <div class="flow-arrow">&#8594;</div>
+          <div class="flow-step">
+            <span class="flow-step-num">3</span>
+            <div class="flow-step-title">Malicious Classification Blocks Execution</div>
+            <div class="flow-step-desc">If the provider returns a malicious classification, execution is blocked before the code runs.</div>
+          </div>
+        </div>
 
+        <h3>The Classic Reflection Bypass</h3>
         <p>The classic reflection bypass patches the amsiInitFailed field in System.Management.Automation to true. This causes PowerShell to believe no AMSI provider is loaded, skipping subsequent scans. Understanding this conceptually is important for defenders -- the specific strings used in bypass attempts become detection signals. Working bypass code is intentionally not reproduced here.</p>
 
-        <p>Detection of AMSI bypass attempts: PowerShell Script Block Logging (Event ID 4104) captures bypass attempts including the strings used, such as "AmsiUtils", "amsiInitFailed", or "amsiContext". These strings appearing in a script block are high-confidence AMSI bypass indicators, regardless of whether the bypass succeeded.</p>
+        <h3>Detecting Bypass Attempts</h3>
+        <p>PowerShell Script Block Logging (Event ID 4104) captures bypass attempts including the strings used. These strings appearing in a script block are high-confidence AMSI bypass indicators, regardless of whether the bypass succeeded:</p>
+        <ul>
+          <li><code>AmsiUtils</code></li>
+          <li><code>amsiInitFailed</code></li>
+          <li><code>amsiContext</code></li>
+        </ul>
 
+        <h3>A Rarer Variant: Fake AMSI COM Server</h3>
         <p>A less common variant uses a fake AMSI COM server that always returns AMSI_RESULT_CLEAN, convincing the security provider that every submitted script is benign. More complex to deploy than the reflection bypass, but detects differently -- no PowerShell strings, but anomalous COM registration activity.</p>
 
-        <p>Defense: Constrained Language Mode (CLM) combined with AMSI materially reduces attack surface. CLM prevents full .NET API access, which blocks the reflection call used in the classic bypass without requiring the attacker to find an alternative.</p>
+        <h3>Defense: Constrained Language Mode</h3>
+        <p>Constrained Language Mode (CLM) combined with AMSI materially reduces attack surface. CLM prevents full .NET API access, which blocks the reflection call used in the classic bypass without requiring the attacker to find an alternative.</p>
 
         <div class="callout-warning"><strong>Important:</strong> Detecting AMSI bypass attempts is more valuable than preventing them in many environments. An attacker who tries to bypass AMSI is escalating -- they moved from execution to active security control subversion. This transition in attacker behavior is a high-confidence escalation signal. Script Block Logging captures the attempt even if it fails.</div>
       </section>
@@ -157,8 +186,10 @@
         <h2>AppLocker and WDAC Bypass</h2>
         <p>AppLocker and Windows Defender Application Control (WDAC) are application allowlisting controls. They block unsigned or non-whitelisted executables from running. The theory is sound. The problem is that LOLBins already pass both controls by default.</p>
 
-        <p>Why LOLBins bypass both by design: LOLBins are Microsoft-signed binaries in C:\Windows\System32. AppLocker's default rules allow all binaries in that path signed by Microsoft. No bypass is needed because the binary was never blocked. This is the fundamental limitation of default AppLocker policy against LOTL attacks.</p>
+        <h3>Why LOLBins Bypass Both by Design</h3>
+        <p>LOLBins are Microsoft-signed binaries in C:\Windows\System32. AppLocker's default rules allow all binaries in that path signed by Microsoft. No bypass is needed because the binary was never blocked. This is the fundamental limitation of default AppLocker policy against LOTL attacks.</p>
 
+        <h3>LOLBins That Exploit This</h3>
         <p>Specific LOLBins are useful precisely because they execute code without spawning a child process from an unauthorized path:</p>
         <ul>
           <li><strong>regsvr32 Squiblydoo</strong> -- runs a remote COM scriptlet inside regsvr32.exe. No new process with an unapproved path is ever created.</li>
@@ -167,6 +198,7 @@
           <li><strong>regasm /U assembly.exe and regsvcs</strong> -- similar proxy execution to installutil, both .NET framework binaries already whitelisted.</li>
         </ul>
 
+        <h3>WDAC Is Stricter</h3>
         <p>WDAC is stricter than AppLocker. A well-configured WDAC policy can block even Microsoft-signed binaries through specific hash, path, and publisher rules combined with deny lists. This is the only application control posture that actually defeats LOTL at the control level rather than at the detection level.</p>
 
         <div class="callout-warning"><strong>Important:</strong> AppLocker alone does not stop LOLBin attacks. LOLBins are on the allowlist by default. Only WDAC with an explicit deny policy for specific unused LOLBin executables provides meaningful application control defense against LOTL.</div>
@@ -177,12 +209,33 @@
         <h2>EDR Evasion via LOLBins</h2>
         <p>EDR products monitor process creation, network connections, file operations, and registry writes through kernel callbacks and user-mode hooks. LOLBins help attackers operate under reduced EDR scrutiny through three mechanisms.</p>
 
-        <p><strong>Reduced process creation.</strong> In-memory execution via PowerShell IEX never creates a child process with a suspicious binary path. EDR has no new binary to scan, hash, or evaluate against reputation databases. The malicious code runs entirely within the trusted powershell.exe process space.</p>
+        <h3>Three Evasion Mechanisms</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Mechanism</th>
+                <th>How It Works</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Reduced process creation</td>
+                <td>In-memory execution via PowerShell IEX never creates a child process with a suspicious binary path. EDR has no new binary to scan, hash, or evaluate against reputation databases. The malicious code runs entirely within the trusted powershell.exe process space.</td>
+              </tr>
+              <tr>
+                <td>Trusted binary context</td>
+                <td>EDR products apply different logic to Microsoft-signed System32 binaries. A network connection from powershell.exe triggers different analysis than the same connection from an unknown binary. The trusted binary context means LOLBin network activity passes through with lower-confidence alerts.</td>
+              </tr>
+              <tr>
+                <td>PPID spoofing</td>
+                <td>EDR logic that uses parent-process chain analysis can be deceived by PPID spoofing (covered in chapter 4). By spoofing the parent to appear as explorer.exe or a trusted process, the entire chain analysis is distorted.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-        <p><strong>Trusted binary context.</strong> EDR products apply different logic to Microsoft-signed System32 binaries. A network connection from powershell.exe triggers different analysis than the same connection from an unknown binary. The trusted binary context means LOLBin network activity passes through with lower-confidence alerts.</p>
-
-        <p><strong>PPID spoofing.</strong> EDR logic that uses parent-process chain analysis can be deceived by PPID spoofing (covered in chapter 4). By spoofing the parent to appear as explorer.exe or a trusted process, the entire chain analysis is distorted.</p>
-
+        <h3>The Leading Edge: Direct Syscalls</h3>
         <p>At the leading edge, advanced LOTL abuse in .NET combines in-memory loading with direct syscall execution that bypasses user-mode EDR hooks entirely. This removes EDR's ability to intercept API calls via user-mode hooks, forcing reliance on kernel-level telemetry. Most practical LOTL attacks do not require this because EDR tuning gaps are sufficient. The sophisticated techniques appear in nation-state campaigns targeting high-security environments, not in commodity ransomware.</p>
       </section>
 
@@ -191,6 +244,7 @@
         <h2>Defensive Hardening Controls</h2>
         <p>Seven controls ordered by impact on LOTL attack surface reduction. These are not theoretical -- each has documented effectiveness against the techniques in this module.</p>
 
+        <h3>The Seven Controls, Ordered by Impact</h3>
         <ol>
           <li>
             <strong>PowerShell Constrained Language Mode (CLM).</strong> Blocks .NET reflection API access, preventing AMSI bypass via reflection and in-memory assembly loading. The strongest single PowerShell hardening control. Configured via AppLocker or WDAC policy. No user-visible impact for standard PowerShell usage.
@@ -215,6 +269,7 @@
           </li>
         </ol>
 
+        <h3>Comparison at a Glance</h3>
         <div class="table-wrap">
           <table>
             <thead>
@@ -272,7 +327,8 @@
         <h2>Testing Your Detection Coverage</h2>
         <p>Writing detection rules without testing them provides false confidence. Validation closes the loop between building coverage and knowing the coverage works.</p>
 
-        <p><strong>Atomic Red Team</strong> is the standard open-source test framework for this purpose (atomicredteam.io). It provides documented, safe simulations of ATT&CK techniques including most T1218 subtechniques. Tests are executed via Invoke-AtomicTest in PowerShell:</p>
+        <h3>Atomic Red Team</h3>
+        <p>Atomic Red Team is the standard open-source test framework for this purpose (atomicredteam.io). It provides documented, safe simulations of ATT&CK techniques including most T1218 subtechniques. Tests are executed via Invoke-AtomicTest in PowerShell:</p>
 
         <div class="code-block">
           <div class="code-block-header"><span class="code-block-lang">POWERSHELL</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
@@ -283,11 +339,22 @@ Invoke-AtomicTest T1218.001 -TestNumbers 1</code></pre>
 
         <p>This test downloads a benign file using certutil syntax identical to attacker usage. If the detection rule is working, an alert fires. If it does not fire, the rule has a gap that needs investigation before the rule is considered production-ready.</p>
 
-        <p><strong>Purple team validation</strong>: run Atomic Red Team tests in a controlled lab environment, verify that alerts fire in your SIEM or EDR with the expected fidelity, and document pass/fail per technique. The output is a detection coverage map -- which T1218 subtechniques produce quality alerts, which produce no alert, and which produce alert noise without useful context.</p>
+        <h3>Purple Team Validation</h3>
+        <p>Run Atomic Red Team tests in a controlled lab environment, verify that alerts fire in your SIEM or EDR with the expected fidelity, and document pass/fail per technique. The output is a detection coverage map: which T1218 subtechniques produce quality alerts, which produce no alert, and which produce alert noise without useful context.</p>
 
-        <p><strong>Continuous validation</strong>: detection rules drift over time. Analyst tuning suppresses too broadly. Platform updates change telemetry field names or collection paths. Running detection tests on a monthly or post-change schedule catches regressions before they become coverage gaps in production.</p>
+        <h3>Continuous Validation</h3>
+        <p>Detection rules drift over time. Analyst tuning suppresses too broadly. Platform updates change telemetry field names or collection paths. Running detection tests on a monthly or post-change schedule catches regressions before they become coverage gaps in production.</p>
 
-        <p>Per detection, maintain documentation that includes the ATT&CK technique, the Atomic Red Team test number used for validation, the date last tested, the test result, known false positive cases, and the active suppression list. This documentation is the evidence that the rule works, not just a description of what it should do.</p>
+        <h3>What to Document Per Detection</h3>
+        <ul>
+          <li>The ATT&CK technique</li>
+          <li>The Atomic Red Team test number used for validation</li>
+          <li>The date last tested</li>
+          <li>The test result</li>
+          <li>Known false positive cases</li>
+          <li>The active suppression list</li>
+        </ul>
+        <p>This documentation is the evidence that the rule works, not just a description of what it should do.</p>
 
         <div class="callout-tip"><strong>Tip:</strong> Atomic Red Team tests pass when your detection fires AND when the resulting alert is actionable. A rule that fires on a test but produces an alert with no enrichment (no parent process, no CommandLine, no username) is not production-ready. Test the alert quality, not just whether it fires.</div>
       </section>
@@ -297,18 +364,40 @@ Invoke-AtomicTest T1218.001 -TestNumbers 1</code></pre>
         <h2>Threat-Informed Defense for LOLBins</h2>
         <p>Threat-informed defense prioritizes defensive investment based on actual threat actor behavior rather than hypothetical scenarios or vendor marketing. Applied to LOLBin coverage, it means building detection based on techniques that actors targeting your industry actually use.</p>
 
+        <h3>MITRE ATT&CK Evaluations</h3>
         <p>MITRE ATT&CK Evaluations conduct annual red team exercises against specific APT groups using real commercial EDR tools. The evaluations show which techniques each tool detects, misses, or partially detects. LOLBin techniques -- particularly T1218 subtechniques -- consistently appear among the hardest to detect with high confidence across all evaluated products. No tool does this perfectly.</p>
 
-        <p>The Center for Threat-Informed Defense (CTID) produces sensor mapping research that documents which data sources detect which ATT&CK techniques, adversary emulation plans that provide structured tests for specific threat actors, and detection analytics that can be adapted for any SIEM platform.</p>
+        <h3>Center for Threat-Informed Defense (CTID) Resources</h3>
+        <p>CTID produces:</p>
+        <ul>
+          <li>Sensor mapping research documenting which data sources detect which ATT&CK techniques</li>
+          <li>Adversary emulation plans providing structured tests for specific threat actors</li>
+          <li>Detection analytics that can be adapted for any SIEM platform</li>
+        </ul>
 
-        <p>A practical prioritization framework for LOLBin detection coverage:</p>
-        <ol>
-          <li>Identify which LOLBins appear in threat actor playbooks targeting your industry or geography.</li>
-          <li>Map those techniques against your current detection coverage to find gaps.</li>
-          <li>Identify which gaps already have a deployed data source that could support detection.</li>
-        </ol>
-        <p>Cover item 3 first (quick wins using existing telemetry), then solve item 2 (gaps requiring new data source deployment), then refine item 1 coverage over time as actor behavior evolves.</p>
+        <h3>A Practical Prioritization Framework</h3>
+        <div class="process-flow">
+          <div class="flow-step">
+            <span class="flow-step-num">1</span>
+            <div class="flow-step-title">Identify Relevant LOLBins</div>
+            <div class="flow-step-desc">Which LOLBins appear in threat actor playbooks targeting your industry or geography.</div>
+          </div>
+          <div class="flow-arrow">&#8594;</div>
+          <div class="flow-step">
+            <span class="flow-step-num">2</span>
+            <div class="flow-step-title">Map Against Current Coverage</div>
+            <div class="flow-step-desc">Compare those techniques to your existing detection coverage to find gaps.</div>
+          </div>
+          <div class="flow-arrow">&#8594;</div>
+          <div class="flow-step">
+            <span class="flow-step-num">3</span>
+            <div class="flow-step-title">Find Quick Wins</div>
+            <div class="flow-step-desc">Identify which gaps already have a deployed data source that could support detection.</div>
+          </div>
+        </div>
+        <p>Cover step 3 first (quick wins using existing telemetry), then solve step 2 (gaps requiring new data source deployment), then refine step 1 coverage over time as actor behavior evolves.</p>
 
+        <h3>The LOLBAS Project as Ongoing Input</h3>
         <p>The LOLBAS Project (lolbas-project.github.io) is the ongoing community catalog of documented LOLBin abuse cases. It is actively maintained and receives new entries as the security community discovers new techniques. A quarterly review of new entries translates directly into new detection candidates: each new entry is a question -- is this technique covered by existing rules, and does the required data source exist?</p>
       </section>
 
@@ -326,11 +415,20 @@ Invoke-AtomicTest T1218.001 -TestNumbers 1</code></pre>
           <li><strong>Chapter 8 (this chapter):</strong> Advanced evasion and hardening -- AMSI bypass, AppLocker/WDAC limitations, EDR evasion, and the seven hardening controls.</li>
         </ul>
 
-        <p><strong>Immediate next steps.</strong> Run Atomic Red Team tests against the T1218 subtechniques from chapter 6. Build the hunt hypotheses from chapter 7 into formal hunt plans in HYPOS. Enable Script Block Logging (EID 4104) if not already deployed -- this single GPO change unlocks detection for PowerShell-based LOTL at no cost. Enable ASR rules if the environment supports them.</p>
+        <h3>Immediate Next Steps</h3>
+        <p>Run Atomic Red Team tests against the T1218 subtechniques from chapter 6. Build the hunt hypotheses from chapter 7 into formal hunt plans in HYPOS. Enable Script Block Logging (EID 4104) if not already deployed -- this single GPO change unlocks detection for PowerShell-based LOTL at no cost. Enable ASR rules if the environment supports them.</p>
 
-        <p><strong>Cross-module reference.</strong> The Threat Hunting module covers hypothesis-driven hunt methodology. Chapter 9 of that module (<a href="../threat-hunting/09-hunting-lolbins.html" style="color:var(--accent)">Hunting LOLBin Abuse</a>) applies the full threat hunting lifecycle specifically to LOLBins, combining both modules into an end-to-end workflow from hypothesis to after-action report.</p>
+        <h3>Cross-Module Reference</h3>
+        <p>The Threat Hunting module covers hypothesis-driven hunt methodology. Chapter 9 of that module (<a href="../threat-hunting/09-hunting-lolbins.html" style="color:var(--accent)">Hunting LOLBin Abuse</a>) applies the full threat hunting lifecycle specifically to LOLBins, combining both modules into an end-to-end workflow from hypothesis to after-action report.</p>
 
-        <p><strong>Continuing education resources:</strong> LOLBAS Project (lolbas-project.github.io), loldrivers.io for LOLDriver coverage, MITRE ATT&CK T1218 subtechnique pages, Center for Threat-Informed Defense research library, and the Atomic Red Team test catalog at atomicredteam.io.</p>
+        <h3>Continuing Education Resources</h3>
+        <ul>
+          <li>LOLBAS Project (lolbas-project.github.io)</li>
+          <li>loldrivers.io for LOLDriver coverage</li>
+          <li>MITRE ATT&CK T1218 subtechnique pages</li>
+          <li>Center for Threat-Informed Defense research library</li>
+          <li>The Atomic Red Team test catalog at atomicredteam.io</li>
+        </ul>
 
         <div class="callout-tip"><strong>Tip:</strong> Detection engineering is a program, not a project. LOLBin coverage built this week needs quarterly validation, suppression review, and updates as actors evolve. The LOLBAS Project adds new entries regularly. Schedule a quarterly review of both the catalog and your detection rules as a recurring calendar item -- not a task to revisit when time permits.</div>
       </section>

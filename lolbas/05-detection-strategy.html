@@ -145,13 +145,15 @@
         <section class="content-section" id="behavior-over-signature">
           <h2>Behavior Over Signature</h2>
           <p>Signature-based detection fails against LOLBins because the attack uses a binary Windows trusts. You cannot block certutil.exe by hash. You cannot alert on every mshta.exe invocation. Detection has to target what the binary does in a given context, not what the binary is.</p>
-          <p>Three behavioral dimensions define that context:</p>
+          <h3>Three Behavioral Dimensions</h3>
           <ul>
             <li><strong>Execution context</strong> -- the parent process, the account running the binary, the working directory, and the time of day.</li>
             <li><strong>Command-line content</strong> -- the flags, arguments, URLs, and encoded strings passed to the binary.</li>
             <li><strong>Network behavior</strong> -- whether the binary made an outbound connection, to what destination, and how soon after process creation.</li>
           </ul>
+          <h3>Same Binary, Different Context</h3>
           <p>Consider certutil.exe. When it runs as SYSTEM, spawned from a scheduled task on a WSUS server, reaching download.microsoft.com, that is a Windows Update operation. When it runs as a domain user, spawned from winword.exe on a workstation, reaching 185.220.101.x, that is a download cradle. The binary is identical. The context is not.</p>
+          <h3>Reducing False Positives</h3>
           <p>Context is also the mechanism that reduces false positives. Before alerting, you filter the population of all certutil executions down to those that match an attacker profile rather than an admin profile. The executions that remain after that filter are worth investigating.</p>
           <div class="callout-info"><strong>Note:</strong> The goal is not to alert on every certutil execution. The goal is to alert on certutil executions matching an attacker profile while suppressing those matching an admin profile.</div>
         </section>
@@ -160,6 +162,7 @@
         <section class="content-section" id="parent-child-analysis">
           <h2>Parent-Child Process Analysis</h2>
           <p>Of the three behavioral dimensions, the parent-child chain carries the most signal. An attacker using certutil as a download cradle has to invoke it from somewhere -- a macro, a script, a dropped executable. That parent process is almost never the same parent that runs certutil legitimately.</p>
+          <h3>Normal Parent Processes</h3>
           <p>Normal parent processes for common LOLBins:</p>
           <div class="table-wrap">
             <table>
@@ -175,6 +178,7 @@
               </tbody>
             </table>
           </div>
+          <h3>High-Signal Anomalous Pairs</h3>
           <p>High-signal anomalous parent-child pairs worth alerting on directly:</p>
           <div class="table-wrap">
             <table>
@@ -195,7 +199,9 @@
         <!-- SECTION 3 -->
         <section class="content-section" id="command-line-patterns">
           <h2>Command-Line Pattern Analysis</h2>
-          <p>Command-line content is the second most important signal. For most LOLBins, the legitimate use cases produce predictable argument patterns. Malicious use produces different ones. The table below captures the split for the most commonly abused binaries.</p>
+          <p>Command-line content is the second most important signal. For most LOLBins, the legitimate use cases produce predictable argument patterns. Malicious use produces different ones.</p>
+          <h3>Benign vs Malicious Patterns</h3>
+          <p>The table below captures the split for the most commonly abused binaries.</p>
           <div class="table-wrap">
             <table>
               <thead>
@@ -210,6 +216,7 @@
               </tbody>
             </table>
           </div>
+          <h3>Handling Obfuscation</h3>
           <p>Detection logic needs to account for obfuscation. Certutil with caret characters inserted between arguments (<code>cert^util</code>) bypasses naive string matching. Build patterns that normalize common obfuscation variants, not just the clean form.</p>
           <div class="callout-tip"><strong>Tip:</strong> Regex patterns like <code>certutil.*-urlcache</code> match certutil.exe and certutil (without .exe) and common whitespace variations. Exact string matching misses the obfuscated variants with caret characters inserted to break simple signatures.</div>
         </section>
@@ -218,7 +225,7 @@
         <section class="content-section" id="baseline-deviation">
           <h2>Establishing Baselines and Detecting Deviation</h2>
           <p>You cannot detect anomalies without a baseline. Baselining answers a specific question for each binary: what is normal for this binary in this environment? Without that answer, every detection rule is guessing at thresholds.</p>
-          <p>Five baseline dimensions to capture per binary:</p>
+          <h3>Five Baseline Dimensions</h3>
           <ul>
             <li><strong>Execution frequency</strong> -- how many times per day per asset type (workstation vs server vs WSUS relay).</li>
             <li><strong>Parent distribution</strong> -- which processes spawn this binary across the estate.</li>
@@ -226,6 +233,7 @@
             <li><strong>Network destinations</strong> -- which domains and IPs the binary reaches outbound.</li>
             <li><strong>Account context</strong> -- which accounts run this binary. SYSTEM vs named user vs service account carries different meaning.</li>
           </ul>
+          <h3>Building the Baseline in Practice</h3>
           <p>In practice: run a broad SIEM or EDR query for the binary over 30 days, analyze the distribution across those five dimensions, document the normal population, then build suppression conditions before alerting on departures from it.</p>
           <p>Some binaries are so infrequently used that the baseline is effectively zero. Installutil.exe, odbcconf.exe, and regasm.exe almost never execute on standard workstations outside .NET installation events. For those, any execution is the anomaly. No frequency threshold required.</p>
           <div class="table-wrap">
@@ -248,10 +256,33 @@
         <section class="content-section" id="network-correlation">
           <h2>Network Correlation</h2>
           <p>LOLBins making outbound network connections on standard workstations are performing either a download cradle or C2 beaconing. There is almost no other explanation. Most LOLBins have no legitimate reason to make network connections in typical enterprise workstation use.</p>
+
+          <h3>Expected Legitimate Destinations</h3>
           <p>The complete list of expected network behavior for common LOLBins is short. Certutil reaches crl.microsoft.com and ocsp.digicert.com for certificate validation. Bitsadmin reaches WSUS and Windows Update endpoints. That covers the vast majority of legitimate outbound activity. Everything else warrants scrutiny.</p>
-          <p>The detection primitive is a process-to-network join. Sysmon EID 1 (process creation) correlated with Sysmon EID 3 (network connection) on the same ProcessId within 30 seconds. If certutil spawned and certutil made a network call to a non-Microsoft IP within that window, the combination is the alert condition. Neither event alone is sufficient -- both are required.</p>
-          <p>DNS telemetry adds a secondary signal. A DNS query from certutil.exe to a domain resolving to a residential or VPS IP fires before the network connection event and before the payload lands. If your SIEM has process-tagged DNS telemetry, build that as an early-warning layer.</p>
-          <p>For BITS specifically, the operational event log provides a third source. EID 59 (job started) and EID 60 (job completed) include the source URL in the event description. This catches BITS-based downloads even when Sysmon EID 3 is not deployed or the process-network join fails.</p>
+
+          <h3>Three Correlation Signal Sources</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Signal Source</th><th>How It Works</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Process-to-network join</td>
+                  <td>Sysmon EID 1 (process creation) correlated with Sysmon EID 3 (network connection) on the same ProcessId within 30 seconds. If certutil spawned and certutil made a network call to a non-Microsoft IP within that window, the combination is the alert condition. Neither event alone is sufficient, both are required.</td>
+                </tr>
+                <tr>
+                  <td>DNS telemetry</td>
+                  <td>A DNS query from certutil.exe to a domain resolving to a residential or VPS IP fires before the network connection event and before the payload lands. If your SIEM has process-tagged DNS telemetry, build that as an early-warning layer.</td>
+                </tr>
+                <tr>
+                  <td>BITS operational event log</td>
+                  <td>EID 59 (job started) and EID 60 (job completed) include the source URL in the event description. This catches BITS-based downloads even when Sysmon EID 3 is not deployed or the process-network join fails.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
           <div class="callout-warning"><strong>Warning:</strong> In WSUS relay environments, certutil legitimately contacts microsoft.com and windows.com. Suppress those destinations explicitly. The rule condition is: certutil network connection to a non-Microsoft, non-internal destination. That suppression preserves detection for every other host.</div>
         </section>
 
@@ -259,8 +290,25 @@
         <section class="content-section" id="coverage-mapping">
           <h2>Detection Coverage Mapping</h2>
           <p>Individual rules are not a detection program. Coverage mapping is what converts a collection of rules into a program with measurable gaps. The standard framework is ATT&amp;CK T1218 subtechniques.</p>
-          <p>For each T1218 subtechnique, the coverage matrix should answer four questions: Does a relevant data source exist in this environment? Does a detection rule exist for it? When was the rule last tested? What is the known false positive rate? Any subtechnique without a data source is a blind spot. Any subtechnique without a rule is a gap. Any rule not tested in the last six months is of unknown reliability.</p>
-          <p>Common gaps in otherwise mature environments include rundll32 JavaScript execution (<code>rundll32 javascript:</code>), odbcconf REGSVR action, LOLDriver monitoring (Sysmon EID 6 driver load is often not deployed), and WMIC remote execution where the <code>/node:</code> pattern is missing from the rule.</p>
+
+          <h3>Four Questions Per Subtechnique</h3>
+          <p>For each T1218 subtechnique, the coverage matrix should answer:</p>
+          <ul>
+            <li><strong>Does a relevant data source exist in this environment?</strong> No data source means a blind spot.</li>
+            <li><strong>Does a detection rule exist for it?</strong> No rule means a gap.</li>
+            <li><strong>When was the rule last tested?</strong> Not tested in the last six months means unknown reliability.</li>
+            <li><strong>What is the known false positive rate?</strong></li>
+          </ul>
+
+          <h3>Common Gaps in Mature Environments</h3>
+          <ul>
+            <li>rundll32 JavaScript execution (<code>rundll32 javascript:</code>)</li>
+            <li>odbcconf REGSVR action</li>
+            <li>LOLDriver monitoring (Sysmon EID 6 driver load is often not deployed)</li>
+            <li>WMIC remote execution where the <code>/node:</code> pattern is missing from the rule</li>
+          </ul>
+
+          <h3>Prioritizing Gap Closure</h3>
           <p>Prioritize gap closure by threat actor usage. ATT&amp;CK Groups data shows which tracked actors use which techniques. If the actors most likely to target your industry use mshta and rundll32 heavily, gaps in those subtechniques are higher priority than gaps in less-used techniques.</p>
           <div class="callout-tip"><strong>Tip:</strong> ATT&amp;CK Navigator layers let you color T1218 subtechniques by detection status. Use cyan for detected, amber for partial coverage, and gray for no coverage. The resulting visual communicates gaps to management faster than any spreadsheet.</div>
         </section>
@@ -268,11 +316,42 @@
         <!-- SECTION 7 -->
         <section class="content-section" id="detection-architecture">
           <h2>Detection Architecture for LOLBin Coverage</h2>
-          <p>A systematic detection program follows a repeatable lifecycle for every rule: hypothesis formation, data source validation, rule authoring, testing in an isolated environment, deployment, tuning, documentation, and scheduled review. Skipping any stage creates a gap -- either a rule that never fires, a rule that fires too broadly to action, or a rule with no record of what it catches.</p>
+          <h3>The Rule Lifecycle</h3>
+          <p>A systematic detection program follows a repeatable lifecycle for every rule. Skipping any stage creates a gap: either a rule that never fires, a rule that fires too broadly to action, or a rule with no record of what it catches.</p>
+          <ol>
+            <li>Hypothesis formation</li>
+            <li>Data source validation</li>
+            <li>Rule authoring</li>
+            <li>Testing in an isolated environment</li>
+            <li>Deployment</li>
+            <li>Tuning</li>
+            <li>Documentation</li>
+            <li>Scheduled review</li>
+          </ol>
+
+          <h3>Rule Naming</h3>
           <p>Rule naming matters for operational clarity. A convention like <code>LOLBIN-CERTUTIL-DOWNLOAD-CRADLE</code> or <code>LOLBIN-MSHTA-CHILD-PROCESS</code> immediately conveys the binary, the technique, and the specific behavior. Flat names like "Suspicious Process" do not.</p>
+
+          <h3>Testing with Atomic Red Team</h3>
           <p>Testing with Atomic Red Team provides controlled ground truth. The atomicredteam.io library covers most T1218 subtechniques. Running a test in an isolated lab and verifying the rule fires gives you documented detection validation, not assumed coverage. That test result goes into the rule's documentation record.</p>
-          <p>Tuning philosophy: tune from context, not from volume. A rule firing 1,000 times per day is not evidence that the rule should be disabled. Analyze the top triggers. If they are legitimate, they can be described precisely -- a specific device, a specific destination, a specific parent process. Add that description as a suppression condition. If they are malicious, 1,000 is not noise; it is the attack. Disabling a rule because it produces FPs you have not characterized is how blind spots form.</p>
-          <p>Each rule record should contain at minimum: the ATT&amp;CK technique it covers, the data source it requires, the known false positive cases, the date of last successful test, and a sensitivity rating. Documentation is not overhead -- it is the difference between a rule that gets tuned correctly and one that gets disabled six months later by someone who does not know what it was catching.</p>
+
+          <h3>Tuning Philosophy: Context, Not Volume</h3>
+          <p>A rule firing 1,000 times per day is not evidence that the rule should be disabled. Analyze the top triggers:</p>
+          <ul>
+            <li><strong>If they are legitimate,</strong> they can be described precisely: a specific device, a specific destination, a specific parent process. Add that description as a suppression condition.</li>
+            <li><strong>If they are malicious,</strong> 1,000 is not noise; it is the attack.</li>
+          </ul>
+          <p>Disabling a rule because it produces FPs you have not characterized is how blind spots form.</p>
+
+          <h3>What Every Rule Record Needs</h3>
+          <ul>
+            <li>The ATT&amp;CK technique it covers</li>
+            <li>The data source it requires</li>
+            <li>The known false positive cases</li>
+            <li>The date of last successful test</li>
+            <li>A sensitivity rating</li>
+          </ul>
+          <p>Documentation is not overhead. It is the difference between a rule that gets tuned correctly and one that gets disabled six months later by someone who does not know what it was catching.</p>
           <div class="callout-info"><strong>Note:</strong> Chapter 6 provides the actual query syntax for each LOLBin. This chapter provides the strategic framework. Strategy without queries is a plan. Queries without strategy are unordered noise. Both are required.</div>
         </section>
 

@@ -147,24 +147,27 @@
           <h2>Why Containers Need a Different Hunting Model</h2>
           <p>Every technique covered in Chapters 1 through 9 assumes a single operating system instance with its own kernel, its own process tree, and Sysmon or an EDR agent watching it directly. Kubernetes breaks that model in three specific ways that change what a hunter should look for and where.</p>
 
+          <h3>Three Ways Kubernetes Breaks the Model</h3>
           <ul>
             <li><strong>Containers share a kernel.</strong> Unlike a hypervisor-based VM, a container has no hardware-enforced isolation boundary. A kernel vulnerability, a misconfigured capability, or a mounted host resource can let a process inside a container directly affect the host or every other container running on it. This is the entire premise of <strong>T1611, Escape to Host</strong>.</li>
             <li><strong>The orchestrator is itself an API-reachable attack surface.</strong> The Kubernetes API server is a control plane that can create, delete, and exec into workloads across the entire cluster. A credential that grants API access (a stolen kubeconfig, an over-permissioned service account token) is functionally equivalent to domain admin in a Windows environment, except the "domain" is every workload the cluster runs.</li>
-            <li><strong>Workloads are ephemeral by design.</strong> A compromised pod might live for minutes before the orchestrator reschedules it. Traditional incident response assumptions &mdash; the compromised host is still there tomorrow for forensic imaging &mdash; do not hold. Hunting has to work from the audit trail and runtime telemetry, because the pod itself may already be gone.</li>
+            <li><strong>Workloads are ephemeral by design.</strong> A compromised pod might live for minutes before the orchestrator reschedules it. Traditional incident response assumptions (the compromised host is still there tomorrow for forensic imaging) do not hold. Hunting has to work from the audit trail and runtime telemetry, because the pod itself may already be gone.</li>
           </ul>
 
+          <h3>Applying the Same ATT&CK Discipline</h3>
           <p>This chapter maps to the same ATT&CK-driven hypothesis discipline from Chapter 2, using the <strong>ATT&CK for Containers</strong> matrix published by the Center for Threat-Informed Defense, plus the container-relevant sub-techniques already present in TTPHUNT: <strong>T1053.007 (Container Orchestration Job)</strong> and <strong>T1059.013 (Container CLI/API)</strong>. Where this chapter goes further is the cluster-level control plane: RBAC, the API server audit log, and container runtime behavior.</p>
 
           <div class="callout-info">
-            <strong>Note:</strong> This chapter uses Kubernetes as the worked example because it is the dominant container orchestrator in enterprise environments. The underlying concepts &mdash; shared-kernel escape, orchestrator-as-attack-surface, ephemeral workloads &mdash; apply equally to Docker Swarm, Nomad, and ECS, with different API and audit log specifics.
+            <strong>Note:</strong> This chapter uses Kubernetes as the worked example because it is the dominant container orchestrator in enterprise environments. The underlying concepts (shared-kernel escape, orchestrator-as-attack-surface, ephemeral workloads) apply equally to Docker Swarm, Nomad, and ECS, with different API and audit log specifics.
           </div>
         </section>
 
         <!-- SECTION 2 -->
         <section class="content-section" id="attck-for-containers">
           <h2>ATT&amp;CK for Containers Overview</h2>
-          <p>The Center for Threat-Informed Defense published ATT&CK for Containers as an extension to the Enterprise matrix, adding techniques specific to container and orchestration abuse rather than forcing container attacks into host-centric technique definitions that did not quite fit. Five techniques anchor most container hunt hypotheses:</p>
+          <p>The Center for Threat-Informed Defense published ATT&CK for Containers as an extension to the Enterprise matrix, adding techniques specific to container and orchestration abuse rather than forcing container attacks into host-centric technique definitions that did not quite fit.</p>
 
+          <h3>Five Anchor Techniques</h3>
           <div class="table-wrap">
             <table class="data-table">
               <thead>
@@ -176,27 +179,27 @@
               </thead>
               <tbody>
                 <tr>
-                  <td><strong>T1610</strong> &mdash; Deploy Container</td>
+                  <td><strong>T1610</strong>: Deploy Container</td>
                   <td>Adversary deploys a new container (often from a malicious or unmodified public image) to execute code, establish persistence, or evade defenses that were watching the existing workloads</td>
                   <td>Kubernetes audit log: <code>create</code> verb on <code>pods</code>/<code>deployments</code> from an unexpected principal or CI/CD identity outside its normal deploy window</td>
                 </tr>
                 <tr>
-                  <td><strong>T1611</strong> &mdash; Escape to Host</td>
+                  <td><strong>T1611</strong>: Escape to Host</td>
                   <td>Adversary breaks the container boundary to execute code on the underlying node, gaining access to every other container and the host's own credentials</td>
                   <td>Privileged pod specs, mounted <code>hostPath</code>/Docker socket, runtime (Falco) syscall detections for namespace/capability abuse</td>
                 </tr>
                 <tr>
-                  <td><strong>T1612</strong> &mdash; Build Image on Host</td>
+                  <td><strong>T1612</strong>: Build Image on Host</td>
                   <td>Adversary sends a build request directly to the container runtime's API (e.g., the Docker daemon socket) to build and run an image locally, bypassing defenses that only scan images pulled from a registry</td>
                   <td>Docker/containerd API build-request logs; runtime detection for unexpected daemon socket access</td>
                 </tr>
                 <tr>
-                  <td><strong>T1613</strong> &mdash; Container and Resource Discovery</td>
+                  <td><strong>T1613</strong>: Container and Resource Discovery</td>
                   <td>Adversary enumerates containers, pods, namespaces, and cluster resources to understand what they have landed in and what else is reachable</td>
                   <td>Audit log <code>list</code>/<code>get</code> verbs against <code>pods</code>, <code>namespaces</code>, <code>secrets</code> at unusual volume from a single identity</td>
                 </tr>
                 <tr>
-                  <td><strong>T1552.007</strong> &mdash; Unsecured Credentials: Container API</td>
+                  <td><strong>T1552.007</strong>: Unsecured Credentials: Container API</td>
                   <td>Adversary queries the Docker API or Kubernetes API (frequently via an over-permissioned pod service account token) to retrieve credentials, secrets, or logs containing sensitive data</td>
                   <td>Audit log access to the <code>secrets</code> resource; service account token usage from a pod that has no legitimate reason to read secrets outside its own namespace</td>
                 </tr>
@@ -205,17 +208,19 @@
           </div>
 
           <div class="callout-tip">
-            <strong>Tip:</strong> <strong>T1609, Container Administration Command</strong>, covers the simplest and most common technique in practice: an adversary with API or kubeconfig access simply runs <code>kubectl exec</code> into a running pod, or uses the Docker CLI/API directly, to execute commands. It requires no exploit and no misconfiguration beyond overly broad access &mdash; which is exactly why <code>pods/exec</code> auditing (Section 3) is one of the highest-value hunts in this chapter.
+            <strong>Tip:</strong> <strong>T1609, Container Administration Command</strong>, covers the simplest and most common technique in practice: an adversary with API or kubeconfig access simply runs <code>kubectl exec</code> into a running pod, or uses the Docker CLI/API directly, to execute commands. It requires no exploit and no misconfiguration beyond overly broad access, which is exactly why <code>pods/exec</code> auditing (Section 3) is one of the highest-value hunts in this chapter.
           </div>
         </section>
 
         <!-- SECTION 3 -->
         <section class="content-section" id="k8s-audit-log-hunting">
           <h2>Kubernetes Audit Log Hunting</h2>
+          <h3>The Audit Log as Primary Data Source</h3>
           <p>The Kubernetes API server can emit a structured audit log (<code>audit.k8s.io/v1</code>) for every request it processes, if an audit policy is configured. This is the single most important data source in this chapter: every <code>kubectl</code> command, every controller reconciliation, and every service account API call passes through the API server and can be captured here.</p>
 
-          <p>Core fields to build hunt queries around: <code>verb</code> (get, list, create, update, patch, delete, deletecollection), <code>objectRef</code> (the resource type, namespace, and name being acted on, including a <code>subresource</code> field for things like <code>exec</code> and <code>portforward</code>), <code>user</code> (the identity making the call &mdash; a human via SSO, or a service account), and <code>sourceIPs</code>.</p>
+          <p>Core fields to build hunt queries around: <code>verb</code> (get, list, create, update, patch, delete, deletecollection), <code>objectRef</code> (the resource type, namespace, and name being acted on, including a <code>subresource</code> field for things like <code>exec</code> and <code>portforward</code>), <code>user</code> (the identity making the call, a human via SSO, or a service account), and <code>sourceIPs</code>.</p>
 
+          <h3>Example Audit Log Entry</h3>
           <div class="code-block">
             <span class="lang-label">JSON</span>
             <button class="copy-btn" aria-label="Copy">copy</button>
@@ -237,25 +242,28 @@
 }</code></pre>
           </div>
 
-          <p>Three hunt patterns cover most of the value in this log source:</p>
+          <h3>Three Hunt Patterns</h3>
+          <p>These cover most of the value in this log source:</p>
           <ul>
             <li><strong>Exec into production pods.</strong> Filter for <code>objectRef.subresource: "exec"</code> or <code>"attach"</code> against namespaces that should never need interactive debugging (production, especially anything handling regulated data). A legitimate on-call engineer execs in occasionally; a pattern of repeated execs across many pods from one identity in a short window looks like discovery or lateral movement, not debugging.</li>
-            <li><strong>Anonymous or unauthenticated API access.</strong> A <code>user.username</code> of <code>system:anonymous</code> succeeding against any resource indicates the API server (or an exposed component like the kubelet's read-only port) is reachable without authentication &mdash; a critical exposure regardless of what specific resource was accessed.</li>
+            <li><strong>Anonymous or unauthenticated API access.</strong> A <code>user.username</code> of <code>system:anonymous</code> succeeding against any resource indicates the API server (or an exposed component like the kubelet's read-only port) is reachable without authentication, a critical exposure regardless of what specific resource was accessed.</li>
             <li><strong>RBAC self-escalation.</strong> Watch for <code>create</code>/<code>update</code> verbs against <code>clusterrolebindings</code>, <code>rolebindings</code>, or <code>clusterroles</code> performed by an identity that is not a documented cluster administrator. Binding oneself (or a controlled service account) to <code>cluster-admin</code> is the single most direct privilege escalation path in Kubernetes.</li>
           </ul>
 
           <div class="callout-warning">
-            <strong>Warning:</strong> An empty or near-empty audit log is not evidence of a quiet cluster. Kubernetes audit logging is opt-in and, at the default <code>Metadata</code> level, may exclude the request/response bodies you need for some investigations. Before trusting a hunt result of "no matches," verify the audit policy actually covers the verbs, resources, and namespaces in scope &mdash; the same Equip-stage discipline from Chapter 3's SANS PAM coverage.
+            <strong>Warning:</strong> An empty or near-empty audit log is not evidence of a quiet cluster. Kubernetes audit logging is opt-in and, at the default <code>Metadata</code> level, may exclude the request/response bodies you need for some investigations. Before trusting a hunt result of "no matches," verify the audit policy actually covers the verbs, resources, and namespaces in scope: the same Equip-stage discipline from Chapter 3's SANS PAM coverage.
           </div>
         </section>
 
         <!-- SECTION 4 -->
         <section class="content-section" id="falco-runtime-hunting">
           <h2>Runtime Detection with Falco</h2>
-          <p>The Kubernetes audit log tells you what was requested through the API. It has no visibility into what a process does once it is already running inside a container &mdash; a reverse shell spawned by an exploited application, a write to a sensitive host-mounted path, or a process reading the pod's own service account token to exfiltrate it. That gap is covered by syscall-level runtime security tooling, of which Falco (a CNCF graduated project) is the de facto standard.</p>
+          <h3>Why Falco Fills the Gap</h3>
+          <p>The Kubernetes audit log tells you what was requested through the API. It has no visibility into what a process does once it is already running inside a container: a reverse shell spawned by an exploited application, a write to a sensitive host-mounted path, or a process reading the pod's own service account token to exfiltrate it. That gap is covered by syscall-level runtime security tooling, of which Falco (a CNCF graduated project) is the de facto standard.</p>
 
           <p>Falco rules match on syscall events using a condition expression built from fields like <code>proc.name</code>, <code>container.id</code>, <code>fd.name</code>, and <code>evt.type</code>, reusable via macros and lists. The canonical example, "Terminal shell in container," illustrates the pattern every container runtime hunt should understand:</p>
 
+          <h3>Example Falco Rule</h3>
           <div class="code-block">
             <span class="lang-label">FALCO RULE</span>
             <button class="copy-btn" aria-label="Copy">copy</button>
@@ -268,8 +276,9 @@
   priority: WARNING</code></pre>
           </div>
 
-          <p>This single rule is disproportionately valuable because most production container images are built without an interactive shell need in mind &mdash; a shell spawning inside a minimal application container, attached to a TTY, is rarely a legitimate operational action and very frequently the first sign of a working remote code execution exploit.</p>
+          <p>This single rule is disproportionately valuable because most production container images are built without an interactive shell need in mind: a shell spawning inside a minimal application container, attached to a TTY, is rarely a legitimate operational action and very frequently the first sign of a working remote code execution exploit.</p>
 
+          <h3>More Falco Hunt Patterns</h3>
           <div class="table-wrap">
             <table class="data-table">
               <thead>
@@ -307,8 +316,10 @@
         <!-- SECTION 5 -->
         <section class="content-section" id="privileged-pod-hunting">
           <h2>Container Escape and Privileged Pod Hunting</h2>
+          <h3>Why Pod Specs Matter More Than Exploits</h3>
           <p>Most real-world container escapes (T1611) do not require a kernel zero-day. They require a pod spec that was granted more access than the workload needed, deployed by a team optimizing for "it works" over least privilege. Hunting for escape risk is largely a matter of hunting the pod specification itself, before any exploit ever runs.</p>
 
+          <h3>Escape-Enabling Pod Spec Settings</h3>
           <div class="table-wrap">
             <table class="data-table">
               <thead>
@@ -342,24 +353,55 @@
             </table>
           </div>
 
+          <h3>Hunting the Spec, Not the Log</h3>
           <p>Because these are static configuration facts rather than runtime events, the hunt is a periodic sweep, not a log query: enumerate every pod spec in the cluster (via <code>kubectl get pods -o json</code> across all namespaces, or an admission-controller policy engine's audit mode) and flag any workload carrying one of the settings above without a documented, reviewed exception.</p>
 
+          <p>The Docker socket mount is worth tracing end to end, since it is one of the least obvious of these paths:</p>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Socket Access</div>
+              <div class="flow-step-desc">Container has a hostPath mount of /var/run/docker.sock</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Create a Container</div>
+              <div class="flow-step-desc">Uses the socket to start a new, adversary-controlled container</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Mount the Host</div>
+              <div class="flow-step-desc">New container mounts the host filesystem</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Full Host Compromise</div>
+              <div class="flow-step-desc">Effective root, without ever technically "escaping" the original container</div>
+            </div>
+          </div>
+
+          <h3>Worked Example</h3>
           <div class="callout-example">
             <strong>Worked Example:</strong>
-            <p>A quarterly pod-spec sweep in a mid-size cluster turns up a monitoring agent DaemonSet running with <code>hostPID: true</code> and the <code>SYS_PTRACE</code> capability &mdash; both genuinely required for it to inspect host process metrics. Alongside it, an unrelated internal tooling deployment, added eight months earlier by a different team, is running with <code>privileged: true</code> and a <code>hostPath</code> mount of <code>/var/run/docker.sock</code>, with no comment or ticket reference explaining why. The monitoring agent is a known, reviewed exception; the tooling deployment is not, and represents an unreviewed full host-escape path sitting in production. The hunt's value was not detecting an active exploit &mdash; it was finding the door before anyone walked through it.</p>
+            <p>A quarterly pod-spec sweep in a mid-size cluster turns up a monitoring agent DaemonSet running with <code>hostPID: true</code> and the <code>SYS_PTRACE</code> capability, both genuinely required for it to inspect host process metrics. Alongside it, an unrelated internal tooling deployment, added eight months earlier by a different team, is running with <code>privileged: true</code> and a <code>hostPath</code> mount of <code>/var/run/docker.sock</code>, with no comment or ticket reference explaining why. The monitoring agent is a known, reviewed exception; the tooling deployment is not, and represents an unreviewed full host-escape path sitting in production. The hunt's value was not detecting an active exploit: it was finding the door before anyone walked through it.</p>
           </div>
         </section>
 
         <!-- SECTION 6 -->
         <section class="content-section" id="image-registry-hunting">
           <h2>Image and Registry Hunting</h2>
+          <h3>Why Image Provenance Matters</h3>
           <p>A container is only as trustworthy as the image it was built from. T1610 (Deploy Container) and T1612 (Build Image on Host) both center on getting an adversary-influenced image running, whether pulled from an untrusted registry or built directly against the runtime's API to skip registry-based scanning entirely.</p>
 
+          <h3>Four Hunts to Run</h3>
           <ul>
-            <li><strong>Hunt for images pulled from registries outside the organization's approved allow-list.</strong> A workload pulling directly from Docker Hub's public namespace, or from a registry that has never appeared in the cluster's image-pull history before, is a lead worth checking &mdash; especially for images with generic, imitation-prone names (<code>nginx-official</code>, <code>redis-cache</code>) that mimic legitimate ones.</li>
+            <li><strong>Hunt for images pulled from registries outside the organization's approved allow-list.</strong> A workload pulling directly from Docker Hub's public namespace, or from a registry that has never appeared in the cluster's image-pull history before, is a lead worth checking, especially for images with generic, imitation-prone names (<code>nginx-official</code>, <code>redis-cache</code>) that mimic legitimate ones.</li>
             <li><strong>Hunt for images without a corresponding CI/CD provenance record.</strong> A mature pipeline signs or attests every image it builds. A running workload backed by an image with no matching build record, commit hash, or signature is either a manual deploy that bypassed the pipeline (a process gap worth closing) or something more concerning.</li>
             <li><strong>Hunt for direct daemon/API build requests (T1612).</strong> A build request sent straight to the Docker or containerd API, rather than through the CI/CD pipeline's normal build step, bypasses every image-scanning gate that only inspects images at registry-push time.</li>
-            <li><strong>Watch for resource-consumption anomalies consistent with cryptomining.</strong> A generic-looking image that spikes CPU utilization to near 100% shortly after deployment, with no corresponding legitimate workload change, is one of the most common real-world outcomes of a compromised or malicious container image &mdash; financially motivated actors overwhelmingly prioritize compute theft over data theft in container environments, because it monetizes instantly and often goes unnoticed for weeks in a busy cluster.</li>
+            <li><strong>Watch for resource-consumption anomalies consistent with cryptomining.</strong> A generic-looking image that spikes CPU utilization to near 100% shortly after deployment, with no corresponding legitimate workload change, is one of the most common real-world outcomes of a compromised or malicious container image: financially motivated actors overwhelmingly prioritize compute theft over data theft in container environments, because it monetizes instantly and often goes unnoticed for weeks in a busy cluster.</li>
           </ul>
 
           <div class="callout-info">
@@ -370,8 +412,10 @@
         <!-- SECTION 7 -->
         <section class="content-section" id="container-hunt-hypotheses">
           <h2>Building Container and Kubernetes Hunt Hypotheses</h2>
+          <h3>Applying ABLE to Containers</h3>
           <p>The same ABLE structure and PEAK hunt-plan template from earlier chapters applies directly, with the Kubernetes audit log and Falco runtime alerts as the primary data sources in place of Sysmon.</p>
 
+          <h3>Hunt Plan Template</h3>
           <div class="code-block">
             <span class="lang-label">TEMPLATE</span>
             <button class="copy-btn" aria-label="Copy">copy</button>
@@ -409,11 +453,12 @@ Planned queries:
    ClusterRoleBinding definitions to confirm intended scope</code></pre>
           </div>
 
-          <p>Three ready-to-adapt hypotheses for a first pass at a container/Kubernetes hunt program:</p>
+          <h3>Three Ready-to-Adapt Hypotheses</h3>
+          <p>For a first pass at a container/Kubernetes hunt program:</p>
           <ul>
-            <li><strong>Privileged pod sweep:</strong> "A workload in this cluster is running with <code>privileged: true</code>, a sensitive <code>hostPath</code> mount, or <code>hostPID</code>/<code>hostNetwork</code> without a documented exception." (T1611) &mdash; test via a periodic pod-spec sweep, not a log query.</li>
-            <li><strong>RBAC self-escalation:</strong> "An adversary with limited namespace access created or modified a ClusterRoleBinding to grant themselves or a controlled service account cluster-admin." (T1078.004-adjacent, container-specific privilege escalation) &mdash; test against the audit log filtered on RBAC resource verbs.</li>
-            <li><strong>Cryptomining via unauthorized deploy:</strong> "An adversary used T1610 to deploy a container from an unapproved registry that consumes anomalous CPU/GPU resources shortly after creation." &mdash; test by correlating the audit log's pod-create events against a resource-utilization baseline per namespace.</li>
+            <li><strong>Privileged pod sweep:</strong> "A workload in this cluster is running with <code>privileged: true</code>, a sensitive <code>hostPath</code> mount, or <code>hostPID</code>/<code>hostNetwork</code> without a documented exception." (T1611). Test via a periodic pod-spec sweep, not a log query.</li>
+            <li><strong>RBAC self-escalation:</strong> "An adversary with limited namespace access created or modified a ClusterRoleBinding to grant themselves or a controlled service account cluster-admin." (T1078.004-adjacent, container-specific privilege escalation). Test against the audit log filtered on RBAC resource verbs.</li>
+            <li><strong>Cryptomining via unauthorized deploy:</strong> "An adversary used T1610 to deploy a container from an unapproved registry that consumes anomalous CPU/GPU resources shortly after creation." Test by correlating the audit log's pod-create events against a resource-utilization baseline per namespace.</li>
           </ul>
         </section>
 
@@ -421,7 +466,7 @@ Planned queries:
         <div class="chapter-summary">
           <h3 class="chapter-summary-label">Key Takeaways</h3>
           <ul>
-            <li>Containers share a kernel with no hardware-enforced isolation boundary, and the orchestrator's API is itself a cluster-wide attack surface &mdash; a compromised credential with API access can be functionally equivalent to domain admin.</li>
+            <li>Containers share a kernel with no hardware-enforced isolation boundary, and the orchestrator's API is itself a cluster-wide attack surface: a compromised credential with API access can be functionally equivalent to domain admin.</li>
             <li>ATT&CK for Containers anchors container hunt hypotheses around five techniques: T1610 (Deploy Container), T1611 (Escape to Host), T1612 (Build Image on Host), T1613 (Container and Resource Discovery), and T1552.007 (Unsecured Credentials: Container API).</li>
             <li>The Kubernetes API server audit log (<code>audit.k8s.io/v1</code>) is the primary hunting surface: <code>pods/exec</code> subresource calls, <code>system:anonymous</code> access, and RBAC self-escalation via ClusterRoleBinding creation are the three highest-value hunt patterns.</li>
             <li>Falco fills the gap the audit log cannot: syscall-level runtime behavior inside a container, such as an unexpected shell spawn, a sensitive file write, or unexpected egress.</li>
@@ -454,7 +499,7 @@ Planned queries:
               <li class="kc-option" data-correct="false">C. Access only to that container's own metadata</li>
               <li class="kc-option" data-correct="false">D. Nothing beyond normal container isolation, since Docker socket access is sandboxed</li>
             </ul>
-            <div class="kc-answer hidden">B is correct. The Docker socket is the API endpoint for the Docker daemon itself. A container with access to it can create, start, and configure other containers &mdash; including a new privileged container with a host filesystem mount &mdash; giving it a direct path to full host compromise despite never technically "escaping" in the traditional sense.</div>
+            <div class="kc-answer hidden">B is correct. The Docker socket is the API endpoint for the Docker daemon itself. A container with access to it can create, start, and configure other containers (including a new privileged container with a host filesystem mount), giving it a direct path to full host compromise despite never technically "escaping" in the traditional sense.</div>
           </div>
 
           <div class="kc-question">
@@ -465,7 +510,7 @@ Planned queries:
               <li class="kc-option" data-correct="false">C. A ConfigMap was updated</li>
               <li class="kc-option" data-correct="false">D. A node was cordoned for maintenance</li>
             </ul>
-            <div class="kc-answer hidden">B is correct. The <code>exec</code> subresource on a <code>pods</code> objectRef corresponds to opening an interactive command session inside an already-running pod &mdash; the audit-log signature of <code>kubectl exec</code> or an equivalent direct API call. Repeated exec activity across many pods from one identity in a short window is a strong discovery/lateral-movement signal (T1609).</div>
+            <div class="kc-answer hidden">B is correct. The <code>exec</code> subresource on a <code>pods</code> objectRef corresponds to opening an interactive command session inside an already-running pod: the audit-log signature of <code>kubectl exec</code> or an equivalent direct API call. Repeated exec activity across many pods from one identity in a short window is a strong discovery/lateral-movement signal (T1609).</div>
           </div>
 
           <div class="kc-question">
@@ -476,7 +521,7 @@ Planned queries:
               <li class="kc-option" data-correct="false">C. Because it only fires on privileged containers, which are always malicious</li>
               <li class="kc-option" data-correct="false">D. Because it replaces the need for a Kubernetes audit log entirely</li>
             </ul>
-            <div class="kc-answer hidden">B is correct. Minimal production images (built for a specific application, not general-purpose debugging) typically have no operational reason to spawn an interactive shell attached to a TTY. When one does, it is a strong signal that something outside the application's normal code path executed it &mdash; most commonly a remote code execution exploit landing its first shell.</div>
+            <div class="kc-answer hidden">B is correct. Minimal production images (built for a specific application, not general-purpose debugging) typically have no operational reason to spawn an interactive shell attached to a TTY. When one does, it is a strong signal that something outside the application's normal code path executed it: most commonly a remote code execution exploit landing its first shell.</div>
           </div>
 
           <div class="kc-question">
@@ -487,7 +532,7 @@ Planned queries:
               <li class="kc-option" data-correct="false">C. To replace the need for RBAC entirely</li>
               <li class="kc-option" data-correct="false">D. To measure cluster CPU and memory utilization for capacity planning</li>
             </ul>
-            <div class="kc-answer hidden">B is correct. Settings like <code>privileged: true</code> or a Docker-socket <code>hostPath</code> mount are static facts about how a workload is configured, not discrete events that appear in a time-bound log. Finding them requires enumerating the current state of every pod spec in the cluster, which is why this hunt is a periodic sweep rather than a log query &mdash; and why it can find the escape path before anyone ever exploits it.</div>
+            <div class="kc-answer hidden">B is correct. Settings like <code>privileged: true</code> or a Docker-socket <code>hostPath</code> mount are static facts about how a workload is configured, not discrete events that appear in a time-bound log. Finding them requires enumerating the current state of every pod spec in the cluster, which is why this hunt is a periodic sweep rather than a log query, and why it can find the escape path before anyone ever exploits it.</div>
           </div>
         </div>
 

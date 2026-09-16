@@ -121,7 +121,7 @@
       <div class="toc-progress">
         <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
         <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
-        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 7 sections</span>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 8 sections</span>
       </div>
     </aside>
 
@@ -145,25 +145,91 @@
         <!-- SECTION 1 -->
         <section class="content-section" id="why-frameworks">
           <h2>Why Frameworks Matter</h2>
-          <p>A hunt without a framework is a one-time event. An analyst investigates, finds something or does not, and moves on. No documentation. No detection rules created. No new hypotheses generated. No way for a junior analyst to learn from it. The knowledge lives in one person's head until they leave the team.</p>
-
-          <p>A hunt with a framework is a building block. Each completed hunt adds to a shared knowledge base. Detection rules are created from successful patterns. Gaps discovered during the hunt become the next sprint's hypotheses. Methodology is documented so another analyst can run the same hunt in six months and compare results. The program compounds over time.</p>
-
-          <p>Without a framework, the symptoms are consistent: ad hoc hunts with no repeatability, siloed knowledge, no documentation, cannot scale past the founding analyst, and no way to measure detection coverage improvement over time.</p>
+          <h3>With a Framework vs. Without One</h3>
+          <p>A hunt without a framework is a one-time event: an analyst investigates, finds something or does not, and moves on. A hunt with a framework is a building block that compounds over time. The difference shows up in what each one produces:</p>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Without a Framework</th>
+                  <th>With a Framework</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Documentation</td>
+                  <td>None</td>
+                  <td>Methodology recorded so another analyst can re-run the hunt in six months</td>
+                </tr>
+                <tr>
+                  <td>Detection rules</td>
+                  <td>Not created</td>
+                  <td>Built from successful patterns</td>
+                </tr>
+                <tr>
+                  <td>Follow-on hypotheses</td>
+                  <td>Not generated</td>
+                  <td>Gaps discovered become the next sprint's hypotheses</td>
+                </tr>
+                <tr>
+                  <td>Knowledge</td>
+                  <td>Lives in one analyst's head until they leave</td>
+                  <td>Shared across the team</td>
+                </tr>
+                <tr>
+                  <td>Scale</td>
+                  <td>Cannot scale past the founding analyst</td>
+                  <td>Coverage improvement is measurable over time</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
           <div class="callout-info">
             <strong>Note:</strong> A framework does not tell you what to hunt. It tells you how to hunt consistently so the next analyst can pick up where you left off. The methodology is the container. The hypothesis is the content.
           </div>
 
-          <p>The frameworks in this chapter evolved over nearly a decade. Sqrrl published the foundational hunting loop in 2015. TaHiTI formalized the intel-driven approach in 2018 for the Dutch financial sector. SANS published the PAM model around 2020. Splunk SURGe published PEAK in 2023. The Open Research Threat Research Foundation (OTRF) maintains the ThreatHunter-Playbook as a community resource. Each builds on the ones before it, adding documentation discipline, explicit feedback loops, and structured hypothesis management.</p>
-
-          <p>You do not need to choose one and ignore the rest. The most effective programs use elements from multiple frameworks. This chapter covers each one, including where it excels and where it has gaps, so you can build an informed hybrid approach.</p>
+          <h3>How the Frameworks Evolved</h3>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">2015</span>
+              <div class="flow-step-title">Sqrrl</div>
+              <div class="flow-step-desc">Publishes the foundational hunting loop</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2018</span>
+              <div class="flow-step-title">TaHiTI</div>
+              <div class="flow-step-desc">Formalizes the intel-driven approach for the Dutch financial sector</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">~2020</span>
+              <div class="flow-step-title">SANS PAM</div>
+              <div class="flow-step-desc">Adds a mandatory peer-review stage</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2023</span>
+              <div class="flow-step-title">PEAK</div>
+              <div class="flow-step-desc">Splunk SURGe publishes PEAK with three hunt types</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">Ongoing</span>
+              <div class="flow-step-title">OTRF Playbook</div>
+              <div class="flow-step-desc">Community-maintained ThreatHunter-Playbook resource</div>
+            </div>
+          </div>
+          <p>Each framework builds on the ones before it, adding documentation discipline, explicit feedback loops, and structured hypothesis management. You do not need to choose one and ignore the rest. The most effective programs use elements from multiple frameworks.</p>
         </section>
 
         <!-- SECTION 2 -->
         <section class="content-section" id="cyber-kill-chain">
           <h2>The Cyber Kill Chain and Its Relationship to ATT&amp;CK</h2>
-          <p>Lockheed Martin published the Cyber Kill Chain in 2011, in the paper "Intelligence-Driven Computer Network Defense Informed by Analysis of Adversary Campaigns and Intrusion Kill Chains." It adapted a military targeting concept &mdash; break any one link in the chain and the whole attack fails &mdash; into a seven-stage model of a cyber intrusion. It predates every framework in this chapter by at least four years and is still the most commonly assumed piece of background knowledge in threat hunting job postings and interviews, which is exactly why it earns a dedicated look here rather than being left as an assumed prerequisite.</p>
+          <h3>Origin and the Seven Stages</h3>
+          <p>Lockheed Martin published the Cyber Kill Chain in 2011, in the paper "Intelligence-Driven Computer Network Defense Informed by Analysis of Adversary Campaigns and Intrusion Kill Chains." It adapted a military targeting concept, break any one link in the chain and the whole attack fails, into a seven-stage model of a cyber intrusion. It predates every framework in this chapter by at least four years and is still the most commonly assumed piece of background knowledge in threat hunting job postings and interviews.</p>
 
           <div class="table-wrap">
             <table class="data-table">
@@ -206,47 +272,61 @@
             </table>
           </div>
 
-          <p>The Kill Chain's defensive value is its core insight: an adversary must succeed at every stage in sequence, but a defender only has to break one link to stop the intrusion. That reframes detection engineering as a portfolio problem &mdash; coverage spread across multiple stages is more resilient than a single strong control at one stage, because a single missed stage does not doom the entire defense.</p>
+          <p>The Kill Chain's defensive value is its core insight: an adversary must succeed at every stage in sequence, but a defender only has to break one link to stop the intrusion. That reframes detection engineering as a portfolio problem: coverage spread across multiple stages is more resilient than a single strong control at one stage, because a single missed stage does not doom the entire defense.</p>
 
           <h3>Where the Kill Chain Falls Short for Hunting</h3>
           <p>The Kill Chain was written for malware-delivered, perimeter-breach intrusions, and it shows. Three limitations are why ATT&CK, not the Kill Chain, is the primary technique taxonomy used throughout this course:</p>
           <ul>
             <li><strong>It is linear and single-pass.</strong> Real intrusions loop: an adversary who lands on a low-value workstation repeats reconnaissance, lateral movement, and privilege escalation multiple times before reaching "actions on objectives." The seven stages do not represent that iteration.</li>
             <li><strong>Post-compromise behavior is under-specified.</strong> Everything from credential dumping to lateral movement to collection collapses into a single "Actions on Objectives" stage. That stage is where the vast majority of a hunter's actual work happens, and the Kill Chain gives it one line where ATT&CK gives it eleven tactics and hundreds of techniques.</li>
-            <li><strong>It assumes a malware-and-perimeter attack path.</strong> Identity-centric intrusions (Chapter 10) and insider threats do not cleanly map to "weaponization" or "delivery" at all &mdash; there is no payload to weaponize when the entire attack is a stolen, valid credential logging in through the front door.</li>
+            <li><strong>It assumes a malware-and-perimeter attack path.</strong> Identity-centric intrusions (Chapter 10) and insider threats do not cleanly map to "weaponization" or "delivery" at all: there is no payload to weaponize when the entire attack is a stolen, valid credential logging in through the front door.</li>
           </ul>
 
           <div class="callout-info">
             <strong>Note:</strong> ATT&CK's fourteen enterprise tactics can be read as a more granular, non-linear successor to the Kill Chain's seven stages: Reconnaissance and Resource Development expand the old "Reconnaissance/Weaponization" pair; Initial Access, Execution, Persistence, Privilege Escalation, and Defense Evasion unpack "Delivery/Exploitation/Installation" into distinct, individually-detectable tactics; and Credential Access, Discovery, Lateral Movement, Collection, Command and Control, Exfiltration, and Impact do the granular work the Kill Chain compressed into one "Actions on Objectives" stage. Hypothesis generation in Chapter 2 uses ATT&CK precisely because that granularity is what makes a hypothesis testable against a specific data source.
           </div>
 
+          <h3>The Kill Chain's Remaining Value</h3>
           <p>None of this makes the Kill Chain obsolete. It remains the fastest way to explain an intrusion's overall shape to a non-technical stakeholder, and "which kill-chain stage does this hypothesis test" is still a useful scoping question when briefing a hunt to a manager who has not internalized all fourteen ATT&CK tactics. Use it as a communication tool and a defense-in-depth mental model; use ATT&CK as the actual hunting taxonomy.</p>
 
           <div class="callout-tip">
-            <strong>Tip:</strong> The Diamond Model of Intrusion Analysis (covered in Chapter 6 alongside the Pyramid of Pain) is a useful complement, not a competitor, to the Kill Chain. The Kill Chain describes the sequence of an intrusion across time; the Diamond Model describes the four core features &mdash; adversary, infrastructure, capability, victim &mdash; of any single event within that sequence. Mature hunt teams plot Diamond Model events along a Kill Chain timeline to get both dimensions at once.
+            <strong>Tip:</strong> The Diamond Model of Intrusion Analysis (covered in Chapter 6 alongside the Pyramid of Pain) is a useful complement, not a competitor, to the Kill Chain. The Kill Chain describes the sequence of an intrusion across time; the Diamond Model describes the four core features (adversary, infrastructure, capability, victim) of any single event within that sequence. Mature hunt teams plot Diamond Model events along a Kill Chain timeline to get both dimensions at once.
           </div>
         </section>
 
         <!-- SECTION 3 -->
         <section class="content-section" id="sqrrl-loop">
           <h2>The Sqrrl Hunting Loop</h2>
+          <h3>Origin</h3>
           <p>Sqrrl, a threat intelligence startup acquired by AWS in 2017, published the first formal model of threat hunting as an iterative discipline in 2015. Before Sqrrl, hunting was ad hoc. After Sqrrl, it had a language and a structure. Their hunting loop is the conceptual foundation every subsequent framework builds on.</p>
 
-          <p>The loop has four stages:</p>
+          <h3>The Four-Stage Loop</h3>
+          <p>The loop cycles continuously, each stage feeding the next:</p>
 
-          <div class="code-block">
-            <span class="lang-label">DIAGRAM</span>
-            <button class="copy-btn" aria-label="Copy">copy</button>
-            <pre><code>    Generate                   Investigate
-    Hypothesis    ---------->  (Query data,
-    (Intel, TTP,               pivot on findings,
-    anomaly,                   correlate events)
-    situational)                     |
-         ^                           |
-         |                           v
-    Inform and               Uncover New Patterns
-    Enrich          <----    (New TTPs, actor behavior,
-    Analytics                data gaps, new hypotheses)</code></pre>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Generate Hypothesis</div>
+              <div class="flow-step-desc">Sourced from intel, TTP coverage gaps, anomalies, or situational context</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Investigate</div>
+              <div class="flow-step-desc">Query data, pivot on findings, correlate events</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Uncover New Patterns</div>
+              <div class="flow-step-desc">New TTPs, actor behavior, data gaps, new hypotheses</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Inform and Enrich Analytics</div>
+              <div class="flow-step-desc">Feeds back into stage 1, generating the next hypothesis</div>
+            </div>
           </div>
 
           <p>Each stage has a concrete output that feeds the next:</p>
@@ -285,9 +365,11 @@
             </table>
           </div>
 
+          <h3>Why the Loop Matters</h3>
           <p>The most important insight from the Sqrrl model is that hunting is a cycle, not a linear process. Every completed hunt generates the seeds of the next hunt. The "Uncover New Patterns" stage is where you collect those seeds: anomalies you noticed but did not have time to pursue, related techniques suggested by what you found, data gaps that became visible when you tried to query something and got no results.</p>
 
-          <p>The Sqrrl loop's limitations are also what motivated later frameworks. There is no explicit documentation phase. No team coordination mechanism. No feedback loop between the hunt and the broader SOC. And no distinction between different types of hunts. TaHiTI, PEAK, and SANS PAM each address one or more of these gaps.</p>
+          <h3>Where the Loop Falls Short</h3>
+          <p>The Sqrrl loop's limitations are also what motivated later frameworks: no explicit documentation phase, no team coordination mechanism, no feedback loop between the hunt and the broader SOC, and no distinction between different types of hunts. TaHiTI, PEAK, and SANS PAM each address one or more of these gaps.</p>
 
           <div class="callout-tip">
             <strong>Tip:</strong> Even if you adopt a more complex framework, keep the Sqrrl loop visible as a mental model. When you get lost in process details, ask yourself: which stage am I in? That grounding prevents the common mistake of executing without direction or over-documenting without investigating.
@@ -402,10 +484,10 @@ Planned queries:
         <!-- SECTION 5 -->
         <section class="content-section" id="tahiti-framework">
           <h2>TaHiTI: Targeted Hunting Integrating Threat Intelligence</h2>
-          <p>TaHiTI was developed by the Dutch Financial Sector ISAC (FI-ISAC) in 2018. It was designed specifically for regulated enterprise environments where threat intelligence is mature and documentation requirements are formal. The name describes the method: every hunt phase is explicitly integrated with the organization's CTI function.</p>
+          <h3>Origin and Core Principle</h3>
+          <p>TaHiTI was developed by the Dutch Financial Sector ISAC (FI-ISAC) in 2018 for regulated enterprise environments where threat intelligence is mature and documentation requirements are formal. Its core principle: threat intelligence is not just a hypothesis seed, it is woven throughout the entire hunt, from the trigger that initiates the hunt, to the enrichment applied during investigation, to the output that feeds back into the intelligence cycle. A hunt that begins with a CTI trigger and produces no CTI output has broken the loop.</p>
 
-          <p>TaHiTI's core principle is that threat intelligence is not just a hypothesis seed. It is woven throughout the entire hunt: from the trigger that initiates the hunt, to the enrichment applied during investigation, to the output that feeds back into the intelligence cycle. A hunt that begins with a CTI trigger and produces no CTI output has broken the loop.</p>
-
+          <h3>TaHiTI's Five Phases</h3>
           <div class="table-wrap">
             <table class="data-table">
               <thead>
@@ -467,12 +549,36 @@ Planned queries:
           <h3>When TaHiTI Fits Best</h3>
           <p>TaHiTI excels in: regulated industries (finance, healthcare, critical infrastructure) where documentation requirements are formal, environments with dedicated CTI functions that produce finished intelligence products, and organizations that participate in ISACs or peer intelligence sharing networks where standardized hunt output is valuable to the broader community.</p>
 
-          <p>Compared to PEAK: TaHiTI is more prescriptive and explicitly intel-anchored. PEAK is more flexible and covers all three hunt types (hypothesis, baseline, M-ATH). Use TaHiTI when CTI drives every trigger and documentation formality is required. Use PEAK when you need flexibility across hunt types and the team is smaller or less CTI-mature.</p>
+          <h3>TaHiTI vs. PEAK</h3>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>TaHiTI</th>
+                  <th>PEAK</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Style</td>
+                  <td>More prescriptive, explicitly intel-anchored</td>
+                  <td>More flexible, covers all three hunt types (hypothesis, baseline, M-ATH)</td>
+                </tr>
+                <tr>
+                  <td>Use when</td>
+                  <td>CTI drives every trigger and documentation formality is required</td>
+                  <td>You need flexibility across hunt types and the team is smaller or less CTI-mature</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </section>
 
         <!-- SECTION 6 -->
         <section class="content-section" id="sans-pam">
           <h2>SANS PAM Model</h2>
+          <h3>Six Stages, One Key Innovation</h3>
           <p>The SANS Practical Analysis Model (PAM) was authored by Dan Gunter and published as a SANS whitepaper. Its six stages follow a linear flow with one structural innovation that distinguishes it from every other framework: a mandatory peer review step before execution begins.</p>
 
           <div class="table-wrap">
@@ -519,6 +625,7 @@ Planned queries:
             </table>
           </div>
 
+          <h3>Why Plan Review Matters</h3>
           <p>The Plan Review step is SANS PAM's unique contribution to the field. No other framework mandates peer review before execution. The practical value is significant: a five-minute review by a second analyst catches hypothesis flaws, scope errors, missing data sources, and poorly constructed queries before they waste the executing analyst's time.</p>
 
           <div class="callout-example">
@@ -526,6 +633,7 @@ Planned queries:
             <p>An analyst plans to hunt for LSASS credential dumping using Sysmon Event 10. The reviewer looks at the Equip stage documentation and notices the test query for Sysmon Event 10 returned zero results, even though Sysmon is deployed. The analyst had not noticed. The reviewer identifies that the Sysmon config does not have ProcessAccess rules enabled for lsass.exe. The hunt plan is updated: first step is to fix the Sysmon config, then schedule the hunt for after data is confirmed flowing. Without Plan Review, the analyst would have queried and gotten zero results, potentially concluded "no LSASS access found" when the real answer was "we cannot see LSASS access at all."</p>
           </div>
 
+          <h3>The Feedback Stage</h3>
           <p>The Feedback stage is the other element most teams skip. A structured retrospective after every hunt builds team knowledge faster than individual experience alone. Even a 15-minute written retrospective (what worked, what failed, three lessons learned) compounds significantly over a quarter of regular hunting.</p>
 
           <h3>Where PAM Fits Best</h3>
@@ -539,9 +647,11 @@ Planned queries:
         <!-- SECTION 7 -->
         <section class="content-section" id="otrf-playbook">
           <h2>OTRF ThreatHunter-Playbook</h2>
+          <h3>A Community Library of Hunt Playbooks</h3>
           <p>The Open Threat Research Foundation (OTRF) maintains the ThreatHunter-Playbook as a community-driven, GitHub-hosted library of curated hunt playbooks. Each playbook covers a specific ATT&CK technique with pre-built queries, expected telemetry, and a documented hypothesis. The defining feature of the OTRF approach is the use of Jupyter notebooks as the hunt artifact.</p>
 
-          <p>The OTRF framework has three phases: Plan, Execute, Report. The simplicity is intentional. The complexity lives in the structured notebook format, not in the lifecycle model.</p>
+          <h3>Three Phases: Plan, Execute, Report</h3>
+          <p>The simplicity is intentional. The complexity lives in the structured notebook format, not in the lifecycle model.</p>
 
           <div class="table-wrap">
             <table class="data-table">
@@ -572,9 +682,10 @@ Planned queries:
             </table>
           </div>
 
+          <h3>Why the Notebook Format Matters</h3>
           <p>The Jupyter notebook as hunt artifact solves one of the field's oldest problems: documentation that gets written after the fact, from memory, and that cannot be verified or reproduced. A notebook captures every query, its exact result at that moment, the analyst's interpretation of the result, and the pivot decision. A new analyst can open the notebook, read the plan, observe the execution decisions, and re-run every query on current data to see what has changed.</p>
 
-          <p>The OTRF playbook library contains hundreds of pre-built hunts covering ATT&CK techniques. Each playbook is a starting point. The value is not running the playbook verbatim. It is adapting the pre-built queries to your specific data sources and environment baseline, then contributing improvements back to the community.</p>
+          <p>The OTRF playbook library contains hundreds of pre-built hunts covering ATT&CK techniques. Each playbook is a starting point, not a script to run verbatim: adapt the pre-built queries to your specific data sources and environment baseline, then contribute improvements back to the community.</p>
 
           <div class="code-block">
             <span class="lang-label">OTRF PLAN FORMAT</span>
@@ -614,6 +725,7 @@ rights 0x1FFFFF (PROCESS_ALL_ACCESS) to extract credentials.
         <!-- SECTION 8 -->
         <section class="content-section" id="choosing-framework">
           <h2>Choosing Your Framework</h2>
+          <h3>Comparing All Five Frameworks</h3>
           <p>No framework fits every team. The right choice depends on team size, CTI maturity, documentation requirements, and whether speed or rigor is the primary constraint.</p>
 
           <div class="table-wrap">
@@ -737,7 +849,7 @@ rights 0x1FFFFF (PROCESS_ALL_ACCESS) to extract credentials.
           <h3 class="chapter-summary-label">Key Takeaways</h3>
           <ul>
             <li>A framework converts hunting from a one-time event into a compounding detection-building program. Without one, knowledge stays siloed and cannot scale.</li>
-            <li>The Cyber Kill Chain (2011) models an intrusion's sequential shape and remains useful for stakeholder communication, but it compresses nearly all post-compromise behavior into one stage &mdash; ATT&CK's granular tactics are the actual hunting taxonomy this course builds on.</li>
+            <li>The Cyber Kill Chain (2011) models an intrusion's sequential shape and remains useful for stakeholder communication, but it compresses nearly all post-compromise behavior into one stage: ATT&CK's granular tactics are the actual hunting taxonomy this course builds on.</li>
             <li>The Sqrrl Loop (2015) established the foundational concept: hunting is iterative, not linear. Every hunt generates the seeds of the next.</li>
             <li>PEAK (Prepare, Execute, Act) is the most general-purpose framework. Its ACT phase, which most hunters skip, is what builds lasting detection coverage from hunt findings.</li>
             <li>TaHiTI was developed by the Dutch FI-ISAC for regulated environments. It explicitly targets TTP-level hunting over IOC hunting and requires CTI integration at every phase.</li>
@@ -760,7 +872,7 @@ rights 0x1FFFFF (PROCESS_ALL_ACCESS) to extract credentials.
               <li class="kc-option" data-correct="false">C. Because the Kill Chain only applies to nation-state actors, not criminal groups</li>
               <li class="kc-option" data-correct="false">D. Because ATT&CK is linear and the Kill Chain is not</li>
             </ul>
-            <div class="kc-answer hidden">B is correct. The Kill Chain's seven stages were written around a malware-delivery, perimeter-breach model. Everything a hunter spends most of their time on &mdash; credential access, discovery, lateral movement, collection &mdash; collapses into one line, "Actions on Objectives." ATT&CK unpacks that same territory into eleven tactics with hundreds of techniques, which is what makes ATT&CK-driven hypotheses (Chapter 2) testable against specific data sources. The Kill Chain is not deprecated (A) and is not itself linear-only in critique (D is backwards: linearity is the Kill Chain's limitation, not ATT&CK's advantage over it); it applies to any intrusion, not just nation-state actors (C).</div>
+            <div class="kc-answer hidden">B is correct. The Kill Chain's seven stages were written around a malware-delivery, perimeter-breach model. Everything a hunter spends most of their time on (credential access, discovery, lateral movement, collection) collapses into one line, "Actions on Objectives." ATT&CK unpacks that same territory into eleven tactics with hundreds of techniques, which is what makes ATT&CK-driven hypotheses (Chapter 2) testable against specific data sources. The Kill Chain is not deprecated (A) and is not itself linear-only in critique (D is backwards: linearity is the Kill Chain's limitation, not ATT&CK's advantage over it); it applies to any intrusion, not just nation-state actors (C).</div>
           </div>
 
           <div class="kc-question">
@@ -843,6 +955,6 @@ rights 0x1FFFFF (PROCESS_ALL_ACCESS) to extract credentials.
     </div>
   </footer>
   <script src="../js/learn.js"></script>
-  <script>document.addEventListener('DOMContentLoaded', () => initChapter('03', 7));</script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('03', 8));</script>
 </body>
 </html>

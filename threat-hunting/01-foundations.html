@@ -149,21 +149,82 @@
         <!-- SECTION 1 -->
         <section class="content-section" id="what-is-threat-hunting">
           <h2>What Is Threat Hunting?</h2>
+          <h3>The Core Definition</h3>
           <p>Threat hunting is a proactive, analyst-led, iterative search for adversaries that are already present in an environment but have not triggered existing detection controls. The operative word is proactive. You do not wait for an alert. You go looking.</p>
 
           <p>The core question threat hunting answers is: "If an adversary is already here, what evidence exists?" Every hunt starts from that assumption. The adversary is assumed to be present. The hunt is an investigation to find or rule out their presence.</p>
 
-          <p>This is meaningfully different from alert triage. Alert triage is reactive: a tool fires, an analyst investigates, the analyst closes or escalates. The tool drives the process. Alert triage depends on known-bad signatures. If the adversary's behavior does not match a signature, no alert fires, and triage never begins.</p>
-
-          <p>Hunting inverts that model. The analyst drives the process. The analyst forms a belief about what an adversary might be doing, then queries data to test that belief. No signature is required. The hypothesis replaces the rule.</p>
+          <h3>Hunting vs. Alert Triage</h3>
+          <p>Hunting inverts the alert-triage model. Here is the same process compared side by side:</p>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Alert Triage</th>
+                  <th>Threat Hunting</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Who drives it</td>
+                  <td>The tool</td>
+                  <td>The analyst</td>
+                </tr>
+                <tr>
+                  <td>Starting point</td>
+                  <td>An alert fires</td>
+                  <td>An analyst forms a belief about adversary behavior</td>
+                </tr>
+                <tr>
+                  <td>Requires a signature</td>
+                  <td>Yes, depends on known-bad indicators</td>
+                  <td>No, a hypothesis replaces the rule</td>
+                </tr>
+                <tr>
+                  <td>What happens when there is no match</td>
+                  <td>No alert fires, triage never begins</td>
+                  <td>The hunt queries data anyway to test the belief</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
           <div class="callout-info">
             <strong>Note:</strong> Hunting is not incident response. Incident response begins when a threat is confirmed. Hunting begins before confirmation, with the assumption that a threat may exist. If a hunt finds something, it hands off to IR. The disciplines are complementary, not overlapping.
           </div>
 
-          <p>The modern definition of threat hunting was formalized around 2015 by Sqrrl, a threat intelligence company that published the Hunting Maturity Model and the hunting loop concept. CrowdStrike OverWatch operationalized it as a managed service, demonstrating at scale what a dedicated hunt team could find. Their threat graph processes over 3 trillion events per week and interrupted more than 41,000 intrusion attempts in the first half of 2020 alone. Those are attempts that would have been missed without a human-led hunt function on top of automated detection.</p>
+          <h3>Origins and Scale</h3>
+          <ul>
+            <li><strong>2015, Sqrrl:</strong> formalized the modern definition of threat hunting, publishing the Hunting Maturity Model and the hunting loop concept.</li>
+            <li><strong>CrowdStrike OverWatch:</strong> operationalized hunting as a managed service. Its threat graph processes over 3 trillion events per week and interrupted more than 41,000 intrusion attempts in the first half of 2020 alone, attempts that would have been missed without a human-led hunt function on top of automated detection.</li>
+          </ul>
 
-          <p>The "assume breach" mindset is not paranoia. It is a calibrated response to the reality that no detection system catches everything. Zero Trust architecture bakes this assumption into network and identity design. Threat hunting operationalizes it at the detection layer. If you assume breach, you build your security program to find the adversary quickly. If you assume your perimeter holds, you find them 197 days later.</p>
+          <h3>Why "Assume Breach" Matters</h3>
+          <p>The "assume breach" mindset is not paranoia. It is a calibrated response to the reality that no detection system catches everything. Zero Trust architecture bakes this assumption into network and identity design, and threat hunting operationalizes it at the detection layer.</p>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Mindset</th>
+                  <th>What It Drives</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Assume breach</td>
+                  <td>Build the security program to find the adversary quickly</td>
+                  <td>Faster detection</td>
+                </tr>
+                <tr>
+                  <td>Assume the perimeter holds</td>
+                  <td>Rely on prevention alone</td>
+                  <td>Adversary found in 197 days on average</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
           <div class="callout-tip">
             <strong>Tip:</strong> The clearest test of whether something is hunting: did a human form a hypothesis before querying data? If yes, it is hunting. If an automated rule fired and a human is investigating the result, it is alert triage. Both are necessary. Only one is proactive.
@@ -173,20 +234,96 @@
         <!-- SECTION 2 -->
         <section class="content-section" id="detection-gap">
           <h2>The Detection Gap</h2>
+          <h3>The 197-Day Number</h3>
           <p>IBM's 2023 Cost of a Data Breach report found an average dwell time of 197 days before detection. Some organizations find adversaries faster now, and median dwell times have improved. But the mean remains high because outliers, the adversaries who stay for months or years, pull the average up. For every breach caught in a week, another goes undetected for a year.</p>
 
           <p>That 197-day window is the detection gap. Your tools were running. Your team was working. The adversary operated undetected anyway.</p>
 
-          <p>The reason is structural. Most detection relies on two mechanisms: known-bad signatures and threshold-based alerts. Signatures work well against commodity threats. They fail against novel malware, living-off-the-land binaries (LOLBins), and advanced actors who deliberately avoid known-bad indicators. Threshold alerts catch volume anomalies but miss slow, low-volume operations.</p>
+          <h3>Why Detection Has Structural Limits</h3>
+          <p>The reason is structural. Most detection relies on two mechanisms, and both have known blind spots:</p>
+          <ul>
+            <li><strong>Signatures</strong> work well against commodity threats but fail against novel malware, living-off-the-land binaries (LOLBins), and advanced actors who deliberately avoid known-bad indicators.</li>
+            <li><strong>Threshold-based alerts</strong> catch volume anomalies but miss slow, low-volume operations.</li>
+          </ul>
 
-          <p>SOCs also face alert fatigue at scale. Red Canary analyzed 329 billion records per day across 1,700 organizations. That volume produced 419 million investigative leads, which filtered down to 8.5 million potentially malicious events, which confirmed as 110,000 actual threats. The ratio is roughly 3,800:1. For every confirmed threat, analysts review thousands of false positives. True positives get buried.</p>
+          <h3>Alert Fatigue at Scale</h3>
+          <p>SOCs also face alert fatigue at scale. Red Canary analyzed 329 billion records per day across 1,700 organizations, and the volume narrows sharply on the way to a confirmed threat:</p>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">329B Records/Day</div>
+              <div class="flow-step-desc">Raw telemetry across 1,700 organizations</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">419M Leads</div>
+              <div class="flow-step-desc">Investigative leads generated</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">8.5M Events</div>
+              <div class="flow-step-desc">Filtered to potentially malicious events</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">110,000 Threats</div>
+              <div class="flow-step-desc">Confirmed actual threats, roughly a 3,800:1 ratio</div>
+            </div>
+          </div>
+          <p>For every confirmed threat, analysts review thousands of false positives. True positives get buried.</p>
 
           <div class="callout-warning">
             <strong>Warning:</strong> Most detections catch known-bad. Hunting finds the novel, the stealthy, and the living-off-the-land. A SOC with no hunting function is entirely dependent on the adversary making a mistake that matches a pre-written rule. Modern adversaries study those rules and avoid triggering them.
           </div>
 
-          <p>The Pyramid of Pain illustrates why signature-based detection has structural limits. At the base sit hash values: trivial to change, caught by AV, useless against a motivated actor who recompiles every sample. Moving up: IP addresses (easy to rotate), domain names (cheap to register), network and host artifacts (more effort to change), tools (harder, requires rewriting capabilities), and TTPs at the apex. TTPs, the actual techniques and procedures an adversary uses, are expensive to change. An actor cannot easily stop using PowerShell or lateral movement via SMB. Those behaviors are baked into their tradecraft.</p>
-
+          <h3>The Pyramid of Pain</h3>
+          <p>The Pyramid of Pain illustrates why signature-based detection has structural limits: the higher an indicator sits, the more it costs an adversary to change it.</p>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Level (base to apex)</th>
+                  <th>Example</th>
+                  <th>Cost to Adversary</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Hash values</td>
+                  <td>File hashes caught by AV</td>
+                  <td>Trivial, defeated by recompiling</td>
+                </tr>
+                <tr>
+                  <td>IP addresses</td>
+                  <td>C2 or exfil endpoints</td>
+                  <td>Easy to rotate</td>
+                </tr>
+                <tr>
+                  <td>Domain names</td>
+                  <td>C2 or phishing infrastructure</td>
+                  <td>Cheap to register</td>
+                </tr>
+                <tr>
+                  <td>Network / host artifacts</td>
+                  <td>File paths, registry keys, mutexes</td>
+                  <td>More effort to change</td>
+                </tr>
+                <tr>
+                  <td>Tools</td>
+                  <td>Malware families, frameworks</td>
+                  <td>Harder, requires rewriting capabilities</td>
+                </tr>
+                <tr>
+                  <td>TTPs</td>
+                  <td>PowerShell execution, lateral movement via SMB</td>
+                  <td>Expensive, baked into tradecraft</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
           <p>Hunting operates at the TTP level. It asks "what behaviors would this technique produce?" not "does this hash match our blocklist?" That is why it finds what signatures miss.</p>
 
           <div class="table-wrap">
@@ -232,6 +369,7 @@
         <!-- SECTION 3 -->
         <section class="content-section" id="soc-maturity">
           <h2>SOC Maturity and Hunt Readiness</h2>
+          <h3>Maturity Levels and Hunt Readiness</h3>
           <p>You cannot hunt without data. You cannot hunt effectively without a baseline. SOC maturity determines what kind of hunting is possible, not whether hunting is possible. Even L2 teams can perform basic TTP hunts if they have endpoint telemetry and a query tool.</p>
 
           <div class="table-wrap">
@@ -279,12 +417,19 @@
             </table>
           </div>
 
-          <p>Hunting lives at L3 and above. To hunt meaningfully, you need three things: logs with sufficient coverage, a baseline of normal behavior to spot deviations from, and threat intelligence to inform what you hunt for. L3 is when these three converge.</p>
+          <h3>What L3 Requires</h3>
+          <p>Hunting lives at L3 and above. To hunt meaningfully, you need three things to converge:</p>
+          <ul>
+            <li><strong>Log coverage:</strong> sufficient telemetry across your environment.</li>
+            <li><strong>Behavioral baseline:</strong> a picture of normal, so deviations stand out.</li>
+            <li><strong>Threat intelligence:</strong> to inform what you actually hunt for.</li>
+          </ul>
 
           <div class="callout-tip">
             <strong>Tip:</strong> You do not need L5 to start hunting. L3 with good endpoint telemetry is enough. Deploy Sysmon, enable Script Block Logging, forward to your SIEM, and you have the raw material for dozens of meaningful hunts.
           </div>
 
+          <h3>The Model Is a Map, Not a Gate</h3>
           <p>The maturity model is not a gate. It is a map. A team at L2 who understands their gap can prioritize telemetry improvements specifically to enable hunting. That prioritization is more effective than general "improve logging" initiatives because it ties each log source to a specific hunt capability.</p>
 
           <p>CrowdStrike OverWatch operates at the far end of this spectrum: a team of dedicated hunters with access to a threat graph ingesting trillions of events per week, tracking 140+ named adversary groups. That is not a benchmark for most organizations. The relevant insight from their work is the methodology and the adversary behaviors they consistently find. The volume scales down. The techniques do not change.</p>
@@ -293,6 +438,7 @@
         <!-- SECTION 4 -->
         <section class="content-section" id="hunting-vs-ir-vs-cti">
           <h2>Hunting vs. IR vs. Threat Intelligence</h2>
+          <h3>Comparing the Three Disciplines</h3>
           <p>These three disciplines are often confused, sometimes merged, and occasionally treated as the same job. They are not. Each has a distinct trigger, goal, primary input, and output. Understanding the difference matters because conflating them produces worse results in all three areas.</p>
 
           <div class="table-wrap">
@@ -346,11 +492,48 @@
             </table>
           </div>
 
+          <h3>The Feedback Loop</h3>
           <p>The three disciplines form a feedback loop. Each one feeds the others.</p>
 
           <div class="callout-example">
-            <strong>Worked Example:</strong>
-            <p>A CTI analyst publishes a report: "APT29 targeting financial services with BITS job persistence (T1197)." A threat hunter reads this report, forms a hypothesis, and runs a hunt for BITSAdmin.exe spawning from unusual parent processes or downloading from external hosts. The hunt finds a suspicious BITS job on a finance workstation. The hunter escalates to IR. IR investigates, confirms compromise, and produces an incident report documenting the full attack chain. The incident report feeds back to CTI, who updates the APT29 profile with newly confirmed TTPs. CTI publishes an updated brief. The hunter uses the updated brief to generate three more hypotheses about related techniques the actor may have used. The loop continues.</p>
+            <strong>Worked Example: the loop in motion</strong>
+            <div class="process-flow">
+              <div class="flow-step">
+                <span class="flow-step-num">1</span>
+                <div class="flow-step-title">CTI Publishes</div>
+                <div class="flow-step-desc">"APT29 targeting financial services with BITS job persistence (T1197)."</div>
+              </div>
+              <div class="flow-arrow">&#8594;</div>
+              <div class="flow-step">
+                <span class="flow-step-num">2</span>
+                <div class="flow-step-title">Hunter Hypothesizes</div>
+                <div class="flow-step-desc">Hunts for BITSAdmin.exe spawning from unusual parents or downloading from external hosts.</div>
+              </div>
+              <div class="flow-arrow">&#8594;</div>
+              <div class="flow-step">
+                <span class="flow-step-num">3</span>
+                <div class="flow-step-title">Hunt Finds, Escalates</div>
+                <div class="flow-step-desc">A suspicious BITS job on a finance workstation is escalated to IR.</div>
+              </div>
+              <div class="flow-arrow">&#8594;</div>
+              <div class="flow-step">
+                <span class="flow-step-num">4</span>
+                <div class="flow-step-title">IR Confirms</div>
+                <div class="flow-step-desc">Investigates, confirms compromise, documents the full attack chain.</div>
+              </div>
+              <div class="flow-arrow">&#8594;</div>
+              <div class="flow-step">
+                <span class="flow-step-num">5</span>
+                <div class="flow-step-title">CTI Updates</div>
+                <div class="flow-step-desc">The incident report feeds back into an updated APT29 profile and brief.</div>
+              </div>
+              <div class="flow-arrow">&#8594;</div>
+              <div class="flow-step">
+                <span class="flow-step-num">6</span>
+                <div class="flow-step-title">Loop Continues</div>
+                <div class="flow-step-desc">The hunter uses the updated brief to generate three more hypotheses.</div>
+              </div>
+            </div>
             <p>Each discipline is a node in the same network. CTI without hunting is intelligence that never gets tested. Hunting without CTI is searching without direction. IR without hunting misses the full scope of compromise. Together, they close the detection gap.</p>
           </div>
         </section>
@@ -358,10 +541,20 @@
         <!-- SECTION 5 -->
         <section class="content-section" id="adversary-mindset">
           <h2>Thinking Like an Adversary</h2>
+          <h3>From Alerts to Artifacts</h3>
           <p>The most important shift in threat hunting is not technical. It is conceptual. Stop asking "what do my alerts say?" Start asking "what would an attacker do here, and what evidence would they leave behind?"</p>
 
-          <p>Every action an attacker takes produces artifacts. Process creation events, registry modifications, network connections, file writes, authentication events. These artifacts are recorded in your logs. The adversary's goal is to minimize their footprint, but they cannot operate without leaving traces. Your job is to know what traces each technique produces and go looking for them.</p>
+          <p>Every action an attacker takes produces artifacts recorded in your logs, for example:</p>
+          <ul>
+            <li>Process creation events</li>
+            <li>Registry modifications</li>
+            <li>Network connections</li>
+            <li>File writes</li>
+            <li>Authentication events</li>
+          </ul>
+          <p>The adversary's goal is to minimize their footprint, but they cannot operate without leaving traces. Your job is to know what traces each technique produces and go looking for them.</p>
 
+          <h3>Mapping ATT&CK Phases to Artifacts</h3>
           <p>Walk through the ATT&CK lifecycle with this question in mind for each phase:</p>
 
           <div class="table-wrap">
@@ -409,6 +602,7 @@
             </table>
           </div>
 
+          <h3>Case Study: Encoded PowerShell</h3>
           <div class="callout-example">
             <strong>Worked Example: T1059.001 PowerShell Encoded Command</strong>
             <p>An attacker sends a phishing email with a macro-enabled document. The victim opens it and enables macros. The macro spawns PowerShell with a Base64-encoded command: <code class="mono">powershell.exe -enc JABjAD0ATgBlAHcA...</code>. The encoded command downloads a second-stage payload from an attacker-controlled domain and executes it in memory.</p>
@@ -475,13 +669,23 @@
           </div>
 
           <h3>Tools: Minimum Viable Stack</h3>
-          <p>A SIEM or query engine for searching logs. An EDR for process and memory telemetry, which provides richer data than Windows event logs alone. A threat intelligence source, even a free one like MITRE ATT&CK or open-source CTI feeds, to seed hypotheses. That is the floor. You can hunt with these three.</p>
+          <p>Three tools form the floor. You can hunt with these:</p>
+          <ul>
+            <li><strong>SIEM or query engine</strong> for searching logs.</li>
+            <li><strong>EDR</strong> for process and memory telemetry, richer data than Windows event logs alone.</li>
+            <li><strong>Threat intelligence source</strong>, even a free one like MITRE ATT&CK or open-source CTI feeds, to seed hypotheses.</li>
+          </ul>
 
           <h3>Process: Repeatability</h3>
           <p>Ad hoc hunting is better than no hunting. But it does not scale. A documented process ensures that every hunt produces artifacts that other analysts can build on. Chapter 3 covers the major frameworks: PEAK, TaHiTI, and SANS PAM. Pick one and use it consistently from day one.</p>
 
           <h3>People: Analyst Baseline Knowledge</h3>
-          <p>The hunter needs three skills. Knowledge of ATT&CK techniques relevant to your environment's threat model. Knowledge of what "normal" looks like in your environment, specifically which processes run on which hosts, what the normal network flows are, and what legitimate admin activity looks like. Proficiency in at least one query language: KQL, SPL, SQL, or XQL depending on your stack.</p>
+          <p>The hunter needs three skills:</p>
+          <ul>
+            <li>Knowledge of ATT&CK techniques relevant to your environment's threat model.</li>
+            <li>Knowledge of what "normal" looks like in your environment: which processes run on which hosts, what the normal network flows are, what legitimate admin activity looks like.</li>
+            <li>Proficiency in at least one query language: KQL, SPL, SQL, or XQL depending on your stack.</li>
+          </ul>
 
           <div class="callout-tip">
             <strong>Tip:</strong> You can hunt with Windows Event Logs alone. It is harder, but possible. You cannot hunt without logs. Before your first hunt, run a data audit: for each log source in the minimum viable list above, confirm it is collected, retained for at least 30 days, and contains the expected fields. Missing CommandLine in 4688 events is the most common gap that breaks PowerShell hunts before they start.

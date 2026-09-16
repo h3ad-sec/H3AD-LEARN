@@ -138,12 +138,15 @@
       <section class="content-section" id="why-actors-use-lolbins">
         <h2>Why Threat Actors Choose Living Off the Land</h2>
         <p>Nation-state APTs and ransomware operators converged on LOLBin tradecraft independently. The convergence happened because both groups optimized for the same thing: remaining undetected long enough to complete their objectives.</p>
-        <p>Three operational reasons actors choose LOLBins over custom malware:</p>
+
+        <h3>Three Operational Reasons</h3>
         <ol>
           <li><strong>Blend into noise.</strong> Security tools cannot blocklist certutil or PowerShell without breaking operations. A custom implant binary can be hashed, yara'd, and blocked. A PowerShell command cannot be blocked without disabling PowerShell entirely.</li>
           <li><strong>Reduce tooling cost.</strong> LOLBins are pre-installed and signed. Attackers do not need to develop, compile, sign, or maintain a custom dropper. The payload is already on the target system before the attack begins.</li>
           <li><strong>Reduce dwell detection risk.</strong> Custom malware triggers more alerts. LOLBin executions trigger alerts only when context anomalies exist. Less experienced SOCs miss the context and triage the alert as benign.</li>
         </ol>
+
+        <h3>The ATT&CK Framing</h3>
         <p>The term "LOTL" (Living Off The Land) appears throughout threat intelligence reports to describe this pattern. MITRE ATT&CK labels it T1218 (System Binary Proxy Execution) and a cluster of related subtechniques. Every T1218 subtechnique has a corresponding LOLBin at the center.</p>
 
         <div class="table-wrap">
@@ -304,13 +307,34 @@
         <h2>Attribution Signals in LOLBin Campaigns</h2>
         <p>Not all LOTL usage is the same. Actor-specific patterns exist that persist across campaigns and can support attribution before formal intelligence reporting arrives.</p>
 
-        <p><strong>C2 infrastructure patterns.</strong> Nation-state actors typically use long-lived domains with valid TLS certificates, often mimicking Microsoft, Google, or cloud service providers. Ransomware operators frequently use freshly registered domains or bullet-proof hosting providers with no enterprise reputation.</p>
-
-        <p><strong>LOLBin selection consistency.</strong> APT groups reuse specific techniques across campaigns. APT34 consistently used certutil and mshta. APT32 consistently used regsvr32. Tracking per-actor LOLBin preferences builds a behavioral signature that helps attribute new intrusions even without matching IOCs from previous campaigns.</p>
-
-        <p><strong>Staging depth.</strong> Nation-state actors run multi-stage chains where each LOLBin fetches the next stage from a separate infrastructure component. Ransomware operators typically use 2-3 stages maximum. Commodity threat actors usually use 1-2 stages.</p>
-
-        <p><strong>Timing and velocity.</strong> Nation-state APT reconnaissance via wmic or nltest runs slowly and manually -- commands are spaced across hours, targeting specific hosts. Ransomware lateral movement via wmic /node: runs fast and automated across IP ranges. The velocity of LOLBin execution is an attribution signal on its own.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Attribution Signal</th>
+                <th>What It Looks Like</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>C2 infrastructure patterns</td>
+                <td>Nation-state actors typically use long-lived domains with valid TLS certificates, often mimicking Microsoft, Google, or cloud service providers. Ransomware operators frequently use freshly registered domains or bullet-proof hosting providers with no enterprise reputation.</td>
+              </tr>
+              <tr>
+                <td>LOLBin selection consistency</td>
+                <td>APT groups reuse specific techniques across campaigns. APT34 consistently used certutil and mshta. APT32 consistently used regsvr32. Tracking per-actor LOLBin preferences builds a behavioral signature that helps attribute new intrusions even without matching IOCs from previous campaigns.</td>
+              </tr>
+              <tr>
+                <td>Staging depth</td>
+                <td>Nation-state actors run multi-stage chains where each LOLBin fetches the next stage from a separate infrastructure component. Ransomware operators typically use 2-3 stages maximum. Commodity threat actors usually use 1-2 stages.</td>
+              </tr>
+              <tr>
+                <td>Timing and velocity</td>
+                <td>Nation-state APT reconnaissance via wmic or nltest runs slowly and manually -- commands are spaced across hours, targeting specific hosts. Ransomware lateral movement via wmic /node: runs fast and automated across IP ranges. The velocity of LOLBin execution is an attribution signal on its own.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
         <div class="callout-tip"><strong>Tip:</strong> When a compromise is identified, map all LOLBin executions by timeline. The pattern -- which binaries, what order, what speed -- often matches known actor playbooks and accelerates attribution before formal intelligence reporting arrives.</div>
       </section>
@@ -318,7 +342,27 @@
       <!-- SECTION 6 -->
       <section class="content-section" id="hunting-actor-patterns">
         <h2>Hunting for Actor-Specific LOLBin Patterns</h2>
-        <p>Published threat intelligence translates directly into hunt hypotheses. The process is mechanical: take an actor's documented LOLBin technique, state it as a conditional ("if this actor has access, we expect to see..."), and build a query from the expected artifact. Three examples:</p>
+        <p>Published threat intelligence translates directly into hunt hypotheses. The process is mechanical:</p>
+        <div class="process-flow">
+          <div class="flow-step">
+            <span class="flow-step-num">1</span>
+            <div class="flow-step-title">Take the Documented Technique</div>
+            <div class="flow-step-desc">Start from an actor's published LOLBin behavior.</div>
+          </div>
+          <div class="flow-arrow">&#8594;</div>
+          <div class="flow-step">
+            <span class="flow-step-num">2</span>
+            <div class="flow-step-title">State It as a Conditional</div>
+            <div class="flow-step-desc">"If this actor has access, we expect to see..."</div>
+          </div>
+          <div class="flow-arrow">&#8594;</div>
+          <div class="flow-step">
+            <span class="flow-step-num">3</span>
+            <div class="flow-step-title">Build the Query</div>
+            <div class="flow-step-desc">Write a query from the expected artifact.</div>
+          </div>
+        </div>
+        <p>Three examples:</p>
 
         <h3>Hypothesis 1 -- APT34-like certutil abuse</h3>
         <p>If APT34 has access to this network, we expect to see certutil using -urlcache to download a file with a non-executable extension that is actually a PE binary.</p>

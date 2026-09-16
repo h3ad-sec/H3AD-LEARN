@@ -145,9 +145,8 @@
         <!-- SECTION 1 -->
         <section class="content-section" id="visibility-gap">
           <h2>The Visibility Gap</h2>
-          <p>Most organizations log something. Almost none log everything they need for effective hunting. And even organizations that collect the right sources often have quality problems that silently break queries without producing obvious errors. A query that returns zero results could mean "no threat found" or it could mean "this log source is broken." Without a data quality baseline, you cannot tell the difference.</p>
-
-          <p>Three distinct types of gaps affect hunt capability:</p>
+          <h3>Three Types of Gaps</h3>
+          <p>Most organizations log something. Almost none log everything they need for effective hunting. A query that returns zero results could mean "no threat found" or it could mean "this log source is broken." Without a data quality baseline, you cannot tell the difference. Three distinct types of gaps affect hunt capability:</p>
 
           <div class="table-wrap">
             <table class="data-table">
@@ -182,7 +181,8 @@
             </table>
           </div>
 
-          <p>Adversaries know about visibility gaps. They operate in them deliberately. An attacker who understands that most organizations do not monitor WMI activity will use WMI for lateral movement exclusively. An actor who knows DNS logs are rarely parsed will use DNS tunneling for C2. Closing gaps eliminates their advantage in those specific areas.</p>
+          <h3>Adversaries Exploit These Gaps Deliberately</h3>
+          <p>An attacker who understands that most organizations do not monitor WMI activity will use WMI for lateral movement exclusively. An actor who knows DNS logs are rarely parsed will use DNS tunneling for C2. Closing gaps eliminates their advantage in those specific areas.</p>
 
           <div class="callout-warning">
             <strong>Warning:</strong> A hypothesis you cannot test because the logs do not exist is not a hunt gap. It is a security control gap. Document it as such. The finding from a failed hunt (data gap discovered) goes to the security engineering team as a control deficiency, not back into the hunt backlog as a lower-priority task.
@@ -417,6 +417,7 @@
 &lt;/Sysmon&gt;</code></pre>
           </div>
 
+          <h3>Comparing the Three Endpoint Sources</h3>
           <div class="table-wrap">
             <table class="data-table">
               <thead>
@@ -529,6 +530,7 @@ DnsEvents
           <h3>NetFlow and IPFIX</h3>
           <p>NetFlow captures connection metadata without payload: source IP, destination IP, source port, destination port, protocol, byte count, packet count, start time, end time. It does not require proxy deployment and covers all traffic, not just HTTP.</p>
 
+          <h3>Prioritizing Network Sources</h3>
           <div class="table-wrap">
             <table class="data-table">
               <thead>
@@ -576,8 +578,10 @@ DnsEvents
         <!-- SECTION 4 -->
         <section class="content-section" id="identity-telemetry">
           <h2>Identity and Authentication Telemetry</h2>
+          <h3>Why Identity Telemetry Matters</h3>
           <p>Active Directory is the primary target in the vast majority of enterprise intrusions. Compromising AD means compromising everything it controls: access to file servers, databases, cloud workloads, remote management systems, and backup infrastructure. Identity telemetry is where the attack chain is most visible, yet it is consistently underutilized because the relevant event IDs require specific configuration and the volume is high.</p>
 
+          <h3>Key Windows Identity Events</h3>
           <div class="table-wrap">
             <table class="data-table">
               <thead>
@@ -655,6 +659,7 @@ SecurityEvent
 | order by RequestCount desc</code></pre>
           </div>
 
+          <h3>Azure AD / Entra ID for Hybrid Environments</h3>
           <p>Azure AD / Entra ID adds additional identity telemetry for hybrid and cloud environments:</p>
           <ul>
             <li><strong>Sign-in Logs:</strong> Risky sign-in flags (Microsoft's own risk engine), MFA status, conditional access result, location and IP. Essential for detecting impossible travel, token theft, and legacy protocol abuse.</li>
@@ -714,7 +719,8 @@ SecurityEvent
             </table>
           </div>
 
-          <p>Mail forwarding rules are among the highest-yield BEC (Business Email Compromise) indicators. An attacker who gains mailbox access creates a forwarding rule to an external address. Every email the victim receives is now silently copied to the attacker. This can persist for months. The ExchangeTransportConfig event in the M365 Audit Log captures rule creation. It should be monitored for any rule that forwards to an external domain.</p>
+          <h3>Mail Forwarding: a High-Yield BEC Indicator</h3>
+          <p>Mail forwarding rules are among the highest-yield BEC (Business Email Compromise) indicators. An attacker who gains mailbox access creates a forwarding rule to an external address. Every email the victim receives is now silently copied to the attacker, and this can persist for months. The ExchangeTransportConfig event in the M365 Audit Log captures rule creation and should be monitored for any rule that forwards to an external domain.</p>
 
           <div class="code-block">
             <span class="lang-label">KQL</span>
@@ -754,15 +760,15 @@ SigninLogs
         <!-- SECTION 6 -->
         <section class="content-section" id="attck-data-sources">
           <h2>MITRE ATT&CK Data Sources Mapping</h2>
-          <p>ATT&CK version 14 introduced a structured Data Sources taxonomy. Each technique now explicitly lists which Data Sources and Data Components are needed to detect it. This taxonomy is the bridge between "I want to hunt for T1003.001" and "which log source do I need?"</p>
-
-          <p>The hierarchy: Data Source contains Data Components. A Data Component represents a specific observable within a source. Each Data Component has a detection relationship with specific ATT&CK techniques.</p>
+          <h3>The Data Source / Data Component Hierarchy</h3>
+          <p>ATT&CK version 14 introduced a structured Data Sources taxonomy. Each technique now explicitly lists which Data Sources and Data Components are needed to detect it. This taxonomy is the bridge between "I want to hunt for T1003.001" and "which log source do I need?" The hierarchy: Data Source contains Data Components. A Data Component represents a specific observable within a source, and each Data Component has a detection relationship with specific ATT&CK techniques.</p>
 
           <div class="callout-example">
             <strong>Example Mapping:</strong>
             <p>Data Source: "Process" contains Data Component "Process Creation." Process Creation has a detection relationship with T1059.001 (PowerShell execution), T1047 (WMI execution), T1053.005 (Scheduled Task execution), and approximately 200 other techniques. Enabling Sysmon Event 1 (Process Create) or Windows Event 4688 gives you Process Creation telemetry, covering all those techniques simultaneously.</p>
           </div>
 
+          <h3>Data Source to Technique Coverage</h3>
           <div class="table-wrap">
             <table class="data-table">
               <thead>
@@ -814,25 +820,51 @@ SigninLogs
             </table>
           </div>
 
-          <p>The "big three" data sources cover approximately 60% of all ATT&CK techniques: Process Creation, Network Connection Creation, and DNS Query. These three are the non-negotiable minimum. An organization with reliable data flowing in all three can hunt the majority of the ATT&CK technique catalog.</p>
+          <h3>The Big Three</h3>
+          <p>Process Creation, Network Connection Creation, and DNS Query together cover approximately 60% of all ATT&CK techniques. These three are the non-negotiable minimum. An organization with reliable data flowing in all three can hunt the majority of the ATT&CK technique catalog.</p>
 
           <div class="callout-info">
             <strong>Note:</strong> Use the ATT&CK Navigator to create a heat map of your data source coverage. Load your confirmed log sources and map them to ATT&CK data sources. The techniques with no coverage are your hunt blind spots and your security control gaps. Prioritize closing the ones that correspond to high-frequency techniques (PowerShell, WMI, Process Injection, Credential Dumping) first.
           </div>
 
           <h3>Gap Analysis Process</h3>
-          <ol>
-            <li>List every confirmed log source you collect and forward to your SIEM.</li>
-            <li>Map each log source to its ATT&CK Data Source and Data Component (reference the ATT&CK Data Sources page).</li>
-            <li>In ATT&CK Navigator, create a layer marking covered Data Components in cyan and uncovered ones unmarked.</li>
-            <li>The uncovered techniques are your gap list. Prioritize them by technique frequency (Red Canary top 10 from Chapter 2) and business impact.</li>
-            <li>For each gap, identify the log source needed and the implementation cost. Escalate as a security control deficiency.</li>
-          </ol>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">List Sources</div>
+              <div class="flow-step-desc">Every confirmed log source you collect and forward to your SIEM</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Map to ATT&CK</div>
+              <div class="flow-step-desc">Each log source to its Data Source and Data Component</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Build the Heat Map</div>
+              <div class="flow-step-desc">In ATT&CK Navigator, mark covered Data Components, leave gaps unmarked</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Prioritize Gaps</div>
+              <div class="flow-step-desc">Rank uncovered techniques by frequency and business impact</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">5</span>
+              <div class="flow-step-title">Escalate</div>
+              <div class="flow-step-desc">Identify the log source and cost needed, escalate as a control deficiency</div>
+            </div>
+          </div>
         </section>
 
         <!-- SECTION 7 -->
         <section class="content-section" id="data-quality">
           <h2>Data Quality Assessment</h2>
+          <h3>Common Quality Failures</h3>
           <p>Collecting logs is necessary. Quality makes them huntable. A log source with critical fields missing or truncated provides false confidence: you believe you can detect a technique because you "have the logs," but the missing field means your query will never return a result even if the attacker is active.</p>
 
           <div class="table-wrap">
@@ -874,7 +906,8 @@ SigninLogs
             </table>
           </div>
 
-          <p>Data quality checklist to run before scheduling any hunt:</p>
+          <h3>Pre-Hunt Quality Checklist</h3>
+          <p>Run this checklist before scheduling any hunt:</p>
 
           <div class="code-block">
             <span class="lang-label">CHECKLIST</span>
@@ -912,6 +945,7 @@ Quality Validation:
 [ ] Spot-check 5 random Sysmon Event 1 records: all fields populated?</code></pre>
           </div>
 
+          <h3>Validating Coverage</h3>
           <p>A KQL query to validate that Event 4688 is actually including the CommandLine field across your endpoints:</p>
 
           <div class="code-block">

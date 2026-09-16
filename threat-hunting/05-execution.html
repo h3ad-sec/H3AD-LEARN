@@ -145,8 +145,10 @@
         <!-- SECTION 1 -->
         <section class="content-section" id="hunt-planning">
           <h2>Planning a Hunt</h2>
-          <p>A hunt without a written plan is an ad hoc investigation. The two are not the same thing. Ad hoc investigations are reactive, undocumented, and unrepeatable. Hunts are structured, planned, and produce durable output regardless of whether they find a threat.</p>
+          <h3>Ad Hoc vs. Planned</h3>
+          <p>A hunt without a written plan is an ad hoc investigation, and the two are not the same thing. Ad hoc investigations are reactive, undocumented, and unrepeatable. Hunts are structured, planned, and produce durable output regardless of whether they find a threat.</p>
 
+          <h3>The Four Required Fields</h3>
           <p>The hunt plan document has four required fields. All four must be filled before any query runs.</p>
 
           <div class="table-wrap">
@@ -183,12 +185,14 @@
             </table>
           </div>
 
+          <h3>Setting the Time Window</h3>
           <p>Time windows are a common planning failure. Too short misses slow attackers who operate below daily thresholds. Too long creates noise and slows queries. Start with 14 to 30 days for most hypotheses. If initial results suggest older activity, extend the window with a targeted follow-up query rather than re-running everything from scratch.</p>
 
           <div class="callout-tip">
             <strong>Tip:</strong> Write the plan before touching the SIEM. A hunter who skips the plan spends 4 hours looking at the wrong data. The plan takes 15 minutes. The wasted SIEM session costs 4 hours.
           </div>
 
+          <h3>Worked Example</h3>
           <div class="callout-example">
             <strong>Example:</strong> Filled hunt plan for a lateral movement hypothesis.
             <br><br>
@@ -205,7 +209,8 @@
         <!-- SECTION 2 -->
         <section class="content-section" id="query-writing">
           <h2>Query Writing for Hunters</h2>
-          <p>Hunting queries differ from detection rules. Detection rules are narrow and tuned to minimize false positives in automated alerting. Hunt queries start broad, find anomalies, and get refined through iteration. Writing a narrow query on an unvalidated hypothesis is the single most common query mistake hunters make. Zero results could mean "no threat" or "my query was too specific." You cannot tell the difference without starting broad.</p>
+          <h3>Start Broad, Then Refine</h3>
+          <p>Hunting queries differ from detection rules. Detection rules are narrow and tuned to minimize false positives in automated alerting. Hunt queries start broad, find anomalies, and get refined through iteration. Writing a narrow query on an unvalidated hypothesis is the single most common query mistake hunters make: zero results could mean "no threat" or "my query was too specific," and you cannot tell the difference without starting broad.</p>
 
           <h3>KQL: Kusto Query Language</h3>
           <p>KQL powers Microsoft Sentinel and Microsoft Defender for Endpoint. The key operators for hunting: <span class="mono accent">where</span>, <span class="mono accent">summarize</span>, <span class="mono accent">extend</span>, <span class="mono accent">project</span>, <span class="mono accent">join</span>, <span class="mono accent">make_set</span>, <span class="mono accent">dcount</span>, and <span class="mono accent">bin</span>. Learn these eight and you can write 90% of the hunting queries you will ever need.</p>
@@ -297,7 +302,8 @@ tags:
         <!-- SECTION 3 -->
         <section class="content-section" id="statistical-methods">
           <h2>Statistical Hunting Methods</h2>
-          <p>Not every hunt starts with a targeted hypothesis. Some of the most impactful findings come from applying statistical methods to baseline data and letting the anomalies surface themselves. Three core approaches are used by mature hunt teams.</p>
+          <h3>Three Core Approaches</h3>
+          <p>Not every hunt starts with a targeted hypothesis. Some of the most impactful findings come from applying statistical methods to baseline data and letting the anomalies surface themselves.</p>
 
           <h3>Frequency Analysis and Long-Tail</h3>
           <p>Count occurrences and find outliers at the extremes. What processes run on only 1 to 2 hosts out of 5,000? Rare equals suspicious. Legitimate enterprise software runs on hundreds or thousands of hosts. A novel implant runs on 1 to 5. Sort ascending and start at the bottom.</p>
@@ -356,15 +362,69 @@ DeviceProcessEvents
         <!-- SECTION 4 -->
         <section class="content-section" id="pivot-techniques">
           <h2>Pivot Techniques</h2>
+          <h3>What a Pivot Is</h3>
           <p>A pivot is moving from one data point to a related data point. Pivots are how you turn one suspicious finding into the full scope of an intrusion. A single suspicious process hash tells you one binary ran on one host. A chain of pivots tells you which hosts are affected, what network connections were made, which accounts were used, and where lateral movement occurred.</p>
 
-          <p>Common pivot chains:</p>
-          <ul>
-            <li>Process hash to all hosts running that hash, to network connections from those hosts, to destination IPs, to other processes connecting to the same IPs.</li>
-            <li>Suspicious scheduled task name to creation timestamp, to the process that created it, to the user account, to logon history for that account, to source IPs, to other accounts from the same source IP.</li>
-            <li>C2 domain to IP resolution, to other domains resolving to the same IP, to DNS query history, to all hosts querying those domains, to lateral movement indicators from those hosts.</li>
-          </ul>
+          <h3>Common Pivot Chains</h3>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Process Hash</div>
+              <div class="flow-step-desc">All hosts running that hash</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Network Connections</div>
+              <div class="flow-step-desc">Connections from those hosts, to destination IPs</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Shared Infrastructure</div>
+              <div class="flow-step-desc">Other processes connecting to the same IPs</div>
+            </div>
+          </div>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Scheduled Task Name</div>
+              <div class="flow-step-desc">Creation timestamp, then the process that created it</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">User Account</div>
+              <div class="flow-step-desc">Logon history for that account, then source IPs</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Other Accounts</div>
+              <div class="flow-step-desc">From the same source IP</div>
+            </div>
+          </div>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">C2 Domain</div>
+              <div class="flow-step-desc">IP resolution, then other domains resolving to the same IP</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">DNS Query History</div>
+              <div class="flow-step-desc">All hosts querying those domains</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Lateral Movement</div>
+              <div class="flow-step-desc">Indicators from those hosts</div>
+            </div>
+          </div>
 
+          <h3>Pivot Dimensions Reference</h3>
           <div class="table-wrap">
             <table class="data-table">
               <thead>
@@ -419,6 +479,7 @@ DeviceProcessEvents
             </table>
           </div>
 
+          <h3>Pivoting in Practice</h3>
           <div class="code-block">
             <span class="lang-label">KQL</span>
             <button class="copy-btn" aria-label="Copy code">copy</button>
@@ -454,14 +515,37 @@ DeviceNetworkEvents
         <!-- SECTION 5 -->
         <section class="content-section" id="siem-vs-edr">
           <h2>SIEM vs. EDR Hunting</h2>
+          <h3>Strengths and Weaknesses</h3>
           <p>Both are valid hunting platforms. They answer different questions. Treating them as interchangeable or choosing one and ignoring the other leaves critical blind spots in any hunt.</p>
 
-          <p>SIEM strengths: breadth across all log sources in a single query interface, correlation between endpoint, identity, and network data, longer retention for historical analysis, full visibility into authentication and cloud activity. SIEM weaknesses: normalized data loses field fidelity, process tree context is absent or reconstructed, memory artifacts are not accessible.</p>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Strengths</th>
+                  <th>Weaknesses</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>SIEM</strong></td>
+                  <td>Breadth across all log sources in a single query interface, correlation between endpoint, identity, and network data, longer retention for historical analysis, full visibility into authentication and cloud activity</td>
+                  <td>Normalized data loses field fidelity, process tree context is absent or reconstructed, memory artifacts are not accessible</td>
+                </tr>
+                <tr>
+                  <td><strong>EDR</strong></td>
+                  <td>Deep endpoint telemetry with rich raw field coverage, full process tree visualization with parent-child-grandchild chains, memory artifacts and behavioral analytics, rich process lineage data</td>
+                  <td>Endpoint-only view with no identity or network context outside the host, shorter default retention in most deployments</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-          <p>EDR strengths: deep endpoint telemetry with rich raw field coverage, full process tree visualization with parent-child-grandchild chains, memory artifacts and behavioral analytics, rich process lineage data. EDR weaknesses: endpoint-only view with no identity or network context outside the host, shorter default retention in most deployments.</p>
+          <h3>The Practical Workflow</h3>
+          <p>Start the hypothesis in SIEM for breadth across all hosts. When you find an anomaly, pivot to EDR for depth on that specific host and process chain. Neither platform alone is sufficient for a complete hunt.</p>
 
-          <p>The practical workflow: start the hypothesis in SIEM for breadth across all hosts. When you find an anomaly, pivot to EDR for depth on that specific host and process chain. Neither platform alone is sufficient for a complete hunt.</p>
-
+          <h3>Capability Comparison</h3>
           <div class="table-wrap">
             <table class="data-table">
               <thead>
@@ -516,6 +600,7 @@ DeviceNetworkEvents
             </table>
           </div>
 
+          <h3>An EDR-Only Hunt Example</h3>
           <div class="code-block">
             <span class="lang-label">KQL</span>
             <button class="copy-btn" aria-label="Copy code">copy</button>
@@ -546,20 +631,65 @@ DeviceEvents
         <!-- SECTION 6 -->
         <section class="content-section" id="iterating-findings">
           <h2>Iterating on Hunt Findings</h2>
-          <p>A hunt rarely ends at the first query. Iteration is the mechanism for going from "something seems off" to "here is the full scope with evidence." Every initial query is a starting point, not a final answer. The results tell you what to filter, what to follow up on, and what to pivot toward.</p>
+          <h3>The Iteration Loop</h3>
+          <p>A hunt rarely ends at the first query. Iteration is the mechanism for going from "something seems off" to "here is the full scope with evidence." Every initial query is a starting point, not a final answer. The results tell you what to filter, what to follow up on, and what to pivot toward. The loop runs until the hypothesis is answered:</p>
 
-          <p>The iteration loop runs until the hypothesis is answered:</p>
-          <ol>
-            <li>Run the initial query on the hypothesis scope.</li>
-            <li>Review each result: true positive (confirmed suspicious after investigation), false positive (confirmed legitimate after investigation), or coverage gap (expected results and found none).</li>
-            <li>Refine: add filters to remove false positives, extend scope to cover gaps, run follow-up pivot queries on true positives.</li>
-            <li>Repeat until the hypothesis is confirmed, refuted, or a coverage gap is identified that prevents answering it.</li>
-          </ol>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Run</div>
+              <div class="flow-step-desc">The initial query on the hypothesis scope</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Review</div>
+              <div class="flow-step-desc">Each result: true positive, false positive, or coverage gap</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Refine</div>
+              <div class="flow-step-desc">Filter out false positives, extend scope, run follow-up pivots</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Repeat</div>
+              <div class="flow-step-desc">Until confirmed, refuted, or blocked by a coverage gap</div>
+            </div>
+          </div>
 
-          <p>Know when to stop. The hunt is complete when the hypothesis is answered, or when you have identified a visibility gap that prevents answering it. Both are valid outcomes. Continuing past this point without a new hypothesis is scope creep, not thoroughness.</p>
+          <h3>Knowing When to Stop</h3>
+          <p>The hunt is complete when the hypothesis is answered, or when you have identified a visibility gap that prevents answering it. Both are valid outcomes. Continuing past this point without a new hypothesis is scope creep, not thoroughness.</p>
 
-          <p>Escalation decision tree: confirmed threat means hand to IR immediately with full documentation. Confirmed coverage gap means document and submit to the data source team as a control deficiency. New hypothesis generated during execution means add it to the hunt backlog with context from the current hunt, not as a branch of the active session.</p>
+          <h3>Escalation Decision Tree</h3>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Outcome</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Confirmed threat</td>
+                  <td>Hand to IR immediately with full documentation</td>
+                </tr>
+                <tr>
+                  <td>Confirmed coverage gap</td>
+                  <td>Document and submit to the data source team as a control deficiency</td>
+                </tr>
+                <tr>
+                  <td>New hypothesis generated during execution</td>
+                  <td>Add to the hunt backlog with context from the current hunt, not as a branch of the active session</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
+          <h3>Worked Example</h3>
           <div class="callout-example">
             <strong>Example:</strong> Initial query finds 3 results matching "powershell.exe with -enc flag launched from an unusual parent." You investigate each one.
             <br><br>
@@ -574,9 +704,10 @@ DeviceEvents
         <!-- SECTION 7 -->
         <section class="content-section" id="hunt-output">
           <h2>Capturing Hunt Output</h2>
-          <p>A hunt with no documented output is a wasted hunt. You cannot reproduce it, share it, build a detection from it, or use it to measure program effectiveness. Documentation is not optional overhead. It is the mechanism by which a hunt session creates lasting value beyond the analyst who ran it.</p>
+          <h3>Why Documentation Is Not Optional</h3>
+          <p>A hunt with no documented output is a wasted hunt. You cannot reproduce it, share it, build a detection from it, or use it to measure program effectiveness. Documentation is the mechanism by which a hunt session creates lasting value beyond the analyst who ran it.</p>
 
-          <p>Minimum viable output record for every hunt:</p>
+          <h3>Minimum Viable Output Record</h3>
           <ol>
             <li>Hypothesis in ABLE format.</li>
             <li>All queries run, in copy-paste-ready format with any variable substitutions noted inline.</li>
@@ -587,6 +718,7 @@ DeviceEvents
             <li>New hypotheses generated during execution, ready for the backlog with enough context to reprioritize them.</li>
           </ol>
 
+          <h3>Capture Output As You Go</h3>
           <p>The full lifecycle documentation process is covered in Chapter 7. What matters here: capture output during execution, not after. A running execution log written as you work is far more accurate than a report written from memory an hour after the session ends. Tools for documentation include OTRF-style Jupyter notebooks, an internal wiki, or H3AD-SEC's QUERYBASE at <a href="https://h3ad-sec.github.io/QUERYBASE/" target="_blank" rel="noopener" class="accent">h3ad-sec.github.io/QUERYBASE/</a> for storing validated hunt queries.</p>
 
           <div class="callout-tip">

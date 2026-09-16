@@ -147,7 +147,7 @@
           <h2>Threat Actor Profiling for Hunt Targeting</h2>
           <p>Not all threat actors are relevant to your organization. Hunting based on irrelevant actor groups wastes time and produces false confidence in the form of No-Find results that mean nothing because the actor was never going to target you anyway. Actor profiling is how you focus the hunt backlog on threats that actually matter for your environment.</p>
 
-          <p>Four dimensions of actor profiling:</p>
+          <h3>Four Dimensions of Profiling</h3>
           <ul>
             <li><strong>Industry targeting:</strong> Which groups have targeted your industry sector in the past 24 months? Filter MITRE ATT&CK Groups by sector. A group targeting financial services has different TTPs than one targeting government or healthcare.</li>
             <li><strong>Geographic alignment:</strong> State-sponsored actors often target based on geopolitical context. Match your organization's countries of operation against known targeting patterns. A US-based company with operations in Eastern Europe faces a different actor profile than one operating only domestically.</li>
@@ -155,6 +155,7 @@
             <li><strong>Business event triggers:</strong> M&A activity attracts espionage-motivated actors targeting intellectual property. Public company announcements attract financially-motivated actors. Post-breach periods attract follow-on actors who acquire access from initial-access brokers. Match recent business events to actor motivation profiles.</li>
           </ul>
 
+          <h3>Actor Reference Table</h3>
           <div class="table-wrap">
             <table class="data-table">
               <thead>
@@ -200,6 +201,7 @@
             </table>
           </div>
 
+          <h3>Worked Example</h3>
           <div class="callout-example">
             <strong>Example:</strong> Actor profiling for a US-based healthcare organization that recently acquired a smaller clinic chain.
             <br><br>
@@ -214,6 +216,7 @@
             Result: Priority hunt hypotheses around Azure AD token abuse (APT29/Scattered Spider TTPs), healthcare IT supply chain compromise indicators (APT41), and initial access via the acquired clinic's systems (APT10 pattern).
           </div>
 
+          <h3>Hunt Query Example</h3>
           <div class="code-block">
             <span class="lang-label">KQL</span>
             <button class="copy-btn" aria-label="Copy code">copy</button>
@@ -242,19 +245,45 @@ DeviceNetworkEvents
         <!-- SECTION 2 -->
         <section class="content-section" id="campaign-hunting">
           <h2>Campaign-Based Hunting</h2>
+          <h3>What a Campaign Hunt Is</h3>
           <p>Intel-driven, time-boxed hunts focused on a specific threat campaign rather than a single technique. When a major threat report drops, when CISA issues a sector-specific alert, or when a CVE is being actively exploited by a documented actor, a campaign hunt is faster and more thorough than hunting each technique individually.</p>
 
-          <p>Campaign hunt structure:</p>
-          <ol>
-            <li>Collect the full campaign intel: all TTPs used (not just the headline technique), IOCs as starting points, infrastructure patterns, and victim profile.</li>
-            <li>Map every TTP to an ABLE hypothesis. A typical ransomware campaign has 6 to 8 technique stages, each requiring its own hypothesis.</li>
-            <li>Build a hunt pack: bundle all hypotheses for the campaign with a shared scope and time window.</li>
-            <li>Execute in order of confidence (highest data availability first). Starting with the technique where you have the most reliable telemetry gives you early results that may guide the remaining stages.</li>
-            <li>Results feed into a single campaign report rather than individual hunt reports.</li>
-          </ol>
+          <h3>Campaign Hunt Structure</h3>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Collect Intel</div>
+              <div class="flow-step-desc">All TTPs used, IOCs as starting points, infrastructure patterns, victim profile</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Map to Hypotheses</div>
+              <div class="flow-step-desc">Every TTP becomes an ABLE hypothesis, typically 6 to 8 stages</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Build Hunt Pack</div>
+              <div class="flow-step-desc">Bundle all hypotheses with a shared scope and time window</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Execute by Confidence</div>
+              <div class="flow-step-desc">Highest data availability first, guiding remaining stages</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">5</span>
+              <div class="flow-step-title">Single Campaign Report</div>
+              <div class="flow-step-desc">Results feed one report rather than individual hunt reports</div>
+            </div>
+          </div>
 
           <p>TRACEPULSE at <a href="https://h3ad-sec.github.io/TRACEPULSE/" target="_blank" rel="noopener" class="accent">h3ad-sec.github.io/TRACEPULSE/</a> provides campaign-tied query packs. When a new campaign is reported, start there before writing queries from scratch.</p>
 
+          <h3>Worked Example</h3>
           <div class="callout-example">
             <strong>Example:</strong> Campaign hunt for ransomware pre-deployment phase (Black Basta / Conti-style).
             <br><br>
@@ -280,14 +309,39 @@ DeviceNetworkEvents
           <p>PEAK's third hunt type: Model-Assisted Threat Hunting. Machine learning does not replace the hunter. It surfaces anomalies that are too subtle or too voluminous for manual statistical review. The hunter's job is to interpret the ML output and separate genuine anomalies from model noise.</p>
 
           <h3>Three ML Methods Relevant to Hunting</h3>
-          <p><strong>Clustering (unsupervised):</strong> Group entities by behavioral similarity. Identify entities that do not fit any cluster as outliers. Use case: process behavior clustering. Every legitimate <span class="mono accent">svchost.exe</span> on 5,000 endpoints should cluster together by parent process, command-line pattern, and network destination. One svchost.exe that is a statistical outlier from the cluster is the anomaly to investigate. Manual frequency analysis alone would miss this because the process name is common.</p>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th>Approach</th>
+                  <th>Use Case</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Clustering</strong> (unsupervised)</td>
+                  <td>Group entities by behavioral similarity, identify entities that do not fit any cluster as outliers</td>
+                  <td>Process behavior clustering: every legitimate <span class="mono accent">svchost.exe</span> on 5,000 endpoints should cluster by parent process, command-line pattern, and network destination. One statistical outlier is the anomaly to investigate, something manual frequency analysis would miss because the process name is common.</td>
+                </tr>
+                <tr>
+                  <td><strong>Anomaly detection</strong></td>
+                  <td>Establish a normal behavior model over a time baseline, then flag deviations</td>
+                  <td>User behavior baseline: alert when a user's login pattern, data access volume, or system usage deviates significantly from their 30-day baseline. Catches insider threats and account compromises that do not match any known TTP pattern.</td>
+                </tr>
+                <tr>
+                  <td><strong>Classification</strong> (supervised)</td>
+                  <td>Train on labeled known-good and known-bad examples, classify new events by probability</td>
+                  <td>Command-line classification: train a model on malicious vs. benign PowerShell command strings, flag anything above a confidence threshold. Reduces time on obvious benign commands while surfacing subtle obfuscation.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-          <p><strong>Anomaly detection:</strong> Establish a normal behavior model over a time baseline, then flag deviations. Use case: user behavior baseline. Alert when a user's login pattern, data access volume, or system usage deviates significantly from their 30-day behavioral baseline. This approach catches insider threats and account compromises that do not match any known TTP pattern.</p>
+          <h3>SIEM and EDR ML Tooling</h3>
+          <p>Microsoft Sentinel anomaly rules and BehaviorAnalytics, Elastic ML jobs (anomaly detection on log fields), Splunk MLTK (machine learning toolkit with pre-built anomaly detection algorithms).</p>
 
-          <p><strong>Classification (supervised):</strong> Train on labeled known-good and known-bad examples. Classify new events by probability. Use case: command-line classification. Train a model on malicious vs. benign PowerShell command strings. Flag any new PowerShell command scoring above a confidence threshold for analyst review. Reduces analyst time spent on obvious benign commands while surfacing subtle obfuscation patterns.</p>
-
-          <p>SIEM and EDR tools with built-in ML: Microsoft Sentinel anomaly rules and BehaviorAnalytics, Elastic ML jobs (anomaly detection on log fields), Splunk MLTK (machine learning toolkit with pre-built anomaly detection algorithms).</p>
-
+          <h3>Example M-ATH Query</h3>
           <div class="code-block">
             <span class="lang-label">KQL</span>
             <button class="copy-btn" aria-label="Copy code">copy</button>
@@ -312,6 +366,7 @@ BehaviorAnalytics
 | order by InvestigationPriority desc</code></pre>
           </div>
 
+          <h3>The Hunter's Role</h3>
           <p>The hunter's role with M-ATH output: triage the flagged anomalies. Determine which are genuine behavioral deviations requiring investigation vs. model noise (user traveled for a conference, hence "UnusualLocation"). The ML surfaces the candidates. The hunter applies context and makes the call.</p>
 
           <div class="callout-warning">
@@ -322,21 +377,48 @@ BehaviorAnalytics
         <!-- SECTION 4 -->
         <section class="content-section" id="purple-teaming">
           <h2>Threat Emulation and Hunt Validation</h2>
+          <h3>Why Validate at All</h3>
           <p>The most direct way to know whether your hunt capability works: simulate the attack and see if you find it. A hunt team that has never validated its detection against actual technique execution is operating on the assumption that the detection works. Assumptions are not security controls.</p>
 
           <p>Purple teaming pairs red team (offense) and blue team (defense) working together rather than against each other. The goal is not to compromise the organization; it is to generate artifacts, validate detection, and close gaps.</p>
 
-          <p>Hunt validation workflow:</p>
-          <ol>
-            <li>Select a TTP to validate, for example T1003.001 (LSASS credential dumping).</li>
-            <li>Red team executes the technique in a controlled lab environment, or in production with explicit written approval and a defined rollback plan.</li>
-            <li>Hunt team hunts for evidence using their standard methodology, without advance knowledge of exactly when or where the technique was executed.</li>
-            <li>Compare: what evidence was generated by the execution vs. what evidence was found by the hunt. Every artifact generated but not found is a detection gap.</li>
-            <li>Gap analysis: document each gap, identify whether it is a data source gap, a query logic gap, or a retention gap, then remediate.</li>
-          </ol>
+          <h3>Hunt Validation Workflow</h3>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Select a TTP</div>
+              <div class="flow-step-desc">For example, T1003.001 (LSASS credential dumping)</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Red Team Executes</div>
+              <div class="flow-step-desc">In a controlled lab, or production with written approval and a rollback plan</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Hunt Team Hunts</div>
+              <div class="flow-step-desc">Standard methodology, without advance knowledge of timing or location</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Compare</div>
+              <div class="flow-step-desc">Evidence generated vs. evidence found; every gap is a detection gap</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">5</span>
+              <div class="flow-step-title">Gap Analysis</div>
+              <div class="flow-step-desc">Classify as data source, query logic, or retention gap, then remediate</div>
+            </div>
+          </div>
 
-          <p>Tools for threat emulation: Atomic Red Team (open source, github.com/redcanaryco/atomic-red-team), MITRE Caldera (open source adversary emulation platform), MITRE ATT&CK Evaluations public data (use as reference for expected artifacts per technique).</p>
+          <h3>Tools for Threat Emulation</h3>
+          <p>Atomic Red Team (open source, github.com/redcanaryco/atomic-red-team), MITRE Caldera (open source adversary emulation platform), MITRE ATT&CK Evaluations public data (use as reference for expected artifacts per technique).</p>
 
+          <h3>Example Emulation Reference</h3>
           <div class="code-block">
             <span class="lang-label">POWERSHELL (reference)</span>
             <button class="copy-btn" aria-label="Copy code">copy</button>
@@ -362,6 +444,7 @@ BehaviorAnalytics
 #           InitiatingProcessCommandLine, GrantedAccess</code></pre>
           </div>
 
+          <h3>Feeding Emulation Back Into the Program</h3>
           <p>CrowdStrike OverWatch's SEARCH methodology includes a "Hone" phase that specifically incorporates adversary emulation findings to update hunt techniques. Their approach: run emulation, identify what the hunt team missed, update the hypothesis backlog and query library, repeat quarterly.</p>
 
           <div class="callout-tip">
@@ -459,13 +542,15 @@ BehaviorAnalytics
             <li>AI context windows have a limit. A large SIEM result set will not fit, and AI will summarize or truncate in ways that may miss exactly the anomaly you are looking for.</li>
           </ul>
 
-          <p>H3AD-SEC AI tools integrated into the hunt workflow:</p>
+          <h3>H3AD-SEC AI Tools</h3>
+          <p>AI tools integrated into the hunt workflow:</p>
           <ul>
             <li><a href="https://h3ad-sec.github.io/QUERYCRAFT-AI/" target="_blank" rel="noopener" class="accent">QUERYCRAFT-AI</a>: AI-assisted query generation for KQL, SPL, and Sigma from plain-language descriptions.</li>
             <li><a href="https://h3ad-sec.github.io/ATTMAP-AI/" target="_blank" rel="noopener" class="accent">ATTMAP-AI</a>: Maps observed behaviors and artifacts to ATT&CK techniques.</li>
             <li><a href="https://h3ad-sec.github.io/INSIGHT-AI/" target="_blank" rel="noopener" class="accent">INSIGHT-AI</a>: Runbook and hypothesis generation from threat intel input.</li>
           </ul>
 
+          <h3>Example Prompt Template</h3>
           <div class="code-block">
             <span class="lang-label">PROMPT TEMPLATE</span>
             <button class="copy-btn" aria-label="Copy code">copy</button>
@@ -499,15 +584,34 @@ Data sources required: [specific tables or log sources in your environment]</cod
 
           <p>The practice layer is what matters next. The gap between knowing threat hunting and doing threat hunting is closed by running one hunt with full structure. Not reading about one. Running one.</p>
 
-          <p><strong>Immediate next steps:</strong></p>
-          <ol>
-            <li>Open HYPOS at <a href="https://h3ad-sec.github.io/HYPOS/" target="_blank" rel="noopener" class="accent">h3ad-sec.github.io/HYPOS/</a> and pick one ATT&CK technique from your industry's relevant actor profile. Write an ABLE hypothesis for it.</li>
-            <li>Confirm the data sources needed for that hypothesis are available in your SIEM. Check for quality using the methods from Chapter 4.</li>
-            <li>Write a hunt query in KQL or SPL. Run it against a 14-day window. Classify every result as TP, FP, or Gap.</li>
-            <li>Fill out the after-action report template from Chapter 7. All fields. Even if the result is No-Find.</li>
-          </ol>
+          <h3>Immediate Next Steps</h3>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Pick a Technique</div>
+              <div class="flow-step-desc">Open HYPOS, choose one ATT&CK technique from your relevant actor profile, write an ABLE hypothesis</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Confirm Data</div>
+              <div class="flow-step-desc">Check the needed sources are in your SIEM and quality-checked (Chapter 4 methods)</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Run the Hunt</div>
+              <div class="flow-step-desc">Write a KQL or SPL query, run against a 14-day window, classify every result as TP, FP, or Gap</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Report It</div>
+              <div class="flow-step-desc">Fill out the Chapter 7 after-action report template, all fields, even for a No-Find</div>
+            </div>
+          </div>
 
-          <p><strong>Resources to continue learning:</strong></p>
+          <h3>Resources to Continue Learning</h3>
           <ul>
             <li>MITRE ATT&CK: <a href="https://attack.mitre.org" target="_blank" rel="noopener" class="accent">attack.mitre.org</a></li>
             <li>ThreatHunter-Playbook (OTRF): <a href="https://github.com/OTRF/ThreatHunter-Playbook" target="_blank" rel="noopener" class="accent">github.com/OTRF/ThreatHunter-Playbook</a></li>

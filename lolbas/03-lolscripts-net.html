@@ -150,8 +150,19 @@
             <li><strong>JScript</strong> (.js files via wscript.exe or cscript.exe): JavaScript for Windows Script Host, also executable through Internet Explorer and Edge Legacy via ActiveX.</li>
             <li><strong>HTA</strong> (.hta files via mshta.exe): HTML Application, a hybrid format combining HTML markup with VBScript or JScript, executed outside browser security zones.</li>
           </ul>
-          <p>What makes scripting engines particularly powerful for attackers is the runtime environment they provide. Unlike a simple LOLBin that invokes one fixed function, a scripting engine accepts multi-line programs. PowerShell scripts can make HTTP requests, write registry keys, load .NET assemblies, and spawn child processes, all from inside a trusted Windows runtime. The attacker brings the code; Windows brings the execution environment.</p>
-          <p>The key distinction from traditional LOLBins: with a LOLBin, the binary does the malicious work. With a LOLScript, the binary is just a runtime. The payload is the script file or inline command passed to it. That payload can be entirely in memory, fetched from a remote URL, or embedded as an encoded string in a command-line argument.</p>
+          <h3>Why Scripting Engines Are More Powerful Than LOLBins</h3>
+          <p>What makes scripting engines particularly powerful for attackers is the runtime environment they provide. Unlike a simple LOLBin that invokes one fixed function, a scripting engine accepts multi-line programs. PowerShell scripts can do all of the following from inside a single trusted Windows runtime:</p>
+          <ul>
+            <li>Make HTTP requests</li>
+            <li>Write registry keys</li>
+            <li>Load .NET assemblies</li>
+            <li>Spawn child processes</li>
+          </ul>
+          <p>The attacker brings the code; Windows brings the execution environment.</p>
+
+          <div class="callout-info">
+            <strong>The key distinction:</strong> with a LOLBin, the binary does the malicious work. With a LOLScript, the binary is just a runtime, and the payload is the script file or inline command passed to it. That payload can be entirely in memory, fetched from a remote URL, or embedded as an encoded string in a command-line argument.
+          </div>
 
           <div class="table-wrap">
             <table>
@@ -242,7 +253,11 @@ powershell.exe -ep bypass -File C:\payload.ps1</code></pre>
           <p>Note the string concatenation: <code>'Am'+'siUtils'</code> and <code>'amsiIn'+'itFailed'</code>. This is deliberate obfuscation targeting signature-based detection rules that match the full string literal. The .NET reflection call itself is split across the string boundary at runtime, but AMSI sees the obfuscated source before execution.</p>
 
           <h3>Additional flags commonly chained together</h3>
-          <p><code>-WindowStyle Hidden</code> (or <code>-w hidden</code>) suppresses the console window entirely. <code>-NoProfile</code> (or <code>-nop</code>) skips loading the user's profile, which could contain defensive functions or logging. Both are frequently combined with encoded commands and download cradles in single-line payloads.</p>
+          <ul>
+            <li><code>-WindowStyle Hidden</code> (or <code>-w hidden</code>) suppresses the console window entirely.</li>
+            <li><code>-NoProfile</code> (or <code>-nop</code>) skips loading the user's profile, which could contain defensive functions or logging.</li>
+          </ul>
+          <p>Both are frequently combined with encoded commands and download cradles in single-line payloads.</p>
 
           <h3>Detection</h3>
           <p>PowerShell Event ID 4104 (Script Block Logging) captures the full deobfuscated code at the point Windows is about to execute it. Event ID 4103 (Module Logging) records pipeline execution details. Both require explicit Group Policy enablement under Computer Configuration > Administrative Templates > Windows Components > Windows PowerShell. Without them, command-line logging via Sysmon EID 1 is the only fallback, and it shows only the encoded string, not the decoded content.</p>
@@ -345,12 +360,36 @@ $method.Invoke($null, $null)</code></pre>
 
           <h3>How BYOVD works</h3>
           <p>The attack follows a consistent sequence:</p>
-          <ol>
-            <li>Identify a legitimate signed driver with a known exploitable vulnerability. The loldrivers.io community catalog documents hundreds of these. Common examples include RTCore64.sys (from EVGA GPU software) and mhyprot2.sys (from Genshin Impact's anti-cheat system).</li>
-            <li>Drop the vulnerable driver to disk and load it using the Windows service control manager: <code>sc.exe create vuln_driver binPath= C:\path\to\driver.sys type= kernel</code> followed by <code>sc.exe start vuln_driver</code>. Windows allows the load because the driver is signed by a legitimate vendor.</li>
-            <li>Exploit the vulnerability in the loaded driver to achieve arbitrary kernel code execution. The vulnerability might be a privilege escalation bug, an IOCTL that exposes raw memory read/write, or an out-of-bounds write.</li>
-            <li>Use kernel access to terminate EDR processes, unregister their kernel callbacks, disable their minifilter drivers, or manipulate process protection levels.</li>
-          </ol>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Identify a Vulnerable Driver</div>
+              <div class="flow-step-desc">A legitimate signed driver with a known exploitable vulnerability. The loldrivers.io catalog documents hundreds, including RTCore64.sys (EVGA GPU software) and mhyprot2.sys (Genshin Impact's anti-cheat system).</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Load the Driver</div>
+              <div class="flow-step-desc">Drop it to disk and load it via the Windows service control manager. Windows allows the load because the driver is signed by a legitimate vendor.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Exploit the Vulnerability</div>
+              <div class="flow-step-desc">Achieve arbitrary kernel code execution, via a privilege escalation bug, an IOCTL exposing raw memory read/write, or an out-of-bounds write.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Abuse Kernel Access</div>
+              <div class="flow-step-desc">Terminate EDR processes, unregister their kernel callbacks, disable their minifilter drivers, or manipulate process protection levels.</div>
+            </div>
+          </div>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-block-lang">CMD</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
+            <pre><code>sc.exe create vuln_driver binPath= C:\path\to\driver.sys type= kernel
+sc.exe start vuln_driver</code></pre>
+          </div>
 
           <h3>Real-world examples</h3>
           <p>BlackMatter ransomware used mhyprot2.sys to terminate AV and EDR products before starting encryption. Scattered Spider (UNC3944) used vulnerable network adapter drivers in their operations. Cuba ransomware used a similar technique. The Lazarus Group has used multiple BYOVD variations across their tooling. All of these cases share the same pattern: a signed, legitimate driver used as an attack vehicle.</p>
@@ -426,12 +465,31 @@ $method.Invoke($null, $null)</code></pre>
 
           <h3>LOLDriver detection</h3>
           <p>Sysmon Event ID 6 (DriverLoad) records driver loads with the driver file path and hash. The detection workflow:</p>
-          <ol>
-            <li>Collect Sysmon EID 6 events across the environment.</li>
-            <li>Hash-match loaded drivers against the loldrivers.io catalog. Any match warrants immediate investigation.</li>
-            <li>Monitor for <code>sc.exe create</code> with a <code>type= kernel</code> argument and a driver path outside <code>%SystemRoot%\System32\drivers\</code>.</li>
-            <li>Alert on driver loads from user-writable directories (Desktop, %TEMP%, %APPDATA%).</li>
-          </ol>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Collect DriverLoad Events</div>
+              <div class="flow-step-desc">Gather Sysmon EID 6 events across the environment.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Hash-Match Against loldrivers.io</div>
+              <div class="flow-step-desc">Any match against the known-vulnerable catalog warrants immediate investigation.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Monitor Service Creation</div>
+              <div class="flow-step-desc">Watch for sc.exe create with a type= kernel argument and a driver path outside %SystemRoot%\System32\drivers\.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Alert on User-Writable Paths</div>
+              <div class="flow-step-desc">Flag driver loads from Desktop, %TEMP%, or %APPDATA%.</div>
+            </div>
+          </div>
           <p>HVCI prevents the load in the first place. Sysmon EID 6 detects attempts on systems without HVCI. Both controls together provide defense-in-depth against BYOVD.</p>
         </section>
 

@@ -147,9 +147,33 @@
           <h2>Why Evidence Quality Matters</h2>
           <p>Not all evidence is equal. A hash match from a single threat intel feed is not the same confidence level as an analyst-verified behavior chain in EDR spanning three hosts and two accounts. Treating them identically leads to one of two failure modes.</p>
 
-          <p>Over-confidence: treating weak evidence as confirmed. The result is wasted IR resources, analyst credibility loss, and alert fatigue. Under-confidence: dismissing strong evidence because it seems "too simple." The result is a dwell time measured in months while an analyst waits for "more evidence."</p>
+          <h3>Two Failure Modes</h3>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Mode</th>
+                  <th>What It Looks Like</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Over-confidence</td>
+                  <td>Treating weak evidence as confirmed</td>
+                  <td>Wasted IR resources, analyst credibility loss, alert fatigue</td>
+                </tr>
+                <tr>
+                  <td>Under-confidence</td>
+                  <td>Dismissing strong evidence because it seems "too simple"</td>
+                  <td>Dwell time measured in months while an analyst waits for "more evidence"</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-          <p>Evidence quality affects every downstream decision: whether to escalate to IR, what to report to management, how much analyst time to allocate for follow-up, and what priority to assign detection rule creation. Without consistent quality scoring, each analyst makes these decisions differently. The team's output becomes inconsistent and unreproducible.</p>
+          <h3>Why This Matters Downstream</h3>
+          <p>Evidence quality affects every downstream decision: whether to escalate to IR, what to report to management, how much analyst time to allocate for follow-up, and what priority to assign detection rule creation. Without consistent quality scoring, each analyst makes these decisions differently, and the team's output becomes inconsistent and unreproducible.</p>
 
           <div class="callout-info">
             <strong>Note:</strong> A finding backed by one OSINT feed and a suspicious-looking domain name is not the same confidence level as a process injection chain confirmed in EDR memory analysis across four hosts. Scoring makes that distinction explicit and consistent across every analyst on the team.
@@ -269,8 +293,10 @@
             </table>
           </div>
 
+          <h3>Rate Them Independently</h3>
           <p>Critical rule: rate source reliability and information credibility independently. A completely reliable source (A) can provide doubtful information (4). An unreliable source (E) occasionally provides confirmed information (1) that you independently verify. The ratings are not correlated. Do not let a trusted source's reputation pull up your credibility rating for information that has not been verified.</p>
 
+          <h3>Worked Example</h3>
           <div class="callout-example">
             <strong>Example:</strong> You receive a threat intel report stating APT29 is using a specific Cobalt Strike malleable C2 profile with a particular User-Agent string. Source: reputable commercial vendor with documented APT29 tracking history. Rating: B. Information: consistent with known APT29 TTPs but not yet confirmed in your environment. Rating: 3. Combined rating: B3. This means: worth hunting, not worth escalating without corroboration.
             <br><br>
@@ -287,6 +313,7 @@
           <h2>The Diamond Model</h2>
           <p>Developed in 2013 by Caltagirone, Pendergast, and Betz, the Diamond Model is a foundational framework for structuring adversary analysis and hunt pivots. Unit 42 uses it as the backbone of their attribution methodology.</p>
 
+          <h3>Four Vertices</h3>
           <p>Four vertices define every intrusion event:</p>
           <ul>
             <li><strong>Adversary:</strong> The threat actor. Named group, suspected nation-state, financially motivated criminal, or insider. May be unknown at hunt time.</li>
@@ -295,6 +322,7 @@
             <li><strong>Victim:</strong> The target. The organization, specific systems, specific users, or specific data.</li>
           </ul>
 
+          <h3>Pivoting Between Vertices</h3>
           <p>The model's hunting value: knowing any vertex, you can hypothesize the others and pivot toward them using available telemetry.</p>
 
           <div class="table-wrap">
@@ -341,6 +369,7 @@
             </table>
           </div>
 
+          <h3>Worked Example</h3>
           <div class="callout-example">
             <strong>Example:</strong> DNS logs show a suspicious domain being queried by several hosts. Using the Diamond Model: the domain is infrastructure. Pivot to capability: which process made the DNS query? Sysmon Event 22 or EDR DNS query logs identify the querying process as <span class="mono accent">svchost.exe</span> with an unusual command line. Pivot to adversary: the capability (svchost hosting a custom service) combined with the infrastructure (newly registered domain, 24-hour TTL, no passive DNS history) matches a known pattern documented for a financially-motivated group targeting the retail sector. Now you have all four vertices. The Diamond Model structured the pivot chain that took you from a DNS anomaly to actor attribution.
           </div>
@@ -353,6 +382,7 @@
         <!-- SECTION 4 -->
         <section class="content-section" id="pyramid-of-pain">
           <h2>The Pyramid of Pain</h2>
+          <h3>The Pyramid</h3>
           <p>Created by David Bianco in 2013, the Pyramid of Pain describes the cost to an adversary when each indicator type is detected and blocked. The higher the level, the more difficult it is for the adversary to adapt. The implication for hunters: the higher you hunt on the pyramid, the more durable and effective your hunt becomes.</p>
 
           <div class="code-block">
@@ -374,6 +404,7 @@
   └─────────────────────────────────┘</code></pre>
           </div>
 
+          <h3>Cost to Adversary by Level</h3>
           <div class="table-wrap">
             <table class="data-table">
               <thead>
@@ -425,6 +456,7 @@
             </table>
           </div>
 
+          <h3>Hunting Implications</h3>
           <p>Hunting implication: hunts based on hash values are the most brittle. The adversary rotates before your hunt finds anything. Hunts based on TTPs are the most durable. The adversary cannot easily change how they move laterally or how they dump credentials without retraining their entire operation. HYPOS at <a href="https://h3ad-sec.github.io/HYPOS/" target="_blank" rel="noopener" class="accent">h3ad-sec.github.io/HYPOS/</a> generates TTP-level hypotheses specifically for this reason.</p>
 
           <p>Combining Pyramid of Pain with Admiralty System: a hash-based finding is inherently low-confidence and low-durability. Hashes are easily faked or reused across completely unrelated malware families. A behavioral TTP finding confirmed in EDR with multiple corroborating data points is high-confidence and high-durability. Score them differently and allocate analyst time accordingly.</p>
@@ -437,12 +469,34 @@
         <!-- SECTION 5 -->
         <section class="content-section" id="confidence-scoring">
           <h2>Confidence and Severity Scoring</h2>
+          <h3>Two Distinct Dimensions</h3>
           <p>The combined scoring approach used by commercial hunt teams at Red Canary, Elastic, and Tidal Cyber separates two distinct dimensions that are often conflated: how certain you are that the finding is malicious (confidence), and how bad it would be if it is real (severity).</p>
 
-          <p><strong>Confidence (0-100):</strong> How certain are you the finding is malicious? Driven by evidence quality (Admiralty ratings), corroboration from multiple independent data sources, and consistency with known actor TTPs. A finding from a single OSINT feed with no corroboration scores low. A finding confirmed in EDR memory analysis, corroborated by network logs and authentication events, scores high.</p>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Dimension</th>
+                  <th>Question</th>
+                  <th>Driven By</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Confidence (0-100)</strong></td>
+                  <td>How certain are you the finding is malicious?</td>
+                  <td>Evidence quality (Admiralty ratings), corroboration from multiple independent data sources, consistency with known actor TTPs. A single uncorroborated OSINT feed scores low; a finding confirmed in EDR memory analysis and corroborated by network and authentication logs scores high.</td>
+                </tr>
+                <tr>
+                  <td><strong>Severity</strong></td>
+                  <td>If this is real, how bad is it?</td>
+                  <td>Technique impact (credential dumping on a domain controller is worse than a file creation on a standard workstation), affected assets, and blast radius (1 host vs. lateral movement across 20 hosts)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-          <p><strong>Severity:</strong> If this is real, how bad is it? Driven by technique impact (credential dumping on a domain controller is worse than a single file creation on a standard workstation), affected assets, and blast radius (1 host vs. lateral movement across 20 hosts).</p>
-
+          <h3>Confidence &times; Severity Action Matrix</h3>
           <div class="table-wrap">
             <table class="data-table">
               <thead>
@@ -482,23 +536,39 @@
             </table>
           </div>
 
-          <p>Five evidence factors that raise confidence:</p>
-          <ul>
-            <li>Multiple independent data sources confirm the same behavior (endpoint, network, identity all agree).</li>
-            <li>Behavior matches a known actor TTP profile documented in recent threat reports.</li>
-            <li>Anomalous timing or pattern with no legitimate business explanation identified after checking with asset owners.</li>
-            <li>Behavior observed across multiple hosts, not isolated to a single endpoint.</li>
-            <li>Host artifact or network artifact confirmed in EDR memory analysis, not just log-level evidence.</li>
-          </ul>
-
-          <p>Five evidence factors that lower confidence:</p>
-          <ul>
-            <li>Single data source only, no corroborating evidence from other log types.</li>
-            <li>The behavior matches a known admin tool or software management agent pattern.</li>
-            <li>Activity matches a documented false positive pattern in your environment's baseline.</li>
-            <li>Activity is confined to a single host with no lateral or network indicators.</li>
-            <li>The finding comes from an F-rated source with no additional corroboration.</li>
-          </ul>
+          <h3>What Raises or Lowers Confidence</h3>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Raises Confidence</th>
+                  <th>Lowers Confidence</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Multiple independent data sources confirm the same behavior (endpoint, network, identity all agree)</td>
+                  <td>Single data source only, no corroborating evidence from other log types</td>
+                </tr>
+                <tr>
+                  <td>Behavior matches a known actor TTP profile documented in recent threat reports</td>
+                  <td>The behavior matches a known admin tool or software management agent pattern</td>
+                </tr>
+                <tr>
+                  <td>Anomalous timing or pattern with no legitimate business explanation identified after checking with asset owners</td>
+                  <td>Activity matches a documented false positive pattern in your environment's baseline</td>
+                </tr>
+                <tr>
+                  <td>Behavior observed across multiple hosts, not isolated to a single endpoint</td>
+                  <td>Activity is confined to a single host with no lateral or network indicators</td>
+                </tr>
+                <tr>
+                  <td>Host artifact or network artifact confirmed in EDR memory analysis, not just log-level evidence</td>
+                  <td>The finding comes from an F-rated source with no additional corroboration</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </section>
 
         <!-- SECTION 6 -->
@@ -523,7 +593,8 @@
             <li>Check asset context. Is this a server, a developer machine, a privileged admin workstation, or a standard user endpoint? The same behavior means different things on different assets.</li>
           </ol>
 
-          <p>Suppression vs. filtering: suppress known-good baselines in your hunt query using exclusion filters (faster, less noise in results). Apply post-result filtering during the review phase for edge cases where suppression would be too broad. Never suppress without documenting exactly why the suppression was added and which analyst added it.</p>
+          <h3>Suppression vs. Filtering</h3>
+          <p>Suppress known-good baselines in your hunt query using exclusion filters (faster, less noise in results). Apply post-result filtering during the review phase for edge cases where suppression would be too broad. Never suppress without documenting exactly why the suppression was added and which analyst added it.</p>
 
           <div class="callout-tip">
             <strong>Tip:</strong> A well-documented false positive is not a failure. It improves every future hunt that encounters the same pattern. A poorly documented false positive that you re-investigate from scratch six months later is wasted analyst time twice, and it erodes trust in the hunt program's efficiency.

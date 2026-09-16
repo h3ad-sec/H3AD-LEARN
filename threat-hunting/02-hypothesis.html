@@ -145,6 +145,7 @@
         <!-- SECTION 1 -->
         <section class="content-section" id="what-is-hypothesis">
           <h2>What Makes a Good Hypothesis?</h2>
+          <h3>Hypothesis vs. Concern</h3>
           <p>A hypothesis is a specific, testable statement about adversary behavior in your environment. It is not a concern, not a vague worry, and not a repeat of a problem statement. It names the technique, the expected evidence, and the scope of investigation.</p>
 
           <p>Compare these two statements:</p>
@@ -155,7 +156,7 @@
 
           <p>The first is a concern. The second is a hypothesis. You can write a query to test the second one. You cannot write a query to test the first.</p>
 
-          <p>Four qualities make a hypothesis ready to hunt:</p>
+          <h3>Four Qualities of a Ready Hypothesis</h3>
           <ul>
             <li><strong>Specific:</strong> Names a technique and describes its expected behavioral signature. Testable with available data.</li>
             <li><strong>Actionable:</strong> A query or set of queries can be written immediately to investigate it.</li>
@@ -167,6 +168,7 @@
             <strong>Note:</strong> If you cannot write a specific query to test it, it is not a hypothesis. It is a concern. Concerns belong in risk registers. Hypotheses belong in hunt backlogs.
           </div>
 
+          <h3>Bad Hypotheses vs. Improved Versions</h3>
           <div class="table-wrap">
             <table class="data-table">
               <thead>
@@ -210,7 +212,8 @@
         <!-- SECTION 2 -->
         <section class="content-section" id="hypothesis-sources">
           <h2>Where Hypotheses Come From</h2>
-          <p>Hunters often stall at hypothesis generation because they treat it as creative work. It is not. Hypotheses come from structured inputs: threat intelligence, the ATT&CK framework, anomalies in your own data, and situational context from your organization. Each source type produces a different kind of hypothesis with different reliability and urgency characteristics.</p>
+          <h3>Four Source Types</h3>
+          <p>Hunters often stall at hypothesis generation because they treat it as creative work. It is not. Each source type below produces a different kind of hypothesis with different reliability and urgency characteristics.</p>
 
           <div class="table-wrap">
             <table class="data-table">
@@ -251,9 +254,15 @@
             </table>
           </div>
 
-          <p>Prioritize in this order: Intel-Driven first (real, attributed threat to your industry), Situational second (business context makes specific attack types more likely), TTP-Driven third (systematic coverage improvement), Anomaly-Driven fourth (data signals that may or may not be threats).</p>
+          <h3>Prioritizing by Source</h3>
+          <ol>
+            <li><strong>Intel-Driven:</strong> real, attributed threat to your industry.</li>
+            <li><strong>Situational:</strong> business context makes specific attack types more likely.</li>
+            <li><strong>TTP-Driven:</strong> systematic coverage improvement.</li>
+            <li><strong>Anomaly-Driven:</strong> data signals that may or may not be threats.</li>
+          </ol>
 
-          <p>CrowdStrike OverWatch tracks over 140 named adversary groups. Their hunt team knows which groups target which industry verticals and uses that context to prioritize which hypotheses are relevant each week. You may not have that intelligence depth, but the principle scales: use what you know about who targets organizations like yours to bias your hypothesis backlog toward the most relevant threats.</p>
+          <p>CrowdStrike OverWatch tracks over 140 named adversary groups and uses that context to prioritize which hypotheses are relevant each week. You may not have that intelligence depth, but the principle scales: use what you know about who targets organizations like yours to bias your hypothesis backlog toward the most relevant threats.</p>
 
           <div class="callout-tip">
             <strong>Tip:</strong> The best hypotheses combine three elements: who (the threat actor or actor category), what (the specific ATT&CK technique), and where (your environment's attack surface relevant to that technique). A hypothesis with all three is faster to scope and easier to evaluate.
@@ -263,7 +272,8 @@
         <!-- SECTION 3 -->
         <section class="content-section" id="able-framework">
           <h2>The ABLE Framework</h2>
-          <p>ABLE is the hypothesis structuring model from the PEAK framework (developed by Splunk SURGe). It forces you to answer four questions before writing a single query: Actor, Behavior, Location, Evidence. If you cannot answer all four, the hypothesis is not ready.</p>
+          <h3>The Four ABLE Components</h3>
+          <p>ABLE is the hypothesis structuring model from the PEAK framework (developed by Splunk SURGe). It forces you to answer four questions before writing a single query. If you cannot answer all four, the hypothesis is not ready.</p>
 
           <div class="table-wrap">
             <table class="data-table">
@@ -299,22 +309,36 @@
             </table>
           </div>
 
+          <h3>Worked Examples</h3>
           <div class="callout-example">
             <strong>Worked Example 1: APT41 / Process Injection via DLL</strong>
-            <p><strong>Actor:</strong> APT41 (state-sponsored, dual financial and espionage motivation, known to target healthcare and financial services)</p>
-            <p><strong>Behavior:</strong> T1055.001 Process Injection. APT41 injects malicious DLLs into legitimate processes using CreateRemoteThread to evade process-based detection and inherit the trust of the host process.</p>
-            <p><strong>Location:</strong> Windows endpoints in the finance and trading application segment, specifically hosts running the trading platform and portfolio management software.</p>
-            <p><strong>Evidence:</strong> Sysmon Event 10 (ProcessAccess) from a non-system process targeting lsass.exe or a finance application process with GrantedAccess flags indicating write permissions (0x1FFFFF, 0x1010). Sysmon Event 7 (ImageLoad) showing an unsigned or unusual DLL loaded into a legitimate process. ETW telemetry showing CreateRemoteThread API calls across process boundaries.</p>
+            <div class="table-wrap">
+              <table class="data-table">
+                <tbody>
+                  <tr><td><strong>Actor</strong></td><td>APT41 (state-sponsored, dual financial and espionage motivation, known to target healthcare and financial services)</td></tr>
+                  <tr><td><strong>Behavior</strong></td><td>T1055.001 Process Injection. APT41 injects malicious DLLs into legitimate processes using CreateRemoteThread to evade process-based detection and inherit the trust of the host process.</td></tr>
+                  <tr><td><strong>Location</strong></td><td>Windows endpoints in the finance and trading application segment, specifically hosts running the trading platform and portfolio management software.</td></tr>
+                  <tr><td><strong>Evidence</strong></td><td>Sysmon Event 10 (ProcessAccess) from a non-system process targeting lsass.exe or a finance application process with GrantedAccess flags indicating write permissions (0x1FFFFF, 0x1010). Sysmon Event 7 (ImageLoad) showing an unsigned or unusual DLL loaded into a legitimate process. ETW telemetry showing CreateRemoteThread API calls across process boundaries.</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <div class="callout-example">
             <strong>Worked Example 2: Ransomware Pre-Deployment / Shadow Copy Deletion</strong>
-            <p><strong>Actor:</strong> Ransomware affiliate (financially motivated, operating in pre-encryption phase, goal is to disable recovery options before deploying encryptor)</p>
-            <p><strong>Behavior:</strong> T1490 Inhibit System Recovery. Attacker deletes Volume Shadow Copies using vssadmin.exe or wmic.exe to prevent victim from recovering files without paying ransom. This consistently occurs minutes to hours before encryption begins.</p>
-            <p><strong>Location:</strong> All Windows servers and workstations. Priority: file servers, backup servers, domain controllers.</p>
-            <p><strong>Evidence:</strong> Process creation events (Event 4688 or Sysmon 1) where Image ends with vssadmin.exe or wmic.exe, CommandLine contains "delete shadows" or "shadowcopy delete". Parent process is often cmd.exe or PowerShell.exe, which may itself have been spawned by a remote execution mechanism. Absence of legitimate backup software in the process tree.</p>
+            <div class="table-wrap">
+              <table class="data-table">
+                <tbody>
+                  <tr><td><strong>Actor</strong></td><td>Ransomware affiliate (financially motivated, operating in pre-encryption phase, goal is to disable recovery options before deploying encryptor)</td></tr>
+                  <tr><td><strong>Behavior</strong></td><td>T1490 Inhibit System Recovery. Attacker deletes Volume Shadow Copies using vssadmin.exe or wmic.exe to prevent victim from recovering files without paying ransom. This consistently occurs minutes to hours before encryption begins.</td></tr>
+                  <tr><td><strong>Location</strong></td><td>All Windows servers and workstations. Priority: file servers, backup servers, domain controllers.</td></tr>
+                  <tr><td><strong>Evidence</strong></td><td>Process creation events (Event 4688 or Sysmon 1) where Image ends with vssadmin.exe or wmic.exe, CommandLine contains "delete shadows" or "shadowcopy delete". Parent process is often cmd.exe or PowerShell.exe, which may itself have been spawned by a remote execution mechanism. Absence of legitimate backup software in the process tree.</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
 
+          <h3>Blank Template</h3>
           <div class="callout-example">
             <strong>Blank ABLE Template (copy this into your hunt documentation):</strong>
             <pre class="mono" style="background:var(--panel-alt);padding:1rem;border-radius:6px;font-size:0.85rem;line-height:1.7;border:1px solid var(--border);">Actor:    [Named group | General category | Unknown advanced]
@@ -331,9 +355,8 @@ Evidence: [Log source | Event IDs | Artifact types | Specific fields and expecte
         <!-- SECTION 4 -->
         <section class="content-section" id="attck-for-hypotheses">
           <h2>ATT&CK as a Hypothesis Source</h2>
+          <h3>Reading a Technique Page</h3>
           <p>Every ATT&CK technique page is a structured hypothesis seed. It tells you who uses the technique, how it works, what artifacts it leaves, what logs you need, and what controls reduce its effectiveness. A hunter who knows how to extract that information can generate dozens of well-formed hypotheses from a single ATT&CK session.</p>
-
-          <p>How to read a technique page for hunting:</p>
           <ul>
             <li><strong>Procedure Examples:</strong> Real-world actor usage. This is the Actor field in ABLE. It also shows you specific implementation details that inform your query, such as the exact flags or file paths an actor uses.</li>
             <li><strong>Detection Section:</strong> ATT&CK's recommended detection guidance. Translate this directly into query logic. It is the starting point for your Evidence field.</li>
@@ -341,6 +364,7 @@ Evidence: [Log source | Event IDs | Artifact types | Specific fields and expecte
             <li><strong>Mitigations:</strong> Controls that reduce the technique's effectiveness. Useful context: if you have the mitigation deployed, factor that into your hypothesis scope.</li>
           </ul>
 
+          <h3>High-Frequency Techniques</h3>
           <p>Red Canary analyzed telemetry from 1,700 organizations covering 305 petabytes of data and 329 billion records per day. Across five years of analysis, the same techniques appear consistently in the top detections, comprising approximately 46% of all confirmed threats. These are your highest-priority hypothesis sources because they are what attackers actually use, not just what threat reports discuss theoretically.</p>
 
           <div class="table-wrap">
@@ -418,6 +442,7 @@ Evidence: [Log source | Event IDs | Artifact types | Specific fields and expecte
             </table>
           </div>
 
+          <h3>Common Technique Chains</h3>
           <p>Attackers chain techniques in predictable patterns. A single hunt rarely covers a full attack chain, but understanding the chains tells you which techniques to prioritize and what to pivot to when you find one. Three common chains worth building hypothesis pairs around:</p>
 
           <div class="table-wrap">
@@ -457,9 +482,8 @@ Evidence: [Log source | Event IDs | Artifact types | Specific fields and expecte
         <!-- SECTION 5 -->
         <section class="content-section" id="hypothesis-priority">
           <h2>Prioritizing Your Hunt Backlog</h2>
-          <p>A healthy hunt program generates hypotheses faster than it can execute them. That is a good problem to have, but it requires a disciplined prioritization system. Without one, hunters default to the most interesting hypothesis rather than the most important one. Interesting and important are not the same.</p>
-
-          <p>A simple four-factor scoring matrix prevents that bias. Score each hypothesis from 0-3 on each factor. Max total: 12. Hunt the highest scores first.</p>
+          <h3>The Four-Factor Scoring Matrix</h3>
+          <p>A healthy hunt program generates hypotheses faster than it can execute them. Without a disciplined system, hunters default to the most interesting hypothesis rather than the most important one. A simple four-factor scoring matrix prevents that bias: score each hypothesis from 0-3 on each factor, max total 12, hunt the highest scores first.</p>
 
           <div class="table-wrap">
             <table class="data-table">
@@ -505,6 +529,7 @@ Evidence: [Log source | Event IDs | Artifact types | Specific fields and expecte
             </table>
           </div>
 
+          <h3>Scoring in Practice</h3>
           <div class="table-wrap">
             <table class="data-table">
               <thead>
@@ -562,7 +587,40 @@ Evidence: [Log source | Event IDs | Artifact types | Specific fields and expecte
             </table>
           </div>
 
-          <p>Treat your hunt backlog like a Kanban board: Backlog (scored, not yet scheduled), Planned (assigned to a sprint or analyst), In Progress (hunt running), Complete (documented), and New Detections Created (rules or alerts derived from findings). The last stage is critical. A hunt that does not produce a detection rule or a documented data gap has not fully closed.</p>
+          <h3>Managing the Backlog</h3>
+          <p>Treat your hunt backlog like a Kanban board, moving each hypothesis through five stages:</p>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Backlog</div>
+              <div class="flow-step-desc">Scored, not yet scheduled</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Planned</div>
+              <div class="flow-step-desc">Assigned to a sprint or analyst</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">In Progress</div>
+              <div class="flow-step-desc">Hunt running</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Complete</div>
+              <div class="flow-step-desc">Documented</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">5</span>
+              <div class="flow-step-title">Detections Created</div>
+              <div class="flow-step-desc">Rules or alerts derived from findings</div>
+            </div>
+          </div>
+          <p>The last stage is critical. A hunt that does not produce a detection rule or a documented data gap has not fully closed.</p>
 
           <div class="callout-tip">
             <strong>Tip:</strong> Prioritize by what kills you if missed, not by what is most interesting to hunt. Kerberoasting is fascinating technically. But if your org has never hunted LSASS access and you have a data exfiltration risk, hunt LSASS first. Scoring removes that bias.
@@ -572,13 +630,15 @@ Evidence: [Log source | Event IDs | Artifact types | Specific fields and expecte
         <!-- SECTION 6 -->
         <section class="content-section" id="intel-to-hypothesis">
           <h2>Converting Threat Intel to Hypotheses</h2>
-          <p>Threat reports are dense and often written for intelligence consumers, not hunters. The skill is extracting the operational content: which techniques were used, in which sequence, with which tools, leaving which artifacts. Then translating each technique into an ABLE-structured hypothesis.</p>
+          <h3>From Report to Techniques</h3>
+          <p>Threat reports are dense and often written for intelligence consumers, not hunters. The skill is extracting the operational content, then translating each technique into an ABLE-structured hypothesis.</p>
 
           <div class="callout-example">
             <strong>Source Report Extract (simulated CTI product):</strong>
             <p>"Threat cluster CL-CRI-042 was observed targeting financial services firms in Q2 2026. Initial access via spearphishing with ISO attachments (T1566.001, T1553.005). Payload staged via BITSAdmin from compromised CDN infrastructure (T1105, T1197). Lateral movement via WMI remote process creation (T1047). Credential theft via comsvcs.dll MiniDump of LSASS (T1003.001). Data exfiltration over HTTPS to dedicated C2 domains registered via Cloudflare proxy (T1048.002, T1071.001)."</p>
           </div>
 
+          <h3>Building ABLE Hypotheses from the Report</h3>
           <p>From that single report, extract five distinct hypotheses:</p>
 
           <div class="table-wrap">
@@ -638,6 +698,7 @@ Evidence: [Log source | Event IDs | Artifact types | Specific fields and expecte
             </table>
           </div>
 
+          <h3>From Hypothesis to Detection Rule</h3>
           <p>Hypothesis 4 (comsvcs.dll LSASS dump) directly translates into a Sigma rule that any SIEM can consume:</p>
 
           <div class="code-block">
@@ -679,6 +740,7 @@ tags:
         <!-- SECTION 7 -->
         <section class="content-section" id="hypothesis-mistakes">
           <h2>Common Mistakes in Hypothesis Generation</h2>
+          <h3>Five Common Failure Patterns</h3>
           <p>Most hypothesis failures fall into five patterns. Recognizing them before you start saves hours of wasted hunt time.</p>
 
           <div class="table-wrap">
@@ -724,6 +786,7 @@ tags:
             <strong>Warning:</strong> A null result, no evidence found, is a valid and valuable outcome. It means one of two things: your controls are working as expected for this technique, or you have a data gap that prevented detection. Both outcomes are actionable. Document which it is. A null result without documentation is just a wasted hunt.
           </div>
 
+          <h3>Fixing Confirmation Bias</h3>
           <p>The confirmation bias mistake is the hardest to self-diagnose. The fix is structural: before executing any hunt, write down the conditions that would prove the hypothesis false. If your only planned queries are designed to confirm your suspicion, add at least one query that would surface contrary evidence. This is the same rigor applied in scientific investigation and it applies directly to adversary hunting.</p>
 
           <div class="callout-tip">
