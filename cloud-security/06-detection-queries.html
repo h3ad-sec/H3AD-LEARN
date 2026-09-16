@@ -144,10 +144,13 @@
           <h2>Choosing the Right Query Language for the Data Source</h2>
           <p>Detection engineers don't usually pick a query language the way they'd pick a programming language, by preference or prior familiarity. The choice almost always follows the log platform the data already lives in, and the log platform is usually decided by whichever team stood up the SIEM long before detection content was on anyone's roadmap. Writing detections means learning to work fluently in whatever the organization already has, and most cloud-focused analysts end up conversant in more than one.</p>
 
+          <h3>KQL for Sentinel</h3>
           <p>KQL, Kusto Query Language, is the language of Microsoft Sentinel and any Log Analytics workspace underneath it. If an organization is running Entra ID (formerly Azure AD) and forwarding sign-in and audit telemetry into Sentinel, which is the most common destination for that data, detections against it get written in KQL. The language reads closer to a data pipeline than a traditional search syntax: a table name, piped through a sequence of filtering, projection, and aggregation operators, each stage narrowing or reshaping the result set that flows into the next.</p>
 
+          <h3>SPL for Splunk</h3>
           <p>SPL, Search Processing Language, is Splunk's native query language, and it's the one you'll reach for most often when AWS CloudTrail is the data source, since CloudTrail logs shipped through a forwarder or an add-on into Splunk are extremely common in AWS-heavy environments that adopted Splunk before cloud-native SIEM options matured. SPL has a similar pipe-based feel to KQL at a conceptual level, a base search followed by a chain of commands, but the syntax, function names, and idioms are different enough that fluency in one doesn't transfer automatically to the other.</p>
 
+          <h3>Sigma as a Vendor-Neutral Format</h3>
           <p>Sigma sits apart from both because it isn't tied to a backend at all. It's a vendor-neutral, YAML-based format for describing detection logic in the abstract: what log source, what field values, what condition. A Sigma rule on its own doesn't execute anywhere. It gets converted, typically with a tool like <code>sigma-cli</code> or the pySigma conversion backends, into the native query syntax of whatever platform is going to run it, KQL, SPL, or otherwise. That indirection is the entire point: an analyst writes the detection logic once and doesn't have to hand-translate it every time it needs to run somewhere new.</p>
 
           <div class="callout-info">
@@ -172,8 +175,11 @@
           <h2>KQL for Entra Sign-In and Audit Logs</h2>
           <p>Two Entra tables carry most of the identity detection weight in a Sentinel workspace: <code>SigninLogs</code>, which records every interactive and non-interactive authentication attempt, and <code>AuditLogs</code>, which records administrative and configuration actions taken within the tenant. Chapter 2 covered what password spray and consent phishing look like from an attacker's perspective. Here's how each shows up in the shape of a KQL query built against those two tables.</p>
 
-          <p>A password spray detection against <code>SigninLogs</code> starts by filtering on <code>ResultType</code>, the field that carries the sign-in error code. A ResultType of 50126 indicates an invalid username or password, and a small cluster of related codes covers other authentication failures. The query filters down to failed sign-ins within a rolling time window, then aggregates by <code>UserPrincipalName</code> and <code>IPAddress</code> using a <code>summarize</code> operator, counting distinct usernames touched from each source alongside the failure count per username. Password spray has a distinctive statistical signature once you see it this way: a small number of source IP addresses, each attempting authentication against a large number of distinct usernames, each username tried only once or twice. That's structurally different from credential stuffing (many attempts against the same account) or simple brute force (many attempts against one account from one source), and the aggregation is what separates the three.</p>
+          <h3>Password Spray Detection</h3>
+          <p>A password spray detection against <code>SigninLogs</code> starts by filtering on <code>ResultType</code>, the field that carries the sign-in error code. A ResultType of 50126 indicates an invalid username or password, and a small cluster of related codes covers other authentication failures. The query filters down to failed sign-ins within a rolling time window, then aggregates by <code>UserPrincipalName</code> and <code>IPAddress</code> using a <code>summarize</code> operator, counting distinct usernames touched from each source alongside the failure count per username.</p>
+          <p>Password spray has a distinctive statistical signature once you see it this way: a small number of source IP addresses, each attempting authentication against a large number of distinct usernames, each username tried only once or twice. That's structurally different from credential stuffing (many attempts against the same account) or simple brute force (many attempts against one account from one source), and the aggregation is what separates the three.</p>
 
+          <h3>Consent-Grant Detection</h3>
           <p>A consent-grant detection against <code>AuditLogs</code> works differently because the goal isn't statistical, it's a review-worthy event that should surface every time it happens rather than only when it crosses a threshold. The query filters <code>OperationName</code> for values like "Consent to application", which fires whenever a user or admin grants an OAuth application delegated or application permissions into the tenant. Because most such events are benign (a user connecting a calendar app, a team approving a legitimate integration), the query typically projects out the granted permission scopes from the nested <code>TargetResources</code> field and flags anything requesting high-privilege scopes such as mail read/send, full directory access, or offline access, so an analyst reviews the request rather than the noise floor of routine consent activity.</p>
 
           <div class="code-block">
@@ -217,11 +223,14 @@
 
         <section class="content-section" id="sigma-cloud-sources">
           <h2>Sigma Rules for Cloud Log Sources</h2>
+          <h3>Anatomy of a Sigma Rule</h3>
           <p>Sigma is best understood as a generic signature format for log-based detections, the log equivalent of what YARA does for files or Snort does for network traffic. A Sigma rule is a YAML document with a small, consistent set of top-level fields: a title and description, a <code>logsource</code> block identifying what kind of data the rule applies to, a <code>detection</code> block defining the actual matching logic, and metadata like severity level and references. None of that YAML executes directly against a log platform. A conversion tool reads it and emits the equivalent native query for whatever backend you point it at.</p>
 
           <p>A Sigma rule targeting AWS CloudTrail sets its <code>logsource</code> category to <code>cloudtrail</code> (with <code>product: aws</code>), which tells the conversion tooling which field mappings to apply, since the same logical field name in Sigma might map to a different literal field name depending on how CloudTrail data lands in a given SIEM. The <code>detection</code> block then defines one or more named selections, each a set of field-value pairs to match, and a <code>condition</code> line that says how those selections combine. A rule watching for logging tampering, for instance, would define a selection matching <code>eventName</code> values of <code>StopLogging</code> or <code>DeleteTrail</code>, both of which are actions an attacker takes to blind CloudTrail after gaining a foothold, and a condition of simply <code>selection</code> to alert whenever that selection matches.</p>
 
-          <p>The value of writing that logic in Sigma instead of directly in KQL or SPL isn't stylistic, it's operational. An organization running Sentinel in one business unit and Splunk in another, or a detection engineer publishing rules for a community that spans multiple SIEM vendors, would otherwise have to hand-maintain parallel copies of the same logic in two syntaxes and keep them in sync by hand every time the rule gets tuned. Writing it once in Sigma and converting it per backend removes that duplication and the drift that comes with it. It's also why Sigma has become the de facto exchange format for publicly shared detection content: a rule published against CloudTrail logging-tampering behavior is useful to any analyst regardless of which SIEM they run, because the conversion step is the only thing standing between the rule and their platform.</p>
+          <h3>Why Write It in Sigma Instead of Directly</h3>
+          <p>The value of writing that logic in Sigma instead of directly in KQL or SPL isn't stylistic, it's operational. An organization running Sentinel in one business unit and Splunk in another, or a detection engineer publishing rules for a community that spans multiple SIEM vendors, would otherwise have to hand-maintain parallel copies of the same logic in two syntaxes and keep them in sync by hand every time the rule gets tuned. Writing it once in Sigma and converting it per backend removes that duplication and the drift that comes with it.</p>
+          <p>It's also why Sigma has become the de facto exchange format for publicly shared detection content: a rule published against CloudTrail logging-tampering behavior is useful to any analyst regardless of which SIEM they run, because the conversion step is the only thing standing between the rule and their platform.</p>
 
           <div class="code-block">
             <span class="lang-label">Sigma</span>
@@ -252,10 +261,11 @@ tags:
 
         <section class="content-section" id="spl-cloudtrail-splunk">
           <h2>SPL for AWS CloudTrail in Splunk</h2>
-          <p>CloudTrail data ingested into Splunk, typically through the AWS Add-on or a forwarder writing to an S3-backed input, lands under a sourcetype conventionally named something like <code>aws:cloudtrail</code>. An SPL search against it starts the same way most Splunk searches do: a base search scoped to that sourcetype and a relevant time range, followed by a chain of piped commands that filter and reshape the results.
+          <h3>Building the Base Detection</h3>
+          <p>CloudTrail data ingested into Splunk, typically through the AWS Add-on or a forwarder writing to an S3-backed input, lands under a sourcetype conventionally named something like <code>aws:cloudtrail</code>. An SPL search against it starts the same way most Splunk searches do: a base search scoped to that sourcetype and a relevant time range, followed by a chain of piped commands that filter and reshape the results.</p>
+          <p>A detection for suspicious IAM activity, for example watching for <code>eventName</code> values like <code>CreateAccessKey</code> or <code>AttachUserPolicy</code>, filters the base search down to those event names and then pipes into a <code>stats</code> command counting occurrences grouped by the identity that performed the action, typically fields nested under <code>userIdentity</code> such as the ARN or principal ID. That count-by-identity step is what turns a raw event stream into something an analyst can reason about: one <code>AttachUserPolicy</code> call from a principal that does this routinely as part of its job is unremarkable, ten from a principal that has never done it before is a different story entirely.</p>
 
-          A detection for suspicious IAM activity, for example watching for <code>eventName</code> values like <code>CreateAccessKey</code> or <code>AttachUserPolicy</code>, filters the base search down to those event names and then pipes into a <code>stats</code> command counting occurrences grouped by the identity that performed the action, typically fields nested under <code>userIdentity</code> such as the ARN or principal ID. That count-by-identity step is what turns a raw event stream into something an analyst can reason about: one <code>AttachUserPolicy</code> call from a principal that does this routinely as part of its job is unremarkable, ten from a principal that has never done it before is a different story entirely.</p>
-
+          <h3>Extending With a Lookup Table</h3>
           <p>Where SPL detections often go further than a simple count is by joining against a lookup table of known-good identities or expected behavior. A lookup mapping IAM principal names or role ARNs to their normal function (a CI/CD deployment role, a backup service account) lets the search filter out or de-prioritize activity from identities that are expected to perform sensitive actions as part of their routine job, and surface activity from identities that aren't on that list at all, or that suddenly start performing an action their history and the lookup say they shouldn't. A threshold comparison, flagging counts that exceed a static number or a rolling average, layered on top of that lookup-based filtering is what turns a search into something closer to a production alert rather than a query an analyst has to run and eyeball manually.</p>
 
           <div class="code-block">
@@ -273,11 +283,12 @@ tags:
           <h2>Tuning Cloud Detections to Reduce False Positives</h2>
           <p>The single hardest problem in cloud detection engineering isn't writing a query that catches the threat, it's writing one that doesn't also catch everything else. A huge share of API activity in any real cloud environment is legitimate automation: CI/CD pipelines creating and tearing down infrastructure, infrastructure-as-code tools like Terraform applying changes on a schedule, Lambda functions or Azure Functions firing on triggers, service principals performing the same routine task hundreds of times a day. A naive detection written directly against a sensitive event name, alert whenever <code>AttachUserPolicy</code> or <code>CreateAccessKey</code> fires, will bury an analyst in noise from that automation within the first day it's live, and an analyst drowning in noise stops trusting the detection entirely, which is worse than not having it.</p>
 
-          <p>The first practical tuning lever is allowlisting known automation identities. If a specific service principal or IAM role is known to perform a given sensitive action as its entire job, excluding that identity from the detection (or routing its matches to a low-priority queue instead of a page) removes the largest and most predictable source of noise without weakening the detection against anything unexpected. This has to be maintained deliberately, since an allowlist that never gets reviewed becomes a blind spot an attacker could eventually exploit by compromising one of the excluded identities.</p>
-
-          <p>The second lever is baselining normal call volume per identity before alerting on deviation, rather than alerting on the presence of an event at all. An identity that calls a given API a few hundred times a day, every day, generating an alert on the two-hundred-and-first call accomplishes nothing. Alerting when that same identity's call volume jumps well outside its established pattern, or when it calls an API it has never called before, produces a signal that actually correlates with something having changed, which is usually what a detection is trying to catch in the first place.</p>
-
-          <p>The third and most durable lever is combining multiple weak signals instead of keying a detection off any single event name. An unusual action, from an unusual source, outside the identity's normal operating hours, is a meaningfully stronger signal than any one of those three conditions alone, and building the detection logic to require some combination of them (rather than firing on the first condition met) is usually what separates a detection that survives contact with a real production environment from one that gets disabled within a week because it never stops firing.</p>
+          <h3>Three Tuning Levers, Weakest to Most Durable</h3>
+          <ol>
+            <li><strong>Allowlist known automation identities.</strong> If a specific service principal or IAM role is known to perform a given sensitive action as its entire job, excluding that identity from the detection (or routing its matches to a low-priority queue instead of a page) removes the largest and most predictable source of noise without weakening the detection against anything unexpected. This has to be maintained deliberately, since an allowlist that never gets reviewed becomes a blind spot an attacker could eventually exploit by compromising one of the excluded identities.</li>
+            <li><strong>Baseline normal call volume per identity</strong> before alerting on deviation, rather than alerting on the presence of an event at all. An identity that calls a given API a few hundred times a day, every day, generating an alert on the two-hundred-and-first call accomplishes nothing. Alerting when that same identity's call volume jumps well outside its established pattern, or when it calls an API it has never called before, produces a signal that actually correlates with something having changed, which is usually what a detection is trying to catch in the first place.</li>
+            <li><strong>Combine multiple weak signals</strong> instead of keying a detection off any single event name. An unusual action, from an unusual source, outside the identity's normal operating hours, is a meaningfully stronger signal than any one of those three conditions alone, and building the detection logic to require some combination of them (rather than firing on the first condition met) is usually what separates a detection that survives contact with a real production environment from one that gets disabled within a week because it never stops firing. This is the most durable of the three levers.</li>
+          </ol>
 
           <div class="callout-warning">
             <strong>Warning:</strong> Resist the temptation to tune a noisy detection by narrowing its scope until it stops firing on automation, without checking what real attacker behavior it would still catch afterward. A detection tuned purely to silence false positives, rather than tuned around what genuinely distinguishes malicious activity from benign, can end up excluding the exact conditions an attacker would actually trigger.
@@ -286,10 +297,44 @@ tags:
 
         <section class="content-section" id="detection-to-response">
           <h2>From Detection to Response</h2>
+          <h3>Why Network Containment Doesn't Apply</h3>
           <p>A detection firing is the start of the response process, not the end of it, and cloud response looks meaningfully different from the traditional playbook most analysts learn first. Traditional incident response against a compromised host centers on network containment: pull the machine off the network, isolate it, stop it from talking to anything else while it's investigated. That model doesn't map onto a compromised cloud identity, because there's no network segment to isolate an identity from. An attacker holding valid credentials for a service principal or an IAM role can act against the cloud API from anywhere on the internet, and revoking their network access changes nothing about their ability to keep calling that API.</p>
 
-          <p>Containing a compromised cloud identity means disabling or rotating its credentials (resetting the password or disabling the account for a human identity, rotating or deleting the access key for a service account), revoking any active sessions and refresh tokens so previously issued authentication doesn't keep working even after the credential itself is changed, and reviewing what permissions and OAuth consents were granted recently, since an attacker who had access for any length of time may have added a persistence mechanism, like a new application registration or a broadened role assignment, that survives a simple credential rotation. Skipping that last step is one of the more common reasons an incident that looked closed reopens a few weeks later.</p>
+          <h3>The Containment Sequence</h3>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Detection Fires</div>
+              <div class="flow-step-desc">The start of the response process, not the end of it.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Disable or Rotate Credentials</div>
+              <div class="flow-step-desc">Reset the password or disable the account for a human identity; rotate or delete the access key for a service account.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Revoke Sessions and Tokens</div>
+              <div class="flow-step-desc">So previously issued authentication doesn't keep working even after the credential itself is changed.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Review Recently Granted Permissions</div>
+              <div class="flow-step-desc">Check for a persistence mechanism, like a new application registration or a broadened role assignment, that would survive a simple credential rotation.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">5</span>
+              <div class="flow-step-title">Automate via SOAR</div>
+              <div class="flow-step-desc">A detection firing triggers the sequence automatically, with the analyst validating and picking up the investigation from there.</div>
+            </div>
+          </div>
+          <p>Skipping the permissions review step is one of the more common reasons an incident that looked closed reopens a few weeks later.</p>
 
+          <h3>Why Automation Is Usually Necessary</h3>
           <p>Doing all of that manually, one console click or one CLI command at a time, is often too slow to matter. An attacker operating through a compromised cloud identity can act as fast as the API allows, and a human analyst working through a runbook step by step is not going to out-pace that. This is where SOAR playbooks and response automation earn their keep in a cloud environment specifically: a detection firing can trigger an automated sequence that disables the identity, revokes its tokens, and opens a case for human review, all within seconds of the alert, with the analyst's role shifting from executing each containment step to validating that the automation did the right thing and picking up the investigation from there.</p>
         </section>
 

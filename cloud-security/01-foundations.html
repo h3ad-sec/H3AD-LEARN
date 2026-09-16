@@ -146,10 +146,21 @@
 
         <section class="content-section" id="what-is-cloud-security">
           <h2>What Is Cloud Security?</h2>
-          <p>Cloud security is the set of controls, practices, and detection capability applied to workloads, identities, and data that run on infrastructure you do not own. That last clause is the entire discipline in miniature. On-prem, your organization controls the hypervisor, the network fabric, the physical rack, and the patch cadence of every layer. In the cloud, a provider controls some of those layers and you control others, and the split is contractual, not technical. Get the split wrong and you either leave a gap nobody is watching or waste effort duplicating controls the provider already runs.</p>
+          <p>Cloud security is the set of controls, practices, and detection capability applied to workloads, identities, and data that run on infrastructure you do not own. That last clause is the entire discipline in miniature.</p>
 
-          <p>The mistake most teams make early is treating cloud security as "on-prem security, but the servers are somewhere else." That framing fails immediately. There is no physical perimeter to defend. There is no single network diagram that shows every asset. Resources are created and destroyed by API calls, often outside change control, often by automation nobody in the security team wrote. An S3 bucket or a storage account can be public the moment it's created if a template has the wrong default. None of that has a clean on-prem analogue.</p>
+          <h3>Controls Are Split, Not Duplicated</h3>
+          <p>On-prem, your organization controls the hypervisor, the network fabric, the physical rack, and the patch cadence of every layer. In the cloud, a provider controls some of those layers and you control others, and the split is contractual, not technical. Get the split wrong and you either leave a gap nobody is watching or waste effort duplicating controls the provider already runs.</p>
 
+          <h3>Why "On-Prem, But Remote" Framing Fails</h3>
+          <p>The mistake most teams make early is treating cloud security as "on-prem security, but the servers are somewhere else." That framing fails immediately.</p>
+          <ul>
+            <li><strong>No physical perimeter to defend.</strong> There is no single network diagram that shows every asset.</li>
+            <li><strong>Resources are created and destroyed by API calls</strong>, often outside change control, often by automation nobody in the security team wrote.</li>
+            <li><strong>Defaults can be dangerous.</strong> An S3 bucket or a storage account can be public the moment it's created if a template has the wrong default.</li>
+          </ul>
+          <p>None of that has a clean on-prem analogue.</p>
+
+          <h3>What Carries Over, What Changes</h3>
           <p>What does carry over is the underlying goal: protect confidentiality, integrity, and availability of the workload and the data it touches. What changes is where the controls live, who is responsible for each one, and what "normal" looks like for detection purposes. A login from a new country is suspicious on a corporate laptop. In a cloud console with a globally distributed workforce and CI/CD runners spinning up in different regions, it might be Tuesday.</p>
 
           <div class="callout-info">
@@ -159,9 +170,23 @@
 
         <section class="content-section" id="shared-responsibility">
           <h2>The Shared Responsibility Model</h2>
-          <p>Every major cloud provider publishes a shared responsibility model, and every one of them draws the same basic line: the provider secures the cloud, the customer secures what's in the cloud. AWS, Azure, and Google Cloud phrase it slightly differently, but the substance is identical. The provider is responsible for physical data center security, hardware, the virtualization layer, and the global network backbone. The customer is responsible for everything they configure on top of that: identity, data classification, network rules within their environment, and the guest OS if they're running unmanaged compute.</p>
+          <p>Every major cloud provider publishes a shared responsibility model, and every one of them draws the same basic line: the provider secures the cloud, the customer secures what's in the cloud. AWS, Azure, and Google Cloud phrase it slightly differently, but the substance is identical.</p>
 
-          <p>Where the line falls depends entirely on the service model, and this is the part teams get wrong most often. In Infrastructure as a Service (IaaS, think AWS EC2 or Azure Virtual Machines), the customer owns almost everything above the hypervisor: OS patching, network configuration, identity, application code, data. In Platform as a Service (PaaS, think Azure App Service or AWS Elastic Beanstalk), the provider manages the OS and runtime, and the customer is responsible for application configuration, identity, and data. In Software as a Service (SaaS, think Microsoft 365 or Salesforce), the provider manages nearly the entire stack, and the customer's remaining responsibility narrows down to identity, access configuration, and data governance.</p>
+          <div class="callout-info">
+            <strong>The two halves:</strong>
+            <ul>
+              <li><strong>Provider secures:</strong> physical data center security, hardware, the virtualization layer, and the global network backbone.</li>
+              <li><strong>Customer secures:</strong> everything configured on top of that, identity, data classification, network rules within their environment, and the guest OS if running unmanaged compute.</li>
+            </ul>
+          </div>
+
+          <h3>Where the Line Falls by Service Model</h3>
+          <p>Where the line falls depends entirely on the service model, and this is the part teams get wrong most often.</p>
+          <ul>
+            <li><strong>Infrastructure as a Service (IaaS)</strong>, think AWS EC2 or Azure Virtual Machines: the customer owns almost everything above the hypervisor, OS patching, network configuration, identity, application code, data.</li>
+            <li><strong>Platform as a Service (PaaS)</strong>, think Azure App Service or AWS Elastic Beanstalk: the provider manages the OS and runtime, and the customer is responsible for application configuration, identity, and data.</li>
+            <li><strong>Software as a Service (SaaS)</strong>, think Microsoft 365 or Salesforce: the provider manages nearly the entire stack, and the customer's remaining responsibility narrows down to identity, access configuration, and data governance.</li>
+          </ul>
 
           <div class="table-wrap">
             <table>
@@ -180,6 +205,7 @@
             </table>
           </div>
 
+          <h3>The Row That Never Changes Owner</h3>
           <p>Notice the row that never changes ownership regardless of service model: identity and access, and data governance. That's not an accident. No matter how much of the stack a provider manages for you, they cannot know which of your employees should have access to which data, and they cannot classify your data for you. That's the one constant thread running through every breach postmortem this module will reference: the provider held up their side, and the customer misconfigured theirs.</p>
 
           <div class="callout-warning">
@@ -191,13 +217,31 @@
           <h2>The Cloud Attack Surface</h2>
           <p>The cloud attack surface differs from on-prem in ways that reshape how you have to think about defense, not just where you draw the network diagram. Four properties matter most for a defender walking in from a traditional environment.</p>
 
-          <p>First, everything is API-driven. Every resource, every permission grant, every network rule exists because an API call created it. This is a strength for automation and a liability for security, because it means the entire environment can be reshaped by anyone holding the right credential, instantly, with no physical step involved. An attacker with a stolen access key doesn't need to be on your network. They need an internet connection and the API endpoint.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Property</th><th>Core Risk</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>API-driven</td><td>The entire environment can be reshaped by anyone holding the right credential, instantly, with no physical step involved.</td></tr>
+                <tr><td>Ephemeral by design</td><td>Long-running host baselines don't map onto infrastructure that may not exist an hour from now.</td></tr>
+                <tr><td>Misconfiguration is the vulnerability</td><td>The dominant root cause is a permission or network setting configured incorrectly, not an unpatched CVE.</td></tr>
+                <tr><td>No single perimeter</td><td>Entry points equal the number of identities, API endpoints, and trust relationships, including cross-account and cross-tenant ones.</td></tr>
+              </tbody>
+            </table>
+          </div>
 
-          <p>Second, resources are ephemeral by design. Auto-scaling groups spin instances up and tear them down based on load. Containers live for minutes. Serverless functions execute and vanish. Traditional detection built around "this host has been running for six months and we know its baseline" doesn't map cleanly onto infrastructure that may not exist an hour from now. Detection has to shift toward identity and API-call behavior, because that's what persists when the compute doesn't.</p>
+          <h3>Everything Is API-Driven</h3>
+          <p>Every resource, every permission grant, every network rule exists because an API call created it. This is a strength for automation and a liability for security, because it means the entire environment can be reshaped by anyone holding the right credential, instantly, with no physical step involved. An attacker with a stolen access key doesn't need to be on your network. They need an internet connection and the API endpoint.</p>
 
-          <p>Third, misconfiguration is the vulnerability. On-prem, a large share of breaches trace back to an unpatched CVE. In the cloud, the dominant root cause is a permission or a network setting configured incorrectly: a storage bucket left public, a security group open to 0.0.0.0/0, an IAM role trusted by more principals than intended. These aren't bugs in the provider's software. They're customer-side configuration decisions, which is why the shared responsibility model matters so much for incident causation.</p>
+          <h3>Resources Are Ephemeral by Design</h3>
+          <p>Auto-scaling groups spin instances up and tear them down based on load. Containers live for minutes. Serverless functions execute and vanish. Traditional detection built around "this host has been running for six months and we know its baseline" doesn't map cleanly onto infrastructure that may not exist an hour from now. Detection has to shift toward identity and API-call behavior, because that's what persists when the compute doesn't.</p>
 
-          <p>Fourth, there is no single perimeter. A traditional network has a small number of ingress points you can instrument. A cloud environment has as many entry points as it has identities, API endpoints, and trust relationships, including ones that cross account and tenant boundaries. A compromised third-party integration with delegated access into your tenant is now part of your attack surface, whether or not you ever evaluated its security posture directly.</p>
+          <h3>Misconfiguration Is the Vulnerability</h3>
+          <p>On-prem, a large share of breaches trace back to an unpatched CVE. In the cloud, the dominant root cause is a permission or a network setting configured incorrectly: a storage bucket left public, a security group open to 0.0.0.0/0, an IAM role trusted by more principals than intended. These aren't bugs in the provider's software. They're customer-side configuration decisions, which is why the shared responsibility model matters so much for incident causation.</p>
+
+          <h3>There Is No Single Perimeter</h3>
+          <p>A traditional network has a small number of ingress points you can instrument. A cloud environment has as many entry points as it has identities, API endpoints, and trust relationships, including ones that cross account and tenant boundaries. A compromised third-party integration with delegated access into your tenant is now part of your attack surface, whether or not you ever evaluated its security posture directly.</p>
 
           <div class="callout-tip">
             <strong>Tip:</strong> When you're building a mental threat model for a cloud environment, stop asking "what's on the network" first. Start by asking "what identities exist, what can each of them do, and what trusts what." That question set maps far more accurately to how cloud incidents actually unfold, and it's the question Chapters 2 and 3 build detection content around directly.
@@ -208,11 +252,21 @@
           <h2>Identity as the New Perimeter</h2>
           <p>In an environment with no fixed network boundary, identity becomes the control plane that everything else depends on. This is the single most important mental shift for anyone moving from on-prem security into cloud security, and it's worth being explicit about the vocabulary before Chapters 2 and 3 go deep on Azure AD/Entra and AWS specifically.</p>
 
-          <p>A user identity is a human account, typically federated from an identity provider (Entra ID, Okta, Google Workspace) rather than created natively in the cloud platform. A service principal (Azure/Entra terminology) or IAM role/service account (AWS/GCP terminology) is a non-human identity used by applications, automation, and services to authenticate to cloud APIs. In most mature cloud environments, non-human identities outnumber human ones by a wide margin, and they are frequently over-privileged because it's easier to grant broad access once than to scope it precisely and revisit it later.</p>
+          <h3>Human vs. Non-Human Identity</h3>
+          <div class="callout-info">
+            <strong>Quick glossary:</strong>
+            <ul>
+              <li><strong>User identity:</strong> a human account, typically federated from an identity provider (Entra ID, Okta, Google Workspace) rather than created natively in the cloud platform.</li>
+              <li><strong>Service principal</strong> (Azure/Entra terminology) <strong>or IAM role/service account</strong> (AWS/GCP terminology): a non-human identity used by applications, automation, and services to authenticate to cloud APIs.</li>
+            </ul>
+          </div>
+          <p>In most mature cloud environments, non-human identities outnumber human ones by a wide margin, and they are frequently over-privileged because it's easier to grant broad access once than to scope it precisely and revisit it later.</p>
 
+          <h3>What Actually Defines Permissions</h3>
           <p>A role or policy is the object that actually defines what an identity can do. Azure uses role-based access control (RBAC) with built-in and custom role definitions assigned at a scope (subscription, resource group, resource). AWS uses IAM policies, which are JSON documents attached to users, groups, or roles, evaluated against an explicit-deny-wins model. The mechanics differ, but the underlying question is the same in every platform: what can this identity do, against what resources, and who granted that.</p>
 
-          <p>Trust relationships extend this further. A service principal in one tenant can be granted access into another tenant's resources. A role in one AWS account can be assumed by a principal in a different account. This is normal and often necessary for legitimate business integrations, but every trust relationship is also a potential lateral movement path, and most organizations cannot produce a complete list of who trusts what without tooling built specifically to answer that question.</p>
+          <h3>Trust Relationships Cut Both Ways</h3>
+          <p>A service principal in one tenant can be granted access into another tenant's resources. A role in one AWS account can be assumed by a principal in a different account. This is normal and often necessary for legitimate business integrations, but every trust relationship is also a potential lateral movement path, and most organizations cannot produce a complete list of who trusts what without tooling built specifically to answer that question.</p>
 
           <div class="table-wrap">
             <table>
@@ -236,11 +290,19 @@
           <h2>How Service Model Changes Your Risk</h2>
           <p>The service model you're running doesn't just move the shared responsibility line, it changes what a realistic attack actually looks like and what telemetry you'll have available to catch it. Understanding this up front saves a lot of wasted effort chasing detection strategies that don't fit the environment you're actually defending.</p>
 
-          <p>In IaaS, you inherit OS-level risk. Unpatched VMs, exposed management ports, weak local credentials, all the traditional endpoint concerns still apply, layered on top of cloud-native identity risk. Your telemetry sources expand to include cloud control-plane logs (who created, modified, or deleted this VM) in addition to whatever host-level agent you deploy.</p>
-
-          <p>In PaaS, OS-level risk mostly disappears, but application misconfiguration risk increases, because the provider exposes a large number of settings the customer controls without necessarily understanding the security implications of each one. A misconfigured App Service authentication setting or an overly permissive PaaS-to-PaaS managed identity grant is now the dominant risk category.</p>
-
-          <p>In SaaS and serverless, the attack surface narrows to almost pure identity and configuration. There's no OS to patch and often no network boundary to speak of. The entire security posture rests on who has access, what that access allows, and whether the platform's audit logging is enabled and being collected. This is why OAuth consent phishing (covered in Chapter 2) is such an effective technique against SaaS-heavy environments: it bypasses the identity provider's authentication entirely and grants an attacker-controlled application persistent, delegated access.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Service Model</th><th>Dominant Risk</th><th>Telemetry Implication</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>IaaS</td><td>OS-level risk is inherited: unpatched VMs, exposed management ports, weak local credentials, layered on top of cloud-native identity risk.</td><td>Telemetry expands to include cloud control-plane logs (who created, modified, or deleted this VM) in addition to whatever host-level agent you deploy.</td></tr>
+                <tr><td>PaaS</td><td>OS-level risk mostly disappears, but application misconfiguration risk increases because the provider exposes many settings the customer controls without necessarily understanding the security implications of each one.</td><td>A misconfigured App Service authentication setting or an overly permissive PaaS-to-PaaS managed identity grant becomes the dominant risk category to monitor for.</td></tr>
+                <tr><td>SaaS / serverless</td><td>The attack surface narrows to almost pure identity and configuration. There's no OS to patch and often no network boundary to speak of.</td><td>Security posture rests entirely on who has access, what that access allows, and whether audit logging is enabled and collected.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>This is why OAuth consent phishing (covered in Chapter 2) is such an effective technique against SaaS-heavy environments: it bypasses the identity provider's authentication entirely and grants an attacker-controlled application persistent, delegated access.</p>
 
           <div class="callout-info">
             <strong>Note:</strong> A practical consequence for detection engineers: your log source priority shifts as an organization moves up the service-model stack. Host-based EDR telemetry matters most for IaaS-heavy environments. Identity and API audit logs (Entra sign-in/audit logs, AWS CloudTrail) matter most everywhere, and become the primary or only signal once an environment is predominantly PaaS, SaaS, and serverless. Chapter 4 covers these telemetry sources in depth.
@@ -251,9 +313,15 @@
           <h2>What This Module Covers</h2>
           <p>Eight chapters build cloud security knowledge from the foundational concepts in this chapter through applied detection engineering. Chapter 1 (this chapter) established the shared responsibility model, the cloud attack surface, and identity as the new perimeter. Everything after this builds directly on those three ideas.</p>
 
-          <p>Chapter 2 covers Azure AD/Entra ID attacks in depth: password spray, consent phishing, token theft, and conditional access bypass techniques, along with the telemetry each one generates. Chapter 3 does the equivalent for AWS: IAM enumeration, S3 misconfiguration patterns, and common privilege escalation paths. Chapter 4 covers cloud-native telemetry and data sources: CloudTrail, Entra sign-in and audit logs, VPC flow logs, and what "normal" baselining looks like when infrastructure is ephemeral.</p>
-
-          <p>Chapter 5 applies threat hunting methodology specifically to cloud environments: hypothesis generation across identity, resource, and network layers, and how pivoting works when the asset you're investigating might not exist tomorrow. Chapter 6 covers detection query writing in KQL, SPL, and Sigma against Azure AD and AWS threat scenarios. Chapter 7 covers real-world cloud threat actor campaigns, including identity-focused groups like Scattered Spider and nation-state cloud tradecraft associated with groups like Nobelium/APT29. Chapter 8 closes the module with advanced defense: Zero Trust architecture, Cloud Infrastructure Entitlement Management (CIEM), Cloud Security Posture Management (CSPM), and hardening controls that address the root causes covered throughout the module.</p>
+          <ul>
+            <li><strong>Chapter 2, Azure AD/Entra ID Attacks:</strong> password spray, consent phishing, token theft, and conditional access bypass techniques, along with the telemetry each one generates.</li>
+            <li><strong>Chapter 3, AWS Enumeration & Attacks:</strong> IAM enumeration, S3 misconfiguration patterns, and common privilege escalation paths.</li>
+            <li><strong>Chapter 4, Cloud Telemetry & Data Sources:</strong> CloudTrail, Entra sign-in and audit logs, VPC flow logs, and what "normal" baselining looks like when infrastructure is ephemeral.</li>
+            <li><strong>Chapter 5, Cloud-Native Threat Hunting:</strong> hypothesis generation across identity, resource, and network layers, and how pivoting works when the asset you're investigating might not exist tomorrow.</li>
+            <li><strong>Chapter 6, Detection Queries:</strong> detection query writing in KQL, SPL, and Sigma against Azure AD and AWS threat scenarios.</li>
+            <li><strong>Chapter 7, Cloud Threat Actor Campaigns:</strong> real-world campaigns, including identity-focused groups like Scattered Spider and nation-state cloud tradecraft associated with groups like Nobelium/APT29.</li>
+            <li><strong>Chapter 8, Advanced Cloud Defense:</strong> Zero Trust architecture, Cloud Infrastructure Entitlement Management (CIEM), Cloud Security Posture Management (CSPM), and hardening controls that address the root causes covered throughout the module.</li>
+          </ul>
 
           <div class="callout-tip">
             <strong>Tip:</strong> If you're coming from the Threat Hunting or Threat Intelligence modules, the frameworks transfer directly: ABLE hypothesis generation, the intelligence cycle, and IOC confidence scoring all apply to cloud investigations without modification. What's different is the terrain. This module exists to teach you that terrain so the frameworks you already know have something to stand on.

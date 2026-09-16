@@ -144,8 +144,21 @@
           <h2>Why Telemetry Strategy Differs in the Cloud</h2>
           <p>Chapter 1 established that identity replaces the network as the primary perimeter once an environment moves away from IaaS. The telemetry consequence of that shift is direct: if identity is the control plane, then the logs that record identity behavior and API activity have to be the backbone of a cloud logging strategy, not a supplement to host-based logging the way they might be on-prem. That's a reordering of priority, not just an addition to the list.</p>
 
-          <p>The clearest way to see why is to follow a workload up the service-model stack. On an EC2 instance or an Azure VM, there's still a host to instrument: an EDR agent, OS-level audit logging, process creation events. That telemetry doesn't disappear in the cloud, it just sits alongside a new layer of control-plane logging that records what happened to the resource itself (who created it, who changed its configuration, who deleted it). Move the same workload to a PaaS service like Azure App Service or AWS Elastic Beanstalk, and the OS layer is now managed by the provider. There's no host for your team to put an agent on, because there effectively isn't a host in the sense that matters for your logging strategy. Move further to SaaS or serverless, and the concept of "the host" stops applying at all. A Lambda function executes, does its work, and terminates. A SharePoint document is edited by a user who never touched infrastructure you could have instrumented even if you wanted to.</p>
+          <h3>Following a Workload Up the Stack</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Service Model</th><th>What Happens to Host Telemetry</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>IaaS (EC2, Azure VM)</td><td>Still a host to instrument, EDR agent, OS-level audit logging, process creation events, sitting alongside a new layer of control-plane logging.</td></tr>
+                <tr><td>PaaS (App Service, Elastic Beanstalk)</td><td>The OS layer is now managed by the provider. There's no host for your team to put an agent on.</td></tr>
+                <tr><td>SaaS / serverless</td><td>The concept of "the host" stops applying at all. A Lambda function executes and terminates; a SharePoint document is edited by a user who never touched instrumentable infrastructure.</td></tr>
+              </tbody>
+            </table>
+          </div>
 
+          <h3>What Persists Across Every Model</h3>
           <p>What persists across every one of those service models is the API call and the identity behind it. Someone or something authenticated, and that authentication generated an event. Someone or something invoked an action against a resource, and that action generated an event. Control-plane logs and identity logs are the one telemetry category that doesn't evaporate as infrastructure becomes more abstracted, which is exactly why they have to be the foundation rather than an afterthought bolted onto a host-centric logging plan.</p>
 
           <div class="callout-info">
@@ -157,11 +170,26 @@
           <h2>AWS CloudTrail Deep Dive</h2>
           <p>CloudTrail is AWS's control-plane and, optionally, data-plane audit log, and understanding its two event categories is the single most important CloudTrail concept for an analyst to internalize, because the gap between them is where most investigative blind spots live.</p>
 
-          <p>Management events record control-plane operations: creating an IAM role, modifying a security group, launching or terminating an EC2 instance, changing an S3 bucket policy. These are the "who changed the environment" events, and CloudTrail logs them by default across most accounts once a trail is configured. This is the category most teams think of when they think of CloudTrail, and it's genuinely useful for reconstructing configuration changes, privilege escalation attempts, and reconnaissance activity like broad Describe or List calls.</p>
+          <h3>Management Events vs. Data Events</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th></th><th>Management Events</th><th>Data Events</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Records</td><td>Control-plane operations: creating an IAM role, modifying a security group, launching or terminating an EC2 instance, changing an S3 bucket policy.</td><td>Object-level operations: an S3 GetObject or PutObject call, a Lambda Invoke, a DynamoDB item-level read or write.</td></tr>
+                <tr><td>On by default?</td><td>Yes, once a trail is configured.</td><td>No; enabling them for high-volume services like S3 or Lambda carries a real, ongoing cost, since every object access generates a billable event.</td></tr>
+                <tr><td>Answers</td><td>"Who changed the environment," useful for reconstructing configuration changes, privilege escalation attempts, and reconnaissance like broad Describe or List calls.</td><td>"Who touched the actual data," the question that matters most for "was data exfiltrated" rather than "was a bucket policy changed."</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>The practical result is that a lot of organizations have solid visibility into who created or modified their S3 buckets, and zero visibility into who actually read the objects inside them. Teams frequently discover this gap for the first time mid-incident, when the question that matters most is the one category of log they never turned on.</p>
 
-          <p>Data events record object-level operations: an S3 GetObject or PutObject call, a Lambda Invoke, a DynamoDB item-level read or write. These are the "who touched the actual data" events, and this is the part that catches teams off guard during an investigation. Data events are not enabled by default, and enabling them for high-volume services like S3 or Lambda carries a real, ongoing cost, because every object access generates a billable event. The practical result is that a lot of organizations have solid visibility into who created or modified their S3 buckets, and zero visibility into who actually read the objects inside them. That distinction becomes critical the moment an investigation needs to answer "was data exfiltrated," rather than just "was a bucket policy changed." Teams frequently discover this gap for the first time mid-incident, when the question that matters most is the one category of log they never turned on.</p>
-
-          <p>Two configuration details matter beyond the management/data split. First, a trail's scope: a trail configured for a single region only logs events in that region, and an account with resources or attacker activity spanning multiple regions will have a partial record at best if the trail wasn't set up as multi-region. AWS supports multi-region trails specifically so that activity anywhere in the account gets captured centrally, and an analyst walking into an environment should confirm this before trusting that "no CloudTrail hits" means "no activity." Second, log file integrity validation: CloudTrail can cryptographically hash and sign each delivered log file, allowing an investigator to later verify that a log file hasn't been altered or deleted since it was written. This matters less for day-to-day detection and more for the evidentiary chain during incident response, where the ability to demonstrate that a log wasn't tampered with can matter for legal or regulatory purposes, not just technical ones.</p>
+          <h3>Two Configuration Details That Matter</h3>
+          <ul>
+            <li><strong>Trail scope:</strong> a trail configured for a single region only logs events in that region, and an account with resources or attacker activity spanning multiple regions will have a partial record at best if the trail wasn't set up as multi-region. AWS supports multi-region trails specifically so that activity anywhere in the account gets captured centrally, and an analyst walking into an environment should confirm this before trusting that "no CloudTrail hits" means "no activity."</li>
+            <li><strong>Log file integrity validation:</strong> CloudTrail can cryptographically hash and sign each delivered log file, allowing an investigator to later verify that a log file hasn't been altered or deleted since it was written. This matters less for day-to-day detection and more for the evidentiary chain during incident response, where the ability to demonstrate that a log wasn't tampered with can matter for legal or regulatory purposes, not just technical ones.</li>
+          </ul>
 
           <div class="callout-warning">
             <strong>Warning:</strong> A single-region trail is one of the most common CloudTrail misconfigurations found during environment reviews. An attacker who enumerates available regions and operates outside the instrumented one leaves a much thinner trail, sometimes no trail at all, even though the organization believes CloudTrail is "on."
@@ -170,12 +198,22 @@
 
         <section class="content-section" id="azure-entra-logging">
           <h2>Azure and Entra Logging</h2>
-          <p>Entra ID splits its logging into two categories that serve different investigative purposes, and conflating them is a common source of confusion for analysts new to the platform. Sign-in logs record authentication events: interactive sign-ins where a human enters credentials, non-interactive sign-ins where a previously issued token is silently refreshed on the user's behalf, and service principal sign-ins where an application authenticates using its own credentials rather than a user's. Each of these three sub-types behaves differently and gets abused differently. Non-interactive sign-ins in particular are easy to overlook because they don't correspond to a visible user action, which makes them a common blind spot when hunting for token replay or session persistence.</p>
-
+          <h3>Sign-In Logs vs. Audit Logs</h3>
+          <p>Entra ID splits its logging into two categories that serve different investigative purposes, and conflating them is a common source of confusion for analysts new to the platform.</p>
+          <div class="callout-info">
+            <strong>Sign-in logs, three sub-types:</strong>
+            <ul>
+              <li><strong>Interactive sign-ins:</strong> a human enters credentials directly.</li>
+              <li><strong>Non-interactive sign-ins:</strong> a previously issued token is silently refreshed on the user's behalf. Easy to overlook because they don't correspond to a visible user action, which makes them a common blind spot when hunting for token replay or session persistence.</li>
+              <li><strong>Service principal sign-ins:</strong> an application authenticates using its own credentials rather than a user's.</li>
+            </ul>
+          </div>
           <p>Audit logs record a separate thing entirely: directory changes. Role assignments, app registrations, group membership changes, conditional access policy edits, and similar administrative actions all land in the audit log, not the sign-in log. An investigation into "did this account get compromised" typically starts with sign-in logs, while an investigation into "what did the attacker do with that access" typically moves into audit logs to see what was created, modified, or granted. Treating these as one undifferentiated "Entra logs" bucket makes it easy to miss half the picture.</p>
 
+          <h3>Microsoft 365's Unified Audit Log</h3>
           <p>Beyond Entra ID itself, Microsoft 365 workloads (Exchange Online mailboxes, SharePoint, Teams) generate their own activity records, captured in the Unified Audit Log. This is where mailbox rule creation, file downloads from SharePoint, and Teams message activity actually show up, and it's a distinct source from both Entra sign-in and Entra audit logs. An investigation into business email compromise, for example, needs the Unified Audit Log to see mailbox forwarding rule creation or mail item access, information that Entra sign-in logs alone won't provide even though the initial compromise likely started with a sign-in event.</p>
 
+          <h3>Diagnostic Settings Route Everything</h3>
           <p>None of these logs centralize themselves. Azure resource logs, more broadly, are routed through diagnostic settings, the configuration mechanism that determines whether a given resource's logs go anywhere durable at all. Without a diagnostic setting pointing a resource's logs to a Log Analytics workspace, a storage account, or an event hub, many Azure logs are either not retained long-term or not available for export to a SIEM. This is a deliberate, per-resource decision in Azure, not a platform default, and it's a frequent source of "we thought we had that log" surprises during incident response.</p>
 
           <div class="table-wrap">
@@ -197,10 +235,14 @@
 
         <section class="content-section" id="network-telemetry">
           <h2>Network Telemetry in the Cloud</h2>
+          <h3>Flow Logs: Connection Metadata Only</h3>
           <p>Cloud networking still generates traffic metadata, it just does so in a different form than a traditional packet capture or NetFlow export. VPC Flow Logs in AWS and NSG Flow Logs in Azure are the cloud-native equivalent: they record connection metadata, source and destination addresses, ports, protocol, and whether the traffic was allowed or denied, without capturing packet contents. That makes them useful for the same class of question NetFlow answers on-prem (what talked to what, how much, and was it permitted), while being unsuitable for anything that requires payload inspection.</p>
 
-          <p>DNS query logging deserves separate attention because it answers a question flow logs structurally cannot. A flow log can tell you that a resource made an outbound connection to a given IP address on a given port. It cannot tell you what domain name that connection was resolving, and it won't surface DNS queries that never result in a completed connection, which is precisely the pattern seen in DNS tunneling and in reconnaissance-stage C2 beaconing where a compromised resource is testing domain resolution before establishing a full session. An analyst relying on flow logs alone to detect command-and-control activity will miss the DNS-layer signal entirely, because that signal exists in a different log source. DNS query logs (AWS Route 53 Resolver query logging, Azure DNS analytics) close that gap, and the two sources are complementary rather than redundant.</p>
+          <h3>Why DNS Query Logs Are a Separate, Necessary Source</h3>
+          <p>DNS query logging deserves separate attention because it answers a question flow logs structurally cannot. A flow log can tell you that a resource made an outbound connection to a given IP address on a given port. It cannot tell you what domain name that connection was resolving, and it won't surface DNS queries that never result in a completed connection, which is precisely the pattern seen in DNS tunneling and in reconnaissance-stage C2 beaconing where a compromised resource is testing domain resolution before establishing a full session.</p>
+          <p>An analyst relying on flow logs alone to detect command-and-control activity will miss the DNS-layer signal entirely, because that signal exists in a different log source. DNS query logs (AWS Route 53 Resolver query logging, Azure DNS analytics) close that gap, and the two sources are complementary rather than redundant.</p>
 
+          <h3>Nothing Here Is Enabled by Default</h3>
           <p>The same enablement problem that applies to CloudTrail data events applies here. Flow logs are not enabled by default and have to be deliberately turned on, per VPC, per subnet, or per network interface depending on the granularity chosen. An organization can run a large cloud footprint with functioning applications and zero flow log coverage, because nothing about normal operation requires flow logs to exist. The gap only becomes visible when an investigation needs to answer a network-behavior question and the logs simply aren't there.</p>
 
           <div class="callout-tip">
@@ -212,21 +254,73 @@
           <h2>Centralizing and Retaining Cloud Logs</h2>
           <p>Individually, CloudTrail, Entra logs, flow logs, and application logs each answer a narrow question. Correlating an identity event with a network event with a resource-change event is what turns a set of disconnected log sources into an actual investigative timeline, and that correlation only works if the logs live somewhere they can be queried together. Getting there is a deliberate architecture decision, not something that happens by turning on logging in each service individually.</p>
 
-          <p>Three patterns cover most of how organizations get cloud logs into a central location. Native cloud-to-SIEM connectors pull logs directly from the provider's API or event stream into a SIEM platform, which is generally the lowest-maintenance option when a supported connector exists. Log forwarders, agents or lightweight services deployed to read logs from a storage location (an S3 bucket CloudTrail delivers to, a Log Analytics workspace) and ship them onward, cover cases without a native connector or where an intermediate normalization step is needed. Scheduled export jobs, batch processes that periodically pull logs and push them to a destination, are the least real-time option but sometimes the most practical for lower-priority sources where near-real-time ingestion isn't worth the added cost or complexity.</p>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Log Generated</div>
+              <div class="flow-step-desc">CloudTrail, Entra logs, flow logs, or application logs record an event at the source service.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Collected</div>
+              <div class="flow-step-desc">Via a native cloud-to-SIEM connector, a log forwarder, or a scheduled export job.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Centralized</div>
+              <div class="flow-step-desc">Logs land somewhere they can be queried together, turning disconnected sources into one investigative timeline.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Tiered for Retention</div>
+              <div class="flow-step-desc">Hot storage for active detection, cheaper cold storage for historical lookback.</div>
+            </div>
+          </div>
 
-          <p>Retention is where cost and investigative capability come into direct tension. Cloud log volume, especially flow logs and data-event-level CloudTrail, can be very high, and storing it all indefinitely at full fidelity gets expensive fast. Most organizations tier retention: a shorter window of full-fidelity, hot storage for active detection and recent investigations, and a longer window of cheaper, cold storage (often the raw logs in cloud storage rather than in the SIEM itself) for historical lookback. The retention period chosen directly determines how far back an investigation can reach. If a compromise is discovered ninety days after initial access and the organization only retains sign-in logs for thirty days, the earliest activity is simply gone, not hard to find, gone.</p>
+          <h3>Three Patterns for Centralization</h3>
+          <ul>
+            <li><strong>Native cloud-to-SIEM connectors</strong> pull logs directly from the provider's API or event stream into a SIEM platform. Generally the lowest-maintenance option when a supported connector exists.</li>
+            <li><strong>Log forwarders</strong>, agents or lightweight services deployed to read logs from a storage location (an S3 bucket CloudTrail delivers to, a Log Analytics workspace), cover cases without a native connector or where an intermediate normalization step is needed.</li>
+            <li><strong>Scheduled export jobs</strong>, batch processes that periodically pull logs and push them to a destination, are the least real-time option but sometimes the most practical for lower-priority sources where near-real-time ingestion isn't worth the added cost or complexity.</li>
+          </ul>
 
+          <h3>Retention: Cost vs. Investigative Reach</h3>
+          <p>Retention is where cost and investigative capability come into direct tension. Cloud log volume, especially flow logs and data-event-level CloudTrail, can be very high, and storing it all indefinitely at full fidelity gets expensive fast. Most organizations tier retention: a shorter window of full-fidelity, hot storage for active detection and recent investigations, and a longer window of cheaper, cold storage (often the raw logs in cloud storage rather than in the SIEM itself) for historical lookback.</p>
+          <p>The retention period chosen directly determines how far back an investigation can reach. If a compromise is discovered ninety days after initial access and the organization only retains sign-in logs for thirty days, the earliest activity is simply gone, not hard to find, gone.</p>
+
+          <h3>The Most Common Blind Spot</h3>
           <p>The most common blind spot pattern in this entire chapter is worth naming explicitly, because it shows up in nearly every environment review: a team enables whatever logging is free or on by default, assumes that constitutes full visibility, and only discovers during an actual incident that CloudTrail data events, or flow logs, or DNS query logs were never turned on in the first place. The default logging tier in most cloud platforms is deliberately conservative, because full-fidelity logging has a real cost the provider doesn't want to impose on every account automatically. That's a reasonable platform default. It is not a reasonable assumption for a security team to inherit without verifying it.</p>
         </section>
 
         <section class="content-section" id="minimum-viable-baseline">
           <h2>Building a Minimum Viable Logging Baseline</h2>
-          <p>A reasonable starting baseline doesn't require enabling every log source at maximum fidelity everywhere, but it does require a specific, deliberate set of choices rather than accepting whatever happens to be on by default. On the AWS side, that means a multi-region CloudTrail trail with log file integrity validation enabled, so that activity anywhere in the account is captured and the resulting logs can later be verified as unaltered if they're needed for evidentiary purposes. It's worth deciding early which data events, if any, are worth the added cost; for most organizations, enabling data events on the S3 buckets and Lambda functions that handle sensitive data is a defensible middle ground between full coverage and no coverage at all.</p>
+          <p>A reasonable starting baseline doesn't require enabling every log source at maximum fidelity everywhere, but it does require a specific, deliberate set of choices rather than accepting whatever happens to be on by default.</p>
 
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Area</th><th>Baseline Requirement</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>AWS</td><td>A multi-region CloudTrail trail with log file integrity validation enabled, plus data events on the S3 buckets and Lambda functions that handle sensitive data as a defensible middle ground.</td></tr>
+                <tr><td>Azure</td><td>Entra sign-in and audit logs routed through diagnostic settings into a Log Analytics workspace or another retained destination, not left on the platform's default short retention window.</td></tr>
+                <tr><td>Network</td><td>Flow logs enabled on production VPCs and VNets at minimum, paired with DNS query logging to close the domain-resolution gap.</td></tr>
+                <tr><td>Retention</td><td>A period chosen deliberately, driven by realistic investigation lookback needs and any compliance or regulatory retention requirement, not the platform's default window.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Why Both AWS Log Types Matter Together</h3>
+          <p>On the AWS side, that means a multi-region CloudTrail trail with log file integrity validation enabled, so that activity anywhere in the account is captured and the resulting logs can later be verified as unaltered if they're needed for evidentiary purposes. It's worth deciding early which data events, if any, are worth the added cost; for most organizations, enabling data events on the S3 buckets and Lambda functions that handle sensitive data is a defensible middle ground between full coverage and no coverage at all.</p>
+
+          <h3>Why Both Azure Log Types Matter Together</h3>
           <p>On the Azure side, the equivalent baseline is Entra sign-in and audit logs routed through diagnostic settings into a Log Analytics workspace or another retained destination, rather than left to expire on the platform's default short retention window. Sign-in logs without audit logs, or audit logs without sign-in logs, each leave half of a typical investigation unsupported, so both need to make it into the same retained, queryable location.</p>
 
+          <h3>Network and Retention</h3>
           <p>Network telemetry rounds out the baseline: flow logs enabled on production VPCs and VNets at minimum, even if broader coverage across every subnet isn't achievable immediately. Pairing flow logs with DNS query logging closes the gap described earlier in this chapter, where flow logs alone can record that a connection happened but can't show what domain it was resolving on the way there.</p>
-
           <p>The last piece is a retention period that's chosen deliberately rather than inherited by default. That period should be driven by two things: how long a realistic incident response investigation might need to look back, and any compliance or regulatory retention requirement the organization is subject to. A platform's default retention window is a starting point set by the provider for their own operational reasons, not a number derived from your organization's risk tolerance or legal obligations, and treating it as sufficient without checking is how the "we didn't have the logs" gap opens up in the first place.</p>
         </section>
 

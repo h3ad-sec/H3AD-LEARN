@@ -141,10 +141,13 @@
 
         <section class="content-section" id="why-cloud-actors-look-different">
           <h2>Why Cloud-Focused Threat Actors Look Different From Traditional APTs</h2>
+          <h3>The Fastest Path Is a Credential, Not an Exploit</h3>
           <p>A traditional intrusion narrative still leans heavily on an exploited vulnerability: a public-facing service running unpatched software, a memory corruption bug, a chain of CVEs strung together to get code execution. Cloud-focused campaigns increasingly skip that step entirely, because the fastest and quietest way into a cloud tenant is very often a valid credential or an already-issued session token rather than a technical exploit against the platform itself. This isn't a minor tactical preference. It's a structural consequence of where the actual perimeter sits, which Chapter 1 introduced as the core theme of this whole module: identity is the control plane, so identity is the target.</p>
 
+          <h3>Sophistication Redefined</h3>
           <p>That shift changes what "sophisticated" tradecraft looks like. Groups specializing in cloud and identity compromise spend disproportionate effort on social engineering: convincing a help desk agent to reset a password or an MFA method, convincing an employee to approve a push notification they didn't request, or convincing a support representative that the caller is who they claim to be. None of that requires a zero-day. It requires patience, a plausible pretext, and a target organization whose identity recovery process trusts a phone call more than it should. Once an attacker holds a legitimate session, they inherit whatever that identity was trusted to do, and to the platform's logging, their actions can look indistinguishable from the real user's, at least until behavioral or contextual signals diverge.</p>
 
+          <h3>Why Endpoint Defenses Miss the Opening Moves</h3>
           <p>This also explains why endpoint-centric defenses, however well tuned, routinely miss the opening moves of these campaigns. There's frequently no malware to detect at initial access, because there's no payload delivered to a device. The compromise happens in an identity provider's authentication flow or a help desk ticketing system, layers that classic EDR was never built to see. The rest of this chapter works through what that looks like in practice across three different kinds of actors, each with a different objective but a shared reliance on identity as the entry point.</p>
 
           <div class="callout-info">
@@ -154,10 +157,18 @@
 
         <section class="content-section" id="scattered-spider">
           <h2>Scattered Spider (also tracked as UNC3944 / Octo Tempest / Muddled Libra depending on vendor)</h2>
+          <h3>Naming Is Contested, Tradecraft Isn't</h3>
           <p>Scattered Spider is one of the more widely reported examples of an identity-first criminal group, though it's worth being upfront that the name itself is a vendor convention layered over a loosely bounded set of activity. Different security vendors have tracked overlapping clusters of this activity under different names (UNC3944 from Mandiant, Octo Tempest from Microsoft, Muddled Libra from Unit 42), and public reporting on the group's exact membership, structure, and boundaries with adjacent cybercriminal communities has shifted over time. Treat any single, confident statement about "who they are" with appropriate skepticism, and focus instead on the tradecraft, which has been consistently documented across multiple independent vendor writeups.</p>
 
-          <p>The defining characteristic of this activity cluster is aggressive, well-rehearsed social engineering aimed squarely at the humans who sit between an attacker and an account reset. Reported techniques include calling or messaging IT help desks and impersonating an employee convincingly enough to talk a support agent into resetting a password or enrolling a new MFA method under attacker control, and SIM-swapping, where the attacker convinces a mobile carrier to port a victim's phone number onto a SIM they control, which lets them intercept SMS-based one-time codes used for authentication or account recovery. Neither technique touches a line of code in the target's environment. Both exploit trust and process gaps in systems designed to help legitimate users.</p>
+          <h3>Social Engineering the Human Layer</h3>
+          <p>The defining characteristic of this activity cluster is aggressive, well-rehearsed social engineering aimed squarely at the humans who sit between an attacker and an account reset.</p>
+          <ul>
+            <li><strong>Help desk impersonation:</strong> calling or messaging IT help desks and impersonating an employee convincingly enough to talk a support agent into resetting a password or enrolling a new MFA method under attacker control.</li>
+            <li><strong>SIM swapping:</strong> convincing a mobile carrier to port a victim's phone number onto a SIM the attacker controls, which lets them intercept SMS-based one-time codes used for authentication or account recovery.</li>
+          </ul>
+          <p>Neither technique touches a line of code in the target's environment. Both exploit trust and process gaps in systems designed to help legitimate users.</p>
 
+          <h3>From Identity Compromise to Extortion</h3>
           <p>Public reporting has consistently described this group targeting identity providers directly, including Okta and Microsoft Entra ID, since compromising the identity provider itself (or an administrator account within it) yields far more leverage than compromising a single downstream application. From there, the pattern reported across multiple incidents is a pivot from initial identity compromise toward cloud administrative access, often followed by data theft for extortion purposes and, in a number of publicly reported cases, ransomware deployment against on-prem or hybrid infrastructure once cloud-side access was established. The group has been publicly associated with intrusions against large enterprises spanning several industries, including telecommunications, hospitality, gaming, and financial services, though as with any actively tracked threat cluster, the full scope of activity attributed to it is not something any single vendor can claim complete visibility into.</p>
 
           <div class="callout-warning">
@@ -169,8 +180,37 @@
           <h2>Nobelium / APT29 Cloud Tradecraft</h2>
           <p>Where Scattered Spider's reported tradecraft is loud, fast, and human-facing, the activity publicly attributed to Nobelium (Microsoft's designation, generally understood to overlap with the actor tracked elsewhere as APT29 and associated in public reporting with Russian intelligence services) illustrates the opposite end of the spectrum: patient, technically sophisticated, and built around long-term stealth rather than a quick payout. Public writeups from Microsoft and Mandiant on the campaign connected to the SolarWinds software supply chain compromise remain the most detailed open-source description of this actor's cloud and identity tradecraft, and the technique most relevant to this module is what's commonly called Golden SAML.</p>
 
-          <p>SAML (Security Assertion Markup Language) is a standard used for federated authentication: an identity provider (on-prem Active Directory Federation Services, in the SolarWinds-related reporting) issues a signed token asserting that a given user has authenticated, and a relying application (a cloud service, for example) trusts that signature enough to grant access without the user re-entering credentials directly with the cloud service. Golden SAML abuses this trust chain at its root. If an attacker compromises the private key that the identity provider uses to sign these tokens, they can forge a valid, signed SAML assertion for any user, including highly privileged accounts, without ever knowing that user's password and without triggering the multi-factor authentication challenge that a normal login would require. The forged token isn't a stolen session, it's a fabricated one that the relying cloud service has no cryptographic reason to distrust, because it's signed by the same key the legitimate identity provider uses.</p>
+          <h3>Golden SAML: Forging Trust at the Root</h3>
+          <p>SAML (Security Assertion Markup Language) is a standard used for federated authentication: an identity provider (on-prem Active Directory Federation Services, in the SolarWinds-related reporting) issues a signed token asserting that a given user has authenticated, and a relying application (a cloud service, for example) trusts that signature enough to grant access without the user re-entering credentials directly with the cloud service. Golden SAML abuses this trust chain at its root.</p>
 
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Compromise the Signing Key</div>
+              <div class="flow-step-desc">The attacker obtains the private key the identity provider uses to sign SAML tokens.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Forge a Signed Assertion</div>
+              <div class="flow-step-desc">A valid SAML assertion is fabricated for any user, including highly privileged accounts.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Relying Service Trusts the Signature</div>
+              <div class="flow-step-desc">The cloud service has no cryptographic reason to distrust it, since it's signed by the same key the legitimate identity provider uses.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Access Granted, No Password or MFA</div>
+              <div class="flow-step-desc">The attacker never knows the user's password and never triggers the MFA challenge a normal login would require.</div>
+            </div>
+          </div>
+          <p>The forged token isn't a stolen session, it's a fabricated one that the relying cloud service has no cryptographic reason to distrust, because it's signed by the same key the legitimate identity provider uses.</p>
+
+          <h3>Patient and Stealth-First Tradecraft</h3>
           <p>What public reporting emphasizes about this actor's broader approach is the premium placed on persistence and evasion over speed. Where an extortion-driven group wants access converted into leverage quickly, reporting describes activity consistent with an actor willing to spend extended time inside a compromised environment establishing multiple independent footholds, minimizing the operational footprint of each action, and specifically targeting the identity and authentication infrastructure that would let them regain access even if one avenue were discovered and closed. That's a meaningfully different threat model than a criminal extortion group, and it argues for different detection priorities: monitoring for anomalous trust relationships and unexpected SAML token issuance patterns matters more here than watching for the kind of loud, high-tempo account takeover behavior Scattered Spider's tradecraft tends to generate.</p>
 
           <div class="callout-tip">
@@ -182,8 +222,10 @@
           <h2>Ransomware Actors Operating in Cloud Environments</h2>
           <p>Ransomware operations built their original business model around on-prem file servers: encrypt enough of an organization's data quickly enough, and the resulting operational paralysis forces a payment decision under time pressure. As organizations have shifted storage, backup, and recovery infrastructure into the cloud, publicly reported ransomware operations have adapted in two connected ways that are worth separating out for a detection engineer.</p>
 
+          <h3>Shift Toward Data Theft Over Encryption</h3>
           <p>The first adaptation is a shift in emphasis toward data theft and extortion over pure encryption. If the actual leverage is the threat of publishing or selling sensitive data, encrypting it is optional, and in some publicly reported cases has become a secondary or even skipped step, particularly against cloud-native data stores where bulk encryption is harder to execute cleanly than it is against a traditional file server. Exfiltrating a large volume of data out of a cloud storage service and then threatening disclosure achieves the same coercive goal without the operational complexity of deploying and coordinating an encryptor across distributed cloud infrastructure.</p>
 
+          <h3>Targeting Backup and Recovery Infrastructure</h3>
           <p>The second adaptation, and the one most specific to cloud environments, is a deliberate targeting of backup and recovery infrastructure itself. Publicly reported incidents have described ransomware operators specifically seeking out and deleting cloud storage snapshots, backup vault contents, and other cloud-native recovery points before or during an encryption event. The logic is straightforward from the attacker's side: if a victim can restore from a recent snapshot, encryption loses most of its coercive power, so removing that option converts a recoverable incident into an unrecoverable one and makes payment the only realistic path back to operational data. This is a natural, almost inevitable evolution given how much recovery capability now lives inside the same cloud control plane that the rest of the environment does, meaning that sufficiently privileged access can potentially reach both the primary data and everything meant to restore it.</p>
 
           <div class="table-wrap">
@@ -206,10 +248,13 @@
           <h2>Common Threads Across Cloud Campaigns</h2>
           <p>Laid side by side, these three examples look like they belong to different threat categories, a criminal extortion cluster, a nation-state espionage actor, and a ransomware business model, and in terms of objective, they are. But the tradecraft converges on the same handful of patterns often enough that it's worth naming them explicitly, because these patterns are what a detection strategy should actually be built around rather than any single group's specific playbook.</p>
 
+          <h3>Identity-First Initial Access</h3>
           <p>The first and most consistent thread is identity-first initial access rather than exploit-first. None of the three examples above depend on a novel technical vulnerability in the cloud platform itself as their primary entry point. They depend on a credential, a token, a signing key, or a support process, all of which are identity-adjacent rather than software flaws. That has a direct implication for where defensive investment pays off: vulnerability management remains necessary, but it is not the layer that stops the majority of what's described in this chapter.</p>
 
+          <h3>Living Off the Cloud</h3>
           <p>The second thread is a strong preference for what's sometimes called living off the cloud, the cloud-native equivalent of living-off-the-land tradecraft on endpoints. Rather than deploying custom malware that has to be built, tested, and risks tripping endpoint detection, sophisticated cloud operators increasingly favor the platform's own legitimate APIs, administrative consoles, and automation tools to accomplish their objectives. An attacker using a cloud provider's own management API to enumerate resources, assume roles, or exfiltrate data is generating activity that looks structurally identical to legitimate administrative work, which is precisely the point.</p>
 
+          <h3>Exfiltration via Native Cloud Services</h3>
           <p>The third thread is data exfiltration via native cloud services rather than custom exfiltration channels. Using a cloud storage platform's own transfer or sharing APIs to move data out blends into the enormous volume of legitimate data movement that happens in any active cloud environment every day, and it avoids the kind of unusual outbound network signature that a traditional data-loss-prevention tool might be tuned to catch. Without monitoring specifically built around what normal data movement looks like for a given environment and flagging deviations from it, this kind of exfiltration can be functionally invisible to network-centric controls.</p>
 
           <div class="callout-info">
@@ -219,9 +264,24 @@
 
         <section class="content-section" id="mapping-to-attack-cloud-matrix">
           <h2>Mapping Campaigns to ATT&amp;CK's Cloud Matrix</h2>
+          <h3>Why a Separate Cloud Matrix Exists</h3>
           <p>MITRE ATT&amp;CK maintains a dedicated Cloud matrix, distinct from the Enterprise matrix's Windows, Linux, and macOS focus, covering platforms specific to cloud environments: IaaS, SaaS, Identity Provider, and Office Suite. This separation exists because cloud tradecraft genuinely doesn't map cleanly onto techniques written for endpoint operating systems, a point this whole chapter has illustrated concretely. Help desk social engineering against an identity provider, Golden SAML token forgery, and cloud snapshot deletion are not variations on a Windows or Linux technique, they're native cloud techniques with their own ATT&amp;CK IDs and their own detection considerations.</p>
 
-          <p>Mapping the tradecraft described in this chapter onto the Cloud matrix is a useful exercise precisely because it turns campaign reporting, which reads as narrative, into concrete, testable coverage decisions. Scattered Spider's help desk and MFA reset abuse maps to Valid Accounts and related Initial Access techniques targeting the Identity Provider platform. Nobelium's Golden SAML activity maps to techniques involving forged authentication material and federated credential abuse. Cloud ransomware's backup deletion behavior maps to Impact techniques targeting cloud storage and data availability. Each mapping becomes a question a detection engineer can actually answer: do we have a query, an alert, or at minimum a documented visibility gap, for this specific technique against this specific platform.</p>
+          <h3>Mapping This Chapter's Campaigns to Techniques</h3>
+          <p>Mapping the tradecraft described in this chapter onto the Cloud matrix is a useful exercise precisely because it turns campaign reporting, which reads as narrative, into concrete, testable coverage decisions.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Campaign</th><th>ATT&amp;CK Mapping</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Scattered Spider</td><td>Help desk and MFA reset abuse maps to Valid Accounts and related Initial Access techniques targeting the Identity Provider platform.</td></tr>
+                <tr><td>Nobelium / APT29</td><td>Golden SAML activity maps to techniques involving forged authentication material and federated credential abuse.</td></tr>
+                <tr><td>Cloud ransomware</td><td>Backup deletion behavior maps to Impact techniques targeting cloud storage and data availability.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Each mapping becomes a question a detection engineer can actually answer: do we have a query, an alert, or at minimum a documented visibility gap, for this specific technique against this specific platform.</p>
 
           <p>If you've taken this site's Threat Intelligence module, this is the same discipline the ATT&amp;CK Navigator coverage mapping exercise introduced there, applied to a cloud-specific matrix instead of the general Enterprise one. The workflow doesn't change: take a piece of credible threat reporting, extract the techniques it describes, map each one to ATT&amp;CK, and check that mapping against your own detection coverage. What changes here is the matrix you're mapping against, and the fact that a meaningful share of the techniques these campaigns rely on live in platforms (an identity provider, a SaaS admin console) that a purely endpoint-and-network-focused coverage exercise would never have touched.</p>
 
