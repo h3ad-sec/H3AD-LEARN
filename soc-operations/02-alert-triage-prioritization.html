@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="02">
+  <meta name="module-id" content="soc-operations">
+  <title>Alert Triage and Prioritization · SOC Operations · H3AD-LEARN</title>
+  <meta name="description" content="The alert lifecycle, severity vs priority scoring, why alert fatigue happens and how SOCs fight it, and a practical triage runbook walkthrough for new analysts.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/soc-operations/02-alert-triage-prioritization.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/soc-operations/02-alert-triage-prioritization.html">
+  <meta property="og:title" content="Alert Triage and Prioritization · SOC Operations · H3AD-LEARN">
+  <meta property="og:description" content="The alert lifecycle, severity vs priority scoring, why alert fatigue happens and how SOCs fight it, and a practical triage runbook walkthrough for new analysts.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Alert Triage and Prioritization · SOC Operations · H3AD-LEARN">
+  <meta name="twitter:description" content="The alert lifecycle, severity vs priority scoring, why alert fatigue happens and how SOCs fight it, and a practical triage runbook walkthrough for new analysts.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Alert Triage and Prioritization",
+    "description": "The alert lifecycle, severity vs priority scoring, why alert fatigue happens and how SOCs fight it, and a practical triage runbook walkthrough for new analysts.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/soc-operations/02-alert-triage-prioritization.html",
+    "isPartOf": { "@type": "Course", "name": "SOC Operations", "url": "https://h3ad-sec.github.io/H3AD-LEARN/soc-operations/" },
+    "provider": { "@type": "Organization", "name": "H3AD-SEC", "url": "https://h3ad-sec.github.io" }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" },
+    { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" },
+    { "@type": "ListItem", "position": 3, "name": "SOC Operations", "item": "https://h3ad-sec.github.io/H3AD-LEARN/soc-operations/" },
+    { "@type": "ListItem", "position": 4, "name": "Alert Triage and Prioritization", "item": "https://h3ad-sec.github.io/H3AD-LEARN/soc-operations/02-alert-triage-prioritization.html" }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">ALERT TRIAGE</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub nav-current">&#8623; SOC OPERATIONS</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← SOC Operations</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 02 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 5 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 02</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-beginner">BEGINNER</span>
+          </div>
+          <h1 class="chapter-title">Alert Triage and Prioritization</h1>
+          <p class="chapter-intro">A SOC doesn't run out of detections, it runs out of attention. Every alert that lands in a queue competes with every other alert for the same finite pool of analyst time, and the decisions made in the first few minutes of looking at an alert determine whether that time gets spent well. This chapter walks through the full lifecycle an alert moves through from the moment it's raised to the moment it's closed, how severity and priority differ as scoring dimensions, why queues fill up with noise and what actually reduces it, the vocabulary analysts use to record what an alert turned out to be, and a walkthrough of a generic triage from first look to documented disposition.</p>
+          <div class="chapter-tags">
+            <span class="tag">alert triage</span>
+            <span class="tag">severity scoring</span>
+            <span class="tag">alert fatigue</span>
+            <span class="tag">disposition</span>
+          </div>
+        </header>
+
+        <div class="callout-tip">
+          <strong>New to triage work?</strong> This chapter assumes you're roughly where a Tier 1 analyst starts, reading alerts as they arrive and deciding what happens next. If the tier structure and escalation paths referenced throughout aren't familiar yet, <a href="../soc-operations/01-soc-foundations.html">Chapter 1, SOC Foundations</a> covers how a SOC is organized before this chapter builds on top of it.
+        </div>
+
+        <section class="content-section" id="alert-lifecycle">
+          <h2>The Alert Lifecycle</h2>
+          <p>Every alert a SOC handles, regardless of source or severity, moves through the same basic sequence of stages. Individual organizations name the stages differently and some compress two stages into one step in their ticketing tool, but the underlying flow is consistent enough that it's worth learning as a single mental model before looking at any specific detection.</p>
+
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Raise</div>
+              <div class="flow-step-desc">A detection rule fires, a tool flags something, or a user reports an issue. The alert lands in the queue with whatever context the source system attached to it.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Triage</div>
+              <div class="flow-step-desc">An analyst does a first pass: what fired, on what asset, and does it warrant deeper investigation or an immediate close.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Investigate</div>
+              <div class="flow-step-desc">The analyst pulls supporting context, related events, asset ownership, historical behavior, to build a fuller picture of what actually happened.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Disposition</div>
+              <div class="flow-step-desc">The analyst records a verdict (true positive, false positive, benign true positive, and so on) and takes or requests whatever action that verdict calls for.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">5</span>
+              <div class="flow-step-title">Close</div>
+              <div class="flow-step-desc">The alert is documented and closed out, feeding metrics, tuning decisions, and, if it escalated, the incident record that continues past the SOC queue.</div>
+            </div>
+          </div>
+
+          <p>Two things about this flow matter more than the stage names themselves. First, most alerts never make it past stage 2. A well-tuned detection stack still produces a majority of alerts that triage resolves in a couple of minutes, either because the activity is clearly benign or because a quick check against known-good behavior settles the question. Only a minority need the deeper work of stage 3. Second, the flow isn't strictly one-directional in practice. An analyst mid-investigation frequently discovers something that changes the original severity assessment, sending the alert back through a re-triage before moving forward again. Treat the lifecycle as the shape of the work, not a rigid checklist that has to be followed in lockstep every time.</p>
+
+          <div class="callout-info">
+            <strong>Note:</strong> "Raise" doesn't always mean an automated detection rule. User-reported phishing, a manager flagging unusual account behavior, or a finding handed off from a vulnerability scan can all enter the same queue at the same stage. The triage process that follows doesn't change based on where the alert came from, only how much pre-existing context ships with it.
+          </div>
+        </section>
+
+        <section class="content-section" id="severity-vs-priority">
+          <h2>Severity vs Priority</h2>
+          <p>New analysts often use "severity" and "priority" interchangeably, and most ticketing tools don't help by exposing both as similar-looking dropdown fields. They measure different things, and conflating them is one of the more common ways a queue ends up worked in the wrong order.</p>
+
+          <p>Severity describes potential impact if the alert turns out to represent something real. It's a property of the activity itself, largely independent of where it happened. A detection for credential dumping tooling is high severity whether it fires on a developer's laptop or a domain controller, because the technique itself is dangerous if confirmed. Priority describes how urgently the alert needs analyst attention right now, and that depends on more than the activity alone: what asset it touched, how confident the detection is, and what else is already sitting in the queue.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th></th><th>Severity</th><th>Priority</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Measures</td><td>Potential impact if the alert is a true positive</td><td>How urgently it needs attention right now</td></tr>
+                <tr><td>Driven by</td><td>The technique or behavior detected</td><td>Asset criticality, detection confidence, and current queue context</td></tr>
+                <tr><td>Set by</td><td>Usually fixed at the detection rule level</td><td>Adjusted per alert instance, sometimes by an analyst or a scoring engine</td></tr>
+                <tr><td>Example A</td><td>A high-severity rule for suspected ransomware behavior fires on an isolated test VM with no production data</td><td>Lower priority than the severity label alone suggests, since the blast radius is small even if confirmed</td></tr>
+                <tr><td>Example B</td><td>A medium-severity rule for unusual PowerShell usage fires on a domain controller for a finance system</td><td>Higher priority than the severity label alone suggests, since the asset criticality raises the stakes of a slow response</td></tr>
+                <tr><td>Example C</td><td>A high-severity rule fires with a detection method known for frequent false positives, no corroborating signal</td><td>Lower priority until early triage improves confidence, even though the labeled severity hasn't changed</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>The practical takeaway is that severity is a reasonable starting point for sorting a queue, but it shouldn't be the only input. A mature SOC layers asset criticality and detection confidence on top of the raw severity label to arrive at an actual working order, sometimes through a risk-based scoring model that produces a single priority number, sometimes through analyst judgment applied at triage time. Either way, treating severity as a stand-in for priority means a low-severity alert on a domain controller can sit in the queue behind a high-severity alert on a machine that doesn't matter, which is exactly backwards from where analyst attention should go first.</p>
+        </section>
+
+        <section class="content-section" id="alert-fatigue">
+          <h2>Why Alert Fatigue Happens, and What Fights It</h2>
+          <p>Alert fatigue is the gradual erosion of an analyst's attention and judgment that comes from working a queue that's too large, too repetitive, or too low-fidelity for too long. It isn't a character flaw or a sign an analyst isn't trying hard enough. It's a predictable outcome of specific, identifiable conditions in how a detection stack is built and tuned.</p>
+
+          <h3>What Causes It</h3>
+          <p>High alert volume is the most obvious driver: when a queue produces far more alerts than a team can reasonably work in a shift, something has to give, and it's usually the depth of attention each alert receives. Low-fidelity detection rules compound the problem, rules written broadly enough to catch a technique end up also catching a wide range of benign activity that happens to look similar on the surface. Duplicate and near-duplicate alerts add volume without adding information, the same underlying event triggering multiple rules, or the same behavior repeating across many hosts in a way that generates one alert per host instead of one alert for the pattern. Poor tuning ties all of these together: a rule shipped once and never revisited accumulates false positives as the environment changes around it, and nobody goes back to adjust it because the team is too busy working the queue that rule keeps filling.</p>
+
+          <h3>What Fights It</h3>
+          <p>Tuning thresholds directly addresses low-fidelity rules by adjusting the conditions that trigger an alert until the ratio of true positives to noise improves, sometimes by adding a second condition that has to be true at the same time, sometimes by narrowing the scope of what the rule watches. Deduplication and grouping addresses volume from repetition by collapsing near-identical alerts into a single item an analyst works once, rather than working the same underlying event a dozen times under a dozen different ticket numbers. Suppression windows handle known, expected noise, a scheduled task that always looks unusual to a rule but runs on a predictable schedule can be suppressed during that window without disabling the rule entirely. Risk-based alerting shifts the whole approach further upstream: instead of generating a full alert for every rule match, a scoring model accumulates risk across multiple weaker signals and only surfaces an alert once the combined score crosses a threshold, which tends to produce fewer, better-supported alerts than a system built on rules firing independently.</p>
+
+          <div class="callout-warning">
+            <strong>Warning:</strong> The real cost of alert fatigue isn't just analyst burnout, though that's real too. It's that a genuine true positive, sitting in a queue full of look-alike noise, gets the same rushed, pattern-matched glance as everything around it and gets closed without the scrutiny it needed. A SOC that measures itself only on how fast the queue empties can look efficient right up until the alert that mattered most gets processed exactly like the ninety-nine that didn't.
+          </div>
+        </section>
+
+        <section class="content-section" id="disposition-vocabulary">
+          <h2>Disposition Vocabulary</h2>
+          <p>When an analyst closes an alert, the disposition recorded isn't just a formality. It feeds tuning decisions, detection engineering priorities, and the metrics that tell a SOC whether its queue is getting healthier or worse over time. Precise, consistent disposition language matters as much as the investigation itself.</p>
+
+          <div class="callout-info">
+            <strong>Glossary, alert disposition:</strong>
+            <ul>
+              <li><strong>True Positive (TP)</strong>: the alert correctly identified activity that represents a genuine security concern, malicious or otherwise unauthorized behavior that the detection was designed to catch.</li>
+              <li><strong>False Positive (FP)</strong>: the alert fired on activity that never happened as described, or the detection logic matched something it shouldn't have. The underlying event doesn't represent the behavior the rule claims to detect.</li>
+              <li><strong>Benign True Positive (BTP)</strong>: the detected activity genuinely occurred and matches what the rule looks for, but it turns out to be expected, authorized behavior rather than a security concern, a scheduled admin task that legitimately touches a sensitive registry key, for example.</li>
+              <li><strong>Duplicate</strong>: the alert describes the same underlying event as another alert already being worked or already dispositioned, usually because more than one rule or data source detected the same activity independently.</li>
+              <li><strong>Indeterminate / Insufficient Data</strong>: the available evidence doesn't support a confident TP or FP call, often because logging gaps, missing endpoint telemetry, or an asset that's since gone offline leave the analyst unable to fully reconstruct what happened.</li>
+            </ul>
+          </div>
+
+          <p>The distinction between false positive and benign true positive is the one analysts new to triage most often blur, and it's worth sitting with. A false positive means the detection got something wrong, the logic matched activity it wasn't designed to catch, which is a signal that the rule itself needs tuning. A benign true positive means the detection worked exactly as designed and caught exactly the behavior it looks for, but that behavior happens to be legitimate in this instance. That's not a rule problem, it's usually a context problem, solved by adding an allowlist entry, a suppression window, or better asset and user baseline data rather than by rewriting the detection logic. Recording a BTP as an FP (or the reverse) sends detection engineering effort in the wrong direction.</p>
+        </section>
+
+        <section class="content-section" id="triage-runbook-walkthrough">
+          <h2>A Triage Runbook Walkthrough</h2>
+          <p>Walking through a generic alert end to end makes the earlier concepts concrete. None of the details below point at a specific tool or environment, the sequence is representative of how a triage pass typically unfolds regardless of what generated the alert.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Step</th><th>What the Analyst Does</th><th>What It's For</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>1. Receive the alert</td><td>Read what fired, on which asset, at what time, and what the raw detection logic claims to have caught.</td><td>Establishes the baseline claim being tested. Nothing is assumed true yet.</td></tr>
+                <tr><td>2. Gather context</td><td>Identify the asset owner and its business function, check whether the involved user account has a documented baseline of normal behavior, and search for related alerts on the same asset or user in a reasonable surrounding window.</td><td>Turns an isolated data point into a picture with surroundings. A single alert rarely tells the full story on its own.</td></tr>
+                <tr><td>3. Compare against known-good baseline</td><td>Check whether the activity matches expected patterns for this asset or user: normal login hours, typical processes, routine scheduled jobs, prior approved changes.</td><td>Separates activity that's unusual in general from activity that's unusual for this specific asset or user, which is a sharper question than the rule alone can answer.</td></tr>
+                <tr><td>4. Decide disposition</td><td>Apply the vocabulary from the previous section: true positive, false positive, benign true positive, duplicate, or indeterminate, based on what steps 2 and 3 turned up.</td><td>Converts investigation into a recorded, defensible verdict that others can act on or audit later.</td></tr>
+                <tr><td>5. Escalate or close</td><td>A true positive gets escalated per the SOC's defined path, typically to a Tier 2 analyst or directly into incident response, with the supporting context attached. Anything else gets closed with the disposition and reasoning documented in the ticket.</td><td>Makes sure real findings move forward with the evidence intact, and keeps the closed record useful for future tuning and metrics even when nothing escalates.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Notice how much of this sequence is about pulling in outside context rather than staring harder at the original alert. The alert itself is a starting point, a claim that something happened. Steps 2 and 3 are where triage actually earns its name, sorting a large field of possible explanations down to the handful that fit the evidence. An analyst who skips straight from step 1 to step 4 is guessing, not triaging, and guessing at scale is exactly the pattern that erodes queue quality over time, feeding the same fatigue dynamics covered earlier in this chapter.</p>
+
+          <div class="callout-tip">
+            <strong>Tip:</strong> Documentation at step 5 isn't busywork. A closed alert with a clear, specific reasoning trail is what lets a detection engineer spot a pattern across dozens of similar closures and tune the rule, and it's what lets the next analyst who sees a similar alert move faster because the reasoning already exists. A ticket closed with a one-word disposition and nothing else throws that value away.
+          </div>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>Every alert moves through the same lifecycle: raise, triage, investigate, disposition, close. Most alerts resolve at triage, only a minority need the deeper work of a full investigation.</li>
+            <li>Severity measures potential impact if an alert is real; priority measures how urgently it needs attention right now, factoring in asset criticality and detection confidence. Sorting a queue by severity alone can work it in the wrong order.</li>
+            <li>Alert fatigue comes from high volume, low-fidelity rules, duplicate alerts, and poor tuning. Tuning thresholds, deduplication, suppression windows, and risk-based alerting are the standard countermeasures.</li>
+            <li>The real cost of fatigue is that genuine true positives get the same rushed treatment as the noise around them.</li>
+            <li>Disposition vocabulary (true positive, false positive, benign true positive, duplicate, indeterminate) needs to be applied precisely, since it drives tuning decisions downstream. False positive and benign true positive are commonly confused but call for different fixes.</li>
+            <li>A triage runbook is built around gathering context and comparing against a known-good baseline before deciding disposition, not staring harder at the original alert in isolation.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+
+          <div class="kc-question">
+            <p class="kc-prompt">A high-severity detection rule fires on an isolated test VM that holds no production data, while a medium-severity rule fires around the same time on a finance domain controller. Which alert should an analyst work first, and why?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. The test VM alert, because severity alone always determines work order</button>
+              <button class="kc-option" data-correct="true">B. The domain controller alert, because priority accounts for asset criticality on top of severity</button>
+              <button class="kc-option" data-correct="false">C. Whichever alert arrived first in the queue, regardless of asset</button>
+              <button class="kc-option" data-correct="false">D. Neither should be worked until a manager assigns priority manually</button>
+            </div>
+            <div class="kc-answer">Severity describes potential impact if an alert is real, but priority factors in asset criticality and confidence to decide urgency right now. A medium-severity alert on a business-critical domain controller carries higher priority than a high-severity alert on an isolated test asset with no real blast radius, because the stakes of a slow response are much higher on the domain controller.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">An analyst confirms that a detected registry change genuinely occurred exactly as the rule describes, but it turns out to be a routine, authorized administrative task. What's the correct disposition, and what does it imply for follow-up?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. False positive, and the detection rule's logic should be rewritten</button>
+              <button class="kc-option" data-correct="true">B. Benign true positive, and the fix is usually an allowlist or suppression entry, not a logic rewrite</button>
+              <button class="kc-option" data-correct="false">C. Duplicate, since it matches a known administrative pattern</button>
+              <button class="kc-option" data-correct="false">D. Indeterminate, since authorization can't be confirmed from an alert alone</button>
+            </div>
+            <div class="kc-answer">The detection logic matched real, correctly identified activity, so it isn't a false positive. It's a benign true positive: the rule worked as designed, but the activity is expected and authorized rather than a security concern. That distinction matters because the fix is typically an allowlist entry or suppression window based on better context, not a rewrite of detection logic that was never wrong in the first place.</div>
+          </div>
+
+          <div class="kc-question">
+            <p class="kc-prompt">Which combination of factors is most directly responsible for alert fatigue in a SOC queue?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Too few detection rules covering too narrow a set of techniques</button>
+              <button class="kc-option" data-correct="true">B. High alert volume combined with low-fidelity, poorly tuned rules and duplicate alerts</button>
+              <button class="kc-option" data-correct="false">C. Analysts working alerts in a fixed lifecycle order</button>
+              <button class="kc-option" data-correct="false">D. Detection rules being tuned too frequently</button>
+            </div>
+            <div class="kc-answer">Alert fatigue comes from a queue that's too large, too repetitive, or too low-fidelity for the team working it: high volume, rules broad enough to catch a lot of benign activity along with real threats, duplicate alerts covering the same underlying event multiple times, and rules that go untuned as the environment changes. Tuning thresholds, deduplication, suppression windows, and risk-based alerting are the countermeasures, not the causes.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="01-soc-foundations.html" class="chapter-nav-prev">← SOC Foundations</a>
+          <a href="03-siem-log-management.html" class="chapter-nav-next">SIEM and Log Management →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">SOC Operations</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('02', 5));</script>
+</body>
+</html>

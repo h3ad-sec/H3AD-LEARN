@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="01">
+  <meta name="module-id" content="soc-operations">
+  <title>SOC Foundations: Mission, Tiers &amp; Shift Models · SOC Operations · H3AD-LEARN</title>
+  <meta name="description" content="The mission of a SOC, the L1/L2/L3 tier model, SOC delivery models, and shift coverage patterns that keep a SOC running around the clock.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/soc-operations/01-soc-foundations.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/soc-operations/01-soc-foundations.html">
+  <meta property="og:title" content="SOC Foundations: Mission, Tiers &amp; Shift Models · SOC Operations · H3AD-LEARN">
+  <meta property="og:description" content="The mission of a SOC, the L1/L2/L3 tier model, SOC delivery models, and shift coverage patterns that keep a SOC running around the clock.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SOC Foundations: Mission, Tiers &amp; Shift Models · SOC Operations · H3AD-LEARN">
+  <meta name="twitter:description" content="The mission of a SOC, the L1/L2/L3 tier model, SOC delivery models, and shift coverage patterns that keep a SOC running around the clock.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "SOC Foundations: Mission, Tiers & Shift Models",
+    "description": "The mission of a SOC, the L1/L2/L3 tier model, SOC delivery models, and shift coverage patterns that keep a SOC running around the clock.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/soc-operations/01-soc-foundations.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "SOC Operations",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/soc-operations/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" },
+    { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" },
+    { "@type": "ListItem", "position": 3, "name": "SOC Operations", "item": "https://h3ad-sec.github.io/H3AD-LEARN/soc-operations/" },
+    { "@type": "ListItem", "position": 4, "name": "SOC Foundations: Mission, Tiers & Shift Models", "item": "https://h3ad-sec.github.io/H3AD-LEARN/soc-operations/01-soc-foundations.html" }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">SOC FOUNDATIONS</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub nav-current">&#8623; SOC OPERATIONS</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← SOC Operations</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 01 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">25 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 5 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 01</span>
+            <span class="badge-time muted mono">25 MIN READ</span>
+            <span class="badge-diff badge-beginner">BEGINNER</span>
+          </div>
+          <h1 class="chapter-title">SOC Foundations: Mission, Tiers &amp; Shift Models</h1>
+          <p class="chapter-intro">Every alert, every escalation, every incident report that a security organization produces flows through a Security Operations Center. Before you can triage an alert or write a detection rule, it helps to understand the structure the work happens inside: what the SOC is actually there to do, who does what at each level, how organizations choose to staff and run one, and how coverage gets maintained when threats don't respect a nine-to-five schedule. This chapter lays out that structure so the rest of the module has somewhere to hang its detail.</p>
+          <div class="chapter-tags">
+            <span class="tag">SOC tiers</span>
+            <span class="tag">shift models</span>
+            <span class="tag">escalation</span>
+            <span class="tag">SOC vs NOC</span>
+          </div>
+        </header>
+
+        <div class="callout-tip">
+          <strong>New to SOC work?</strong> This chapter assumes no prior SOC experience. If you want a grounding in core security concepts first (networking basics, the CIA triad, common attack terminology), start with <a href="../fundamentals/index.html">Fundamentals</a> and come back here afterward.
+        </div>
+
+        <section class="content-section" id="what-a-soc-does">
+          <h2>What a SOC Does and Why It Exists</h2>
+          <p>A Security Operations Center is the team and function responsible for continuously monitoring an organization's systems, detecting signs of malicious or anomalous activity, and coordinating the response when something is found. It is not a single tool or a single room, though many SOCs still have a physical or virtual "watch floor." It is a standing capability: people, process, and technology working together on a schedule that does not stop, because attackers do not work business hours and a compromised endpoint does not wait for Monday morning to matter.</p>
+          <p>The mission breaks down into three continuous activities. Monitoring means watching telemetry (logs, network traffic, endpoint activity, cloud audit trails) for signals that something is wrong. Detection means turning that raw telemetry into actionable alerts, usually through a SIEM (Security Information and Event Management platform) correlating events against detection logic. Response means acting on a confirmed or suspected incident: containing it, eradicating the threat, and getting affected systems back to a known-good state. A SOC that only does the first two without the third is just a very expensive alarm system.</p>
+          <p>Organizationally, a SOC typically sits inside the broader security function, reporting up through a CISO or equivalent, and works alongside (not instead of) IT operations, incident response, threat intelligence, and vulnerability management teams. It is easy to confuse a SOC with a Network Operations Center (NOC), since both run around the clock and both stare at dashboards for a living, but their missions are different enough that conflating them causes real staffing and process problems.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Dimension</th><th>SOC</th><th>NOC</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Primary concern</td><td>Confidentiality, integrity, and availability threats from malicious actors</td><td>System and network availability, performance, and uptime</td></tr>
+                <tr><td>Typical trigger</td><td>Suspicious login, malware detection, data exfiltration signal</td><td>Server down, link saturation, latency spike, hardware failure</td></tr>
+                <tr><td>Core tooling</td><td>SIEM, EDR, SOAR, threat intel platforms</td><td>Network monitoring, infrastructure dashboards, ticketing</td></tr>
+                <tr><td>Success measured by</td><td>Threats detected and contained, dwell time reduced</td><td>Uptime maintained, incidents resolved quickly</td></tr>
+                <tr><td>Escalation path</td><td>Incident response, threat hunting, forensics</td><td>Systems engineering, network engineering, vendor support</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout-info"><strong>Note:</strong> A slow database query is a NOC problem. A database that is suddenly querying every table it has never touched before, at 2 a.m., from a service account that normally runs a single scheduled job, is a SOC problem. The two teams often see the same raw data and interpret it through completely different lenses, which is exactly why they stay separate functions even in organizations small enough to blur most other boundaries.</div>
+        </section>
+
+        <section class="content-section" id="the-three-analyst-tiers">
+          <h2>The Three Analyst Tiers (L1, L2, L3)</h2>
+          <p>Most SOCs organize analyst work into tiers, sometimes called levels. The tier model exists to route the right work to the right skill level: a high volume of first-pass triage should not consume the time of your most experienced analyst, and a genuinely novel intrusion should not sit in a queue waiting for someone still learning to read a process tree. The names and exact boundaries vary between organizations, but the shape is consistent enough that it is worth learning as a mental model rather than a rigid standard.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Tier</th><th>Primary Job</th><th>Typical Tasks</th><th>Escalates When</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>L1 (Triage Analyst)</td>
+                  <td>First contact with every alert</td>
+                  <td>Review incoming SIEM alerts, apply playbooks, close known false positives, gather basic context (user, asset, alert history), open a ticket for anything unresolved</td>
+                  <td>The alert doesn't match a known playbook, initial evidence suggests real impact, or resolving it requires access or authority L1 doesn't have</td>
+                </tr>
+                <tr>
+                  <td>L2 (Incident Responder)</td>
+                  <td>Investigate what L1 can't close</td>
+                  <td>Pivot across log sources, correlate related alerts into a single incident, perform deeper endpoint and network analysis, coordinate initial containment actions</td>
+                  <td>The incident involves multiple systems or business units, requires forensic-level analysis, shows signs of a targeted or persistent actor, or needs a decision above the responder's authority (e.g. isolating a production server)</td>
+                </tr>
+                <tr>
+                  <td>L3 (Senior Analyst / Threat Hunter)</td>
+                  <td>Handle the hardest cases and get ahead of the next one</td>
+                  <td>Lead complex incident response, perform malware and forensic analysis, write and tune detection content, conduct proactive threat hunts, mentor L1/L2</td>
+                  <td>Rarely escalates further within the SOC; may loop in legal, executive leadership, or external incident response support for incidents with legal, regulatory, or reputational stakes</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Skill expectations climb accordingly. An L1 analyst needs to be comfortable reading alerts, following documented procedure precisely, and knowing the limits of their own judgment, which is arguably the most important skill at that level. An L2 analyst needs broader tool fluency (SIEM query languages, EDR consoles, basic network analysis) and the investigative instinct to connect alerts that don't obviously belong together. An L3 analyst is expected to operate with minimal guidance, often holds deep expertise in a specialty (malware analysis, cloud security, detection engineering), and is frequently the person writing the playbooks that L1 follows.</p>
+          <div class="callout-info"><strong>Note:</strong> Escalation is not a failure. A well-run SOC treats a clean, well-documented escalation from L1 to L2 as exactly the system working as designed. Analysts who sit on alerts rather than escalate them, out of a reluctance to look inexperienced, are one of the more common and more fixable causes of missed detections in junior-heavy SOCs.</div>
+        </section>
+
+        <section class="content-section" id="soc-delivery-models">
+          <h2>SOC Delivery Models</h2>
+          <p>Not every organization builds and staffs its own SOC. Three broad delivery models cover most of the industry, and many organizations land somewhere between them rather than choosing one cleanly.</p>
+          <p>An in-house SOC is staffed entirely by the organization's own employees, using tooling the organization owns or licenses directly. A Managed Security Service Provider (MSSP) model outsources the monitoring and often the initial response function to a third-party vendor who runs the SOC on the client's behalf, usually across many clients at once. A hybrid, or co-managed, model splits the work: an MSSP might handle 24/7 L1 triage while the organization keeps L2 and L3 in-house, or the reverse, with in-house staff covering business hours and an MSSP picking up nights and weekends.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Model</th><th>Cost</th><th>Control</th><th>Response Speed</th><th>Context / Tribal Knowledge</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>In-house</td>
+                  <td>Highest (headcount, tooling, training, 24/7 staffing)</td>
+                  <td>Full control over process, tooling, and priorities</td>
+                  <td>Can be fast once staffed, but harder to reach true 24/7 coverage at small scale</td>
+                  <td>Strongest. Analysts learn the environment over time and retain institutional knowledge</td>
+                </tr>
+                <tr>
+                  <td>MSSP</td>
+                  <td>Lower upfront cost, often subscription-based</td>
+                  <td>Limited. Client depends on vendor's processes, tooling, and priorities</td>
+                  <td>Varies widely by vendor and contract; shared analyst pools can mean queueing during high-volume periods</td>
+                  <td>Weakest. Vendor analysts split attention across many clients and turn over more frequently</td>
+                </tr>
+                <tr>
+                  <td>Hybrid / co-managed</td>
+                  <td>Moderate. Pays for round-the-clock coverage without fully staffing it in-house</td>
+                  <td>Shared. Organization typically keeps control of higher-stakes decisions</td>
+                  <td>Generally strong for after-hours triage, faster escalation into in-house context for complex cases</td>
+                  <td>Moderate. In-house tier retains context; handoffs to the MSSP tier need deliberate documentation</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>There is no universally correct choice here. A well-resourced enterprise with a mature security program often keeps a SOC in-house because control over process and depth of institutional context matter more than cost. A smaller organization without the budget or hiring pipeline for round-the-clock in-house staffing frequently turns to an MSSP or a hybrid arrangement, accepting some loss of context in exchange for coverage it could not otherwise afford. The trade-off to watch closely in any hybrid arrangement is the handoff: an incident that starts with an MSSP analyst at 3 a.m. and gets escalated to an in-house L3 at 9 a.m. is only as good as the documentation that traveled with it.</p>
+        </section>
+
+        <section class="content-section" id="shift-models-and-coverage">
+          <h2>Shift Models and Coverage</h2>
+          <p>Threats don't clock out, so SOC coverage has to be continuous. Organizations achieve this a few different ways, and most SOCs of any size end up combining more than one.</p>
+          <p>Follow-the-sun coverage spreads analyst teams across time zones so that as one region's business day ends, another region's is beginning, handing off active monitoring without ever leaving a true gap. This model works well for global organizations with distributed offices and is a common structure for larger MSSPs. Fixed shift rotations, by contrast, keep a single team covering set blocks (commonly variations of day, evening, and night shifts) with analysts rotating through those blocks on a schedule. This is more common for organizations running a single-site or single-region SOC. A third pattern, on-call escalation, covers gaps outside a smaller team's business-hours staffing: a defined rotation of analysts carries a phone or pager for anything that can't wait until the next shift, typically reserved for alerts above a defined severity threshold rather than routine triage.</p>
+          <p>Whichever model a SOC uses, the moment of highest risk is the handoff between shifts. An incident investigated at 60% completion by an outgoing analyst is worthless to the incoming one without a clean transfer of what's known, what's still open, and what needs to happen next. A disciplined handoff process is one of the least glamorous and most consistently underrated skills in SOC operations.</p>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Review Open Items</div>
+              <div class="flow-step-desc">The outgoing analyst compiles every open alert, ticket, and in-progress investigation before the shift ends.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Brief Incoming Analyst</div>
+              <div class="flow-step-desc">Walk the incoming analyst through status, context, and anything time-sensitive, verbally or in a written handoff log.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Transfer Ownership</div>
+              <div class="flow-step-desc">Reassign tickets and cases in the tracking system so ownership formally moves to the incoming analyst.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Confirm Acknowledgment</div>
+              <div class="flow-step-desc">The incoming analyst confirms they understand the state of each open item before the outgoing analyst signs off.</div>
+            </div>
+          </div>
+          <div class="callout-info"><strong>Note:</strong> A shift handoff that skips step 4 (confirmation) is a common source of dropped incidents. It is not enough for the outgoing analyst to say what's open; the incoming analyst has to actually acknowledge and understand it before ownership has genuinely transferred.</div>
+        </section>
+
+        <section class="content-section" id="how-this-module-builds">
+          <h2>How the Rest of This Module Builds on This Chapter</h2>
+          <p>Everything in this chapter is structural: who does the work, how the SOC is organized, and when it runs. The next seven chapters build on that structure by walking through what the work itself actually looks like, from the moment an alert fires to the metrics leadership uses to judge whether the SOC is doing its job well.</p>
+          <ul>
+            <li><strong>Alert Triage and Prioritization</strong>: how an L1 analyst decides what to work first and what to close.</li>
+            <li><strong>SIEM and Log Management</strong>: the platform underneath detection, and how log data gets collected, normalized, and queried.</li>
+            <li><strong>SOAR and Automation</strong>: how repetitive triage and response steps get automated so analysts spend time on judgment calls, not data entry.</li>
+            <li><strong>Incident Handling Workflow</strong>: the lifecycle an incident moves through from detection to closure.</li>
+            <li><strong>Case Management and Documentation</strong>: how a SOC keeps a record that holds up under review, audit, or legal scrutiny.</li>
+            <li><strong>Metrics and KPIs</strong>: how SOC performance gets measured, and which numbers actually tell you something useful.</li>
+            <li><strong>SOC Team Structure and Career Growth</strong>: how the tier model in this chapter maps to real career paths and what moving up actually requires.</li>
+          </ul>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>A SOC's mission is continuous monitoring, detection, and response, distinct from a NOC's focus on system and network availability.</li>
+            <li>The L1/L2/L3 tier model routes work by complexity: L1 triages volume, L2 investigates what L1 can't close, L3 handles the hardest cases and works proactively.</li>
+            <li>Escalation between tiers is a designed part of the workflow, not a sign of failure.</li>
+            <li>SOC delivery models (in-house, MSSP, hybrid) trade off cost, control, response speed, and institutional context differently, and no one model fits every organization.</li>
+            <li>24/7 coverage is achieved through follow-the-sun teams, fixed shift rotations, on-call escalation, or a combination of the three.</li>
+            <li>A disciplined shift handoff, ending in explicit acknowledgment from the incoming analyst, is one of the most important and most overlooked SOC processes.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">A colleague on the NOC team flags that a server's CPU usage spiked overnight with no obvious cause. Which statement best describes why this might or might not become a SOC matter?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. It is always a SOC matter, since any anomaly on a server is inherently a security concern.</button>
+              <button class="kc-option" data-correct="true">B. It becomes a SOC matter if the cause turns out to be malicious or unauthorized activity rather than a performance or infrastructure issue.</button>
+              <button class="kc-option" data-correct="false">C. It is never a SOC matter, since CPU usage is purely a NOC concern.</button>
+              <button class="kc-option" data-correct="false">D. It only becomes a SOC matter once the server goes offline.</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. The SOC and NOC often look at the same underlying telemetry, but the SOC's lens is malicious or unauthorized activity, not availability or performance on its own. A CPU spike from a legitimate batch job is a NOC story; the same spike from an unrecognized process mining cryptocurrency is a SOC story.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">An L1 analyst is reviewing an alert and cannot resolve it using any existing playbook, and the initial evidence hints at real business impact. What should happen next?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. The analyst should close the alert as a false positive to keep the queue moving.</button>
+              <button class="kc-option" data-correct="false">B. The analyst should keep investigating independently until they personally resolve it, regardless of how long it takes.</button>
+              <button class="kc-option" data-correct="true">C. The analyst should escalate to L2, since this is exactly the scenario the tier model is designed to route upward.</button>
+              <button class="kc-option" data-correct="false">D. The analyst should wait for the next shift handoff and let the incoming analyst decide.</button>
+            </div>
+            <div class="kc-answer">Correct answer: C. Escalation exists precisely for cases like this: no matching playbook plus early signs of real impact is the definition of work that has outgrown L1's scope. Sitting on it or guessing at closure both introduce risk that the tier model is built to avoid.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">A mid-sized company wants 24/7 SOC coverage but cannot justify hiring and staffing a full in-house night shift. Which delivery model most directly addresses this constraint while still keeping some functions in-house?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Fully in-house, with existing staff absorbing night shifts as unpaid overtime.</button>
+              <button class="kc-option" data-correct="true">B. Hybrid / co-managed, with an MSSP covering after-hours triage and in-house staff retained for business-hours work and higher-tier escalation.</button>
+              <button class="kc-option" data-correct="false">C. Fully MSSP, with no in-house security staff retained at all.</button>
+              <button class="kc-option" data-correct="false">D. No SOC function at all, relying solely on automated alerting with no human review.</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. A hybrid or co-managed model is built for exactly this trade-off: it fills the coverage gap an organization can't staff on its own while preserving in-house control and context for the work that benefits most from it.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="index.html" class="chapter-nav-prev">← SOC Operations Overview</a>
+          <a href="02-alert-triage-prioritization.html" class="chapter-nav-next">Alert Triage and Prioritization →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">SOC Operations</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('01', 5));</script>
+</body>
+</html>

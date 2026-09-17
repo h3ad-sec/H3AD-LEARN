@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="07">
+  <meta name="module-id" content="soc-operations">
+  <title>Metrics and KPIs · SOC Operations · H3AD-LEARN</title>
+  <meta name="description" content="Why metrics matter to a SOC, core time-based metrics (MTTD, MTTA, MTTR), coverage metrics mapped against MITRE ATT&CK, SOC maturity models like SOC-CMM, and the common pitfalls of gaming or misreading security metrics.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/soc-operations/07-metrics-kpis.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/soc-operations/07-metrics-kpis.html">
+  <meta property="og:title" content="Metrics and KPIs · SOC Operations · H3AD-LEARN">
+  <meta property="og:description" content="Why metrics matter to a SOC, core time-based metrics (MTTD, MTTA, MTTR), coverage metrics mapped against MITRE ATT&CK, SOC maturity models like SOC-CMM, and the common pitfalls of gaming or misreading security metrics.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Metrics and KPIs · SOC Operations · H3AD-LEARN">
+  <meta name="twitter:description" content="Why metrics matter to a SOC, core time-based metrics (MTTD, MTTA, MTTR), coverage metrics mapped against MITRE ATT&CK, SOC maturity models like SOC-CMM, and the common pitfalls of gaming or misreading security metrics.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Metrics and KPIs",
+    "description": "Why metrics matter to a SOC, core time-based metrics (MTTD, MTTA, MTTR), coverage metrics mapped against MITRE ATT&CK, SOC maturity models like SOC-CMM, and the common pitfalls of gaming or misreading security metrics.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/soc-operations/07-metrics-kpis.html",
+    "isPartOf": { "@type": "Course", "name": "SOC Operations", "url": "https://h3ad-sec.github.io/H3AD-LEARN/soc-operations/" },
+    "provider": { "@type": "Organization", "name": "H3AD-SEC", "url": "https://h3ad-sec.github.io" }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" },
+    { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" },
+    { "@type": "ListItem", "position": 3, "name": "SOC Operations", "item": "https://h3ad-sec.github.io/H3AD-LEARN/soc-operations/" },
+    { "@type": "ListItem", "position": 4, "name": "Metrics and KPIs", "item": "https://h3ad-sec.github.io/H3AD-LEARN/soc-operations/07-metrics-kpis.html" }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">METRICS &amp; KPIS</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub nav-current">&#8623; SOC OPERATIONS</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← SOC Operations</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 07 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 5 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 07</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-advanced">ADVANCED</span>
+          </div>
+          <h1 class="chapter-title">Metrics and KPIs</h1>
+          <p class="chapter-intro">A SOC that cannot answer "how are we doing" in concrete terms is running on instinct, and instinct doesn't hold up well against a budget review or an auditor's questions. Metrics turn the day-to-day work of triage, escalation, and response into numbers that leadership, the SOC itself, and outside reviewers can actually look at. This chapter covers the core time-based metrics analysts hear most often, the coverage metrics that tell a SOC what it can and can't see, the maturity models that assess a program beyond any single number, and the ways metrics programs quietly go wrong when the numbers get chased instead of the outcomes behind them. None of this is about picking a "correct" set of KPIs; it's about understanding what each metric actually measures, so it gets used honestly instead of gamed or misread.</p>
+          <div class="chapter-tags">
+            <span class="tag">metrics</span><span class="tag">KPIs</span><span class="tag">SOC maturity</span><span class="tag">MTTD/MTTR</span>
+          </div>
+        </header>
+
+        <div class="callout-tip"><strong>Building on Chapter 6:</strong> Everything in this chapter depends on the documentation discipline covered in Chapter 6. MTTD, MTTA, and MTTR are only as accurate as the timestamps analysts log during triage and response; a coverage metric is only as honest as the case notes that fed it. Bad data in means bad metrics out, and a metrics program built on inconsistent documentation will produce numbers that look precise while being quietly wrong.</div>
+
+        <section class="content-section" id="why-metrics-matter">
+          <h2>Why Metrics Matter to a SOC</h2>
+          <p>A SOC produces a huge amount of activity: alerts triaged, cases opened and closed, escalations sent, incidents handled. None of that activity means anything to someone outside the SOC unless it's translated into a small set of numbers that answer a specific question for a specific audience. Metrics exist to do that translation, and different audiences need different translations of the same underlying work.</p>
+          <h3>Leadership</h3>
+          <p>Leadership doesn't see the queue, doesn't see the individual alerts, and generally doesn't want to. What leadership needs is visibility into whether the SOC is actually effective, and whether the resourcing it has is enough to keep it that way. A trend line showing detection and response times holding steady while alert volume climbs is a much stronger staffing argument than an analyst simply saying the team feels stretched. Metrics give leadership a defensible basis for decisions about headcount, tooling budget, and where the SOC sits in the organization's priorities, decisions that get made whether or not the SOC hands over good numbers to inform them.</p>
+          <h3>The SOC Itself</h3>
+          <p>Metrics aren't only for people outside the SOC. Internally, they function as a tuning feedback loop. A rising average time-to-triage might point to alert fatigue from a noisy detection rule that needs retuning. A spike in reopened tickets might mean an escalation criterion is too loose, or that L1 analysts need more guidance on a particular alert type. Without metrics, these problems get noticed anecdotally, if at all, usually after they've already cost the team real time. With metrics tracked over time, a SOC lead can catch a drifting trend before it becomes a pattern everyone has quietly gotten used to.</p>
+          <h3>Compliance and Audit</h3>
+          <p>Many organizations operate under a framework, contractual obligation, or regulatory requirement that expects a security operations function to exist and to actually work, not just exist on paper. Metrics are the evidence that backs up that claim. An auditor reviewing a SOC's incident response process wants to see that alerts get triaged within a defined window, that incidents get documented, and that the numbers behind those claims are tracked consistently rather than reconstructed after the fact. Metrics turn "we have a process" into something a third party can independently verify.</p>
+          <div class="callout-info"><strong>Note:</strong> These three audiences often want the same underlying metric presented differently. A rising MTTR might be a staffing conversation for leadership, a process-tuning conversation for the SOC, and a documented risk item for an auditor. The number is the same; what it's used for is not.</div>
+        </section>
+
+        <section class="content-section" id="core-time-based-metrics">
+          <h2>Core Time-Based Metrics</h2>
+          <p>Time-based metrics are the most commonly cited numbers in SOC reporting, and also the most commonly misused, largely because the acronyms sound more standardized than they actually are. Different organizations, and even different vendors, define the exact start and end points of these measurements slightly differently. The practical approach is to understand what each metric measures conceptually and confirm how your own organization defines its boundaries, rather than assuming the acronym means the same thing everywhere.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Metric</th><th>What It Measures</th><th>Why It Matters</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>MTTD (Mean Time to Detect)</td><td>The average time between when malicious or suspicious activity actually begins and when the SOC (or its tooling) first identifies it as something worth attention</td><td>A long MTTD means an attacker has more time to move laterally, escalate privileges, or exfiltrate data before anyone notices. It's a direct reflection of detection coverage and log visibility.</td></tr>
+                <tr><td>MTTA (Mean Time to Acknowledge)</td><td>The average time between an alert firing and a human analyst actually picking it up to begin triage</td><td>A long MTTA usually points to queue backlog, alert fatigue, or staffing gaps rather than a detection problem. It's the clearest signal of whether alerts are being worked in a timely way once they exist.</td></tr>
+                <tr><td>MTTR (Mean Time to Respond / Remediate)</td><td>The average time between an alert being acknowledged and the incident being fully contained, remediated, or otherwise closed out. Some organizations split this further into MTTC (Mean Time to Contain) as a separate checkpoint before full remediation.</td><td>MTTR reflects how efficiently the SOC and its supporting teams move from "we know what's happening" to "it's handled." It's shaped by playbook quality, tooling, and how much cross-team coordination a given incident requires.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Read together, these three metrics describe a timeline: detect, acknowledge, respond. A weakness in any one stage drags down the overall picture even if the other two look strong. A SOC with an excellent MTTD but a poor MTTA has good detection engineering sitting behind an understaffed or overwhelmed triage queue; a SOC with fast MTTA but slow MTTR probably has a staffing or process problem downstream of triage, in containment or remediation rather than in noticing the alert.</p>
+          <div class="callout-info"><strong>Note:</strong> Because these definitions vary by organization, don't treat a number from a vendor report, a conference talk, or another company's blog post as a benchmark to hit. Compare your own MTTD, MTTA, and MTTR against your own historical trend, using your own organization's definition of where each measurement starts and stops.</div>
+        </section>
+
+        <section class="content-section" id="coverage-metrics">
+          <h2>Coverage Metrics</h2>
+          <p>Time-based metrics describe how fast the SOC reacts to what it sees. Coverage metrics describe how much of the environment it's actually seeing and defending against in the first place, and they matter just as much, because a SOC can have an excellent MTTD on the alerts it does generate while remaining blind to entire categories of activity it never had visibility into.</p>
+          <h3>Log Source Coverage</h3>
+          <p>Log source coverage asks a simple question: of the critical assets and systems in the environment, how many are actually feeding relevant telemetry into the SIEM or detection stack. A server that never sends logs is a server the SOC cannot detect anything on, no matter how well-tuned the detection rules are elsewhere. Tracking this conceptually, as a gap list of what's onboarded versus what's known to exist but isn't yet, is more useful than chasing a specific percentage figure, since the goal isn't a number on a dashboard but closing the actual visibility gaps that number represents.</p>
+          <h3>Detection Coverage Against ATT&CK</h3>
+          <p>MITRE ATT&CK gives a SOC a shared reference for mapping which adversary tactics and techniques it has built detections for, and which it hasn't. Plotting existing detection rules against the ATT&CK matrix produces a visual gap analysis: tactics with dense coverage, tactics with a single thin detection, and tactics with none at all. This is the same mapping exercise covered from the hunting angle earlier in this learning path, applied here as an ongoing coverage metric rather than a one-time hunting exercise.</p>
+          <div class="callout-info"><strong>Note:</strong> ATT&CK coverage mapping is a gap-analysis tool, not a score to game. Building a shallow detection for every technique just to color in more matrix cells produces a SOC that looks well-covered on paper and still misses real attacks, because a low-quality detection with a high false-negative rate provides little of the protection the coverage map implies it does. The map is only useful if the detections behind it are actually good enough to fire when they should.</div>
+          <p>Used honestly, coverage metrics answer a different question than time-based metrics do. Time-based metrics tell a SOC how well it's handling what it catches. Coverage metrics tell it what it might not be catching at all, which is the harder and more uncomfortable of the two questions, and arguably the more important one to keep asking.</p>
+        </section>
+
+        <section class="content-section" id="soc-maturity-models">
+          <h2>SOC Maturity Models</h2>
+          <p>Individual metrics, even a well-chosen set of them, describe pieces of a SOC's performance. A maturity model steps back and assesses the program as a whole: not just how fast alerts get handled this quarter, but how repeatable, documented, and resilient the SOC's people, processes, technology, and services are as a system.</p>
+          <p>SOC-CMM (Security Operations Center Capability Maturity Model) is one well-known example of this kind of framework, built specifically for security operations rather than adapted from a generic IT maturity model. Frameworks in this family generally assess a SOC across a handful of dimensions, roughly: people (staffing, skills, training, retention), process (documented, repeatable procedures rather than tribal knowledge), technology (the tooling stack and how well it's actually configured and used, not just what's licensed), and services (the specific capabilities the SOC delivers, such as monitoring, incident response, or threat hunting, and how consistently it delivers them).</p>
+          <p>What a maturity assessment adds that a metrics dashboard doesn't is context for those metrics. A SOC with a strong MTTR might still score low on maturity if that speed depends entirely on one senior analyst's institutional knowledge rather than a documented, repeatable process; that's a fragile strength, not a durable one, and it tends to show up the moment that analyst is out sick or leaves. Maturity models are built to surface exactly that kind of gap between good current-state numbers and a program that will hold up over time.</p>
+          <div class="callout-info"><strong>Note:</strong> This chapter deliberately stays at the conceptual level of what a maturity model assesses, rather than walking through a specific scoring mechanic. If your organization adopts SOC-CMM or a similar framework formally, treat its own published methodology as the authoritative source for how scoring actually works.</div>
+        </section>
+
+        <section class="content-section" id="metrics-pitfalls">
+          <h2>Metrics Pitfalls</h2>
+          <p>Any metric that people are evaluated against will eventually get optimized for, sometimes at the expense of the outcome the metric was supposed to represent. This isn't a hypothetical risk specific to security operations; it shows up anywhere a number becomes a target. A SOC's metrics program needs to be designed with that tendency in mind, not surprised by it after the fact.</p>
+          <div class="callout-warning"><strong>Warning: Common ways metrics programs go wrong.</strong> Gaming metrics: an analyst under pressure to improve MTTR can close tickets faster by skipping proper investigation, producing a great-looking number and a worse-investigated case. Vanity metrics: raw alert volume handled looks impressive on a slide but says nothing about whether those dispositions were accurate; a team that closes a thousand alerts a day poorly is not outperforming one that closes two hundred correctly. Speed versus thoroughness: nearly every time-based metric creates pressure to move faster, and moving faster without a corresponding check on quality is how real incidents get missed or mis-triaged in the name of a better dashboard number.</div>
+          <p>The practical defense against all three of these is pairing every speed metric with a quality metric, rather than tracking time alone. Disposition accuracy (how often an analyst's initial call on an alert holds up on review) and reopened-ticket rate (how often a "resolved" case comes back because it wasn't actually handled) are two common pairings. A team with a fast MTTR and a high reopened-ticket rate isn't actually fast; it's deferring the real work to a second pass, and the paired metric is what makes that visible instead of hidden behind an impressive-looking average.</p>
+          <p>None of this means time-based and coverage metrics aren't worth tracking. It means they're incomplete on their own, and a metrics program that leadership, the SOC, and auditors can all trust needs to show its work: not just how fast, but how accurately, and not just how much coverage, but how good that coverage actually is when tested.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>Metrics serve three distinct audiences: leadership (effectiveness and staffing justification), the SOC itself (a tuning feedback loop), and compliance/audit (evidence the program operates as claimed).</li>
+            <li>MTTD, MTTA, and MTTR describe a timeline: detect, acknowledge, respond. Definitions vary between organizations, so compare against your own historical trend rather than an external benchmark.</li>
+            <li>Coverage metrics, log source coverage and ATT&CK-mapped detection coverage, answer a different question than speed metrics: what might the SOC not be catching at all. Treat coverage mapping as gap analysis, not a score to game.</li>
+            <li>SOC maturity models like SOC-CMM assess people, process, technology, and services as a system, surfacing fragile strengths (like a fast MTTR built on one analyst's knowledge) that a metrics dashboard alone would miss.</li>
+            <li>Any metric people are evaluated against can be gamed. Pair time-based metrics with quality metrics, such as disposition accuracy or reopened-ticket rate, to catch speed gained at the expense of thoroughness.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">A SOC lead wants a number that helps justify a staffing request to executive leadership, while an auditor separately wants evidence the incident response process actually works. What does this illustrate about SOC metrics?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Leadership and auditors always need completely different metrics, so a SOC must maintain two separate tracking systems.</button>
+              <button class="kc-option" data-correct="true">B. The same underlying metric, like MTTR, can serve multiple audiences differently: a staffing argument for leadership, and process evidence for an auditor.</button>
+              <button class="kc-option" data-correct="false">C. Metrics are only useful for compliance purposes and have no internal value to the SOC.</button>
+              <button class="kc-option" data-correct="false">D. Auditors only care about MTTD, while leadership only cares about MTTR, so the two never overlap.</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. The same metric often serves different purposes depending on the audience: leadership uses it for resourcing decisions, the SOC uses it internally to tune process, and auditors use it as evidence the program functions as claimed. It's the same number applied to different questions, not separate metrics for each audience (A, D), and metrics have clear internal tuning value beyond compliance (C).</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">Why does this chapter caution against comparing your organization's MTTD, MTTA, or MTTR directly to a number published in a vendor report or another company's blog post?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Vendor-published numbers are always fabricated and should never be trusted for any purpose.</button>
+              <button class="kc-option" data-correct="true">B. Different organizations define the start and end points of these metrics differently, so the acronym doesn't guarantee a consistent measurement across sources.</button>
+              <button class="kc-option" data-correct="false">C. MTTD, MTTA, and MTTR are legally standardized terms and can only be published by regulators.</button>
+              <button class="kc-option" data-correct="false">D. These metrics only apply to organizations using a specific SIEM vendor.</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. MTTD, MTTA, and MTTR sound standardized because the acronyms are widely used, but the exact boundaries of each measurement vary between organizations. The reliable comparison is your own trend over time, using your own consistent definition, not a cross-organization benchmark.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">A SOC's average MTTR improves significantly after leadership starts reviewing it monthly, but the reopened-ticket rate climbs at the same time. What does this pattern most likely indicate?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. The SOC has genuinely gotten faster and more accurate at the same time, with no tradeoff involved.</button>
+              <button class="kc-option" data-correct="false">B. The rising reopened-ticket rate is unrelated to MTTR and should be ignored.</button>
+              <button class="kc-option" data-correct="true">C. Analysts may be closing tickets faster to improve the MTTR number without fully investigating them, a classic case of gaming a speed metric at the expense of quality.</button>
+              <button class="kc-option" data-correct="false">D. This pattern proves the SOC's detection coverage against ATT&CK has improved.</button>
+            </div>
+            <div class="kc-answer">Correct answer: C. A speed metric improving while a paired quality metric (reopened-ticket rate) gets worse is exactly the pitfall this chapter describes: a metric under pressure to look good gets optimized for directly, sometimes by skipping the thoroughness that made the original number meaningful. This is why speed metrics should always be read alongside a quality metric, not in isolation.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="06-case-management-documentation.html" class="chapter-nav-prev">← Case Management and Documentation</a>
+          <a href="08-team-structure-career-growth.html" class="chapter-nav-next">SOC Team Structure and Career Growth →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">SOC Operations</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('07', 5));</script>
+</body>
+</html>
