@@ -140,7 +140,7 @@
         </header>
 
         <!-- SECTION 1 -->
-        <section id="five-patterns">
+        <section class="content-section" id="five-patterns">
           <h2>The Five LOLBin Attack Patterns</h2>
           <p>Attackers use LOLBins for five distinct objectives, each mapping to a different phase of the attack lifecycle. Understanding which pattern is in play determines which detection controls apply.</p>
 
@@ -209,7 +209,7 @@
         </section>
 
         <!-- SECTION 2 -->
-        <section id="download-cradles">
+        <section class="content-section" id="download-cradles">
           <h2>Download Cradles in Depth</h2>
           <p>A download cradle fetches a remote resource for execution. It is the most common first post-access action after a foothold is established, and it determines whether a malicious file ever touches disk. The choice of cradle affects detection difficulty, evasion potential, and what forensic artifacts remain.</p>
 
@@ -298,7 +298,7 @@
         </section>
 
         <!-- SECTION 3 -->
-        <section id="execution-chains">
+        <section class="content-section" id="execution-chains">
           <h2>Kill Chains: Chaining LOLBins Together</h2>
           <p>A single LOLBin detection blocks one step. Real campaigns chain multiple LOLBins across multiple phases. Parent-child chain analysis detects the entire kill chain by identifying anomalous spawn sequences, regardless of which specific binaries are involved.</p>
 
@@ -409,7 +409,7 @@
         </section>
 
         <!-- SECTION 4 -->
-        <section id="lolbin-persistence">
+        <section class="content-section" id="lolbin-persistence">
           <h2>LOLBin-Based Persistence</h2>
           <p>The most effective LOLBin persistence techniques share a common property: no malicious file on disk at the point the payload runs. The persistence mechanism (a scheduled task entry or a registry key) exists, but it points to a trusted binary that fetches its payload at execution time from a remote URL. Forensic investigators looking for malware files find nothing.</p>
 
@@ -447,7 +447,7 @@
         </section>
 
         <!-- SECTION 5 -->
-        <section id="lateral-movement">
+        <section class="content-section" id="lateral-movement">
           <h2>LOLBin-Based Lateral Movement</h2>
           <p>With valid credentials obtained through earlier stages (credential dumping, pass-the-hash, password spraying), Windows built-in tools provide full lateral movement capability. No additional offensive tooling is required.</p>
 
@@ -480,7 +480,7 @@ schtasks /run /s TARGETHOST /tn "Updater"</code></pre>
         </section>
 
         <!-- SECTION 6 -->
-        <section id="evasion-techniques">
+        <section class="content-section" id="evasion-techniques">
           <h2>Evasion Techniques in LOLBin Tradecraft</h2>
           <p>Command-line detection rules typically match string patterns. Binary names, flag names, and URL substrings are common targets. Attackers apply several techniques to corrupt these strings at the command-line level while preserving execution semantics.</p>
 

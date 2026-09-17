@@ -140,7 +140,7 @@
         </header>
 
         <!-- SECTION 1 -->
-        <section id="lolscripts-overview">
+        <section class="content-section" id="lolscripts-overview">
           <h2>LOLScripts: Scripting Engines as Attack Tools</h2>
           <p>LOLScripts are scripting engines shipped with Windows that attackers repurpose to run attacker-controlled code. The script file itself can be entirely malicious, but the engine executing it is a trusted, signed Windows component. That distinction matters: process-based allowlisting blocks unknown binaries, but it cannot block a trusted scripting engine running a hostile script.</p>
           <p>The four core LOLScript engines are:</p>
@@ -211,7 +211,7 @@
         </section>
 
         <!-- SECTION 2 -->
-        <section id="powershell-abuse">
+        <section class="content-section" id="powershell-abuse">
           <h2>PowerShell as a LOLScript</h2>
           <p>PowerShell is the most abused LOLScript. It ships on every modern Windows installation, has full access to the .NET framework and Windows API, supports network operations natively, and provides built-in obfuscation mechanisms that are legitimate features of the language. Defenders cannot simply block it.</p>
 
@@ -264,7 +264,7 @@ powershell.exe -ep bypass -File C:\payload.ps1</code></pre>
         </section>
 
         <!-- SECTION 3 -->
-        <section id="vbscript-jscript">
+        <section class="content-section" id="vbscript-jscript">
           <h2>VBScript, JScript, and Windows Script Host</h2>
           <p>Windows Script Host (WSH) is the runtime layer that executes VBScript and JScript files. It ships with every Windows version and cannot be uninstalled without breaking system components. Two WSH binaries exist: <code>wscript.exe</code> runs scripts with a GUI context (dialog boxes are visible), and <code>cscript.exe</code> runs scripts in a console context. Attackers typically prefer wscript for running payloads silently.</p>
 
@@ -293,7 +293,7 @@ powershell.exe -ep bypass -File C:\payload.ps1</code></pre>
         </section>
 
         <!-- SECTION 4 -->
-        <section id="lollibs-dotnet">
+        <section class="content-section" id="lollibs-dotnet">
           <h2>LOLLibs: .NET and COM Abuse</h2>
           <p>LOLLibs are .NET assemblies and COM components that ship with Windows and can be loaded by legitimate processes to execute attacker-supplied code. The distinction from LOLBins and LOLScripts is that LOLLibs are libraries, not standalone executables. The execution happens inside a host process, making attribution to a specific binary less straightforward.</p>
 
@@ -351,7 +351,7 @@ $method.Invoke($null, $null)</code></pre>
         </section>
 
         <!-- SECTION 5 -->
-        <section id="loldrivers-byovd">
+        <section class="content-section" id="loldrivers-byovd">
           <h2>LOLDrivers and BYOVD</h2>
           <p>LOLDrivers are legitimate, digitally signed Windows kernel drivers that contain exploitable vulnerabilities. BYOVD (Bring Your Own Vulnerable Driver) is the technique of loading one of these drivers to gain kernel-level code execution, then using that access to disable endpoint security tools.</p>
 
@@ -404,7 +404,7 @@ sc.exe start vuln_driver</code></pre>
         </section>
 
         <!-- SECTION 6 -->
-        <section id="detection-logging">
+        <section class="content-section" id="detection-logging">
           <h2>Detection and Logging for LOLScripts and Drivers</h2>
           <p>Detection coverage for LOLScripts varies significantly by technology. PowerShell has rich optional logging. VBScript and JScript have almost none. LOLDrivers require kernel telemetry that is not enabled by default.</p>
 
