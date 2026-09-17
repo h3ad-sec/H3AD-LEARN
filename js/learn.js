@@ -28,7 +28,8 @@ const MODULES = {
   'lolbas':         { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 10 },
   'threat-intel':   { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 11 },
   'cloud-security': { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 11 },
-  'malware-analysis': { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 12 }
+  'malware-analysis': { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 12 },
+  'soc-operations':   { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 11 }
 };
 
 /* ---------------------------------------------------------
