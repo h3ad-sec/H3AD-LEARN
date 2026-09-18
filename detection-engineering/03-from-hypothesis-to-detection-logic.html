@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="03">
+  <meta name="module-id" content="detection-engineering">
+  <title>From Hypothesis to Detection Logic · Detection Engineering · H3AD-LEARN</title>
+  <meta name="description" content="Translate an attacker behavior into concrete detection logic: choosing the right data source, selecting the fields that matter, and building logic with thresholds and sequences.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/03-from-hypothesis-to-detection-logic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/03-from-hypothesis-to-detection-logic.html">
+  <meta property="og:title" content="From Hypothesis to Detection Logic · Detection Engineering · H3AD-LEARN">
+  <meta property="og:description" content="Translate an attacker behavior into concrete detection logic: choosing the right data source, selecting the fields that matter, and building logic with thresholds and sequences.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="From Hypothesis to Detection Logic · Detection Engineering · H3AD-LEARN">
+  <meta name="twitter:description" content="Translate an attacker behavior into concrete detection logic: choosing the right data source, selecting the fields that matter, and building logic with thresholds and sequences.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "From Hypothesis to Detection Logic",
+    "description": "Translate an attacker behavior into concrete detection logic: choosing the right data source, selecting the fields that matter, and building logic with thresholds and sequences.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/03-from-hypothesis-to-detection-logic.html",
+    "isPartOf": { "@type": "Course", "name": "Detection Engineering", "url": "https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/" },
+    "provider": { "@type": "Organization", "name": "H3AD-SEC", "url": "https://h3ad-sec.github.io" }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" },
+    { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" },
+    { "@type": "ListItem", "position": 3, "name": "Detection Engineering", "item": "https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/" },
+    { "@type": "ListItem", "position": 4, "name": "From Hypothesis to Detection Logic", "item": "https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/03-from-hypothesis-to-detection-logic.html" }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">HYPOTHESIS TO LOGIC</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub">&#8623; SOC OPERATIONS</a>
+    <a href="../detection-engineering/index.html" class="drawer-sub nav-current">&#8623; DETECTION ENGINEERING</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Detection Engineering</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 03 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 03</span>
+            <span class="badge-time muted mono">35 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">From Hypothesis to Detection Logic</h1>
+          <p class="chapter-intro">A hypothesis is not a detection. It is a claim about what an attacker's behavior would look like in your environment, and until that claim is turned into a query that runs against real data, it is only an idea. This chapter walks through the mechanical work of getting from a written hypothesis to working logic: picking a data source that can actually see the behavior, choosing the fields that carry signal, deciding how conditions should combine, and mapping the result back to ATT&CK so the detection's purpose stays legible to everyone who reads it later. The goal is a rule you can defend, not just one that runs.</p>
+          <div class="chapter-tags">
+            <span class="tag">detection logic</span><span class="tag">ATT&CK mapping</span><span class="tag">data sources</span><span class="tag">field selection</span>
+          </div>
+        </header>
+
+        <div class="callout-tip"><strong>Where this fits:</strong> Chapter 1 laid out the detection engineering lifecycle as a loop: hypothesis, logic, testing, deployment, tuning, retirement. Chapter 2 covered the languages you write that logic in: KQL, SPL, and Sigma, and how each one expresses the same underlying idea differently. This chapter is where those two threads meet. You already know what a hypothesis looks like and what a query looks like; what's missing is the reasoning that connects one to the other. That reasoning, not syntax, is what separates a detection engineer from someone who can write a query.</div>
+
+        <section class="content-section" id="starting-from-a-hypothesis">
+          <h2>Starting From a Hypothesis, Not a Query</h2>
+          <p>It's tempting to open a query editor first and start experimenting with fields until something looks interesting. That approach produces detections that are hard to explain, hard to tune, and hard to map to anything. The lifecycle from chapter 1 puts hypothesis before logic for a reason: the hypothesis is what tells you whether the logic you eventually write is even aimed at the right thing.</p>
+          <p>A detection hypothesis is a specific, falsifiable statement about attacker behavior and how it would surface in available telemetry. Falsifiable means you can imagine evidence that would prove it wrong, not just evidence that would confirm it. "Detect PowerShell abuse" is not falsifiable in that sense; it's a goal, not a claim. It doesn't tell you which behavior, which telemetry, or which anomaly you're looking for, so there's no way to know when the resulting rule has succeeded or failed at its actual job.</p>
+          <h3>Vague Goal vs. Well-Formed Hypothesis</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Vague goal</th><th>Well-formed hypothesis</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>"Detect PowerShell abuse."</td>
+                  <td>"An adversary using a command and scripting interpreter (T1059) to run obfuscated or encoded commands will spawn as a child process of an unexpected parent, such as an office application or a script host, with a command line containing base64 or explicit execution-policy bypass flags."</td>
+                </tr>
+                <tr>
+                  <td>"Catch brute-force attacks."</td>
+                  <td>"An adversary attempting password guessing (T1110.001) against a single account will produce a burst of failed authentication events for that account from one or a small number of source addresses within a short window, followed in some cases by a success."</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Notice what the well-formed versions have in common: a named behavior, an expected artifact of that behavior, and enough specificity that you could immediately start asking what log source would even contain that artifact. That's the bridge into the next stage. A hypothesis that can't be turned into that kind of question yet usually still needs another pass of refinement before it's ready to leave the whiteboard.</p>
+          <div class="callout-info"><strong>Note:</strong> A hypothesis doesn't need to be perfectly precise on the first write. It needs to be precise enough to test. You'll often revise it once you see what the data actually looks like.</div>
+        </section>
+
+        <section class="content-section" id="choosing-the-right-data-source">
+          <h2>Choosing the Right Data Source</h2>
+          <p>A hypothesis is only as good as the telemetry available to test it. Before writing a single line of logic, ask the plain question: what log source would actually capture this behavior if it happened right now? Different categories of attacker activity live in different data, and picking the wrong one wastes the rest of the lifecycle on a detection that can never fire.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Behavior category</th><th>Likely data source</th><th>What it captures</th></tr></thead>
+              <tbody>
+                <tr><td>Process execution, scripting interpreters, LOLBin abuse</td><td>Process creation / EDR telemetry</td><td>Process name, command line, parent-child lineage, hashes</td></tr>
+                <tr><td>Credential use, logons, privilege changes</td><td>Authentication logs (host and identity provider)</td><td>Account, logon type, source, success/failure, timestamps</td></tr>
+                <tr><td>Lateral movement, data transfer, C2 beaconing</td><td>Network / firewall / proxy logs</td><td>Source and destination, ports, bytes, protocol, domain</td></tr>
+                <tr><td>Resource creation, permission changes, API abuse in cloud</td><td>Cloud API / control-plane audit logs</td><td>Caller identity, action, resource, source IP, outcome</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>The harder question comes next: is that source actually onboarded, in the SIEM, and reliable in your environment right now? A hypothesis about process-level scripting abuse is dead on arrival if command-line logging isn't enabled, or if the relevant hosts don't forward EDR telemetry yet. This is where detection engineering leans directly on the log-source-onboarding work covered conceptually in the SOC Operations module: onboarding a source isn't a one-time checkbox, it's an ongoing dependency that detection logic sits on top of.</p>
+          <p>When the needed source doesn't exist yet, the hypothesis doesn't get discarded, it gets parked. A realistic detection engineering backlog usually has a category for hypotheses that are well-formed but blocked on data availability. Documenting the gap (what source is missing, what it would enable) does two things: it gives the team a concrete ask for the onboarding backlog, and it prevents someone from quietly reinventing the same hypothesis six months later without knowing it was already scoped.</p>
+          <div class="callout-info"><strong>Note:</strong> "The data source exists" and "the data source is trustworthy" are separate checks. A source that drops events under load, has inconsistent field names across host versions, or samples instead of logging everything will quietly undermine logic that assumes complete coverage.</div>
+        </section>
+
+        <section class="content-section" id="field-selection-and-logic-construction">
+          <h2>Field Selection and Logic Construction</h2>
+          <p>With a data source confirmed, the next decision is which fields inside it actually carry the signal your hypothesis depends on. Most raw events carry far more fields than any single detection needs, and picking the wrong subset either misses the behavior entirely or buries it in noise. For a process-execution hypothesis, the fields that typically matter are process name, full command line, parent process name, the executing user, and sometimes the signing status or file path of the binary. For an authentication hypothesis, it's account name, logon type, source address, outcome, and timestamp.</p>
+          <p>Once the fields are chosen, the logic is mostly about how conditions combine:</p>
+          <ul>
+            <li><strong>AND</strong> narrows a match down to a more specific pattern: a process name matching a scripting interpreter AND a command line containing an encoding flag is far more specific than either condition alone.</li>
+            <li><strong>OR</strong> covers known variants of the same behavior: several different interpreter binary names, or several known flag spellings, all pointing at the same underlying technique.</li>
+            <li><strong>NOT</strong> excludes patterns that are technically a match but known to be legitimate in your environment, such as a scripting interpreter launched by a specific, approved deployment tool.</li>
+            <li><strong>Thresholds</strong> turn a single-event pattern into a frequency-based one, useful when the individual event is unremarkable but the volume or rate is the actual signal, such as the same account failing authentication five or more times inside a two-minute window.</li>
+          </ul>
+          <p>The pseudocode below illustrates the shape of that logic. It isn't tied to any specific query language; the point is the structure, not the syntax.</p>
+          <pre><code>// pseudocode, not a real query language
+
+IF process.name IN ("interpreter_a.exe", "interpreter_b.exe")   // OR: known variants
+   AND process.command_line CONTAINS ("-enc", "-EncodedCommand")  // AND: narrows to encoded execution
+   AND NOT process.parent.name == "approved_deployment_tool.exe"  // NOT: excludes known-legitimate parent
+THEN flag_as_candidate
+
+IF COUNT(auth.failure WHERE auth.user == same_user) >= 5
+   WITHIN 2 MINUTES
+THEN flag_as_candidate   // threshold: frequency-based, not single-event</code></pre>
+          <p>Field selection and logic construction feed each other. Sometimes a field you assumed would be reliable turns out to be inconsistently populated once you look at real events, which sends you back to pick a different field or a different combination. That back-and-forth is normal and is part of why this stage of the lifecycle takes longer than it looks like it should on paper.</p>
+        </section>
+
+        <section class="content-section" id="single-event-vs-sequence-detections">
+          <h2>Single-Event vs. Sequence Detections</h2>
+          <p>Not every hypothesis can be tested against one event in isolation. Some behaviors only make sense as a pattern across time, which splits detection logic into two broad shapes.</p>
+          <h3>Single-Event Detections</h3>
+          <p>A single-event detection evaluates one record against a pattern and fires immediately if it matches. The encoded-command example above is single-event: everything the logic needs (process name, command line, parent) is present in one process-creation record. These are simpler to write, faster to test, and generally cheaper to run, because the SIEM doesn't need to hold state or correlate anything across time.</p>
+          <h3>Sequence Detections</h3>
+          <p>A sequence detection requires two or more related events, often from the same entity, to occur in a particular order within a bounded window. The authentication example extends naturally into one: a burst of failed logons for an account, followed by a success from a source or location that hadn't been seen for that account before, all within a short window. Neither event alone is necessarily suspicious. A single failed logon happens constantly. A single successful logon from a new location happens too, for ordinary reasons like travel or a new device. It's the combination and the ordering that turns two unremarkable events into a meaningful pattern, which mirrors the kind of correlation logic described at a high level in the SOC Operations module's alert-correlation content.</p>
+          <p>Sequence detections are more powerful because they capture attacker behavior that genuinely spans multiple steps, but they're harder to build and tune. They depend on the SIEM's ability to join or correlate events by a shared entity (account, host, session) across a time window, which not every platform or license tier supports equally well. They also introduce more places for false negatives to creep in: if the window is too short, a real sequence gets missed because the events fall just outside it; if it's too long, unrelated events start getting joined together and false positives climb.</p>
+          <div class="callout-info"><strong>Note:</strong> When a hypothesis clearly describes a sequence, resist the urge to force it into a single-event rule by only detecting the second half (the success alone, say). That version will fire on plenty of ordinary logons and lose the exact context that made the pattern worth detecting.</div>
+        </section>
+
+        <section class="content-section" id="mapping-to-attck-as-you-build">
+          <h2>Mapping to ATT&CK as You Build</h2>
+          <p>Every detection should map to at least one ATT&CK technique, and ideally the specific sub-technique, from the moment it's written, not bolted on afterward as documentation busywork. Doing the mapping early forces a useful discipline: you have to be able to say, in ATT&CK's own vocabulary, exactly what behavior this rule is meant to catch. If you can't name the technique confidently, that's often a sign the hypothesis itself is still too vague, and it's worth going back a step rather than writing logic against a fuzzy target.</p>
+          <p>The payoff shows up later. Chapter 6 covers building a coverage map across your whole detection library, and that exercise only works if every rule already carries its technique and sub-technique tags. Retrofitting ATT&CK mappings onto a library of untagged rules, one by one, after the fact, is slow and error-prone compared to tagging each rule the day it's written. Treat the mapping as part of the rule's metadata, alongside the hypothesis statement and data source, not as a separate documentation pass.</p>
+          <p>Mapping to a sub-technique specifically, where one exists, also sharpens the logic itself. "Command and Scripting Interpreter" (T1059) covers a wide range of interpreters and behaviors; mapping instead to the specific sub-technique for the interpreter you're actually targeting keeps the rule's scope honest and makes gaps in coverage across sibling sub-techniques visible later.</p>
+        </section>
+
+        <section class="content-section" id="a-worked-example-start-to-finish">
+          <h2>A Worked Example, Start to Finish</h2>
+          <p>Here's the full path from hypothesis to logic for one common, well-known technique: scheduled-task-based persistence. This is illustrative and generic, not a production rule.</p>
+          <div class="process-flow">
+            <div class="flow-step"><span class="flow-step-num">1</span><div class="flow-step-title">Hypothesis</div><div class="flow-step-desc">An adversary establishing persistence via scheduled task creation (T1053.005) will create a new scheduled task through a task-scheduling utility, often with an unusual action (a script interpreter or an uncommon binary path) and outside of normal administrative change windows.</div></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step"><span class="flow-step-num">2</span><div class="flow-step-title">Data source</div><div class="flow-step-desc">Process creation telemetry for the task-scheduling utility invocation, plus the corresponding scheduled-task-creation event log if the host generates one. Both need to be confirmed as onboarded before logic is written.</div></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step"><span class="flow-step-num">3</span><div class="flow-step-title">Field selection</div><div class="flow-step-desc">Process name and command-line arguments of the scheduling utility, the task action or command being registered, the executing user, and the parent process that invoked the utility.</div></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step"><span class="flow-step-num">4</span><div class="flow-step-title">Logic structure</div><div class="flow-step-desc">Scheduling utility invocation AND a task action pointing at a script interpreter or an uncommon path, NOT excluding known deployment or patching accounts, with an optional threshold if the same host registers several tasks in quick succession.</div></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step"><span class="flow-step-num">5</span><div class="flow-step-title">ATT&CK mapping</div><div class="flow-step-desc">T1053.005, Scheduled Task/Job: Scheduled Task, under the Persistence and Execution tactics.</div></div>
+          </div>
+          <p>Put in the pseudocode structure from earlier in the chapter, the logic looks like this:</p>
+          <pre><code>// pseudocode, not a real query language
+
+IF process.name == "scheduling_utility.exe"
+   AND task.action CONTAINS ("interpreter_a.exe", "interpreter_b.exe", "\\Temp\\")
+   AND NOT process.user IN (approved_deployment_accounts)
+THEN flag_as_candidate   // maps to T1053.005</code></pre>
+          <p>Notice how each earlier stage of the chapter shows up here: the hypothesis is specific and falsifiable, the data source was checked for availability before logic was written, the fields were chosen because they carry the actual signal, the AND/NOT combination narrows and excludes deliberately, and the technique mapping was decided at the same time as the logic, not after. That's the full path this chapter has been describing, applied to one concrete case.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>A detection hypothesis must be specific and falsifiable; a vague goal like "detect PowerShell abuse" can't be tested or judged as succeeded or failed.</li>
+            <li>Confirm the data source can actually capture the behavior, and that it's reliably onboarded, before writing any logic; a missing source belongs in the onboarding backlog, not silently ignored.</li>
+            <li>Field selection determines whether logic has signal at all; AND narrows, OR covers known variants, NOT excludes known-legitimate patterns, and thresholds convert frequency into a detectable signal.</li>
+            <li>Single-event detections fire on one matching record; sequence detections require related events across a time window and depend on the SIEM's correlation capability, making them more powerful but harder to tune.</li>
+            <li>Map every detection to an ATT&CK technique, and ideally a sub-technique, at the time it's written, not as an afterthought, so later coverage mapping is possible without retrofitting.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">Which of the following is the better-formed detection hypothesis?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. "We should detect malicious scripting activity on endpoints."</button>
+              <button class="kc-option" data-correct="true">B. "An adversary using a scripting interpreter to run encoded commands will spawn it as a child of an unexpected parent process, with an encoding flag in the command line."</button>
+              <button class="kc-option" data-correct="false">C. "PowerShell is dangerous and should be monitored closely."</button>
+              <button class="kc-option" data-correct="false">D. "Improve visibility into script execution across the environment."</button>
+            </div>
+            <div class="kc-answer">Option B is falsifiable: it names a specific behavior, an expected parent-child relationship, and a concrete command-line indicator, so you can test whether the pattern actually occurs and judge whether the resulting logic succeeded. The others are goals or general concerns, not testable claims.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">A hypothesis depends on command-line logging that isn't currently enabled anywhere in the environment. What's the right next step?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Write the detection logic anyway and deploy it; it will start working once logging is eventually enabled.</button>
+              <button class="kc-option" data-correct="false">B. Discard the hypothesis permanently since the data isn't available.</button>
+              <button class="kc-option" data-correct="true">C. Document the hypothesis and the missing data dependency, and raise it as an input to log-source onboarding.</button>
+              <button class="kc-option" data-correct="false">D. Substitute a different, unrelated data source so the rule can be written immediately.</button>
+            </div>
+            <div class="kc-answer">Parking the hypothesis with a clear note of what's missing keeps it usable later and gives the onboarding backlog a concrete, justified request. Deploying logic against data that doesn't exist yet produces a rule that silently never fires, and substituting an unrelated source would test a different behavior than the one hypothesized.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">Which scenario is best expressed as a sequence detection rather than a single-event detection?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. A process creation event where the command line contains a known-malicious flag.</button>
+              <button class="kc-option" data-correct="true">B. A burst of failed authentication attempts for an account, followed by a success from a source not previously seen for that account, within a short window.</button>
+              <button class="kc-option" data-correct="false">C. A scheduled task registered with an action pointing at a script interpreter.</button>
+              <button class="kc-option" data-correct="false">D. A single successful logon during normal business hours.</button>
+            </div>
+            <div class="kc-answer">Option B only becomes meaningful as a combination of two related events in order within a bounded window; neither the failures nor the later success is suspicious on its own. The other options are each fully evaluable from a single record.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="02-query-languages-kql-spl-sigma.html" class="chapter-nav-prev">← Query Languages: KQL, SPL, and Sigma</a>
+          <a href="04-testing-and-validation.html" class="chapter-nav-next">Testing and Validation →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Detection Engineering</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('03', 6));</script>
+</body>
+</html>

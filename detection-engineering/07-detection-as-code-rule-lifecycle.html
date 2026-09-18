@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="07">
+  <meta name="module-id" content="detection-engineering">
+  <title>Detection-as-Code and the Rule Lifecycle · Detection Engineering · H3AD-LEARN</title>
+  <meta name="description" content="Treating detection logic like software: version control, peer review, automated testing pipelines, deployment, and the full lifecycle through deprecation.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/07-detection-as-code-rule-lifecycle.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/07-detection-as-code-rule-lifecycle.html">
+  <meta property="og:title" content="Detection-as-Code and the Rule Lifecycle · Detection Engineering · H3AD-LEARN">
+  <meta property="og:description" content="Treating detection logic like software: version control, peer review, automated testing pipelines, deployment, and the full lifecycle through deprecation.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Detection-as-Code and the Rule Lifecycle · Detection Engineering · H3AD-LEARN">
+  <meta name="twitter:description" content="Treating detection logic like software: version control, peer review, automated testing pipelines, deployment, and the full lifecycle through deprecation.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Detection-as-Code and the Rule Lifecycle",
+    "description": "Treating detection logic like software: version control, peer review, automated testing pipelines, deployment, and the full lifecycle through deprecation.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/07-detection-as-code-rule-lifecycle.html",
+    "isPartOf": { "@type": "Course", "name": "Detection Engineering", "url": "https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/" },
+    "provider": { "@type": "Organization", "name": "H3AD-SEC", "url": "https://h3ad-sec.github.io" }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" },
+    { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" },
+    { "@type": "ListItem", "position": 3, "name": "Detection Engineering", "item": "https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/" },
+    { "@type": "ListItem", "position": 4, "name": "Detection-as-Code and the Rule Lifecycle", "item": "https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/07-detection-as-code-rule-lifecycle.html" }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">DETECTION-AS-CODE</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub">&#8623; SOC OPERATIONS</a>
+    <a href="../detection-engineering/index.html" class="drawer-sub nav-current">&#8623; DETECTION ENGINEERING</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Detection Engineering</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 07 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 07</span>
+            <span class="badge-time muted mono">35 MIN READ</span>
+            <span class="badge-diff badge-advanced">ADVANCED</span>
+          </div>
+          <h1 class="chapter-title">Detection-as-Code and the Rule Lifecycle</h1>
+          <p class="chapter-intro">A detection rule that exists only inside a SIEM console is one bad click away from disappearing, and one undocumented edit away from becoming a mystery nobody on the team can explain. Detection-as-code borrows the discipline software engineering already worked out for exactly this problem: version control, peer review, automated testing, and a defined path from proposal to production. This chapter walks through what that discipline looks like when the "code" is detection logic rather than an application, and what happens at the other end of a detection's life when it's time to retire it.</p>
+          <div class="chapter-tags">
+            <span class="tag">detection-as-code</span><span class="tag">version control</span><span class="tag">peer review</span><span class="tag">rule lifecycle</span>
+          </div>
+        </header>
+
+        <div class="callout-tip"><strong>Building on earlier chapters:</strong> chapter 1 introduced detection-as-code in passing as a maturity signal for a detection program. This chapter is the deep dive that was promised there. It also assumes the testing practices from chapter 4 (backtesting, atomic testing) as a starting point: this chapter is about wrapping process, review, and automation around that testing rather than reintroducing it.</p>
+        </div>
+
+        <section class="content-section" id="ad-hoc-to-as-code">
+          <h2>From Ad Hoc Rules to Detection-as-Code</h2>
+          <p>Most detection programs start the same way. An analyst notices a gap, writes a query directly in the SIEM's rule editor, saves it, and moves on. For a handful of rules this works fine. There's no process overhead, the person who wrote the rule remembers why, and if something looks wrong they just open the console and fix it.</p>
+          <p>The trouble is that this approach doesn't scale with the size of the rule set or the size of the team. Once a program has a few hundred detections maintained by a rotating group of engineers, the ad hoc model starts to fail in predictable ways. Nobody outside the rule editor's change log (if the platform even keeps one) can tell who changed a piece of logic, when, or why. A tuning change that quietly narrows a rule's coverage can sit unnoticed for months. If an edit breaks something, there's often no clean way to see what the rule looked like before the change, let alone revert to it. And the reasoning behind a rule, why it exists, what it's meant to catch, why a particular exclusion was added, lives only in the head of whoever wrote it. When that person moves teams or leaves, the reasoning leaves with them.</p>
+          <p>Detection-as-code is the name for treating every detection rule the way a software team treats a piece of source code: stored in a repository, changed through a defined process, reviewed by a second person, tested before it ships, and reversible if it turns out to be wrong. None of the individual pieces are exotic. What changes is that they're applied consistently, as policy, rather than left to whichever engineer happens to be disciplined that week.</p>
+          <div class="callout-info"><strong>Note:</strong> Detection-as-code is a practice, not a specific product. It can be implemented with a SIEM's native rule format, with a portable format like Sigma, or with a mix of both, as long as the underlying logic lives in a version-controlled repository rather than only inside a vendor console.</div>
+        </section>
+
+        <section class="content-section" id="version-control">
+          <h2>Version Control for Detections</h2>
+          <p>The foundation of detection-as-code is storing detection logic in a git repository instead of, or in addition to, a SIEM's built-in editor. This applies whether the logic is written natively in something like KQL or SPL, or expressed in a portable format like Sigma YAML that gets translated into a target platform's syntax at deployment time. The rule file itself might be short: a query, a title, a description, some metadata. What matters is that it lives as a tracked file alongside every other detection, with its full change history attached.</p>
+          <p>Three benefits fall out of this almost immediately. First, every change to a detection carries a commit: who made it, when, and, if commit messages are written with any care, why. A tuning change that added an exclusion six months ago is no longer a mystery; it's a line in `git log` with a message explaining the false-positive source it was written to address. Second, changes can be developed and tested on a branch before they ever touch the production rule. An engineer can propose a new detection or a modification to an existing one without any risk to what's currently running, because the change doesn't take effect until it's merged. Third, and often the most immediately useful in practice, rollback becomes trivial. If a deployed change turns out to be too noisy or, worse, silently breaks coverage, reverting to the last known-good version is a matter of checking out an earlier commit rather than trying to reconstruct what the rule used to say from memory or screenshots.</p>
+          <h3>What goes into the repository</h3>
+          <p>A detection-as-code repository typically holds more than the raw query. Each rule's file, or an accompanying metadata block, usually carries the ATT&CK mapping from chapter 3, a short statement of the hypothesis the rule is built on, and enough context that someone unfamiliar with the rule can understand its intent without asking the original author. That context is what turns "a folder full of queries" into an actual maintainable system.</p>
+        </section>
+
+        <section class="content-section" id="peer-review">
+          <h2>Peer Review Before Deployment</h2>
+          <p>Version control on its own only gets a detection program part of the way there. The other piece is peer review: a second engineer looking at a proposed detection, or a proposed change to an existing one, before it merges into the branch that feeds production. This follows the same pull request or merge request pattern that's standard in software development, applied to detection logic instead of application code.</p>
+          <p>A good detection review isn't a rubber stamp. There's a specific, fairly consistent set of things a reviewer should be checking:</p>
+          <ul>
+            <li>Does the logic actually match the stated hypothesis and the ATT&CK technique it claims to map to (chapter 3)? It's easy for a query to drift from its original intent during iteration, catching something adjacent to the hypothesis rather than the hypothesis itself.</li>
+            <li>Was the detection tested the way chapter 4 describes, with a backtest against historical data and, where applicable, an atomic test against a simulated technique? A reviewer should expect to see evidence of that testing, not just take the author's word for it.</li>
+            <li>Is the expected false-positive rate reasonable for the environment the rule will run in, and has the author accounted for the noisy legitimate activity that's likely to trigger it?</li>
+            <li>Is the rule documented well enough that someone other than the author could maintain it later: understand what it does, why it exists, and what to check first if it starts misbehaving?</li>
+          </ul>
+          <p>The review step also does something less obvious but just as valuable: it spreads ownership. A detection that only one person has ever looked at is a detection only one person can confidently change. A detection that's been through review has at least two people who understand it, which matters enormously the first time that rule needs an urgent fix and its original author is unavailable.</p>
+        </section>
+
+        <section class="content-section" id="automated-testing-pipelines">
+          <h2>Automated Testing Pipelines</h2>
+          <p>Chapter 4 covered backtesting and atomic testing as things an engineer does by hand when validating a detection before deployment. In a detection-as-code workflow, those same tests can be wired into a CI/CD-style pipeline, similar in shape to the kind GitHub Actions or GitLab CI provide for application code, so they run automatically every time a change is proposed rather than only when someone remembers to run them.</p>
+          <p>The value of automating this isn't that it replaces human judgment, it's that it catches regressions consistently and immediately. A manual test that an engineer is supposed to run before every change is a test that will, sooner or later, get skipped under deadline pressure. An automated pipeline runs the same backtest and atomic test suite every single time, without needing anyone to remember, and flags a failure before a human reviewer even opens the pull request.</p>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Propose Change</div>
+              <div class="flow-step-desc">Engineer opens a pull request with a new or modified detection.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Automated Test Run</div>
+              <div class="flow-step-desc">Pipeline runs the backtest and/or atomic test suite against the change automatically.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Peer Review</div>
+              <div class="flow-step-desc">A second engineer reviews logic, mapping, and documentation once tests pass.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Merge</div>
+              <div class="flow-step-desc">Approved change is merged into the branch that represents production state.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">5</span>
+              <div class="flow-step-title">Automated Deploy</div>
+              <div class="flow-step-desc">Pipeline pushes the merged rule to the live detection platform.</div>
+            </div>
+          </div>
+          <p>Where a pipeline stalls, the reason is usually infrastructure, not intent: getting a representative test data set wired into the pipeline, or building an atomic test harness that can run unattended. Those are worth the setup cost. A pipeline that only runs tests when someone remembers to trigger them manually is barely better than no pipeline at all.</p>
+        </section>
+
+        <section class="content-section" id="documentation-standards">
+          <h2>Documentation Standards</h2>
+          <p>A detection-as-code repository is only as maintainable as the documentation that travels with each rule. At minimum, every detection's file or accompanying metadata should carry:</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Field</th><th>Why it matters</th></tr></thead>
+              <tbody>
+                <tr><td>Hypothesis</td><td>The behavior the detection is built to catch, stated in plain language, so a future maintainer understands intent rather than just reading the logic.</td></tr>
+                <tr><td>ATT&CK mapping</td><td>The technique or sub-technique from chapter 3, keeping the rule tied into the coverage picture from chapter 6.</td></tr>
+                <tr><td>Known false-positive sources</td><td>Legitimate activity that's expected to trigger the rule, and any tuning already applied to account for it, so the next person doesn't rediscover the same noise from scratch.</td></tr>
+                <tr><td>Change history</td><td>A record of what's changed since the rule was first written and why, beyond what a bare commit log conveys on its own.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>None of this is bureaucracy for its own sake. It's what makes a detection maintainable by someone other than the person who wrote it. In a team with any amount of turnover, and most teams have some, that's the difference between a rule that stays useful for years and a rule that gets quietly disabled the first time it misbehaves because nobody left on the team understands what it was for.</p>
+        </section>
+
+        <section class="content-section" id="deprecation-and-retirement">
+          <h2>Deprecation and Retirement as Part of the Lifecycle</h2>
+          <p>A detection's lifecycle doesn't end when it stops being useful, it ends when it's deliberately removed. That distinction matters more than it sounds like it should. Detections that quietly stop mattering, because the technology they targeted was retired, or the technique they covered was superseded by something else, tend to just sit in production indefinitely. Nobody actively decides to keep them; they're simply never actively removed. Over time a rule set accumulates dead weight: detections that consume review and maintenance attention without contributing meaningful coverage, and in some cases detections whose false-positive load costs analyst time for no corresponding benefit.</p>
+          <p>A mature detection-as-code practice treats retirement with the same rigor as deployment. Deprecating a rule goes through the same pull request and review pattern as adding one: someone proposes the removal, states the reasoning, and a reviewer confirms the rule really is redundant or obsolete before it comes out. The removal itself gets documented in the same change history that tracked the rule's life, so if a question comes up later about why a given detection no longer exists, the answer is on record rather than left to memory.</p>
+          <p>Just as importantly, retiring a detection should trigger a look back at the ATT&CK coverage mapping from chapter 6. If the rule being removed was the only coverage for a given technique, that removal opens a coverage gap, and someone needs to own the decision about whether that gap gets backfilled with a replacement detection or accepted as a known limitation. Retirement handled this way keeps the rule set honest: what's running in production is what the team actually intends to be running, not an accumulation of history nobody has the context to clean up.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>Ad hoc rule editing breaks down as a detection program grows: no history, no easy rollback, and knowledge trapped in one person's head.</li>
+            <li>Storing detection logic in a version-controlled repository gives every change a record of who/when/why, lets changes be branched and tested before they reach production, and makes rollback straightforward.</li>
+            <li>Peer review before deployment checks that a detection matches its hypothesis and ATT&CK mapping, was tested per chapter 4's process, has a reasonable false-positive risk, and is documented for future maintainers.</li>
+            <li>Automated testing pipelines run backtests and atomic tests on every proposed change, catching regressions before a human reviewer even looks at the pull request.</li>
+            <li>Documentation traveling with each rule (hypothesis, ATT&CK mapping, known false positives, change history) is what makes a detection maintainable by someone other than its original author.</li>
+            <li>Retirement deserves the same rigor as deployment: deliberate removal, documented reasoning, and a check against the ATT&CK coverage map for any gap the removal opens up.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">What is the main problem with editing detection rules directly in a SIEM console with no surrounding process, once a detection program grows past a handful of rules?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. SIEM consoles cannot save queries longer than a few lines</button>
+              <button class="kc-option" data-correct="true">B. There is no reliable record of who changed what and why, and no easy way to revert a bad change</button>
+              <button class="kc-option" data-correct="false">C. Consoles require a paid license for every rule created</button>
+              <button class="kc-option" data-correct="false">D. Ad hoc rules cannot be mapped to ATT&CK techniques</button>
+            </div>
+            <div class="kc-answer">Ad hoc editing has no built-in history, review, or rollback path. As the rule count and team size grow, that gap turns into untraceable changes, silently broken detections, and knowledge that only exists in one person's memory.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">In a detection-as-code peer review, which of the following is a reviewer specifically expected to check?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Whether the author used tabs or spaces in the query file</button>
+              <button class="kc-option" data-correct="true">B. Whether the logic matches the stated hypothesis and ATT&CK mapping, and whether it was tested per the chapter 4 process</button>
+              <button class="kc-option" data-correct="false">C. Whether the detection was written in under ten minutes</button>
+              <button class="kc-option" data-correct="false">D. Whether the SIEM vendor has certified the rule syntax</button>
+            </div>
+            <div class="kc-answer">A meaningful review confirms the logic actually matches its stated hypothesis and ATT&CK mapping, that it was tested (backtest and/or atomic test), that its false-positive risk is reasonable, and that it's documented well enough for someone else to maintain later.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">Why does retiring a detection deserve the same rigor as deploying one, rather than just disabling and forgetting it?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Because retired detections automatically delete their own commit history</button>
+              <button class="kc-option" data-correct="true">B. Because an undocumented removal can silently open an ATT&CK coverage gap that nobody notices or owns</button>
+              <button class="kc-option" data-correct="false">C. Because SIEM platforms charge a fee to disable a rule</button>
+              <button class="kc-option" data-correct="false">D. Because retirement always requires rewriting the detection from scratch</button>
+            </div>
+            <div class="kc-answer">If a retired rule was the only coverage for a given technique, its removal creates a gap in the ATT&CK coverage mapping from chapter 6. Handling retirement deliberately, with documented reasoning and a coverage check, keeps that gap visible instead of letting it go unnoticed.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="06-coverage-mapping-attack.html" class="chapter-nav-prev">← Coverage Mapping Against ATT&CK</a>
+          <a href="08-metrics-and-maturity.html" class="chapter-nav-next">Metrics and Detection Engineering Maturity →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Detection Engineering</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('07', 6));</script>
+</body>
+</html>

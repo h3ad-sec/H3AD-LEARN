@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="05">
+  <meta name="module-id" content="detection-engineering">
+  <title>False Positive Tuning · Detection Engineering · H3AD-LEARN</title>
+  <meta name="description" content="A practical guide to root causes of detection false positives, the tuning levers available for fixing them, and a decision framework for choosing between tuning, suppressing, or retiring a noisy rule.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/05-false-positive-tuning.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/05-false-positive-tuning.html">
+  <meta property="og:title" content="False Positive Tuning · Detection Engineering · H3AD-LEARN">
+  <meta property="og:description" content="A practical guide to root causes of detection false positives, the tuning levers available for fixing them, and a decision framework for choosing between tuning, suppressing, or retiring a noisy rule.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="False Positive Tuning · Detection Engineering · H3AD-LEARN">
+  <meta name="twitter:description" content="A practical guide to root causes of detection false positives, the tuning levers available for fixing them, and a decision framework for choosing between tuning, suppressing, or retiring a noisy rule.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "False Positive Tuning",
+    "description": "A practical guide to root causes of detection false positives, the tuning levers available for fixing them, and a decision framework for choosing between tuning, suppressing, or retiring a noisy rule.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/05-false-positive-tuning.html",
+    "isPartOf": { "@type": "Course", "name": "Detection Engineering", "url": "https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/" },
+    "provider": { "@type": "Organization", "name": "H3AD-SEC", "url": "https://h3ad-sec.github.io" }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" },
+    { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" },
+    { "@type": "ListItem", "position": 3, "name": "Detection Engineering", "item": "https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/" },
+    { "@type": "ListItem", "position": 4, "name": "False Positive Tuning", "item": "https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/05-false-positive-tuning.html" }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">FALSE POSITIVE TUNING</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub">&#8623; SOC OPERATIONS</a>
+    <a href="../detection-engineering/index.html" class="drawer-sub nav-current">&#8623; DETECTION ENGINEERING</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Detection Engineering</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 05 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 5 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 05</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">False Positive Tuning</h1>
+          <p class="chapter-intro">A detection rule that fires correctly in a test environment and a detection rule that survives contact with a live, messy production environment are not the same thing. The gap between them is false positives: alerts the logic technically matched but that don't represent the malicious activity the rule was written to catch. Tuning is the ongoing work of closing that gap without closing off the rule's ability to catch what it was actually built for. Done well, it turns a noisy, ignored detection into one analysts trust. Done poorly, or not at all, it does the opposite.</p>
+          <div class="chapter-tags">
+            <span class="tag">false positive tuning</span><span class="tag">allowlisting</span><span class="tag">alert fatigue</span><span class="tag">tuning cadence</span>
+          </div>
+        </header>
+
+        <div class="callout-tip"><strong>Where this picks up:</strong> This chapter assumes the detection has already passed the testing and validation stage from Chapter 4 and is now live in production, generating real alerts against real traffic. Tuning here is a response to real-world feedback, not a pre-deployment checklist item.</div>
+
+        <section class="content-section" id="why-false-positives-happen">
+          <h2>Why Detections Generate False Positives</h2>
+          <p>A false positive isn't a sign the detection is broken in the sense of not working. It usually means the logic is working exactly as written, and the gap is between what was written and what the engineer actually intended to catch. Most false positives trace back to one of four root causes.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Root cause</th><th>What's happening</th></tr></thead>
+              <tbody>
+                <tr><td>Overly broad logic</td><td>The rule's conditions match a wider set of activity than the engineer had in mind. A pattern written to catch "process X launched with these arguments" ends up matching several legitimate call paths that happen to share the same argument structure.</td></tr>
+                <tr><td>Dual-use legitimate tools</td><td>The technique being detected is also how administrators, backup agents, or monitoring software legitimately do their job. This is especially common in Windows and living-off-the-land style detections, where the same binary an attacker abuses for lateral movement is also what the help desk uses every day.</td></tr>
+                <tr><td>Unaccounted-for normal behavior</td><td>The environment has a routine, expected process the engineer simply didn't know about when writing the rule, such as a scheduled maintenance script that happens to create a registry run key in a way that matches a persistence detection.</td></tr>
+                <tr><td>Data quality issues</td><td>A field doesn't mean what the engineer assumed it meant, or contains values the engineer didn't anticipate. This is the same field-selection risk covered in Chapter 3: build logic on a field you haven't verified, and the rule inherits whatever assumption was wrong.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>These causes aren't mutually exclusive. A single noisy detection can be a bit of all four: logic that's slightly broader than needed, applied against a log source with a quirky field, in an environment that happens to run a dual-use admin tool nobody flagged during the requirements stage. Diagnosing which one (or which combination) is driving the noise is the first step in tuning, because each root cause points toward a different fix.</p>
+          <div class="callout-info"><strong>Note:</strong> Before tuning anything, confirm the alerts really are false positives and not a true positive that looks unfamiliar. Pulling a sample of recent alerts and manually walking through what generated each one is worth the time before touching the logic.</div>
+        </section>
+
+        <section class="content-section" id="cost-of-not-tuning">
+          <h2>The Cost of Not Tuning</h2>
+          <p>An untuned detection has a cost that goes beyond the minutes an analyst spends closing each alert. If you've been through the triage material in the SOC Operations module, the term alert fatigue will already be familiar: the state where a high enough volume of low-value alerts erodes an analyst's attention and default response to a given alert type.</p>
+          <p>A detection that fires dozens of times a day for the same known-benign reason doesn't just waste time on those dozens of closures. It trains the analysts handling it. After enough repetitions of "this alert, closed as benign," the human response becomes automatic: see the alert, recognize the pattern, close it, move on. That's a rational adaptation to a noisy queue, and it's also exactly the condition under which a real true positive slips through. The one time that specific alert represents genuine malicious activity, it looks identical to the hundred times before it that didn't, and it gets the same reflexive close.</p>
+          <p>This is why tuning isn't a nice-to-have polish step. An untuned high-fidelity detection can end up worse than no detection at all, because it consumes analyst trust and attention while providing a false sense that the technique is covered.</p>
+        </section>
+
+        <section class="content-section" id="tuning-approaches">
+          <h2>Tuning Approaches</h2>
+          <p>Once the root cause is understood, the fix usually comes down to one of four levers. They aren't interchangeable: picking the wrong one either fails to fix the noise or quietly opens a coverage gap.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Lever</th><th>What it does</th><th>When it's the right tool</th></tr></thead>
+              <tbody>
+                <tr><td>Allowlisting / exceptions</td><td>Excludes a specific, identified source: a host, user account, process path, or file hash known to be legitimate.</td><td>The false positive source is a small, stable, well-identified list (a backup server, a specific service account) rather than a broad category of activity.</td></tr>
+                <tr><td>Threshold adjustment</td><td>Raises the frequency or count requirement so normal-volume activity falls below the alerting bar.</td><td>The false positives come from legitimate activity that happens at a lower volume than the malicious activity the rule targets, and volume is a meaningful signal for that technique.</td></tr>
+                <tr><td>Logic narrowing</td><td>Adds an additional condition to the existing pattern that separates legitimate instances from malicious ones sharing the same base signature.</td><td>Legitimate and malicious activity both match the current logic, but differ on some other observable attribute (a parent process, a command-line flag, a destination) that the rule doesn't currently check.</td></tr>
+                <tr><td>Time-window adjustment</td><td>Changes how far apart correlated events can occur and still be treated as related for a multi-event detection.</td><td>The correlation window is too wide or too narrow for how the underlying activity, legitimate or malicious, actually unfolds in this environment.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>Choosing between them</h3>
+          <p>Allowlisting is the most surgical option and the easiest to reason about, but it doesn't scale if the list of exceptions keeps growing: a rule with fifty exceptions is a sign the underlying logic needs narrowing, not more exceptions. Threshold and time-window adjustments are attractive because they're a single number to change, but they can quietly raise the bar for detecting the real technique too, so they need to be checked against the lower bound of what real malicious activity would actually produce. Logic narrowing takes more work up front but tends to produce the most durable fix, because it's addressing the actual distinguishing signal rather than a proxy for it.</p>
+        </section>
+
+        <section class="content-section" id="tune-suppress-retire">
+          <h2>Tuning vs. Suppression vs. Retirement</h2>
+          <p>Not every noisy detection deserves the same response. Some should be tuned, some should keep running quietly in the background without alerting, and some should be turned off entirely. Working through the same few questions in order keeps that decision consistent across a detection engineering team instead of depending on who happens to be on shift.</p>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Is the false positive pattern narrow and identifiable?</div>
+              <div class="flow-step-desc">If the noise traces to a specific, describable source and excluding it doesn't remove real coverage: tune it, using whichever lever from the table above fits the cause.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Is the detection still useful for investigation, just too noisy to alert on?</div>
+              <div class="flow-step-desc">If the logic reliably captures relevant activity but can't be tuned down to an alertable rate without losing that value: suppress it. Keep it logging and available as investigative context, but stop pushing it to the alert queue.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Can the false positive rate come down without gutting real coverage?</div>
+              <div class="flow-step-desc">If every tuning attempt that reduces noise also removes the detection's ability to catch the real technique, or the underlying technique or environment has changed enough that the rule no longer applies: retire it. A detection that can't be tuned into something trustworthy is worse than no detection.</div>
+            </div>
+          </div>
+          <p>The order matters. Jumping straight to retirement because a detection is annoying skips the chance to recover a rule that just needs a narrower condition. Jumping straight to suppression to make the noise go away, without first attempting to tune, can hide a rule that would have been perfectly usable with one added condition.</p>
+        </section>
+
+        <section class="content-section" id="cadence-and-ownership">
+          <h2>Tuning Cadence and Ownership</h2>
+          <p>Tuning isn't something that happens once, right after a detection goes live, and then is done. Environments keep changing after a rule ships: new software gets rolled out, a team adopts a new admin tool, an infrastructure migration changes what normal traffic looks like. None of that requires the detection's logic to be wrong on day one; it just means the detection drifts out of tune as the environment around it moves.</p>
+          <p>Two things keep that drift from accumulating unnoticed. The first is a regular review cadence: a scheduled point, not just a reactive one, where recently deployed and previously tuned detections get reassessed against current alert volume and false positive rate. The second is clear ownership. Tuning feedback that has no assigned owner tends to sit in a queue or a Slack thread indefinitely, waiting for "whoever notices" to act on it. Assigning a specific person or rotation responsibility for acting on tuning feedback, separate from whoever originally wrote the rule, keeps that feedback loop from stalling out as the team and the rule set both grow.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>False positives usually trace to one of four root causes: overly broad logic, dual-use legitimate tools, unaccounted-for normal behavior, or data quality issues.</li>
+            <li>An untuned detection costs more than analyst time: it conditions analysts to dismiss that alert type reflexively, which is how a real true positive gets missed.</li>
+            <li>The main tuning levers are allowlisting, threshold adjustment, logic narrowing, and time-window adjustment, each suited to a different type of false positive pattern.</li>
+            <li>A noisy detection should be tuned if the false positive pattern is narrow, suppressed if it's still useful for context but too noisy to alert on, or retired if its false positive rate can't come down without losing real coverage.</li>
+            <li>Tuning is ongoing, not a one-time step. Environments drift, so detections need a regular review cadence and a clearly assigned owner to act on tuning feedback.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">A detection for a persistence technique keeps firing on a scheduled maintenance script that legitimately writes to the same registry location the rule watches. Which root cause best describes this?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Data quality issue in the source field</button>
+              <button class="kc-option" data-correct="true">B. Unaccounted-for normal behavior in the environment</button>
+              <button class="kc-option" data-correct="false">C. Overly broad logic in the rule's matching conditions</button>
+              <button class="kc-option" data-correct="false">D. A dual-use administrative tool</button>
+            </div>
+            <div class="kc-answer">The rule's logic and the data are both fine here: it's correctly matching a registry write in the expected location. The gap is that the engineer didn't know about this specific scheduled script when writing the rule, which is the definition of unaccounted-for normal behavior rather than a logic or data problem.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">A detection has grown to over sixty individual host and process exceptions over time, and the exception list keeps growing every month. What does that pattern usually indicate?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Allowlisting is working as intended and should continue</button>
+              <button class="kc-option" data-correct="true">B. The underlying logic likely needs narrowing rather than more exceptions</button>
+              <button class="kc-option" data-correct="false">C. The detection should immediately be retired</button>
+              <button class="kc-option" data-correct="false">D. The time window needs to be shortened</button>
+            </div>
+            <div class="kc-answer">A short, stable exception list is a normal and reasonable use of allowlisting. A list that keeps growing is a sign the rule is matching a broad category of legitimate activity rather than a handful of known exceptions, and the more durable fix is usually to narrow the logic so it stops matching that category in the first place.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">A detection reliably captures relevant activity and is valuable during investigations, but its false positive rate is too high to alert on directly, and no combination of tuning levers brings that rate down without losing real coverage. What's the appropriate response?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Retire the detection entirely</button>
+              <button class="kc-option" data-correct="false">B. Keep alerting on it and accept the noise</button>
+              <button class="kc-option" data-correct="true">C. Suppress it: keep it logging for investigative context but stop alerting on it</button>
+              <button class="kc-option" data-correct="false">D. Lower the alert priority instead of addressing the noise</button>
+            </div>
+            <div class="kc-answer">This is the definition of a suppression case: the detection is still useful, just not at alert-worthy fidelity. Retiring it would throw away a detection that has real investigative value, and continuing to alert on it feeds the alert fatigue problem covered earlier in the chapter.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="04-testing-and-validation.html" class="chapter-nav-prev">← Testing and Validation</a>
+          <a href="06-coverage-mapping-attack.html" class="chapter-nav-next">Coverage Mapping Against ATT&CK →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Detection Engineering</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('05', 5));</script>
+</body>
+</html>

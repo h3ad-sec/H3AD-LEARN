@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="02">
+  <meta name="module-id" content="detection-engineering">
+  <title>Query Languages: KQL, SPL, and Sigma · Detection Engineering · H3AD-LEARN</title>
+  <meta name="description" content="The three major detection query dialects: KQL and SPL as platform-native languages for Microsoft and Splunk environments, and Sigma as a portable format that converts between them.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/02-query-languages-kql-spl-sigma.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/02-query-languages-kql-spl-sigma.html">
+  <meta property="og:title" content="Query Languages: KQL, SPL, and Sigma · Detection Engineering · H3AD-LEARN">
+  <meta property="og:description" content="The three major detection query dialects: KQL and SPL as platform-native languages for Microsoft and Splunk environments, and Sigma as a portable format that converts between them.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Query Languages: KQL, SPL, and Sigma · Detection Engineering · H3AD-LEARN">
+  <meta name="twitter:description" content="The three major detection query dialects: KQL and SPL as platform-native languages for Microsoft and Splunk environments, and Sigma as a portable format that converts between them.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Query Languages: KQL, SPL, and Sigma",
+    "description": "The three major detection query dialects: KQL and SPL as platform-native languages for Microsoft and Splunk environments, and Sigma as a portable format that converts between them.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/02-query-languages-kql-spl-sigma.html",
+    "isPartOf": { "@type": "Course", "name": "Detection Engineering", "url": "https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/" },
+    "provider": { "@type": "Organization", "name": "H3AD-SEC", "url": "https://h3ad-sec.github.io" }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" },
+    { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" },
+    { "@type": "ListItem", "position": 3, "name": "Detection Engineering", "item": "https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/" },
+    { "@type": "ListItem", "position": 4, "name": "Query Languages: KQL, SPL, and Sigma", "item": "https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/02-query-languages-kql-spl-sigma.html" }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">QUERY LANGUAGES</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub">&#8623; SOC OPERATIONS</a>
+    <a href="../detection-engineering/index.html" class="drawer-sub nav-current">&#8623; DETECTION ENGINEERING</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Detection Engineering</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 02 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 6 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 02</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-beginner">BEGINNER</span>
+          </div>
+          <h1 class="chapter-title">Query Languages: KQL, SPL, and Sigma</h1>
+          <p class="chapter-intro">Every SIEM speaks its own dialect. A detection that reads cleanly in one platform's query language can look completely unfamiliar in another, even when the underlying logic is identical. Detection engineers rarely stay locked to a single tool for their whole career, and plenty work across more than one platform at the same job: a Sentinel-based SOC that also runs Splunk for a subsidiary, or a team migrating off one platform onto another mid-project. This chapter walks through the three dialects you're most likely to encounter: KQL, SPL, and Sigma, the format built specifically to move between the other two.</p>
+          <div class="chapter-tags">
+            <span class="tag">KQL</span><span class="tag">SPL</span><span class="tag">Sigma</span><span class="tag">query languages</span>
+          </div>
+        </header>
+
+        <div class="callout-tip"><strong>Scope note:</strong> this chapter is about reading and comparing these dialects conceptually so you can recognize them and follow along in documentation or a coworker's rule, not about becoming fluent in writing production queries in any one of them. Hands-on query construction, building filters, joins, and aggregations toward an actual detection, starts in Chapter 3.</div>
+
+        <section class="content-section" id="why-query-language-matters">
+          <h2>Why Query Language Matters</h2>
+          <p>It's tempting to treat query language as a syntax preference, the way some developers argue about tabs versus spaces. In detection engineering it's closer to a practical constraint. The logic behind a detection, the condition you're trying to catch, the fields you're filtering on, the threshold that separates noise from signal, is the same no matter what platform runs it. But that logic has to be expressed in whatever language your SIEM understands, and that language shapes how you think about the problem while you're writing it.</p>
+          <p>This matters for a few concrete reasons. First, job mobility: a detection engineer who only knows one platform's syntax is limited to jobs running that platform, and most job postings list a specific SIEM by name. Second, multi-tool environments are common, not rare: organizations that acquire other companies inherit their tooling, organizations that migrate SIEMs run two in parallel for months, and managed security service providers often support several client platforms at once. Third, community knowledge, blog posts, conference talks, shared rule repositories, is scattered across all three dialects, and being able to read a KQL rule and understand what it's doing even if your shop runs Splunk saves you from reinventing detections that already exist somewhere.</p>
+          <div class="callout-info"><strong>Note:</strong> knowing multiple dialects doesn't mean memorizing every function name in each one. It means recognizing the shape of the logic (filter, aggregate, join, threshold) regardless of which keywords express it, and knowing where to look up the exact syntax when you need it.</div>
+        </section>
+
+        <section class="content-section" id="kql-kusto-query-language">
+          <h2>KQL (Kusto Query Language)</h2>
+          <p>KQL is the query language behind Microsoft Sentinel, Microsoft Defender, and the broader Azure Data Explorer family of products. If your organization runs Microsoft's security stack, KQL is the language your detections, hunting queries, and workbooks are written in.</p>
+          <p>KQL is pipe-based: you start with a table, then chain a series of operators together with the pipe character, each one narrowing, transforming, or reshaping the data before it reaches the next stage. This pipeline shape isn't unique to KQL, you'll recognize the same general pattern in SPL and in tools like PowerShell, but KQL's specific keywords and operator names are its own.</p>
+          <h3>A simple illustrative example</h3>
+          <p>The snippet below is a generic, illustrative example, not a real production rule, showing the general shape of a KQL query filtering a sign-in log table for failed logon events:</p>
+          <pre><code>SigninLogs
+| where ResultType != "0"
+| where TimeGenerated > ago(1h)
+| project TimeGenerated, UserPrincipalName, IPAddress, ResultType
+| sort by TimeGenerated desc</code></pre>
+          <p>Reading it left to right: start from the <code>SigninLogs</code> table, keep only rows where the result code isn't a success ("0"), keep only rows from the last hour, select down to a handful of relevant columns, and sort the output. Each <code>where</code> clause narrows the row set further, and <code>project</code> trims the columns down to what's useful to look at. That's the core rhythm of KQL: start broad, filter down, shape the output.</p>
+        </section>
+
+        <section class="content-section" id="spl-splunk-search-processing-language">
+          <h2>SPL (Splunk Search Processing Language)</h2>
+          <p>SPL is Splunk's query language. It's also pipe-based, and if you've already read the KQL section above, the overall shape will feel familiar: a search starts with a source, then flows through a chain of commands separated by pipes. Where the two dialects diverge is in keyword choice, syntax conventions, and some of the underlying assumptions about how a search begins.</p>
+          <p>A Splunk search typically starts with search terms or an index specification rather than an explicit table name, and commands like <code>where</code>, <code>table</code>, and <code>sort</code> do work that's conceptually similar to KQL's <code>where</code>, <code>project</code>, and <code>sort</code>, just spelled and structured differently.</p>
+          <h3>The same kind of filter, in SPL style</h3>
+          <p>Here's a generic, illustrative SPL example covering the same general kind of filter as the KQL example above, failed logon events in the last hour, so you can compare the two dialects conceptually:</p>
+          <pre><code>index=auth_logs sourcetype=signin_events
+| where result_code != "0"
+| where _time > relative_time(now(), "-1h")
+| table _time, user, src_ip, result_code
+| sort - _time</code></pre>
+          <p>The logic is the same as the KQL version: narrow to failed results, narrow to the last hour, select the useful fields, sort by time. What differs is the vocabulary: <code>index=</code> and <code>sourcetype=</code> to scope the search, <code>table</code> instead of <code>project</code>, and SPL's particular way of expressing relative time windows. Put the two snippets side by side and the family resemblance is obvious even before you know either language well: filter, filter, shape, sort. That resemblance is exactly why being fluent in one pipe-based query language makes the next one faster to pick up.</p>
+        </section>
+
+        <section class="content-section" id="sigma-the-portable-format">
+          <h2>Sigma: The Portable Format</h2>
+          <p>KQL and SPL are both platform-native: a KQL query only runs against Microsoft's stack, an SPL search only runs in Splunk. That's fine if your organization only ever runs one SIEM for the rest of its existence, but detection logic is valuable independent of the platform it happens to run on, and a lot of organizations don't stay on one platform forever.</p>
+          <p>Sigma addresses that. It's a generic, YAML-based detection rule format maintained by the SigmaHQ open-source project. A Sigma rule doesn't describe KQL or SPL syntax directly, it describes the detection logic (what log source, what fields, what condition) in a structured, platform-agnostic way. Conversion tooling then translates that Sigma rule into KQL, SPL, or other backend query languages as needed. Write the logic once, generate the platform-specific query for wherever it needs to run, instead of hand-rewriting the same idea in every dialect your organization touches.</p>
+          <h3>Basic structure</h3>
+          <p>A Sigma rule is built from a small number of core fields: a title and description, a <code>logsource</code> block describing what kind of data the rule applies to, a <code>detection</code> block defining the selection criteria and the condition that ties them together, and metadata like severity level and references. Here's a simple, illustrative Sigma rule following the same failed-logon theme as the earlier examples:</p>
+          <pre><code>title: Multiple Failed Logon Attempts
+id: 11111111-2222-3333-4444-555555555555
+status: experimental
+description: Detects repeated failed sign-in events for a single account within a short window
+logsource:
+  category: authentication
+  product: windows
+detection:
+  selection:
+    EventID: 4625
+  condition: selection
+level: medium</code></pre>
+          <p>The <code>logsource</code> block tells the conversion tooling what kind of data and product this rule expects, which helps it pick the right field mappings when generating the platform-specific query. The <code>detection</code> block defines one or more named selections (here, just <code>selection</code>, matching on the Windows failed-logon event ID) and a <code>condition</code> that says how those selections combine into a match. A real rule intended for production would typically add a timeframe and a count threshold to catch repeated attempts rather than a single failed logon, but the fields shown here are the structural skeleton every Sigma rule builds on.</p>
+          <div class="callout-info"><strong>Note:</strong> Sigma conversion depends on field mappings between Sigma's common schema and your platform's actual field names. A rule that converts cleanly assumes your environment's fields line up with what the conversion tooling expects, which connects to the normalization point covered later in this chapter.</div>
+        </section>
+
+        <section class="content-section" id="when-to-write-sigma-first-vs-native">
+          <h2>When to Write Sigma-First vs. Native</h2>
+          <p>Neither approach is universally correct. The right choice depends on what the detection is for and how long it's expected to live.</p>
+          <p>Sigma-first makes sense when portability actually matters: a detection you expect to run across more than one SIEM, one you want to draw from or contribute back to community rule repositories, or one you want to version-control in a way that isn't tied to a specific platform's syntax. Native, writing directly in KQL or SPL, makes more sense when a detection needs a platform-specific function, enrichment, or data source that Sigma's common schema doesn't cleanly express, or when you're writing a quick investigative query during an incident that was never meant to become a permanent detection in the first place.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Consideration</th><th>Sigma-first</th><th>Native (KQL / SPL)</th></tr></thead>
+              <tbody>
+                <tr><td>Portability across SIEMs</td><td>Built in, that's the point</td><td>None, tied to one platform</td></tr>
+                <tr><td>Access to platform-specific functions</td><td>Limited to what the common schema and conversion tooling support</td><td>Full access to every native function</td></tr>
+                <tr><td>Community rule sharing</td><td>Large shared repositories to draw from and contribute to</td><td>Sharing usually means manual translation first</td></tr>
+                <tr><td>Speed for a one-off investigative query</td><td>Extra overhead for something you'll never reuse</td><td>Fastest path, write it and run it</td></tr>
+                <tr><td>Long-term maintainability across a migration</td><td>Rule logic survives a platform change</td><td>Requires a rewrite if the platform changes</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>In practice, a lot of teams land somewhere in between: build the stable, well-understood detections in Sigma so they're portable and shareable, and reserve native queries for platform-specific edge cases and throwaway investigative work.</p>
+        </section>
+
+        <section class="content-section" id="a-note-on-field-normalization">
+          <h2>A Note on Field Normalization</h2>
+          <p>Readers coming from the SOC Operations module's SIEM chapter will recognize this point, and it's worth repeating here because it applies just as much to query language as it does to SIEM architecture: none of this works without normalized field names across log sources.</p>
+          <p>A detection written against a field name that doesn't exist, or that means something different, in your environment won't error out loudly. It will simply fail to match anything, quietly, regardless of whether it's written in KQL, SPL, or converted from a Sigma rule. A Sigma rule that assumes a field called <code>src_ip</code> will convert to a query referencing whatever field your platform's mapping says corresponds to source IP, and if that mapping is wrong or that field is populated inconsistently across your log sources, the converted query runs without error and simply never fires. The query language is only as reliable as the data model underneath it, and that data model is a normalization problem, not a syntax problem.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>KQL and SPL are both pipe-based query languages, but they're platform-native: KQL runs on Microsoft Sentinel and Defender, SPL runs on Splunk, and neither runs on the other's platform.</li>
+            <li>Despite different keywords and conventions, KQL and SPL share a common rhythm: start from a data source, filter down, shape the output, sort or aggregate as needed.</li>
+            <li>Sigma is a YAML-based, platform-agnostic detection rule format maintained by SigmaHQ, built around <code>logsource</code> and <code>detection</code> blocks, designed to be converted into KQL, SPL, or other backend languages.</li>
+            <li>Sigma-first suits detections you want portable, shareable, or version-controlled independent of platform. Native suits detections needing platform-specific functions or quick one-off investigative queries.</li>
+            <li>Every dialect depends on normalized, consistent field names across log sources. A mismatched or missing field causes a detection to silently fail to fire, no matter which language it's written in.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">What do KQL and SPL have in common structurally, even though their exact syntax differs?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Both are YAML-based configuration formats</button>
+              <button class="kc-option" data-correct="true">B. Both are pipe-based query languages that filter and shape data through a chain of operators</button>
+              <button class="kc-option" data-correct="false">C. Both are strictly limited to Windows event log sources</button>
+              <button class="kc-option" data-correct="false">D. Both require Sigma conversion tooling to run</button>
+            </div>
+            <div class="kc-answer">KQL and SPL each build a query as a pipeline: start from a data source, then chain operators (filters, projections, sorts, aggregations) together, typically separated by a pipe character. The exact keywords and conventions differ between the two, but the underlying pipeline shape is the same, which is part of why moving between them is easier than moving to or from an entirely different paradigm.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">What is the primary purpose of Sigma as a detection rule format?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. To replace KQL and SPL entirely so analysts never need to learn platform-native syntax</button>
+              <button class="kc-option" data-correct="false">B. To provide a faster way to write one-off investigative queries during an incident</button>
+              <button class="kc-option" data-correct="true">C. To let detection logic be written once, in a platform-agnostic YAML format, and converted into KQL, SPL, or other backend query languages</button>
+              <button class="kc-option" data-correct="false">D. To enforce field normalization automatically across all connected log sources</button>
+            </div>
+            <div class="kc-answer">Sigma's purpose is portability: write the detection logic once in its common schema, then use conversion tooling to generate the equivalent query for whatever backend platform you need it to run on. It doesn't replace platform-native languages outright, and it doesn't automatically fix field normalization gaps, those still have to be handled through correct field mappings in your environment.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">A detection engineer writes a Sigma rule referencing a field that exists in Sigma's common schema but is populated inconsistently in the organization's actual log data. What's the most likely outcome after the rule is converted and deployed?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. The SIEM throws a syntax error and refuses to load the converted query</button>
+              <button class="kc-option" data-correct="false">B. Sigma's conversion tooling automatically detects the mismatch and corrects the field name</button>
+              <button class="kc-option" data-correct="true">C. The converted query runs without error but silently fails to match events where that field isn't populated as expected</button>
+              <button class="kc-option" data-correct="false">D. The rule automatically falls back to a native KQL or SPL equivalent that doesn't use that field</button>
+            </div>
+            <div class="kc-answer">This is the field normalization problem in practice. A converted query built on a field that's inconsistently populated, or that doesn't mean what the rule author assumed, will run without throwing any error. It simply won't match the events it was meant to catch in cases where that field's data doesn't line up, and nothing alerts you that the detection is quietly underperforming. This failure mode applies to KQL, SPL, and Sigma conversions alike: it's a data model issue, not a syntax issue.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="01-detection-engineering-foundations.html" class="chapter-nav-prev">← Detection Engineering Foundations</a>
+          <a href="03-from-hypothesis-to-detection-logic.html" class="chapter-nav-next">From Hypothesis to Detection Logic →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Detection Engineering</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('02', 6));</script>
+</body>
+</html>
