@@ -380,6 +380,61 @@
   </url>
 
   <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/01-detection-engineering-foundations.html</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/02-query-languages-kql-spl-sigma.html</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/03-from-hypothesis-to-detection-logic.html</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/04-testing-and-validation.html</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/05-false-positive-tuning.html</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/06-coverage-mapping-attack.html</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/07-detection-as-code-rule-lifecycle.html</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/detection-engineering/08-metrics-and-maturity.html</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
     <loc>https://h3ad-sec.github.io/H3AD-LEARN/lolbas/</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
