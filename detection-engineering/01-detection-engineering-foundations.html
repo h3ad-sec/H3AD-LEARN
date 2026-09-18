@@ -118,8 +118,17 @@
 
         <section class="content-section" id="what-a-detection-engineer-does">
           <h2>What a Detection Engineer Actually Does</h2>
-          <p>Strip away the job title and the work is narrow and concrete: take a hypothesis about attacker behavior and turn it into something a SIEM or EDR can evaluate against live data, reliably, without burying analysts in noise. That hypothesis rarely comes from nowhere. It might come from a threat intel report describing a new technique used by an actor relevant to the organization, from a threat hunter who found something suspicious once and now wants it caught automatically, from a gap identified while mapping coverage against MITRE ATT&CK, or from a postmortem where the honest answer to "why didn't we catch this" was "nobody wrote a rule for it."</p>
-          <p>From there the detection engineer's job is to translate that idea into logic: pick the right data source, write the query or rule in whatever language the platform uses (KQL, SPL, Sigma, or a vendor-specific syntax), test it against both malicious and benign activity, tune out the false positives without tuning out the true positives, document what the rule does and why, and ship it. Then the job continues, because a detection that works today can go stale as the environment changes, as the attack technique evolves, or as a new benign process starts triggering it.</p>
+          <p>Strip away the job title and the work is narrow and concrete: take a hypothesis about attacker behavior and turn it into something a SIEM or EDR can evaluate against live data, reliably, without burying analysts in noise. That hypothesis rarely comes from nowhere.</p>
+          <div class="callout-info"><strong>Where the hypothesis usually comes from:</strong>
+            <ul>
+              <li>A threat intel report describing a new technique used by an actor relevant to the organization.</li>
+              <li>A threat hunter who found something suspicious once and now wants it caught automatically.</li>
+              <li>A gap identified while mapping coverage against MITRE ATT&CK.</li>
+              <li>A postmortem where the honest answer to "why didn't we catch this" was "nobody wrote a rule for it."</li>
+            </ul>
+          </div>
+          <p>From there the detection engineer's job is to translate that idea into logic: pick the right data source, write the query or rule in whatever language the platform uses (KQL, SPL, Sigma, or a vendor-specific syntax), test it against both malicious and benign activity, tune out the false positives without tuning out the true positives, document what the rule does and why, and ship it.</p>
+          <p>Then the job continues, because a detection that works today can go stale as the environment changes, as the attack technique evolves, or as a new benign process starts triggering it.</p>
           <h3>How This Differs From Adjacent Roles</h3>
           <p>Detection engineering overlaps with SOC analyst work and threat hunting in the skills required, mostly log analysis, query writing, and attacker behavior knowledge, but the three roles produce different outputs and operate on different timelines.</p>
           <div class="table-wrap">
@@ -134,7 +143,8 @@
               </tbody>
             </table>
           </div>
-          <p>In practice these roles feed each other constantly. A hunter's finding becomes a detection engineer's backlog item. An analyst's repeated manual triage of the same alert pattern becomes a tuning request. A detection engineer's new rule becomes the next alert an analyst has to learn to triage. The SOC Operations module covers the analyst tiers in depth, and the Threat Hunting module covers hypothesis-driven hunting; this module focuses on the engineering side of that loop.</p>
+          <p>In practice these roles feed each other constantly. A hunter's finding becomes a detection engineer's backlog item. An analyst's repeated manual triage of the same alert pattern becomes a tuning request. A detection engineer's new rule becomes the next alert an analyst has to learn to triage.</p>
+          <p>The SOC Operations module covers the analyst tiers in depth, and the Threat Hunting module covers hypothesis-driven hunting; this module focuses on the engineering side of that loop.</p>
           <div class="callout-info"><strong>Note:</strong> Smaller teams often blend these roles into one person wearing different hats depending on the day. The distinctions here describe the work, not necessarily separate headcounts.</div>
         </section>
 
@@ -183,8 +193,19 @@
 
         <section class="content-section" id="detection-as-code">
           <h2>Detection-as-Code</h2>
+          <h3>The Console-Only Approach</h3>
           <p>The older way of managing detections looks like this: an analyst notices something suspicious, opens the SIEM console, writes a rule directly in the UI, and saves it. There is no record of who wrote it, why, what it was tested against, or what changed if someone edits it next month. If the rule breaks something or stops working, there is no easy way to see what it looked like before, and nobody outside the person who wrote it fully understands its logic. This works fine for one rule written by one person. It stops working once a team has hundreds of rules maintained by multiple engineers over multiple years.</p>
-          <p>Detection-as-code applies the same discipline to detection logic that software engineering applies to application code. Rules live as text files in a version control system, not as opaque objects inside a vendor console. Changes go through a review process before merging, the same way a code change would. Rules get tested, ideally automatically, before they reach production. Every rule carries documentation: what it detects, why it exists, what data source it depends on, and who owns it. And because everything is versioned, a bad change can be rolled back to a known-good state instead of being reconstructed from memory.</p>
+          <h3>Applying Software Discipline to Detection Logic</h3>
+          <p>Detection-as-code applies the same discipline to detection logic that software engineering applies to application code.</p>
+          <div class="callout-info"><strong>What that discipline looks like:</strong>
+            <ul>
+              <li>Rules live as text files in a version control system, not as opaque objects inside a vendor console.</li>
+              <li>Changes go through a review process before merging, the same way a code change would.</li>
+              <li>Rules get tested, ideally automatically, before they reach production.</li>
+              <li>Every rule carries documentation: what it detects, why it exists, what data source it depends on, and who owns it.</li>
+              <li>Because everything is versioned, a bad change can be rolled back to a known-good state instead of being reconstructed from memory.</li>
+            </ul>
+          </div>
           <p>None of this changes what a detection <em>does</em>. It changes whether the team can trust, audit, and safely evolve a detection library that has grown past what any one person can hold in their head. A team with five rules can probably get away with the console approach. A team with five hundred rules across multiple SIEMs and multiple engineers generally cannot, at least not without accumulating rules nobody remembers writing and nobody is confident is safe to remove.</p>
           <div class="callout-info"><strong>Note:</strong> Chapter 7 covers detection-as-code in depth, including what a typical rule repository looks like, how CI testing pipelines fit in, and what the rule lifecycle looks like end to end in a version-controlled workflow. This section is only the introduction.</div>
         </section>
@@ -203,7 +224,8 @@
 
         <section class="content-section" id="module-roadmap">
           <h2>How the Rest of This Module Builds on This Chapter</h2>
-          <p>Everything from here forward drills into one piece of the lifecycle introduced above. The module moves roughly in the order a detection would actually move through in practice: learning the languages you write rules in, turning a hypothesis into working logic, proving that logic actually works, cutting down the noise it generates, checking it against your broader coverage picture, formalizing how it is managed over time, and finally measuring whether any of this is working.</p>
+          <p>Everything from here forward drills into one piece of the lifecycle introduced above.</p>
+          <p>The module moves roughly in the order a detection would actually move through in practice: learning the languages you write rules in, turning a hypothesis into working logic, proving that logic actually works, cutting down the noise it generates, checking it against your broader coverage picture, formalizing how it is managed over time, and finally measuring whether any of this is working.</p>
           <ul>
             <li><strong>Chapter 2: Query Languages: KQL, SPL, and Sigma.</strong> The syntax and mental model behind the three languages most detection logic gets written in.</li>
             <li><strong>Chapter 3: From Hypothesis to Detection Logic.</strong> How to take a vague idea about attacker behavior and turn it into a scoped, testable rule.</li>

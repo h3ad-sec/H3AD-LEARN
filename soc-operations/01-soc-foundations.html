@@ -131,8 +131,19 @@
 
         <section class="content-section" id="what-a-soc-does">
           <h2>What a SOC Does and Why It Exists</h2>
+          <h3>The SOC's Mission</h3>
           <p>A Security Operations Center is the team and function responsible for continuously monitoring an organization's systems, detecting signs of malicious or anomalous activity, and coordinating the response when something is found. It is not a single tool or a single room, though many SOCs still have a physical or virtual "watch floor." It is a standing capability: people, process, and technology working together on a schedule that does not stop, because attackers do not work business hours and a compromised endpoint does not wait for Monday morning to matter.</p>
-          <p>The mission breaks down into three continuous activities. Monitoring means watching telemetry (logs, network traffic, endpoint activity, cloud audit trails) for signals that something is wrong. Detection means turning that raw telemetry into actionable alerts, usually through a SIEM (Security Information and Event Management platform) correlating events against detection logic. Response means acting on a confirmed or suspected incident: containing it, eradicating the threat, and getting affected systems back to a known-good state. A SOC that only does the first two without the third is just a very expensive alarm system.</p>
+          <p>The mission breaks down into three continuous activities:</p>
+          <div class="callout-info">
+            <strong>The three activities:</strong>
+            <ul>
+              <li><strong>Monitoring</strong>: watching telemetry (logs, network traffic, endpoint activity, cloud audit trails) for signals that something is wrong.</li>
+              <li><strong>Detection</strong>: turning that raw telemetry into actionable alerts, usually through a SIEM (Security Information and Event Management platform) correlating events against detection logic.</li>
+              <li><strong>Response</strong>: acting on a confirmed or suspected incident by containing it, eradicating the threat, and getting affected systems back to a known-good state.</li>
+            </ul>
+          </div>
+          <p>A SOC that only does the first two without the third is just a very expensive alarm system.</p>
+          <h3>SOC vs. NOC</h3>
           <p>Organizationally, a SOC typically sits inside the broader security function, reporting up through a CISO or equivalent, and works alongside (not instead of) IT operations, incident response, threat intelligence, and vulnerability management teams. It is easy to confuse a SOC with a Network Operations Center (NOC), since both run around the clock and both stare at dashboards for a living, but their missions are different enough that conflating them causes real staffing and process problems.</p>
           <div class="table-wrap">
             <table>
@@ -154,6 +165,7 @@
         <section class="content-section" id="the-three-analyst-tiers">
           <h2>The Three Analyst Tiers (L1, L2, L3)</h2>
           <p>Most SOCs organize analyst work into tiers, sometimes called levels. The tier model exists to route the right work to the right skill level: a high volume of first-pass triage should not consume the time of your most experienced analyst, and a genuinely novel intrusion should not sit in a queue waiting for someone still learning to read a process tree. The names and exact boundaries vary between organizations, but the shape is consistent enough that it is worth learning as a mental model rather than a rigid standard.</p>
+          <h3>Tier Responsibilities</h3>
           <div class="table-wrap">
             <table>
               <thead>
@@ -181,14 +193,28 @@
               </tbody>
             </table>
           </div>
-          <p>Skill expectations climb accordingly. An L1 analyst needs to be comfortable reading alerts, following documented procedure precisely, and knowing the limits of their own judgment, which is arguably the most important skill at that level. An L2 analyst needs broader tool fluency (SIEM query languages, EDR consoles, basic network analysis) and the investigative instinct to connect alerts that don't obviously belong together. An L3 analyst is expected to operate with minimal guidance, often holds deep expertise in a specialty (malware analysis, cloud security, detection engineering), and is frequently the person writing the playbooks that L1 follows.</p>
+          <h3>Skill Expectations by Tier</h3>
+          <p>Skill expectations climb accordingly.</p>
+          <ul>
+            <li><strong>L1</strong>: comfortable reading alerts, following documented procedure precisely, and knowing the limits of their own judgment, which is arguably the most important skill at that level.</li>
+            <li><strong>L2</strong>: broader tool fluency (SIEM query languages, EDR consoles, basic network analysis) and the investigative instinct to connect alerts that don't obviously belong together.</li>
+            <li><strong>L3</strong>: expected to operate with minimal guidance, often holds deep expertise in a specialty (malware analysis, cloud security, detection engineering), and is frequently the person writing the playbooks that L1 follows.</li>
+          </ul>
           <div class="callout-info"><strong>Note:</strong> Escalation is not a failure. A well-run SOC treats a clean, well-documented escalation from L1 to L2 as exactly the system working as designed. Analysts who sit on alerts rather than escalate them, out of a reluctance to look inexperienced, are one of the more common and more fixable causes of missed detections in junior-heavy SOCs.</div>
         </section>
 
         <section class="content-section" id="soc-delivery-models">
           <h2>SOC Delivery Models</h2>
           <p>Not every organization builds and staffs its own SOC. Three broad delivery models cover most of the industry, and many organizations land somewhere between them rather than choosing one cleanly.</p>
-          <p>An in-house SOC is staffed entirely by the organization's own employees, using tooling the organization owns or licenses directly. A Managed Security Service Provider (MSSP) model outsources the monitoring and often the initial response function to a third-party vendor who runs the SOC on the client's behalf, usually across many clients at once. A hybrid, or co-managed, model splits the work: an MSSP might handle 24/7 L1 triage while the organization keeps L2 and L3 in-house, or the reverse, with in-house staff covering business hours and an MSSP picking up nights and weekends.</p>
+          <h3>Three Delivery Models</h3>
+          <div class="callout-info">
+            <strong>The three models:</strong>
+            <ul>
+              <li><strong>In-house</strong>: staffed entirely by the organization's own employees, using tooling the organization owns or licenses directly.</li>
+              <li><strong>MSSP (Managed Security Service Provider)</strong>: outsources the monitoring and often the initial response function to a third-party vendor who runs the SOC on the client's behalf, usually across many clients at once.</li>
+              <li><strong>Hybrid / co-managed</strong>: splits the work. An MSSP might handle 24/7 L1 triage while the organization keeps L2 and L3 in-house, or the reverse, with in-house staff covering business hours and an MSSP picking up nights and weekends.</li>
+            </ul>
+          </div>
           <div class="table-wrap">
             <table>
               <thead>
@@ -219,13 +245,40 @@
               </tbody>
             </table>
           </div>
-          <p>There is no universally correct choice here. A well-resourced enterprise with a mature security program often keeps a SOC in-house because control over process and depth of institutional context matter more than cost. A smaller organization without the budget or hiring pipeline for round-the-clock in-house staffing frequently turns to an MSSP or a hybrid arrangement, accepting some loss of context in exchange for coverage it could not otherwise afford. The trade-off to watch closely in any hybrid arrangement is the handoff: an incident that starts with an MSSP analyst at 3 a.m. and gets escalated to an in-house L3 at 9 a.m. is only as good as the documentation that traveled with it.</p>
+          <h3>Choosing a Model</h3>
+          <p>There is no universally correct choice here. A well-resourced enterprise with a mature security program often keeps a SOC in-house because control over process and depth of institutional context matter more than cost. A smaller organization without the budget or hiring pipeline for round-the-clock in-house staffing frequently turns to an MSSP or a hybrid arrangement, accepting some loss of context in exchange for coverage it could not otherwise afford.</p>
+          <p>The trade-off to watch closely in any hybrid arrangement is the handoff: an incident that starts with an MSSP analyst at 3 a.m. and gets escalated to an in-house L3 at 9 a.m. is only as good as the documentation that traveled with it.</p>
         </section>
 
         <section class="content-section" id="shift-models-and-coverage">
           <h2>Shift Models and Coverage</h2>
           <p>Threats don't clock out, so SOC coverage has to be continuous. Organizations achieve this a few different ways, and most SOCs of any size end up combining more than one.</p>
-          <p>Follow-the-sun coverage spreads analyst teams across time zones so that as one region's business day ends, another region's is beginning, handing off active monitoring without ever leaving a true gap. This model works well for global organizations with distributed offices and is a common structure for larger MSSPs. Fixed shift rotations, by contrast, keep a single team covering set blocks (commonly variations of day, evening, and night shifts) with analysts rotating through those blocks on a schedule. This is more common for organizations running a single-site or single-region SOC. A third pattern, on-call escalation, covers gaps outside a smaller team's business-hours staffing: a defined rotation of analysts carries a phone or pager for anything that can't wait until the next shift, typically reserved for alerts above a defined severity threshold rather than routine triage.</p>
+          <h3>Coverage Patterns</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Pattern</th><th>How It Works</th><th>Best Fit</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Follow-the-sun</td>
+                  <td>Spreads analyst teams across time zones so that as one region's business day ends, another region's is beginning, handing off active monitoring without ever leaving a true gap.</td>
+                  <td>Global organizations with distributed offices; a common structure for larger MSSPs.</td>
+                </tr>
+                <tr>
+                  <td>Fixed shift rotations</td>
+                  <td>Keep a single team covering set blocks (commonly variations of day, evening, and night shifts) with analysts rotating through those blocks on a schedule.</td>
+                  <td>Organizations running a single-site or single-region SOC.</td>
+                </tr>
+                <tr>
+                  <td>On-call escalation</td>
+                  <td>Covers gaps outside a smaller team's business-hours staffing: a defined rotation of analysts carries a phone or pager for anything that can't wait until the next shift.</td>
+                  <td>Alerts above a defined severity threshold, rather than routine triage.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>The Shift Handoff</h3>
           <p>Whichever model a SOC uses, the moment of highest risk is the handoff between shifts. An incident investigated at 60% completion by an outgoing analyst is worthless to the incoming one without a clean transfer of what's known, what's still open, and what needs to happen next. A disciplined handoff process is one of the least glamorous and most consistently underrated skills in SOC operations.</p>
           <div class="process-flow">
             <div class="flow-step">

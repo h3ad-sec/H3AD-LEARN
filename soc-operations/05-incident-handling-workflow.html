@@ -121,16 +121,34 @@
 
         <section class="content-section" id="scoping-this-chapter">
           <h2>Scoping This Chapter: SOC Incident Handling vs Full Incident Response</h2>
-          <p>"Incident response" gets used as a catch-all term, and that looseness causes real confusion for anyone learning the field. A full incident response lifecycle, the kind described in frameworks like NIST SP 800-61 (Computer Security Incident Handling Guide), spans preparation, detection and analysis, containment, eradication, recovery, and post-incident activity. That is a deep, technically demanding discipline involving memory and disk forensics, malware reverse engineering, root cause analysis, and formal lessons-learned processes. It deserves its own module, and H3AD-LEARN will cover it as one, separately from SOC Operations.</p>
-          <p>What this chapter covers is narrower and sits earlier in that lifecycle: the operational and communication workflow a SOC runs once an alert has been confirmed as a genuine incident, through the point where initial containment is underway and ownership has been formally handed to whoever carries the case forward, whether that's a senior SOC analyst, a dedicated incident response team, or an external CSIRT (Computer Security Incident Response Team). That includes how the incident gets escalated across tiers, who gets told what and when, and how an incident that is still active survives a change of shift without losing continuity.</p>
+          <h3>The Full Incident Response Lifecycle</h3>
+          <p>"Incident response" gets used as a catch-all term, and that looseness causes real confusion for anyone learning the field. A full incident response lifecycle, the kind described in frameworks like NIST SP 800-61 (Computer Security Incident Handling Guide), spans six phases:</p>
+          <div class="callout-info"><strong>NIST SP 800-61 lifecycle phases:</strong>
+            <ul>
+              <li>Preparation</li>
+              <li>Detection and analysis</li>
+              <li>Containment</li>
+              <li>Eradication</li>
+              <li>Recovery</li>
+              <li>Post-incident activity</li>
+            </ul>
+          </div>
+          <p>That is a deep, technically demanding discipline involving memory and disk forensics, malware reverse engineering, root cause analysis, and formal lessons-learned processes. It deserves its own module, and H3AD-LEARN will cover it as one, separately from SOC Operations.</p>
+          <h3>What This Chapter Covers</h3>
+          <p>What this chapter covers is narrower and sits earlier in that lifecycle: the operational and communication workflow a SOC runs once an alert has been confirmed as a genuine incident, through the point where initial containment is underway and ownership has been formally handed to whoever carries the case forward, whether that's a senior SOC analyst, a dedicated incident response team, or an external CSIRT (Computer Security Incident Response Team).</p>
+          <p>That includes how the incident gets escalated across tiers, who gets told what and when, and how an incident that is still active survives a change of shift without losing continuity.</p>
           <p>Put simply: this chapter is about process and people, not technique. You won't find guidance here on how to pull a memory image or reverse a binary. You will find guidance on how a SOC keeps an incident coordinated, documented at a workflow level, and communicated clearly while the technical responders do that deeper work.</p>
           <div class="callout-info"><strong>Note:</strong> Some smaller organizations don't have a separate incident response team at all; the SOC's L2 and L3 analysts carry an incident through containment themselves. The workflow in this chapter still applies in that case. The distinction is about what kind of work is happening (coordination and communication versus deep technical forensics), not about which team's name is on the door.</div>
         </section>
 
         <section class="content-section" id="from-alert-to-confirmed-incident">
           <h2>From Alert to Confirmed Incident</h2>
+          <h3>Triage Recap</h3>
           <p>Chapter 2 covered how an L1 analyst triages an incoming alert: checking it against known playbooks, gathering basic context on the user and asset involved, and deciding whether it's a known false positive, something that needs a closer look, or something that clearly indicates real impact. Most alerts never become incidents. They get closed, tuned out, or resolved through a routine playbook step without ever leaving that first-pass triage stage.</p>
-          <p>An alert crosses into incident territory the moment impact is confirmed as real, not just suspected. That confirmation might come from an L1 analyst who finds clear evidence during initial triage, or more often from an L2 analyst who has pulled additional context and established that this is genuinely unauthorized or malicious activity affecting a system, account, or dataset. The exact threshold for "confirmed" varies by organization, but the underlying test is consistent: is there reasonable confidence that something bad actually happened or is actively happening, as opposed to an anomaly that hasn't been explained yet.</p>
+          <h3>When an Alert Becomes an Incident</h3>
+          <p>An alert crosses into incident territory the moment impact is confirmed as real, not just suspected. That confirmation might come from an L1 analyst who finds clear evidence during initial triage, or more often from an L2 analyst who has pulled additional context and established that this is genuinely unauthorized or malicious activity affecting a system, account, or dataset.</p>
+          <p>The exact threshold for "confirmed" varies by organization, but the underlying test is consistent: is there reasonable confidence that something bad actually happened or is actively happening, as opposed to an anomaly that hasn't been explained yet.</p>
+          <h3>What Changes When You Declare an Incident</h3>
           <p>Declaring something an incident changes several things at once, and it's worth being explicit about what actually shifts:</p>
           <ul>
             <li><strong>Formal tracking begins.</strong> What may have been an informal alert ticket now gets tracked as a distinct incident record, usually with its own identifier, timeline, and case file, separate from the individual alerts that fed into it.</li>
@@ -168,13 +186,29 @@
               </tbody>
             </table>
           </div>
-          <p>The common thread across every handoff is the same three ingredients: context (why this matters and what's been learned), evidence (the actual data supporting that understanding), and a record of actions already taken (so the next tier doesn't waste time repeating a step, or worse, contradicts something already in motion, like re-isolating a host that was deliberately left online for monitoring). A handoff that skips any of these forces the receiving analyst to reconstruct history instead of moving the incident forward, which is exactly the kind of delay a tiered structure exists to prevent.</p>
+          <p>The common thread across every handoff is the same three ingredients:</p>
+          <div class="callout-info"><strong>Every handoff needs:</strong>
+            <ul>
+              <li><strong>Context</strong>: why this matters and what's been learned</li>
+              <li><strong>Evidence</strong>: the actual data supporting that understanding</li>
+              <li><strong>A record of actions already taken</strong>: so the next tier doesn't waste time repeating a step, or worse, contradicts something already in motion, like re-isolating a host that was deliberately left online for monitoring</li>
+            </ul>
+          </div>
+          <p>A handoff that skips any of these forces the receiving analyst to reconstruct history instead of moving the incident forward, which is exactly the kind of delay a tiered structure exists to prevent.</p>
           <div class="callout-info"><strong>Note:</strong> Escalation paths aren't always strictly linear. A severe incident, one with clear signs of active data exfiltration or a widespread compromise, might jump straight from L1 to L3 or IR without waiting for a full L2 investigation first. The table above describes the typical path, not a rule that every incident must pass through every tier in sequence.</div>
         </section>
 
         <section class="content-section" id="communication-protocols">
           <h2>Communication Protocols During an Incident</h2>
-          <p>An incident that's technically well-handled but poorly communicated still damages trust in the SOC. Stakeholders outside the investigation don't need blow-by-blow technical detail, but they do need to know that something is being managed, roughly how serious it is, and when they'll hear something next. Communication cadence should scale with severity: a critical incident needs frequent, proactive updates, even when the update is just "still investigating, no new findings," because silence during a high-severity event reads as inaction whether or not that's true. A low-severity incident can be communicated on a much longer cycle, sometimes just a single update at resolution, without anyone reasonably expecting more.</p>
+          <h3>Update Cadence Scales With Severity</h3>
+          <p>An incident that's technically well-handled but poorly communicated still damages trust in the SOC. Stakeholders outside the investigation don't need blow-by-blow technical detail, but they do need to know that something is being managed, roughly how serious it is, and when they'll hear something next.</p>
+          <div class="callout-info"><strong>Communication cadence should scale with severity:</strong>
+            <ul>
+              <li><strong>Critical incident:</strong> frequent, proactive updates, even when the update is just "still investigating, no new findings," because silence during a high-severity event reads as inaction whether or not that's true.</li>
+              <li><strong>Low-severity incident:</strong> a much longer cycle, sometimes just a single update at resolution, without anyone reasonably expecting more.</li>
+            </ul>
+          </div>
+          <h3>Who Gets Notified</h3>
           <p>Who gets notified also depends on severity and on which parts of the organization are actually affected. A simple stakeholder matrix, even an informal one, keeps this consistent instead of leaving it to whoever happens to be on shift to decide in the moment.</p>
           <div class="table-wrap">
             <table>
@@ -205,12 +239,15 @@
               </tbody>
             </table>
           </div>
-          <p>For major incidents, especially anything with broad business impact or active containment decisions being made in real time, many SOCs and IR teams stand up a bridge call or war room: a standing, often continuous, call or dedicated channel where the responders, key stakeholders, and decision-makers stay coordinated live rather than relying on periodic written updates. This isn't necessary for routine incidents, and overusing it for anything less than a genuinely major event tends to create alert fatigue among the very stakeholders it's meant to keep informed. It earns its place specifically when decisions need to happen faster than an email thread can support, or when several teams are acting simultaneously and need to stay synchronized.</p>
+          <h3>Bridge Calls and War Rooms</h3>
+          <p>For major incidents, especially anything with broad business impact or active containment decisions being made in real time, many SOCs and IR teams stand up a bridge call or war room: a standing, often continuous, call or dedicated channel where the responders, key stakeholders, and decision-makers stay coordinated live rather than relying on periodic written updates.</p>
+          <p>This isn't necessary for routine incidents, and overusing it for anything less than a genuinely major event tends to create alert fatigue among the very stakeholders it's meant to keep informed. It earns its place specifically when decisions need to happen faster than an email thread can support, or when several teams are acting simultaneously and need to stay synchronized.</p>
           <div class="callout-info"><strong>Note:</strong> Communication cadence and stakeholder lists should be defined ahead of time, as part of an incident response plan, not improvised mid-incident. Deciding who to call while an incident is actively unfolding wastes time that a five-minute lookup in a pre-built matrix would save.</div>
         </section>
 
         <section class="content-section" id="shift-handoff-for-an-ongoing-incident">
           <h2>Shift Handoff for an Ongoing Incident</h2>
+          <h3>From Routine Handoff to Incident Handoff</h3>
           <p>Chapter 1 covered the routine shift handoff: reviewing open items, briefing the incoming analyst, transferring ownership, and confirming acknowledgment. That same four-step shape applies to an active incident, but the stakes are higher. A routine handoff done poorly might delay a low-priority ticket by a few hours. An incident handoff done poorly can mean a containment action doesn't happen, a stakeholder update gets missed, or the incoming analyst spends the first hour of their shift reconstructing context that the outgoing analyst already had in their head.</p>
           <div class="process-flow">
             <div class="flow-step">
@@ -237,7 +274,9 @@
               <div class="flow-step-desc">The incoming analyst confirms, explicitly, that they understand the current state and the next action before the outgoing analyst actually signs off and leaves.</div>
             </div>
           </div>
-          <p>The difference between this and a routine handoff isn't the shape of the process; it's how little slack there is for skipping a step. During routine operations, a slightly thin handoff note might get clarified later with no real consequence. During an active incident, especially one with a bridge call running or stakeholders expecting updates, a gap in the handoff can mean a containment window closes unnoticed, or a stakeholder update simply doesn't happen because the person who was supposed to send it thought someone else already had. Treat every open incident as something that does not get handed off by exception, meaning it should be flagged and walked through deliberately at every shift change until it closes, not left to surface only if someone happens to ask about it.</p>
+          <h3>Why the Stakes Are Higher</h3>
+          <p>The difference between this and a routine handoff isn't the shape of the process; it's how little slack there is for skipping a step. During routine operations, a slightly thin handoff note might get clarified later with no real consequence. During an active incident, especially one with a bridge call running or stakeholders expecting updates, a gap in the handoff can mean a containment window closes unnoticed, or a stakeholder update simply doesn't happen because the person who was supposed to send it thought someone else already had.</p>
+          <p>Treat every open incident as something that does not get handed off by exception, meaning it should be flagged and walked through deliberately at every shift change until it closes, not left to surface only if someone happens to ask about it.</p>
           <div class="callout-info"><strong>Note:</strong> For a major incident running across multiple shifts, it helps to designate a single incident owner who persists across the handoffs, even if the hands-on analyst changes each shift. That owner (often an L3 analyst or incident lead) holds continuity of the bigger picture while individual analysts rotate through the tactical work.</div>
         </section>
 

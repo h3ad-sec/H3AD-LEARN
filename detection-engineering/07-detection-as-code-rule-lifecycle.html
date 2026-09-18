@@ -120,22 +120,38 @@
         <section class="content-section" id="ad-hoc-to-as-code">
           <h2>From Ad Hoc Rules to Detection-as-Code</h2>
           <p>Most detection programs start the same way. An analyst notices a gap, writes a query directly in the SIEM's rule editor, saves it, and moves on. For a handful of rules this works fine. There's no process overhead, the person who wrote the rule remembers why, and if something looks wrong they just open the console and fix it.</p>
-          <p>The trouble is that this approach doesn't scale with the size of the rule set or the size of the team. Once a program has a few hundred detections maintained by a rotating group of engineers, the ad hoc model starts to fail in predictable ways. Nobody outside the rule editor's change log (if the platform even keeps one) can tell who changed a piece of logic, when, or why. A tuning change that quietly narrows a rule's coverage can sit unnoticed for months. If an edit breaks something, there's often no clean way to see what the rule looked like before the change, let alone revert to it. And the reasoning behind a rule, why it exists, what it's meant to catch, why a particular exclusion was added, lives only in the head of whoever wrote it. When that person moves teams or leaves, the reasoning leaves with them.</p>
+          <h3>Why Ad Hoc Editing Breaks Down</h3>
+          <p>The trouble is that this approach doesn't scale with the size of the rule set or the size of the team. Once a program has a few hundred detections maintained by a rotating group of engineers, the ad hoc model starts to fail in predictable ways:</p>
+          <ul>
+            <li>Nobody outside the rule editor's change log (if the platform even keeps one) can tell who changed a piece of logic, when, or why.</li>
+            <li>A tuning change that quietly narrows a rule's coverage can sit unnoticed for months.</li>
+            <li>If an edit breaks something, there's often no clean way to see what the rule looked like before the change, let alone revert to it.</li>
+            <li>The reasoning behind a rule, why it exists, what it's meant to catch, why a particular exclusion was added, lives only in the head of whoever wrote it. When that person moves teams or leaves, the reasoning leaves with them.</li>
+          </ul>
+          <h3>What Detection-as-Code Means</h3>
           <p>Detection-as-code is the name for treating every detection rule the way a software team treats a piece of source code: stored in a repository, changed through a defined process, reviewed by a second person, tested before it ships, and reversible if it turns out to be wrong. None of the individual pieces are exotic. What changes is that they're applied consistently, as policy, rather than left to whichever engineer happens to be disciplined that week.</p>
           <div class="callout-info"><strong>Note:</strong> Detection-as-code is a practice, not a specific product. It can be implemented with a SIEM's native rule format, with a portable format like Sigma, or with a mix of both, as long as the underlying logic lives in a version-controlled repository rather than only inside a vendor console.</div>
         </section>
 
         <section class="content-section" id="version-control">
           <h2>Version Control for Detections</h2>
+          <h3>How Version Control Works Here</h3>
           <p>The foundation of detection-as-code is storing detection logic in a git repository instead of, or in addition to, a SIEM's built-in editor. This applies whether the logic is written natively in something like KQL or SPL, or expressed in a portable format like Sigma YAML that gets translated into a target platform's syntax at deployment time. The rule file itself might be short: a query, a title, a description, some metadata. What matters is that it lives as a tracked file alongside every other detection, with its full change history attached.</p>
-          <p>Three benefits fall out of this almost immediately. First, every change to a detection carries a commit: who made it, when, and, if commit messages are written with any care, why. A tuning change that added an exclusion six months ago is no longer a mystery; it's a line in `git log` with a message explaining the false-positive source it was written to address. Second, changes can be developed and tested on a branch before they ever touch the production rule. An engineer can propose a new detection or a modification to an existing one without any risk to what's currently running, because the change doesn't take effect until it's merged. Third, and often the most immediately useful in practice, rollback becomes trivial. If a deployed change turns out to be too noisy or, worse, silently breaks coverage, reverting to the last known-good version is a matter of checking out an earlier commit rather than trying to reconstruct what the rule used to say from memory or screenshots.</p>
-          <h3>What goes into the repository</h3>
+          <h3>Three Benefits</h3>
+          <p>Three benefits fall out of this almost immediately:</p>
+          <ul>
+            <li><strong>First,</strong> every change to a detection carries a commit: who made it, when, and, if commit messages are written with any care, why. A tuning change that added an exclusion six months ago is no longer a mystery; it's a line in `git log` with a message explaining the false-positive source it was written to address.</li>
+            <li><strong>Second,</strong> changes can be developed and tested on a branch before they ever touch the production rule. An engineer can propose a new detection or a modification to an existing one without any risk to what's currently running, because the change doesn't take effect until it's merged.</li>
+            <li><strong>Third,</strong> and often the most immediately useful in practice, rollback becomes trivial. If a deployed change turns out to be too noisy or, worse, silently breaks coverage, reverting to the last known-good version is a matter of checking out an earlier commit rather than trying to reconstruct what the rule used to say from memory or screenshots.</li>
+          </ul>
+          <h3>What Goes Into the Repository</h3>
           <p>A detection-as-code repository typically holds more than the raw query. Each rule's file, or an accompanying metadata block, usually carries the ATT&CK mapping from chapter 3, a short statement of the hypothesis the rule is built on, and enough context that someone unfamiliar with the rule can understand its intent without asking the original author. That context is what turns "a folder full of queries" into an actual maintainable system.</p>
         </section>
 
         <section class="content-section" id="peer-review">
           <h2>Peer Review Before Deployment</h2>
           <p>Version control on its own only gets a detection program part of the way there. The other piece is peer review: a second engineer looking at a proposed detection, or a proposed change to an existing one, before it merges into the branch that feeds production. This follows the same pull request or merge request pattern that's standard in software development, applied to detection logic instead of application code.</p>
+          <h3>The Review Checklist</h3>
           <p>A good detection review isn't a rubber stamp. There's a specific, fairly consistent set of things a reviewer should be checking:</p>
           <ul>
             <li>Does the logic actually match the stated hypothesis and the ATT&CK technique it claims to map to (chapter 3)? It's easy for a query to drift from its original intent during iteration, catching something adjacent to the hypothesis rather than the hypothesis itself.</li>
@@ -143,6 +159,7 @@
             <li>Is the expected false-positive rate reasonable for the environment the rule will run in, and has the author accounted for the noisy legitimate activity that's likely to trigger it?</li>
             <li>Is the rule documented well enough that someone other than the author could maintain it later: understand what it does, why it exists, and what to check first if it starts misbehaving?</li>
           </ul>
+          <h3>Beyond the Checklist</h3>
           <p>The review step also does something less obvious but just as valuable: it spreads ownership. A detection that only one person has ever looked at is a detection only one person can confidently change. A detection that's been through review has at least two people who understand it, which matters enormously the first time that rule needs an urgent fix and its original author is unavailable.</p>
         </section>
 
@@ -150,6 +167,7 @@
           <h2>Automated Testing Pipelines</h2>
           <p>Chapter 4 covered backtesting and atomic testing as things an engineer does by hand when validating a detection before deployment. In a detection-as-code workflow, those same tests can be wired into a CI/CD-style pipeline, similar in shape to the kind GitHub Actions or GitLab CI provide for application code, so they run automatically every time a change is proposed rather than only when someone remembers to run them.</p>
           <p>The value of automating this isn't that it replaces human judgment, it's that it catches regressions consistently and immediately. A manual test that an engineer is supposed to run before every change is a test that will, sooner or later, get skipped under deadline pressure. An automated pipeline runs the same backtest and atomic test suite every single time, without needing anyone to remember, and flags a failure before a human reviewer even opens the pull request.</p>
+          <h3>The Pipeline</h3>
           <div class="process-flow">
             <div class="flow-step">
               <span class="flow-step-num">1</span>
@@ -181,6 +199,7 @@
               <div class="flow-step-desc">Pipeline pushes the merged rule to the live detection platform.</div>
             </div>
           </div>
+          <h3>Where Pipelines Stall</h3>
           <p>Where a pipeline stalls, the reason is usually infrastructure, not intent: getting a representative test data set wired into the pipeline, or building an atomic test harness that can run unattended. Those are worth the setup cost. A pipeline that only runs tests when someone remembers to trigger them manually is barely better than no pipeline at all.</p>
         </section>
 
@@ -203,9 +222,20 @@
 
         <section class="content-section" id="deprecation-and-retirement">
           <h2>Deprecation and Retirement as Part of the Lifecycle</h2>
-          <p>A detection's lifecycle doesn't end when it stops being useful, it ends when it's deliberately removed. That distinction matters more than it sounds like it should. Detections that quietly stop mattering, because the technology they targeted was retired, or the technique they covered was superseded by something else, tend to just sit in production indefinitely. Nobody actively decides to keep them; they're simply never actively removed. Over time a rule set accumulates dead weight: detections that consume review and maintenance attention without contributing meaningful coverage, and in some cases detections whose false-positive load costs analyst time for no corresponding benefit.</p>
-          <p>A mature detection-as-code practice treats retirement with the same rigor as deployment. Deprecating a rule goes through the same pull request and review pattern as adding one: someone proposes the removal, states the reasoning, and a reviewer confirms the rule really is redundant or obsolete before it comes out. The removal itself gets documented in the same change history that tracked the rule's life, so if a question comes up later about why a given detection no longer exists, the answer is on record rather than left to memory.</p>
-          <p>Just as importantly, retiring a detection should trigger a look back at the ATT&CK coverage mapping from chapter 6. If the rule being removed was the only coverage for a given technique, that removal opens a coverage gap, and someone needs to own the decision about whether that gap gets backfilled with a replacement detection or accepted as a known limitation. Retirement handled this way keeps the rule set honest: what's running in production is what the team actually intends to be running, not an accumulation of history nobody has the context to clean up.</p>
+          <p>A detection's lifecycle doesn't end when it stops being useful, it ends when it's deliberately removed. That distinction matters more than it sounds like it should.</p>
+          <h3>Why Dead Rules Accumulate</h3>
+          <p>Detections that quietly stop mattering, because the technology they targeted was retired, or the technique they covered was superseded by something else, tend to just sit in production indefinitely. Nobody actively decides to keep them; they're simply never actively removed.</p>
+          <p>Over time a rule set accumulates dead weight: detections that consume review and maintenance attention without contributing meaningful coverage, and in some cases detections whose false-positive load costs analyst time for no corresponding benefit.</p>
+          <h3>Deliberate Removal</h3>
+          <p>A mature detection-as-code practice treats retirement with the same rigor as deployment. Deprecating a rule goes through the same pull request and review pattern as adding one:</p>
+          <ul>
+            <li>Someone proposes the removal and states the reasoning.</li>
+            <li>A reviewer confirms the rule really is redundant or obsolete before it comes out.</li>
+            <li>The removal itself gets documented in the same change history that tracked the rule's life, so if a question comes up later about why a given detection no longer exists, the answer is on record rather than left to memory.</li>
+          </ul>
+          <h3>Checking for Coverage Gaps</h3>
+          <p>Just as importantly, retiring a detection should trigger a look back at the ATT&CK coverage mapping from chapter 6. If the rule being removed was the only coverage for a given technique, that removal opens a coverage gap, and someone needs to own the decision about whether that gap gets backfilled with a replacement detection or accepted as a known limitation.</p>
+          <p>Retirement handled this way keeps the rule set honest: what's running in production is what the team actually intends to be running, not an accumulation of history nobody has the context to clean up.</p>
         </section>
 
         <div class="chapter-summary">

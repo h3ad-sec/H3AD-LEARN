@@ -121,8 +121,16 @@
 
         <section class="content-section" id="what-soar-adds">
           <h2>What SOAR Adds on Top of a SIEM</h2>
-          <p>Security Orchestration, Automation, and Response is really three distinct capabilities bundled under one acronym, and it helps to pull them apart before talking about the platforms that implement them. Orchestration is the connective tissue: a SOAR platform integrates with the SIEM, the EDR, the identity provider, the ticketing system, and threat intel sources, so that one tool can read from and act on all of them instead of an analyst tabbing between six consoles. Automation is what runs inside that connective tissue: predefined steps that execute without a human clicking through each one, from a simple IOC lookup to a multi-stage containment sequence. Response is the case management layer that ties automated and manual work together into a single record: what fired, what ran, what a human decided, and how the case closed.</p>
+          <p>Security Orchestration, Automation, and Response is really three distinct capabilities bundled under one acronym, and it helps to pull them apart before talking about the platforms that implement them.</p>
+          <div class="callout-info"><strong>Three capabilities, one acronym:</strong>
+            <ul>
+              <li><strong>Orchestration</strong> is the connective tissue: a SOAR platform integrates with the SIEM, the EDR, the identity provider, the ticketing system, and threat intel sources, so that one tool can read from and act on all of them instead of an analyst tabbing between six consoles.</li>
+              <li><strong>Automation</strong> is what runs inside that connective tissue: predefined steps that execute without a human clicking through each one, from a simple IOC lookup to a multi-stage containment sequence.</li>
+              <li><strong>Response</strong> is the case management layer that ties automated and manual work together into a single record: what fired, what ran, what a human decided, and how the case closed.</li>
+            </ul>
+          </div>
           <p>None of those three capabilities is new on its own. Analysts have always pulled threat intel, opened tickets, and written up incidents. What SOAR changes is that these steps become defined, repeatable, and (where appropriate) automatic, instead of living in an analyst's head or a wiki page nobody updates. The practical effect on a SOC's day-to-day work is fewer manual, low-judgment steps and more time spent on the decisions that actually require a person.</p>
+          <h3>SIEM vs. SOAR at a Glance</h3>
           <div class="table-wrap">
             <table>
               <thead>
@@ -137,6 +145,7 @@
               </tbody>
             </table>
           </div>
+          <h3>SOAR Doesn't Replace the SIEM</h3>
           <p>It's worth being precise about the relationship: SOAR does not replace a SIEM, and it is not a competing detection engine. It consumes the SIEM's output as its primary trigger and extends the SOC's reach past detection into the response side of the workflow. A SOC without a SOAR platform still does all three of orchestration, automation, and response; it just does them manually, through an analyst copying an IP address between four browser tabs.</p>
           <div class="callout-info"><strong>Note:</strong> Not every SOC runs a dedicated SOAR product. Smaller teams sometimes build a lightweight equivalent out of scripts, scheduled tasks, and a ticketing system's webhook rules. The label matters less than the underlying discipline: predefined, repeatable, documented response steps instead of ad hoc actions re-invented on every shift.</div>
         </section>
@@ -175,8 +184,11 @@
               <div class="flow-step-desc">The case record is updated, relevant people are notified, and the outcome is logged for later review.</div>
             </div>
           </div>
+          <h3>Trigger Scope</h3>
           <p>The trigger stage is where scope gets defined. A playbook can be tied to a single alert rule, a category of alerts, or a broader condition such as "any alert tagged credential access above a certain severity." Overly broad triggers cause playbooks to run against alerts they were never really designed for, so trigger conditions deserve the same care as the detection logic that fires them.</p>
+          <h3>Enrichment: The Easy Win</h3>
           <p>Enrichment is usually the highest-value, lowest-risk stage, which is why it's almost always the first thing SOCs automate. Pulling an IOC's reputation score, checking whether a user account has flagged activity elsewhere, or looking up whether an asset is a Tier 0 server takes an analyst a few minutes of manual work per alert; a playbook does it in seconds, every time, without forgetting a step.</p>
+          <h3>The Decision Point</h3>
           <p>The decision point is where a playbook's design intent shows up most clearly. Some decision points are pure logic: if the reputation score crosses a threshold, branch one way, otherwise branch another. Others explicitly route to a human: presenting the enriched context to an analyst and waiting for a judgment call before anything happens. Which pattern is correct depends heavily on what the downstream action is, which is the subject of the next section.</p>
           <div class="callout-info"><strong>Note:</strong> A playbook that only automates enrichment and stops at the decision point, handing everything off to an analyst from there, is still a meaningful automation win. Full end-to-end automation through the action stage is not the only useful outcome; it's simply the more advanced one.</div>
         </section>
@@ -197,7 +209,9 @@
               </tbody>
             </table>
           </div>
+          <h3>Orchestration Is Not Automation</h3>
           <p>Orchestration and automation are not the same thing, even though most SOAR marketing treats them as a package deal. A platform can orchestrate (connect to five tools) without automating much of anything, if every step still requires a human to click "run." Conversely, a single automated action, like an enrichment lookup, doesn't require much orchestration at all if it only touches one external source. Most real SOAR deployments do both at once, but keeping the distinction clear helps when troubleshooting: "the integration is broken" (orchestration) is a different problem from "the playbook logic made the wrong call" (automation).</p>
+          <h3>Where to Draw the Approval Line</h3>
           <p>The more consequential decision is where to draw the human-in-the-loop line, and that decision should track directly against two properties of the action: how confident the playbook can be that the action is correct, and how easily the action can be reversed if it turns out to be wrong.</p>
           <p>Low-risk, high-confidence, reversible actions are good candidates for full automation. An enrichment lookup doesn't change anything in the environment; it only gathers information, so even a wrong or irrelevant result costs a few seconds of wasted context, not an outage. Adding an IOC to a watchlist, tagging a case with additional metadata, or opening a ticket are similarly low-stakes: easy to undo, and the downside of a mistake is small.</p>
           <p>High-impact, hard-to-reverse actions belong behind a human approval gate. Disabling a user account, isolating a host from the network, or blocking a wide network range all have real operational cost if triggered on a false positive: a legitimate user locked out mid-task, a production server pulled offline, a supplier's traffic silently dropped. These actions are exactly the ones where a thirty-second human sanity check, "does this match what I'd expect from a real incident," prevents a much larger cleanup effort later.</p>
@@ -207,9 +221,18 @@
         <section class="content-section" id="enrichment-patterns">
           <h2>Common Enrichment Patterns</h2>
           <p>Enrichment is where most SOAR programs deliver their earliest and most consistent return, because the actions involved are read-only, fast, and directly reduce the manual work an L1 analyst would otherwise repeat on every alert. A few patterns show up across nearly every SOC that has built out automation, regardless of which platform they run.</p>
-          <p><strong>IOC reputation lookups.</strong> The moment an alert contains an IP address, domain, file hash, or URL, a playbook can automatically check that indicator against threat intelligence sources and attach the result to the case before an analyst even opens it. Instead of an analyst manually pasting an indicator into three different lookup tools, the context is already sitting in the alert when they start working it.</p>
-          <p><strong>User and asset context pulls.</strong> An alert that names a username or a hostname is more useful once it's paired with who that user is (department, manager, whether they're currently traveling or on leave, recent HR flags if the SOC has visibility into that) and what that asset is (server role, criticality tier, patch status, normal login pattern). Pulling this context automatically turns a bare username into something an analyst can actually triage against, rather than a string they have to go look up manually.</p>
-          <p><strong>Related-alert correlation.</strong> A single alert rarely tells the whole story. A playbook can automatically query the SIEM for other alerts involving the same user, host, or indicator within a defined time window, surfacing a pattern (five failed logins followed by a success, followed by unusual data access) that would otherwise require an analyst to notice the connection themselves across separate alert tickets.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Pattern</th><th>What It Does</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>IOC reputation lookups</td><td>The moment an alert contains an IP address, domain, file hash, or URL, a playbook can automatically check that indicator against threat intelligence sources and attach the result to the case before an analyst even opens it. Instead of an analyst manually pasting an indicator into three different lookup tools, the context is already sitting in the alert when they start working it.</td></tr>
+                <tr><td>User and asset context pulls</td><td>An alert that names a username or a hostname is more useful once it's paired with who that user is (department, manager, whether they're currently traveling or on leave, recent HR flags if the SOC has visibility into that) and what that asset is (server role, criticality tier, patch status, normal login pattern). Pulling this context automatically turns a bare username into something an analyst can actually triage against, rather than a string they have to go look up manually.</td></tr>
+                <tr><td>Related-alert correlation</td><td>A single alert rarely tells the whole story. A playbook can automatically query the SIEM for other alerts involving the same user, host, or indicator within a defined time window, surfacing a pattern (five failed logins followed by a success, followed by unusual data access) that would otherwise require an analyst to notice the connection themselves across separate alert tickets.</td></tr>
+              </tbody>
+            </table>
+          </div>
           <p>What these patterns have in common is that they don't change anything in the environment. They gather and assemble information that already exists, just faster and more consistently than a person clicking through consoles. That's precisely why enrichment is the natural first automation target for a SOC building out a SOAR program: the upside is real and the downside of a bad enrichment result is close to zero.</p>
           <div class="callout-info"><strong>Note:</strong> Enrichment automation is most valuable when its output is easy for an analyst to scan quickly. A playbook that dumps ten paragraphs of raw API responses into a case note isn't actually saving anyone time; it's just relocating the reading burden. Good enrichment design summarizes and highlights what changed the analyst's picture of the alert, not everything the integration was capable of returning.</div>
         </section>
@@ -218,10 +241,30 @@
           <h2>The Risk of Over-Automation</h2>
           <p>Automation doesn't just speed up correct decisions. It speeds up wrong ones too, and it does so consistently, at machine speed, without the natural hesitation a person feels before taking an action they're not fully sure about. A single low-confidence alert that would have taken an analyst a few minutes to reason through and probably dismiss can, if it's wired into a fully automated response chain, trigger a real action against production infrastructure before anyone has looked at it.</p>
           <div class="callout-warning"><strong>Warning:</strong> An automated playbook that isolates a host based on a single alert with no correlation or human review can turn a false positive into an actual outage. If that host happens to be a critical server, the SOC has now caused the exact kind of business disruption it exists to prevent, and it did so faster and with less oversight than a human ever would have.</div>
+          <h3>Blast Radius</h3>
           <p>The core discipline here is thinking in terms of blast radius: not just "is this action reversible," but "how much of the business does this action touch if it fires on bad data." Blocking a single low-reputation IP has a small blast radius. Disabling an account used by one person has a moderate one. Isolating a shared file server or a domain controller has a large one, because the fallout extends to everyone who depends on that system, not just the account or host the alert named.</p>
           <p>The same logic that governs where to put a human approval gate applies here and should scale with blast radius: the wider the potential fallout, the more scrutiny an action deserves before it runs, and the more conservative the confidence threshold should be before automation is trusted to pull that trigger alone.</p>
-          <p>The practical way SOCs manage this risk is a staged rollout of automation, rather than flipping a playbook straight to full automatic on day one. A new playbook typically starts in notify-only mode: it runs its enrichment and decision logic, but instead of taking the response action, it simply tells an analyst what it would have done. This lets the team observe how the playbook behaves against real alert volume, catch logic errors or over-broad triggers, and build confidence in its accuracy without any risk of a wrong action actually executing.</p>
-          <p>Once a playbook has proven reliable in notify-only mode, it can graduate to approval-gated automation: the enrichment and decision steps still run automatically, but the final action waits for a human to click approve, as described in the human-in-the-loop pattern earlier in this chapter. Only after a playbook has a track record of correct recommendations at that stage, ideally across a meaningful volume of real alerts and enough time to catch edge cases, does it make sense to move it to full automation for the narrow set of actions that are genuinely low-risk and high-confidence.</p>
+          <h3>Staged Rollout</h3>
+          <p>The practical way SOCs manage this risk is a staged rollout of automation, rather than flipping a playbook straight to full automatic on day one.</p>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Notify-Only Mode</div>
+              <div class="flow-step-desc">A new playbook runs its enrichment and decision logic, but instead of taking the response action, it simply tells an analyst what it would have done. This lets the team observe how the playbook behaves against real alert volume, catch logic errors or over-broad triggers, and build confidence in its accuracy without any risk of a wrong action actually executing.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Approval-Gated Automation</div>
+              <div class="flow-step-desc">Once a playbook has proven reliable in notify-only mode, it can graduate here: the enrichment and decision steps still run automatically, but the final action waits for a human to click approve, as described in the human-in-the-loop pattern earlier in this chapter.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Full Automation</div>
+              <div class="flow-step-desc">Only after a playbook has a track record of correct recommendations at the approval-gated stage, ideally across a meaningful volume of real alerts and enough time to catch edge cases, does it make sense to move it here, for the narrow set of actions that are genuinely low-risk and high-confidence.</div>
+            </div>
+          </div>
           <p>Skipping stages is the most common cause of an automation program losing the SOC's trust. One bad outcome from a playbook that went straight to full automation, especially one with a wide blast radius, tends to set the whole automation initiative back further than a slower, staged rollout ever would have cost in lost time.</p>
         </section>
 

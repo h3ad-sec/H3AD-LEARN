@@ -157,7 +157,9 @@
             </div>
           </div>
 
-          <p>Two things about this flow matter more than the stage names themselves. First, most alerts never make it past stage 2. A well-tuned detection stack still produces a majority of alerts that triage resolves in a couple of minutes, either because the activity is clearly benign or because a quick check against known-good behavior settles the question. Only a minority need the deeper work of stage 3. Second, the flow isn't strictly one-directional in practice. An analyst mid-investigation frequently discovers something that changes the original severity assessment, sending the alert back through a re-triage before moving forward again. Treat the lifecycle as the shape of the work, not a rigid checklist that has to be followed in lockstep every time.</p>
+          <p>Two things about this flow matter more than the stage names themselves. First, most alerts never make it past stage 2. A well-tuned detection stack still produces a majority of alerts that triage resolves in a couple of minutes, either because the activity is clearly benign or because a quick check against known-good behavior settles the question. Only a minority need the deeper work of stage 3.</p>
+
+          <p>Second, the flow isn't strictly one-directional in practice. An analyst mid-investigation frequently discovers something that changes the original severity assessment, sending the alert back through a re-triage before moving forward again. Treat the lifecycle as the shape of the work, not a rigid checklist that has to be followed in lockstep every time.</p>
 
           <div class="callout-info">
             <strong>Note:</strong> "Raise" doesn't always mean an automated detection rule. User-reported phishing, a manager flagging unusual account behavior, or a finding handed off from a vulnerability scan can all enter the same queue at the same stage. The triage process that follows doesn't change based on where the alert came from, only how much pre-existing context ships with it.
@@ -168,7 +170,9 @@
           <h2>Severity vs Priority</h2>
           <p>New analysts often use "severity" and "priority" interchangeably, and most ticketing tools don't help by exposing both as similar-looking dropdown fields. They measure different things, and conflating them is one of the more common ways a queue ends up worked in the wrong order.</p>
 
-          <p>Severity describes potential impact if the alert turns out to represent something real. It's a property of the activity itself, largely independent of where it happened. A detection for credential dumping tooling is high severity whether it fires on a developer's laptop or a domain controller, because the technique itself is dangerous if confirmed. Priority describes how urgently the alert needs analyst attention right now, and that depends on more than the activity alone: what asset it touched, how confident the detection is, and what else is already sitting in the queue.</p>
+          <p>Severity describes potential impact if the alert turns out to represent something real. It's a property of the activity itself, largely independent of where it happened. A detection for credential dumping tooling is high severity whether it fires on a developer's laptop or a domain controller, because the technique itself is dangerous if confirmed.</p>
+
+          <p>Priority describes how urgently the alert needs analyst attention right now, and that depends on more than the activity alone: what asset it touched, how confident the detection is, and what else is already sitting in the queue.</p>
 
           <div class="table-wrap">
             <table>
@@ -186,7 +190,9 @@
             </table>
           </div>
 
-          <p>The practical takeaway is that severity is a reasonable starting point for sorting a queue, but it shouldn't be the only input. A mature SOC layers asset criticality and detection confidence on top of the raw severity label to arrive at an actual working order, sometimes through a risk-based scoring model that produces a single priority number, sometimes through analyst judgment applied at triage time. Either way, treating severity as a stand-in for priority means a low-severity alert on a domain controller can sit in the queue behind a high-severity alert on a machine that doesn't matter, which is exactly backwards from where analyst attention should go first.</p>
+          <p>The practical takeaway is that severity is a reasonable starting point for sorting a queue, but it shouldn't be the only input. A mature SOC layers asset criticality and detection confidence on top of the raw severity label to arrive at an actual working order, sometimes through a risk-based scoring model that produces a single priority number, sometimes through analyst judgment applied at triage time.</p>
+
+          <p>Either way, treating severity as a stand-in for priority means a low-severity alert on a domain controller can sit in the queue behind a high-severity alert on a machine that doesn't matter, which is exactly backwards from where analyst attention should go first.</p>
         </section>
 
         <section class="content-section" id="alert-fatigue">
@@ -194,10 +200,30 @@
           <p>Alert fatigue is the gradual erosion of an analyst's attention and judgment that comes from working a queue that's too large, too repetitive, or too low-fidelity for too long. It isn't a character flaw or a sign an analyst isn't trying hard enough. It's a predictable outcome of specific, identifiable conditions in how a detection stack is built and tuned.</p>
 
           <h3>What Causes It</h3>
-          <p>High alert volume is the most obvious driver: when a queue produces far more alerts than a team can reasonably work in a shift, something has to give, and it's usually the depth of attention each alert receives. Low-fidelity detection rules compound the problem, rules written broadly enough to catch a technique end up also catching a wide range of benign activity that happens to look similar on the surface. Duplicate and near-duplicate alerts add volume without adding information, the same underlying event triggering multiple rules, or the same behavior repeating across many hosts in a way that generates one alert per host instead of one alert for the pattern. Poor tuning ties all of these together: a rule shipped once and never revisited accumulates false positives as the environment changes around it, and nobody goes back to adjust it because the team is too busy working the queue that rule keeps filling.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Cause</th><th>Why It Happens</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>High alert volume</td><td>The most obvious driver: when a queue produces far more alerts than a team can reasonably work in a shift, something has to give, and it's usually the depth of attention each alert receives.</td></tr>
+                <tr><td>Low-fidelity detection rules</td><td>Compound the problem: rules written broadly enough to catch a technique end up also catching a wide range of benign activity that happens to look similar on the surface.</td></tr>
+                <tr><td>Duplicate and near-duplicate alerts</td><td>Add volume without adding information: the same underlying event triggering multiple rules, or the same behavior repeating across many hosts in a way that generates one alert per host instead of one alert for the pattern.</td></tr>
+                <tr><td>Poor tuning</td><td>Ties all of these together: a rule shipped once and never revisited accumulates false positives as the environment changes around it, and nobody goes back to adjust it because the team is too busy working the queue that rule keeps filling.</td></tr>
+              </tbody>
+            </table>
+          </div>
 
           <h3>What Fights It</h3>
-          <p>Tuning thresholds directly addresses low-fidelity rules by adjusting the conditions that trigger an alert until the ratio of true positives to noise improves, sometimes by adding a second condition that has to be true at the same time, sometimes by narrowing the scope of what the rule watches. Deduplication and grouping addresses volume from repetition by collapsing near-identical alerts into a single item an analyst works once, rather than working the same underlying event a dozen times under a dozen different ticket numbers. Suppression windows handle known, expected noise, a scheduled task that always looks unusual to a rule but runs on a predictable schedule can be suppressed during that window without disabling the rule entirely. Risk-based alerting shifts the whole approach further upstream: instead of generating a full alert for every rule match, a scoring model accumulates risk across multiple weaker signals and only surfaces an alert once the combined score crosses a threshold, which tends to produce fewer, better-supported alerts than a system built on rules firing independently.</p>
+          <div class="callout-info">
+            <strong>Countermeasures:</strong>
+            <ul>
+              <li><strong>Tuning thresholds</strong>: directly addresses low-fidelity rules by adjusting the conditions that trigger an alert until the ratio of true positives to noise improves, sometimes by adding a second condition that has to be true at the same time, sometimes by narrowing the scope of what the rule watches.</li>
+              <li><strong>Deduplication and grouping</strong>: addresses volume from repetition by collapsing near-identical alerts into a single item an analyst works once, rather than working the same underlying event a dozen times under a dozen different ticket numbers.</li>
+              <li><strong>Suppression windows</strong>: handle known, expected noise. A scheduled task that always looks unusual to a rule but runs on a predictable schedule can be suppressed during that window without disabling the rule entirely.</li>
+              <li><strong>Risk-based alerting</strong>: shifts the whole approach further upstream. Instead of generating a full alert for every rule match, a scoring model accumulates risk across multiple weaker signals and only surfaces an alert once the combined score crosses a threshold, which tends to produce fewer, better-supported alerts than a system built on rules firing independently.</li>
+            </ul>
+          </div>
 
           <div class="callout-warning">
             <strong>Warning:</strong> The real cost of alert fatigue isn't just analyst burnout, though that's real too. It's that a genuine true positive, sitting in a queue full of look-alike noise, gets the same rushed, pattern-matched glance as everything around it and gets closed without the scrutiny it needed. A SOC that measures itself only on how fast the queue empties can look efficient right up until the alert that mattered most gets processed exactly like the ninety-nine that didn't.
@@ -219,7 +245,9 @@
             </ul>
           </div>
 
-          <p>The distinction between false positive and benign true positive is the one analysts new to triage most often blur, and it's worth sitting with. A false positive means the detection got something wrong, the logic matched activity it wasn't designed to catch, which is a signal that the rule itself needs tuning. A benign true positive means the detection worked exactly as designed and caught exactly the behavior it looks for, but that behavior happens to be legitimate in this instance. That's not a rule problem, it's usually a context problem, solved by adding an allowlist entry, a suppression window, or better asset and user baseline data rather than by rewriting the detection logic. Recording a BTP as an FP (or the reverse) sends detection engineering effort in the wrong direction.</p>
+          <p>The distinction between false positive and benign true positive is the one analysts new to triage most often blur, and it's worth sitting with. A false positive means the detection got something wrong, the logic matched activity it wasn't designed to catch, which is a signal that the rule itself needs tuning.</p>
+
+          <p>A benign true positive means the detection worked exactly as designed and caught exactly the behavior it looks for, but that behavior happens to be legitimate in this instance. That's not a rule problem, it's usually a context problem, solved by adding an allowlist entry, a suppression window, or better asset and user baseline data rather than by rewriting the detection logic. Recording a BTP as an FP (or the reverse) sends detection engineering effort in the wrong direction.</p>
         </section>
 
         <section class="content-section" id="triage-runbook-walkthrough">
@@ -241,7 +269,9 @@
             </table>
           </div>
 
-          <p>Notice how much of this sequence is about pulling in outside context rather than staring harder at the original alert. The alert itself is a starting point, a claim that something happened. Steps 2 and 3 are where triage actually earns its name, sorting a large field of possible explanations down to the handful that fit the evidence. An analyst who skips straight from step 1 to step 4 is guessing, not triaging, and guessing at scale is exactly the pattern that erodes queue quality over time, feeding the same fatigue dynamics covered earlier in this chapter.</p>
+          <p>Notice how much of this sequence is about pulling in outside context rather than staring harder at the original alert. The alert itself is a starting point, a claim that something happened. Steps 2 and 3 are where triage actually earns its name, sorting a large field of possible explanations down to the handful that fit the evidence.</p>
+
+          <p>An analyst who skips straight from step 1 to step 4 is guessing, not triaging, and guessing at scale is exactly the pattern that erodes queue quality over time, feeding the same fatigue dynamics covered earlier in this chapter.</p>
 
           <div class="callout-tip">
             <strong>Tip:</strong> Documentation at step 5 isn't busywork. A closed alert with a clear, specific reasoning trail is what lets a detection engineer spot a pattern across dozens of similar closures and tune the rule, and it's what lets the next analyst who sees a similar alert move faster because the reasoning already exists. A ticket closed with a one-word disposition and nothing else throws that value away.

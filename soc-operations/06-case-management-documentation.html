@@ -156,13 +156,27 @@
           <p>It's tempting to treat ticket notes as a formality you fill in after the real work, the investigation itself, is done. That framing undersells what documentation actually does for a SOC. Three separate functions depend on it, and each one fails quietly, not loudly, when notes are thin.</p>
 
           <h3>Audit Trail</h3>
-          <p>Every closed ticket is potential evidence that something was looked at and handled appropriately. If a regulator, an auditor, or legal counsel later asks "what did the SOC know about this activity, and when," the ticket is the answer. A case with a vague note and no timestamp doesn't just look sloppy in that review, it may be legally indefensible, because there is no record showing due diligence was actually performed. This matters even for tickets that turn out to be nothing: a well-documented false positive proves the SOC evaluated the signal and reached a reasoned conclusion, rather than simply ignoring it.</p>
+          <p>Every closed ticket is potential evidence that something was looked at and handled appropriately. If a regulator, an auditor, or legal counsel later asks "what did the SOC know about this activity, and when," the ticket is the answer. A case with a vague note and no timestamp doesn't just look sloppy in that review, it may be legally indefensible, because there is no record showing due diligence was actually performed.</p>
+          <p>This matters even for tickets that turn out to be nothing: a well-documented false positive proves the SOC evaluated the signal and reached a reasoned conclusion, rather than simply ignoring it.</p>
 
           <h3>Knowledge Transfer</h3>
-          <p>The analyst who opens a similar alert six months from now, quite possibly you, needs to know whether this exact pattern has come up before and how it was resolved. Without a searchable, readable case history, every recurrence gets re-investigated from scratch, which wastes time and risks a different analyst reaching a different, inconsistent conclusion on what is effectively the same activity. This is also what makes handoffs between shifts work: an analyst picking up a case mid-investigation at a shift change should be able to read the notes and continue the work without a live briefing.</p>
+          <p>The analyst who opens a similar alert six months from now, quite possibly you, needs to know whether this exact pattern has come up before and how it was resolved. Without a searchable, readable case history, every recurrence gets re-investigated from scratch, which wastes time and risks a different analyst reaching a different, inconsistent conclusion on what is effectively the same activity.</p>
+          <p>This is also what makes handoffs between shifts work: an analyst picking up a case mid-investigation at a shift change should be able to read the notes and continue the work without a live briefing.</p>
 
           <h3>Metrics Input</h3>
-          <p>Chapter 7 covers SOC metrics and KPIs in detail, but the short version is that every one of those numbers, mean time to respond, false positive rate, dwell time, disposition breakdown by alert type, is computed from ticket data. If analysts close tickets with inconsistent or missing fields, the metrics built on top of that data are wrong, and a SOC manager making staffing or tuning decisions off wrong metrics is making decisions off bad information without realizing it. Documentation discipline at the individual ticket level is the foundation the entire measurement layer of the SOC sits on.</p>
+          <p>Chapter 7 covers SOC metrics and KPIs in detail, but the short version is that every one of those numbers is computed from ticket data:</p>
+
+          <div class="callout-info">
+            <strong>Metrics that depend on ticket data:</strong>
+            <ul>
+              <li>Mean time to respond</li>
+              <li>False positive rate</li>
+              <li>Dwell time</li>
+              <li>Disposition breakdown by alert type</li>
+            </ul>
+          </div>
+
+          <p>If analysts close tickets with inconsistent or missing fields, the metrics built on top of that data are wrong, and a SOC manager making staffing or tuning decisions off wrong metrics is making decisions off bad information without realizing it. Documentation discipline at the individual ticket level is the foundation the entire measurement layer of the SOC sits on.</p>
 
           <div class="callout-info"><strong>Note:</strong> These three functions pull in the same direction, which is easy to forget in the middle of a busy shift. A note detailed enough to survive an audit is also detailed enough to be useful to the next analyst, and specific enough to feed accurate metrics. Writing one good note satisfies all three purposes at once; writing a lazy one fails all three at once.</div>
         </section>
@@ -205,7 +219,8 @@
             </table>
           </div>
 
-          <p>The specific state names and workflow steps vary by platform and by how a given SOC has configured its queues, but the shape is the same everywhere: a ticket moves from unclaimed, to owned, to actively worked, to a reasoned conclusion, to a finalized record. Skipping states, jumping straight from New to Closed without ever marking a ticket as Investigating, is usually a sign that the investigation itself was skipped too, not just the state transition.</p>
+          <p>The specific state names and workflow steps vary by platform and by how a given SOC has configured its queues, but the shape is the same everywhere: a ticket moves from unclaimed, to owned, to actively worked, to a reasoned conclusion, to a finalized record.</p>
+          <p>Skipping states, jumping straight from New to Closed without ever marking a ticket as Investigating, is usually a sign that the investigation itself was skipped too, not just the state transition.</p>
 
           <div class="callout-info"><strong>Note:</strong> Ticketing platforms exist specifically to enforce this lifecycle and make it queryable later. A spreadsheet or a chat thread can technically track the same information, but it can't be reliably searched, reported on, or audited months later the way a proper ticketing system can.</div>
         </section>
@@ -226,10 +241,12 @@
             </ul>
           </div>
 
-          <p>Contrast that with a note that reads "looked into it, seems fine." It has no timestamp, no description of what was actually checked, no evidence reference, and no stated reasoning. If that ticket is ever reopened, questioned by an auditor, or referenced by another analyst investigating a related alert, that note is worthless. It technically satisfies the requirement that the ticket have a note, but it satisfies none of the three purposes documentation is supposed to serve.</p>
+          <p>Contrast that with a note that reads "looked into it, seems fine." It has no timestamp, no description of what was actually checked, no evidence reference, and no stated reasoning.</p>
+          <p>If that ticket is ever reopened, questioned by an auditor, or referenced by another analyst investigating a related alert, that note is worthless. It technically satisfies the requirement that the ticket have a note, but it satisfies none of the three purposes documentation is supposed to serve.</p>
 
           <h3>Writing Notes as You Go</h3>
-          <p>The best investigation notes are written incrementally during the investigation, not reconstructed from memory afterward. Working an incident and taking notes at each pivot, this query returned these results, this asset owner confirmed this, keeps the record accurate and saves the end-of-investigation scramble to remember what you actually did an hour ago. It also means that if the investigation gets interrupted, by a higher-priority alert or a shift change, whoever picks it back up has an accurate account of where things stand rather than a half-finished ticket with no context.</p>
+          <p>The best investigation notes are written incrementally during the investigation, not reconstructed from memory afterward. Working an incident and taking notes at each pivot, this query returned these results, this asset owner confirmed this, keeps the record accurate and saves the end-of-investigation scramble to remember what you actually did an hour ago.</p>
+          <p>It also means that if the investigation gets interrupted, by a higher-priority alert or a shift change, whoever picks it back up has an accurate account of where things stand rather than a half-finished ticket with no context.</p>
 
           <div class="callout-info"><strong>Note:</strong> Evidence references matter more than most analysts initially treat them. A note that says "confirmed via EDR" is weaker than one that links the specific EDR search or timeline view used to confirm it. Six months later, "confirmed via EDR" tells a reader nothing about what was actually checked; the linked search shows them exactly.</div>
         </section>
@@ -276,6 +293,7 @@
             </table>
           </div>
 
+          <h3>False Positive vs. Benign True Positive</h3>
           <p>The distinction between False Positive and Benign True Positive is one analysts new to case management often blur, but it matters for tuning decisions downstream. A False Positive suggests the detection logic itself needs adjustment. A Benign True Positive suggests the logic is working correctly and the fix, if any, belongs in an allowlist or exception for a specific known-legitimate source, not in the underlying rule.</p>
 
           <div class="callout-info"><strong>Note:</strong> Disposition codes should be a fixed, controlled list, not a free-text field. If every analyst invents their own wording for the same outcome, the value of having codes at all disappears, because nothing downstream can reliably group or count them.</div>

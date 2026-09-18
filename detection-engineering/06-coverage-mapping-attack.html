@@ -119,16 +119,36 @@
         <section class="content-section" id="why-map-to-attack">
           <h2>Why Map Detections to ATT&CK</h2>
           <p>Individually, a technique mapping is a small piece of metadata. It tells whoever reads a detection's documentation what adversary behavior it's meant to catch, using a shared vocabulary instead of a one-off description that only makes sense to the person who wrote it. That alone is worth doing. But the real payoff shows up when those mappings stop being individual footnotes and start being aggregated.</p>
+          <h3>What Aggregation Makes Possible</h3>
           <p>Once every detection in your environment carries a technique tag, you can ask a question that's almost impossible to answer any other way: across the full breadth of adversary behavior described in ATT&CK, which of it do we actually have eyes on? Not "which of it do we believe we'd catch," which is a question people answer from memory, gut feeling, and whatever incident happened to come up in the last team meeting. An aggregated view answers it from what's actually deployed and actually firing.</p>
-          <p>This distinction matters more than it sounds like it should. Ask an experienced analyst whether the team would detect a particular credential-dumping technique and they'll usually say yes, with real confidence, because they remember writing something related to it eighteen months ago. Whether that detection still exists, still fires, still matches the way the technique is actually executed today, and isn't quietly disabled because it was too noisy: none of that is answered by memory. A coverage matrix built from live mappings answers it directly, because it only counts what's actually there.</p>
+          <h3>Why This Beats Institutional Memory</h3>
+          <p>This distinction matters more than it sounds like it should. Ask an experienced analyst whether the team would detect a particular credential-dumping technique and they'll usually say yes, with real confidence, because they remember writing something related to it eighteen months ago. A coverage matrix built from live mappings answers it directly, because it only counts what's actually there.</p>
+          <div class="callout-info"><strong>What memory alone can't confirm:</strong>
+            <ul>
+              <li>Whether that detection still exists</li>
+              <li>Whether it still fires</li>
+              <li>Whether it still matches the way the technique is actually executed today</li>
+              <li>Whether it hasn't been quietly disabled for being too noisy</li>
+            </ul>
+          </div>
           <div class="callout-info"><strong>Note:</strong> a coverage matrix is a byproduct of good mapping discipline, not a separate project. If mapping detections to techniques as you write them feels like busywork in isolation, this chapter is the reason it isn't: every tag is a data point that makes the aggregate view more accurate.</div>
         </section>
 
         <section class="content-section" id="building-coverage-matrix">
           <h2>Building a Coverage Matrix</h2>
+          <h3>The Basic Grid</h3>
           <p>The basic structure is a grid. One axis lists ATT&CK tactics and the techniques (and sub-techniques) under them. The other axis is your own detection inventory. Where a detection maps to a technique, that cell gets marked. Read down any technique column and you can see, at a glance, whether it has one detection, several, or none at all.</p>
+          <h3>Spreadsheet or ATT&CK Navigator</h3>
           <p>Built by hand in a spreadsheet, this works fine for a modest detection count and is a reasonable way to start: a list of techniques down the side, a column per detection or detection category, and a mark wherever a mapping exists. It's transparent, easy to audit, and doesn't require standing up any new tooling.</p>
-          <p>At larger scale, the tool most teams reach for is the ATT&CK Navigator, a free, publicly available tool built specifically for this. It renders the full ATT&CK matrix as a heat map: you assign each technique a score or a color based on how well it's covered, and the Navigator lays that out visually across the whole matrix, tactic by tactic. It supports layering multiple views (your own coverage, a threat-actor's known technique list, a red team exercise's scope) so you can compare them side by side. The mechanics of producing the underlying scores are the same either way, a spreadsheet or the Navigator is just a different way of visualizing the same data.</p>
+          <p>At larger scale, the tool most teams reach for is the ATT&CK Navigator, a free, publicly available tool built specifically for this. It renders the full ATT&CK matrix as a heat map: you assign each technique a score or a color based on how well it's covered, and the Navigator lays that out visually across the whole matrix, tactic by tactic.</p>
+          <p>The mechanics of producing the underlying scores are the same either way, a spreadsheet or the Navigator is just a different way of visualizing the same data.</p>
+          <div class="callout-info"><strong>Views the Navigator can layer side by side:</strong>
+            <ul>
+              <li>Your own coverage</li>
+              <li>A threat actor's known technique list</li>
+              <li>A red team exercise's scope</li>
+            </ul>
+          </div>
           <h3>What Goes Into a Cell</h3>
           <p>At minimum, a cell needs to record that a mapping exists. In practice, a coverage matrix that stops there is only marginally useful, because it can't distinguish a technique with five overlapping, well-tuned detections from a technique with one narrow rule nobody has looked at since it was written. The next section is about why that distinction is the whole point.</p>
           <div class="table-wrap">
@@ -146,9 +166,14 @@
 
         <section class="content-section" id="coverage-depth-confidence">
           <h2>Coverage Is Not Binary: Depth and Confidence</h2>
-          <p>The most common mistake in coverage mapping is treating "mapped" and "covered" as the same thing. They aren't. A technique in ATT&CK is often a broad category of behavior with several sub-techniques underneath it and, within each sub-technique, a range of tools, commands, and implementation details an adversary could use. A single detection that fires on one specific command-line pattern used by one specific tool can legitimately be mapped to that technique. It is also, on its own, nowhere close to covering everything the technique represents.</p>
-          <p>Command and scripting interpreter abuse (T1059) is a useful example precisely because it's so broad: it spans PowerShell, cmd, bash, Python, and several other interpreters, each with its own sub-technique and its own near-infinite set of ways to invoke something suspicious. A detection tuned to one narrow PowerShell encoding pattern is a real, valid mapping to T1059. It does not mean command-and-scripting-interpreter abuse is "covered" in any meaningful sense, and a matrix that marks that cell the same way it marks a technique defended by three overlapping detections across multiple interpreters and data sources is actively misleading.</p>
-          <p>That's the false confidence this chapter's title warns about: a matrix full of green checkmarks (marked here as "covered," not as a color, since this isn't a color judgment so much as a depth judgment) that looks complete on a dashboard but represents wildly uneven actual protection underneath. Executives and auditors who see a mostly-filled grid will assume mostly-filled means mostly-safe. It doesn't, unless the ratings underneath account for depth.</p>
+          <h3>Mapped Is Not the Same as Covered</h3>
+          <p>The most common mistake in coverage mapping is treating "mapped" and "covered" as the same thing. They aren't. A technique in ATT&CK is often a broad category of behavior with several sub-techniques underneath it and, within each sub-technique, a range of tools, commands, and implementation details an adversary could use.</p>
+          <p>A single detection that fires on one specific command-line pattern used by one specific tool can legitimately be mapped to that technique. It is also, on its own, nowhere close to covering everything the technique represents.</p>
+          <h3>A Concrete Example: T1059</h3>
+          <p>Command and scripting interpreter abuse (T1059) is a useful example precisely because it's so broad: it spans PowerShell, cmd, bash, Python, and several other interpreters, each with its own sub-technique and its own near-infinite set of ways to invoke something suspicious. A detection tuned to one narrow PowerShell encoding pattern is a real, valid mapping to T1059.</p>
+          <p>It does not mean command-and-scripting-interpreter abuse is "covered" in any meaningful sense, and a matrix that marks that cell the same way it marks a technique defended by three overlapping detections across multiple interpreters and data sources is actively misleading.</p>
+          <h3>The False-Confidence Risk</h3>
+          <p>That's the false confidence this chapter's title warns about: a matrix full of checkmarks marked "covered" (a depth judgment, not a color judgment) that looks complete on a dashboard but represents wildly uneven actual protection underneath. Executives and auditors who see a mostly-filled grid will assume mostly-filled means mostly-safe. It doesn't, unless the ratings underneath account for depth.</p>
           <h3>A Simple Depth Scale</h3>
           <p>The fix isn't complicated: rate each covered cell on a small scale instead of just marking it present or absent. A common approach uses three levels.</p>
           <div class="table-wrap">
@@ -169,11 +194,14 @@
           <h2>Finding Real Gaps</h2>
           <p>A finished matrix, even a depth-rated one, is still just an inventory. The point of building it is to decide what to work on next, and a matrix with forty "none" cells doesn't mean forty equally urgent projects. Some gaps matter far more than others, and prioritizing them well depends on weighing a few different factors together rather than picking whichever technique looks most alarming on a given day.</p>
           <h3>Relevance to Your Actual Threat Model</h3>
-          <p>Not every technique in ATT&CK is equally likely to be used against your organization. Threat actors who target your industry, use tooling your existing telemetry would actually surface, or have shown up in your own prior incidents represent a very different priority than techniques that are theoretically possible but have never once been relevant to anyone resembling your environment. This is where the Threat Intelligence module's coverage of actor profiling and technique tracking feeds directly into detection engineering: a gap tied to a technique your relevant threat actors actually use is a gap worth closing before one that only shows up in generic industry reporting.</p>
+          <p>Not every technique in ATT&CK is equally likely to be used against your organization. Threat actors who target your industry, use tooling your existing telemetry would actually surface, or have shown up in your own prior incidents represent a very different priority than techniques that are theoretically possible but have never once been relevant to anyone resembling your environment.</p>
+          <p>This is where the Threat Intelligence module's coverage of actor profiling and technique tracking feeds directly into detection engineering: a gap tied to a technique your relevant threat actors actually use is a gap worth closing before one that only shows up in generic industry reporting.</p>
           <h3>Ease of Reliable Detection</h3>
-          <p>Some techniques are inherently easier to detect well than others, independent of how dangerous they are. A technique that reliably produces a specific, low-noise log event is a better near-term investment than one where any reasonably competent detection would require correlating half a dozen weak signals and would still carry a high false-positive rate. That doesn't mean the harder techniques get ignored forever, but sequencing the easier, higher-confidence wins first builds real coverage faster and avoids sinking early effort into a detection that will end up disabled within a month for being too noisy.</p>
+          <p>Some techniques are inherently easier to detect well than others, independent of how dangerous they are. A technique that reliably produces a specific, low-noise log event is a better near-term investment than one where any reasonably competent detection would require correlating half a dozen weak signals and would still carry a high false-positive rate.</p>
+          <p>That doesn't mean the harder techniques get ignored forever, but sequencing the easier, higher-confidence wins first builds real coverage faster and avoids sinking early effort into a detection that will end up disabled within a month for being too noisy.</p>
           <h3>Blast Radius If Missed</h3>
-          <p>Where a gap sits in the attack chain changes how expensive it is. A gap in an early-stage technique, something in initial access or early execution, is often less costly on its own, because there are usually several more stages downstream where the same intrusion could still be caught: lateral movement, credential access, command and control. A gap in a late-stage technique like exfiltration or impact has far fewer remaining chances to be caught after it. The intrusion is essentially over by the time that technique executes. Weighing gaps by their position in the chain, not just by how severe the technique sounds in isolation, tends to produce a more defensible prioritization.</p>
+          <p>Where a gap sits in the attack chain changes how expensive it is. A gap in an early-stage technique, something in initial access or early execution, is often less costly on its own, because there are usually several more stages downstream where the same intrusion could still be caught: lateral movement, credential access, command and control.</p>
+          <p>A gap in a late-stage technique like exfiltration or impact has far fewer remaining chances to be caught after it. The intrusion is essentially over by the time that technique executes. Weighing gaps by their position in the chain, not just by how severe the technique sounds in isolation, tends to produce a more defensible prioritization.</p>
           <div class="process-flow">
             <div class="flow-step"><span class="flow-step-num">1</span><div class="flow-step-title">List the "none" and weak "partial" cells</div><div class="flow-step-desc">Pull every technique with no detection or only a narrow one from the matrix.</div></div>
             <div class="flow-arrow">&#8594;</div>
@@ -195,8 +223,12 @@
 
         <section class="content-section" id="closing-the-loop">
           <h2>Connecting Coverage Back to Chapter 3's Hypothesis Process</h2>
-          <p>Coverage mapping isn't a one-time audit that produces a report and then sits untouched. Its real value is as a feedback loop into the hypothesis process chapter 3 walked through in detail. Chapter 1 named ATT&CK gap analysis as one of the standard sources for new detection hypotheses, and this is exactly what that meant: the matrix built in this chapter is where those gap-driven hypotheses come from in the first place, ready to feed straight back into the hypothesis-to-logic process chapter 3 laid out.</p>
-          <p>A ranked gap list from the prioritization work above isn't the end of the process, it's an input back into the start of it. Each high-priority gap becomes a candidate hypothesis: a specific claim about a technique, the data source that could reveal it, and the logic that would separate genuine adversary behavior from normal activity. That hypothesis goes through the same validation and tuning process any other detection would, and once it's live and mapped, it updates the matrix, which changes what the next round of prioritization looks like.</p>
+          <h3>Where the Gaps Feed Back</h3>
+          <p>Coverage mapping isn't a one-time audit that produces a report and then sits untouched. Its real value is as a feedback loop into the hypothesis process chapter 3 walked through in detail.</p>
+          <p>Chapter 1 named ATT&CK gap analysis as one of the standard sources for new detection hypotheses, and this is exactly what that meant: the matrix built in this chapter is where those gap-driven hypotheses come from in the first place, ready to feed straight back into the hypothesis-to-logic process chapter 3 laid out.</p>
+          <h3>From Gap to Hypothesis</h3>
+          <p>A ranked gap list from the prioritization work above isn't the end of the process, it's an input back into the start of it. Each high-priority gap becomes a candidate hypothesis: a specific claim about a technique, the data source that could reveal it, and the logic that would separate genuine adversary behavior from normal activity.</p>
+          <p>That hypothesis goes through the same validation and tuning process any other detection would, and once it's live and mapped, it updates the matrix, which changes what the next round of prioritization looks like.</p>
           <p>Run that loop consistently and coverage mapping stops being a periodic exercise bolted onto the program from the outside. It becomes the mechanism that tells a detection team where to point its limited engineering time next, grounded in what's actually deployed rather than what everyone assumes must already be there.</p>
         </section>
 

@@ -130,14 +130,17 @@
               </tbody>
             </table>
           </div>
-          <p>These causes aren't mutually exclusive. A single noisy detection can be a bit of all four: logic that's slightly broader than needed, applied against a log source with a quirky field, in an environment that happens to run a dual-use admin tool nobody flagged during the requirements stage. Diagnosing which one (or which combination) is driving the noise is the first step in tuning, because each root cause points toward a different fix.</p>
+          <p>These causes aren't mutually exclusive. A single noisy detection can be a bit of all four: logic that's slightly broader than needed, applied against a log source with a quirky field, in an environment that happens to run a dual-use admin tool nobody flagged during the requirements stage.</p>
+          <p>Diagnosing which one (or which combination) is driving the noise is the first step in tuning, because each root cause points toward a different fix.</p>
           <div class="callout-info"><strong>Note:</strong> Before tuning anything, confirm the alerts really are false positives and not a true positive that looks unfamiliar. Pulling a sample of recent alerts and manually walking through what generated each one is worth the time before touching the logic.</div>
         </section>
 
         <section class="content-section" id="cost-of-not-tuning">
           <h2>The Cost of Not Tuning</h2>
           <p>An untuned detection has a cost that goes beyond the minutes an analyst spends closing each alert. If you've been through the triage material in the SOC Operations module, the term alert fatigue will already be familiar: the state where a high enough volume of low-value alerts erodes an analyst's attention and default response to a given alert type.</p>
-          <p>A detection that fires dozens of times a day for the same known-benign reason doesn't just waste time on those dozens of closures. It trains the analysts handling it. After enough repetitions of "this alert, closed as benign," the human response becomes automatic: see the alert, recognize the pattern, close it, move on. That's a rational adaptation to a noisy queue, and it's also exactly the condition under which a real true positive slips through. The one time that specific alert represents genuine malicious activity, it looks identical to the hundred times before it that didn't, and it gets the same reflexive close.</p>
+          <h3>How Repetition Erodes Analyst Response</h3>
+          <p>A detection that fires dozens of times a day for the same known-benign reason doesn't just waste time on those dozens of closures. It trains the analysts handling it. After enough repetitions of "this alert, closed as benign," the human response becomes automatic: see the alert, recognize the pattern, close it, move on.</p>
+          <p>That's a rational adaptation to a noisy queue, and it's also exactly the condition under which a real true positive slips through. The one time that specific alert represents genuine malicious activity, it looks identical to the hundred times before it that didn't, and it gets the same reflexive close.</p>
           <p>This is why tuning isn't a nice-to-have polish step. An untuned high-fidelity detection can end up worse than no detection at all, because it consumes analyst trust and attention while providing a false sense that the technique is covered.</p>
         </section>
 
@@ -156,7 +159,13 @@
             </table>
           </div>
           <h3>Choosing between them</h3>
-          <p>Allowlisting is the most surgical option and the easiest to reason about, but it doesn't scale if the list of exceptions keeps growing: a rule with fifty exceptions is a sign the underlying logic needs narrowing, not more exceptions. Threshold and time-window adjustments are attractive because they're a single number to change, but they can quietly raise the bar for detecting the real technique too, so they need to be checked against the lower bound of what real malicious activity would actually produce. Logic narrowing takes more work up front but tends to produce the most durable fix, because it's addressing the actual distinguishing signal rather than a proxy for it.</p>
+          <div class="callout-info"><strong>Trade-offs:</strong>
+            <ul>
+              <li>Allowlisting is the most surgical option and the easiest to reason about, but it doesn't scale if the list of exceptions keeps growing: a rule with fifty exceptions is a sign the underlying logic needs narrowing, not more exceptions.</li>
+              <li>Threshold and time-window adjustments are attractive because they're a single number to change, but they can quietly raise the bar for detecting the real technique too, so they need to be checked against the lower bound of what real malicious activity would actually produce.</li>
+              <li>Logic narrowing takes more work up front but tends to produce the most durable fix, because it's addressing the actual distinguishing signal rather than a proxy for it.</li>
+            </ul>
+          </div>
         </section>
 
         <section class="content-section" id="tune-suppress-retire">
@@ -187,7 +196,11 @@
         <section class="content-section" id="cadence-and-ownership">
           <h2>Tuning Cadence and Ownership</h2>
           <p>Tuning isn't something that happens once, right after a detection goes live, and then is done. Environments keep changing after a rule ships: new software gets rolled out, a team adopts a new admin tool, an infrastructure migration changes what normal traffic looks like. None of that requires the detection's logic to be wrong on day one; it just means the detection drifts out of tune as the environment around it moves.</p>
-          <p>Two things keep that drift from accumulating unnoticed. The first is a regular review cadence: a scheduled point, not just a reactive one, where recently deployed and previously tuned detections get reassessed against current alert volume and false positive rate. The second is clear ownership. Tuning feedback that has no assigned owner tends to sit in a queue or a Slack thread indefinitely, waiting for "whoever notices" to act on it. Assigning a specific person or rotation responsibility for acting on tuning feedback, separate from whoever originally wrote the rule, keeps that feedback loop from stalling out as the team and the rule set both grow.</p>
+          <p>Two things keep that drift from accumulating unnoticed.</p>
+          <h3>Regular review cadence</h3>
+          <p>The first is a regular review cadence: a scheduled point, not just a reactive one, where recently deployed and previously tuned detections get reassessed against current alert volume and false positive rate.</p>
+          <h3>Clear ownership</h3>
+          <p>The second is clear ownership. Tuning feedback that has no assigned owner tends to sit in a queue or a Slack thread indefinitely, waiting for "whoever notices" to act on it. Assigning a specific person or rotation responsibility for acting on tuning feedback, separate from whoever originally wrote the rule, keeps that feedback loop from stalling out as the team and the rule set both grow.</p>
         </section>
 
         <div class="chapter-summary">

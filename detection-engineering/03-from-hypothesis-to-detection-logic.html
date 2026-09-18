@@ -118,8 +118,16 @@
 
         <section class="content-section" id="starting-from-a-hypothesis">
           <h2>Starting From a Hypothesis, Not a Query</h2>
+          <h3>Why Hypothesis Comes Before Query</h3>
           <p>It's tempting to open a query editor first and start experimenting with fields until something looks interesting. That approach produces detections that are hard to explain, hard to tune, and hard to map to anything. The lifecycle from chapter 1 puts hypothesis before logic for a reason: the hypothesis is what tells you whether the logic you eventually write is even aimed at the right thing.</p>
-          <p>A detection hypothesis is a specific, falsifiable statement about attacker behavior and how it would surface in available telemetry. Falsifiable means you can imagine evidence that would prove it wrong, not just evidence that would confirm it. "Detect PowerShell abuse" is not falsifiable in that sense; it's a goal, not a claim. It doesn't tell you which behavior, which telemetry, or which anomaly you're looking for, so there's no way to know when the resulting rule has succeeded or failed at its actual job.</p>
+          <p>A detection hypothesis is a specific, falsifiable statement about attacker behavior and how it would surface in available telemetry.</p>
+          <div class="callout-info"><strong>Falsifiable means:</strong>
+            <ul>
+              <li>You can imagine evidence that would prove it wrong, not just evidence that would confirm it.</li>
+              <li>"Detect PowerShell abuse" is not falsifiable in that sense; it's a goal, not a claim.</li>
+              <li>It doesn't tell you which behavior, which telemetry, or which anomaly you're looking for, so there's no way to know when the resulting rule has succeeded or failed at its actual job.</li>
+            </ul>
+          </div>
           <h3>Vague Goal vs. Well-Formed Hypothesis</h3>
           <div class="table-wrap">
             <table>
@@ -154,14 +162,23 @@
               </tbody>
             </table>
           </div>
+          <h3>Is the Source Actually Available</h3>
           <p>The harder question comes next: is that source actually onboarded, in the SIEM, and reliable in your environment right now? A hypothesis about process-level scripting abuse is dead on arrival if command-line logging isn't enabled, or if the relevant hosts don't forward EDR telemetry yet. This is where detection engineering leans directly on the log-source-onboarding work covered conceptually in the SOC Operations module: onboarding a source isn't a one-time checkbox, it's an ongoing dependency that detection logic sits on top of.</p>
+          <h3>When the Data Doesn't Exist Yet</h3>
           <p>When the needed source doesn't exist yet, the hypothesis doesn't get discarded, it gets parked. A realistic detection engineering backlog usually has a category for hypotheses that are well-formed but blocked on data availability. Documenting the gap (what source is missing, what it would enable) does two things: it gives the team a concrete ask for the onboarding backlog, and it prevents someone from quietly reinventing the same hypothesis six months later without knowing it was already scoped.</p>
           <div class="callout-info"><strong>Note:</strong> "The data source exists" and "the data source is trustworthy" are separate checks. A source that drops events under load, has inconsistent field names across host versions, or samples instead of logging everything will quietly undermine logic that assumes complete coverage.</div>
         </section>
 
         <section class="content-section" id="field-selection-and-logic-construction">
           <h2>Field Selection and Logic Construction</h2>
-          <p>With a data source confirmed, the next decision is which fields inside it actually carry the signal your hypothesis depends on. Most raw events carry far more fields than any single detection needs, and picking the wrong subset either misses the behavior entirely or buries it in noise. For a process-execution hypothesis, the fields that typically matter are process name, full command line, parent process name, the executing user, and sometimes the signing status or file path of the binary. For an authentication hypothesis, it's account name, logon type, source address, outcome, and timestamp.</p>
+          <p>With a data source confirmed, the next decision is which fields inside it actually carry the signal your hypothesis depends on. Most raw events carry far more fields than any single detection needs, and picking the wrong subset either misses the behavior entirely or buries it in noise.</p>
+          <h3>Which Fields Carry the Signal</h3>
+          <div class="callout-info"><strong>Typical fields by hypothesis type:</strong>
+            <ul>
+              <li><strong>Process-execution hypothesis:</strong> process name, full command line, parent process name, the executing user, and sometimes the signing status or file path of the binary.</li>
+              <li><strong>Authentication hypothesis:</strong> account name, logon type, source address, outcome, and timestamp.</li>
+            </ul>
+          </div>
           <p>Once the fields are chosen, the logic is mostly about how conditions combine:</p>
           <ul>
             <li><strong>AND</strong> narrows a match down to a more specific pattern: a process name matching a scripting interpreter AND a command line containing an encoding flag is far more specific than either condition alone.</li>
@@ -180,6 +197,7 @@ THEN flag_as_candidate
 IF COUNT(auth.failure WHERE auth.user == same_user) >= 5
    WITHIN 2 MINUTES
 THEN flag_as_candidate   // threshold: frequency-based, not single-event</code></pre>
+          <h3>Field Selection Is Iterative</h3>
           <p>Field selection and logic construction feed each other. Sometimes a field you assumed would be reliable turns out to be inconsistently populated once you look at real events, which sends you back to pick a different field or a different combination. That back-and-forth is normal and is part of why this stage of the lifecycle takes longer than it looks like it should on paper.</p>
         </section>
 
@@ -189,15 +207,26 @@ THEN flag_as_candidate   // threshold: frequency-based, not single-event</code><
           <h3>Single-Event Detections</h3>
           <p>A single-event detection evaluates one record against a pattern and fires immediately if it matches. The encoded-command example above is single-event: everything the logic needs (process name, command line, parent) is present in one process-creation record. These are simpler to write, faster to test, and generally cheaper to run, because the SIEM doesn't need to hold state or correlate anything across time.</p>
           <h3>Sequence Detections</h3>
-          <p>A sequence detection requires two or more related events, often from the same entity, to occur in a particular order within a bounded window. The authentication example extends naturally into one: a burst of failed logons for an account, followed by a success from a source or location that hadn't been seen for that account before, all within a short window. Neither event alone is necessarily suspicious. A single failed logon happens constantly. A single successful logon from a new location happens too, for ordinary reasons like travel or a new device. It's the combination and the ordering that turns two unremarkable events into a meaningful pattern, which mirrors the kind of correlation logic described at a high level in the SOC Operations module's alert-correlation content.</p>
-          <p>Sequence detections are more powerful because they capture attacker behavior that genuinely spans multiple steps, but they're harder to build and tune. They depend on the SIEM's ability to join or correlate events by a shared entity (account, host, session) across a time window, which not every platform or license tier supports equally well. They also introduce more places for false negatives to creep in: if the window is too short, a real sequence gets missed because the events fall just outside it; if it's too long, unrelated events start getting joined together and false positives climb.</p>
+          <p>A sequence detection requires two or more related events, often from the same entity, to occur in a particular order within a bounded window. The authentication example extends naturally into one: a burst of failed logons for an account, followed by a success from a source or location that hadn't been seen for that account before, all within a short window.</p>
+          <p>Neither event alone is necessarily suspicious. A single failed logon happens constantly. A single successful logon from a new location happens too, for ordinary reasons like travel or a new device. It's the combination and the ordering that turns two unremarkable events into a meaningful pattern, which mirrors the kind of correlation logic described at a high level in the SOC Operations module's alert-correlation content.</p>
+          <p>Sequence detections are more powerful because they capture attacker behavior that genuinely spans multiple steps, but they're harder to build and tune.</p>
+          <div class="callout-info"><strong>Why sequences are harder:</strong>
+            <ul>
+              <li>They depend on the SIEM's ability to join or correlate events by a shared entity (account, host, session) across a time window, which not every platform or license tier supports equally well.</li>
+              <li>If the window is too short, a real sequence gets missed because the events fall just outside it.</li>
+              <li>If it's too long, unrelated events start getting joined together and false positives climb.</li>
+            </ul>
+          </div>
           <div class="callout-info"><strong>Note:</strong> When a hypothesis clearly describes a sequence, resist the urge to force it into a single-event rule by only detecting the second half (the success alone, say). That version will fire on plenty of ordinary logons and lose the exact context that made the pattern worth detecting.</div>
         </section>
 
         <section class="content-section" id="mapping-to-attck-as-you-build">
           <h2>Mapping to ATT&CK as You Build</h2>
+          <h3>Map Early, Not as an Afterthought</h3>
           <p>Every detection should map to at least one ATT&CK technique, and ideally the specific sub-technique, from the moment it's written, not bolted on afterward as documentation busywork. Doing the mapping early forces a useful discipline: you have to be able to say, in ATT&CK's own vocabulary, exactly what behavior this rule is meant to catch. If you can't name the technique confidently, that's often a sign the hypothesis itself is still too vague, and it's worth going back a step rather than writing logic against a fuzzy target.</p>
+          <h3>Why This Matters for Coverage Mapping</h3>
           <p>The payoff shows up later. Chapter 6 covers building a coverage map across your whole detection library, and that exercise only works if every rule already carries its technique and sub-technique tags. Retrofitting ATT&CK mappings onto a library of untagged rules, one by one, after the fact, is slow and error-prone compared to tagging each rule the day it's written. Treat the mapping as part of the rule's metadata, alongside the hypothesis statement and data source, not as a separate documentation pass.</p>
+          <h3>Sub-Techniques Sharpen the Logic</h3>
           <p>Mapping to a sub-technique specifically, where one exists, also sharpens the logic itself. "Command and Scripting Interpreter" (T1059) covers a wide range of interpreters and behaviors; mapping instead to the specific sub-technique for the interpreter you're actually targeting keeps the rule's scope honest and makes gaps in coverage across sibling sub-techniques visible later.</p>
         </section>
 
@@ -222,7 +251,15 @@ IF process.name == "scheduling_utility.exe"
    AND task.action CONTAINS ("interpreter_a.exe", "interpreter_b.exe", "\\Temp\\")
    AND NOT process.user IN (approved_deployment_accounts)
 THEN flag_as_candidate   // maps to T1053.005</code></pre>
-          <p>Notice how each earlier stage of the chapter shows up here: the hypothesis is specific and falsifiable, the data source was checked for availability before logic was written, the fields were chosen because they carry the actual signal, the AND/NOT combination narrows and excludes deliberately, and the technique mapping was decided at the same time as the logic, not after. That's the full path this chapter has been describing, applied to one concrete case.</p>
+          <p>Notice how each earlier stage of the chapter shows up here:</p>
+          <ul>
+            <li>The hypothesis is specific and falsifiable.</li>
+            <li>The data source was checked for availability before logic was written.</li>
+            <li>The fields were chosen because they carry the actual signal.</li>
+            <li>The AND/NOT combination narrows and excludes deliberately.</li>
+            <li>The technique mapping was decided at the same time as the logic, not after.</li>
+          </ul>
+          <p>That's the full path this chapter has been describing, applied to one concrete case.</p>
         </section>
 
         <div class="chapter-summary">

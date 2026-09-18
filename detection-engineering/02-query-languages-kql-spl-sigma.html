@@ -119,7 +119,14 @@
         <section class="content-section" id="why-query-language-matters">
           <h2>Why Query Language Matters</h2>
           <p>It's tempting to treat query language as a syntax preference, the way some developers argue about tabs versus spaces. In detection engineering it's closer to a practical constraint. The logic behind a detection, the condition you're trying to catch, the fields you're filtering on, the threshold that separates noise from signal, is the same no matter what platform runs it. But that logic has to be expressed in whatever language your SIEM understands, and that language shapes how you think about the problem while you're writing it.</p>
-          <p>This matters for a few concrete reasons. First, job mobility: a detection engineer who only knows one platform's syntax is limited to jobs running that platform, and most job postings list a specific SIEM by name. Second, multi-tool environments are common, not rare: organizations that acquire other companies inherit their tooling, organizations that migrate SIEMs run two in parallel for months, and managed security service providers often support several client platforms at once. Third, community knowledge, blog posts, conference talks, shared rule repositories, is scattered across all three dialects, and being able to read a KQL rule and understand what it's doing even if your shop runs Splunk saves you from reinventing detections that already exist somewhere.</p>
+          <p>This matters for a few concrete reasons.</p>
+          <div class="callout-info"><strong>Why it matters:</strong>
+            <ul>
+              <li><strong>Job mobility:</strong> a detection engineer who only knows one platform's syntax is limited to jobs running that platform, and most job postings list a specific SIEM by name.</li>
+              <li><strong>Multi-tool environments are common, not rare:</strong> organizations that acquire other companies inherit their tooling, organizations that migrate SIEMs run two in parallel for months, and managed security service providers often support several client platforms at once.</li>
+              <li><strong>Community knowledge is scattered:</strong> blog posts, conference talks, and shared rule repositories are spread across all three dialects, and being able to read a KQL rule and understand what it's doing even if your shop runs Splunk saves you from reinventing detections that already exist somewhere.</li>
+            </ul>
+          </div>
           <div class="callout-info"><strong>Note:</strong> knowing multiple dialects doesn't mean memorizing every function name in each one. It means recognizing the shape of the logic (filter, aggregate, join, threshold) regardless of which keywords express it, and knowing where to look up the exact syntax when you need it.</div>
         </section>
 
@@ -156,7 +163,16 @@
           <p>KQL and SPL are both platform-native: a KQL query only runs against Microsoft's stack, an SPL search only runs in Splunk. That's fine if your organization only ever runs one SIEM for the rest of its existence, but detection logic is valuable independent of the platform it happens to run on, and a lot of organizations don't stay on one platform forever.</p>
           <p>Sigma addresses that. It's a generic, YAML-based detection rule format maintained by the SigmaHQ open-source project. A Sigma rule doesn't describe KQL or SPL syntax directly, it describes the detection logic (what log source, what fields, what condition) in a structured, platform-agnostic way. Conversion tooling then translates that Sigma rule into KQL, SPL, or other backend query languages as needed. Write the logic once, generate the platform-specific query for wherever it needs to run, instead of hand-rewriting the same idea in every dialect your organization touches.</p>
           <h3>Basic structure</h3>
-          <p>A Sigma rule is built from a small number of core fields: a title and description, a <code>logsource</code> block describing what kind of data the rule applies to, a <code>detection</code> block defining the selection criteria and the condition that ties them together, and metadata like severity level and references. Here's a simple, illustrative Sigma rule following the same failed-logon theme as the earlier examples:</p>
+          <p>A Sigma rule is built from a small number of core fields:</p>
+          <div class="callout-info"><strong>Core Sigma fields:</strong>
+            <ul>
+              <li><strong>Title and description</strong></li>
+              <li><strong><code>logsource</code> block:</strong> describes what kind of data the rule applies to</li>
+              <li><strong><code>detection</code> block:</strong> defines the selection criteria and the condition that ties them together</li>
+              <li><strong>Metadata:</strong> severity level, references, and similar fields</li>
+            </ul>
+          </div>
+          <p>Here's a simple, illustrative Sigma rule following the same failed-logon theme as the earlier examples:</p>
           <pre><code>title: Multiple Failed Logon Attempts
 id: 11111111-2222-3333-4444-555555555555
 status: experimental
@@ -176,7 +192,10 @@ level: medium</code></pre>
         <section class="content-section" id="when-to-write-sigma-first-vs-native">
           <h2>When to Write Sigma-First vs. Native</h2>
           <p>Neither approach is universally correct. The right choice depends on what the detection is for and how long it's expected to live.</p>
-          <p>Sigma-first makes sense when portability actually matters: a detection you expect to run across more than one SIEM, one you want to draw from or contribute back to community rule repositories, or one you want to version-control in a way that isn't tied to a specific platform's syntax. Native, writing directly in KQL or SPL, makes more sense when a detection needs a platform-specific function, enrichment, or data source that Sigma's common schema doesn't cleanly express, or when you're writing a quick investigative query during an incident that was never meant to become a permanent detection in the first place.</p>
+          <h3>When Sigma-First Fits</h3>
+          <p>Sigma-first makes sense when portability actually matters: a detection you expect to run across more than one SIEM, one you want to draw from or contribute back to community rule repositories, or one you want to version-control in a way that isn't tied to a specific platform's syntax.</p>
+          <h3>When Native Fits</h3>
+          <p>Native, writing directly in KQL or SPL, makes more sense when a detection needs a platform-specific function, enrichment, or data source that Sigma's common schema doesn't cleanly express, or when you're writing a quick investigative query during an incident that was never meant to become a permanent detection in the first place.</p>
           <div class="table-wrap">
             <table>
               <thead><tr><th>Consideration</th><th>Sigma-first</th><th>Native (KQL / SPL)</th></tr></thead>
@@ -195,7 +214,10 @@ level: medium</code></pre>
         <section class="content-section" id="a-note-on-field-normalization">
           <h2>A Note on Field Normalization</h2>
           <p>Readers coming from the SOC Operations module's SIEM chapter will recognize this point, and it's worth repeating here because it applies just as much to query language as it does to SIEM architecture: none of this works without normalized field names across log sources.</p>
-          <p>A detection written against a field name that doesn't exist, or that means something different, in your environment won't error out loudly. It will simply fail to match anything, quietly, regardless of whether it's written in KQL, SPL, or converted from a Sigma rule. A Sigma rule that assumes a field called <code>src_ip</code> will convert to a query referencing whatever field your platform's mapping says corresponds to source IP, and if that mapping is wrong or that field is populated inconsistently across your log sources, the converted query runs without error and simply never fires. The query language is only as reliable as the data model underneath it, and that data model is a normalization problem, not a syntax problem.</p>
+          <h3>The Silent Failure Mode</h3>
+          <p>A detection written against a field name that doesn't exist, or that means something different, in your environment won't error out loudly. It will simply fail to match anything, quietly, regardless of whether it's written in KQL, SPL, or converted from a Sigma rule.</p>
+          <div class="callout-info"><strong>Example:</strong> a Sigma rule that assumes a field called <code>src_ip</code> will convert to a query referencing whatever field your platform's mapping says corresponds to source IP. If that mapping is wrong, or that field is populated inconsistently across your log sources, the converted query runs without error and simply never fires.</div>
+          <p>The query language is only as reliable as the data model underneath it, and that data model is a normalization problem, not a syntax problem.</p>
         </section>
 
         <div class="chapter-summary">

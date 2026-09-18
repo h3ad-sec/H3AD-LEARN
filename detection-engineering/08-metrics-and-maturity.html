@@ -118,24 +118,35 @@
 
         <section class="content-section" id="detection-engineering-metrics">
           <h2>Detection Engineering's Own Metrics</h2>
-          <p>A SOC produces plenty of numbers, but most of them describe what happens after a detection fires: how long until someone looked at the alert, how long until it was resolved, how many alerts a shift handled. Those numbers say almost nothing about whether the detections themselves are any good. Detection engineering needs its own metrics, ones that describe the quality of the detection logic and the health of the catalog it lives in, not the response process built on top of it.</p>
+          <p>A SOC produces plenty of numbers, but most of them describe what happens after a detection fires: how long until someone looked at the alert, how long until it was resolved, how many alerts a shift handled. Those numbers say almost nothing about whether the detections themselves are any good.</p>
+          <p>Detection engineering needs its own metrics, ones that describe the quality of the detection logic and the health of the catalog it lives in, not the response process built on top of it.</p>
           <h3>False positive rate per detection</h3>
-          <p>Chapter 5 covered the tuning workflow in depth: track dispositions, feed them back into the rule, adjust thresholds or add exclusions, and repeat. The false positive rate for a given detection is the running tally of that work, benign-classified alerts divided by total alerts for that rule over a defined window. A single rule with a high false positive rate is a tuning problem. A catalog where most rules sit at a high false positive rate is a process problem: either tuning isn't happening on a cadence, or new rules are shipping without enough testing before they go live.</p>
+          <p>Chapter 5 covered the tuning workflow in depth: track dispositions, feed them back into the rule, adjust thresholds or add exclusions, and repeat. The false positive rate for a given detection is the running tally of that work.</p>
+          <div class="callout-info"><strong>Definition:</strong> False positive rate per detection is benign-classified alerts divided by total alerts for that rule, over a defined window.</div>
+          <p>A single rule with a high false positive rate is a tuning problem. A catalog where most rules sit at a high false positive rate is a process problem: either tuning isn't happening on a cadence, or new rules are shipping without enough testing before they go live.</p>
           <p>This number is only useful per rule, or grouped by a meaningful category (technique, data source, rule author). A single blended false positive rate across the whole catalog hides exactly the rules that need attention behind the ones that don't.</p>
           <h3>Time from hypothesis to deployed detection</h3>
-          <p>Chapter 1 laid out the lifecycle stages; this metric measures how efficiently a team actually moves through them. It's the elapsed time between a hypothesis being written down (often coming out of a threat hunt, as the closing section below revisits) and a tested, tuned detection reaching production. A program where this interval keeps growing usually has a bottleneck somewhere in build, test, or review, and it's worth knowing which stage before assuming the whole lifecycle is broken. A program where the interval is suspiciously short is worth checking for the opposite problem: stages getting skipped rather than accelerated.</p>
+          <p>Chapter 1 laid out the lifecycle stages; this metric measures how efficiently a team actually moves through them. It's the elapsed time between a hypothesis being written down (often coming out of a threat hunt, as the closing section below revisits) and a tested, tuned detection reaching production.</p>
+          <p>A program where this interval keeps growing usually has a bottleneck somewhere in build, test, or review, and it's worth knowing which stage before assuming the whole lifecycle is broken. A program where the interval is suspiciously short is worth checking for the opposite problem: stages getting skipped rather than accelerated.</p>
           <h3>ATT&amp;CK coverage percentage, with depth</h3>
-          <p>Chapter 6 introduced ATT&amp;CK-mapped coverage and warned against treating the raw percentage as a scoreboard. That warning carries forward here as a measurement, not just a framing point: a coverage percentage on its own answers "how many techniques have at least one detection," and nothing about whether that detection is any good, how many known variations of the technique it actually catches, or whether it has ever fired on a real technique execution during testing. Coverage percentage paired with the none/partial/broad depth rating chapter 6 introduced is a far more honest number than the percentage alone.</p>
+          <p>Chapter 6 introduced ATT&amp;CK-mapped coverage and warned against treating the raw percentage as a scoreboard. That warning carries forward here as a measurement, not just a framing point: a coverage percentage on its own answers "how many techniques have at least one detection," and nothing about whether that detection is any good, how many known variations of the technique it actually catches, or whether it has ever fired on a real technique execution during testing.</p>
+          <div class="callout-info"><strong>Better metric:</strong> Coverage percentage paired with the none/partial/broad depth rating chapter 6 introduced is a far more honest number than the percentage alone.</div>
           <h3>Detection staleness</h3>
-          <p>Chapter 5's tuning cadence point extends into a metric here: how many deployed detections have gone past their expected review interval without being touched. A rule that hasn't been reviewed, tuned, or re-tested in a long stretch isn't necessarily broken, but nobody currently knows whether it is. Staleness is a leading indicator: a catalog with a growing stale-rule count is a catalog that will eventually surprise someone, either with a rule that silently stopped firing after an environment change, or one that's been quietly generating noise nobody's looked at.</p>
+          <p>Chapter 5's tuning cadence point extends into a metric here: how many deployed detections have gone past their expected review interval without being touched. A rule that hasn't been reviewed, tuned, or re-tested in a long stretch isn't necessarily broken, but nobody currently knows whether it is.</p>
+          <p>Staleness is a leading indicator: a catalog with a growing stale-rule count is a catalog that will eventually surprise someone, either with a rule that silently stopped firing after an environment change, or one that's been quietly generating noise nobody's looked at.</p>
           <div class="callout-info"><strong>Note:</strong> None of these four metrics is meaningful in isolation for very long. A team can chase false positive rate down by narrowing a rule until it barely fires, which looks great on that metric and terrible for coverage depth. Read them together.</div>
         </section>
 
         <section class="content-section" id="soc-wide-connection">
           <h2>How This Connects to SOC-Wide Metrics</h2>
           <p>Readers who came through the SOC Operations module will recognize metrics like mean time to detect and mean time to respond. Those are real, useful numbers, and detection engineering work directly influences them. But they belong to SOC operations, not to detection engineering, and mixing the two up is a common source of confused reporting.</p>
-          <p>Take mean time to detect. It measures the gap between when malicious activity started and when the SOC first noticed it. Whether a detection existed for that technique, and whether it fired correctly when the activity occurred, is one of the biggest levers on that number. If detection engineering has a coverage gap on a technique, or a rule for that technique is disabled because it was too noisy, mean time to detect for that scenario will suffer. But the metric itself is measuring the organization's overall detection-to-response pipeline, including alert triage, escalation, and analyst workload, none of which detection engineering controls.</p>
-          <p>The cleanest way to hold the boundary: detection engineering metrics describe the quality and coverage of the detections themselves, independent of what happens after they fire. SOC operations metrics describe what happens once an alert reaches a human, from triage through resolution. A detection engineering team can point to a strong false positive rate, solid coverage depth, and a low staleness count and still see MTTD stay flat, because the bottleneck moved into triage capacity or escalation process. Conversely, a SOC can tighten its response process and improve MTTR without any change to the underlying detection catalog. Reporting that conflates the two, crediting a detection engineering effort for a response-time improvement it didn't cause, or blaming detection engineering for a triage backlog, erodes trust in both sets of numbers.</p>
+          <h3>Mean time to detect, as an example</h3>
+          <p>Take mean time to detect. It measures the gap between when malicious activity started and when the SOC first noticed it. Whether a detection existed for that technique, and whether it fired correctly when the activity occurred, is one of the biggest levers on that number. If detection engineering has a coverage gap on a technique, or a rule for that technique is disabled because it was too noisy, mean time to detect for that scenario will suffer.</p>
+          <p>But the metric itself is measuring the organization's overall detection-to-response pipeline, including alert triage, escalation, and analyst workload, none of which detection engineering controls.</p>
+          <h3>Where the boundary sits</h3>
+          <p>The cleanest way to hold the boundary: detection engineering metrics describe the quality and coverage of the detections themselves, independent of what happens after they fire. SOC operations metrics describe what happens once an alert reaches a human, from triage through resolution.</p>
+          <p>A detection engineering team can point to a strong false positive rate, solid coverage depth, and a low staleness count and still see MTTD stay flat, because the bottleneck moved into triage capacity or escalation process. Conversely, a SOC can tighten its response process and improve MTTR without any change to the underlying detection catalog.</p>
+          <div class="callout-warning"><strong>Watch for:</strong> Reporting that conflates the two, crediting a detection engineering effort for a response-time improvement it didn't cause, or blaming detection engineering for a triage backlog, erodes trust in both sets of numbers.</div>
           <div class="table-wrap">
             <table>
               <thead><tr><th>Metric</th><th>Owned by</th><th>Answers</th></tr></thead>
@@ -152,7 +163,8 @@
 
         <section class="content-section" id="maturity-dimensions">
           <h2>What Separates a Mature Detection Program From an Ad Hoc One</h2>
-          <p>There's no single external scorecard that reliably tells a team where it stands on detection engineering maturity, and treating a borrowed number from an unrelated discipline as if it were one usually does more harm than good. What's more useful, and more honest, is thinking about maturity as a handful of dimensions a program can assess for itself. None of these require a formal audit; each one is answerable by looking at how the team actually works day to day.</p>
+          <p>There's no single external scorecard that reliably tells a team where it stands on detection engineering maturity, and treating a borrowed number from an unrelated discipline as if it were one usually does more harm than good.</p>
+          <p>What's more useful, and more honest, is thinking about maturity as a handful of dimensions a program can assess for itself. None of these require a formal audit; each one is answerable by looking at how the team actually works day to day.</p>
           <h3>Consistency</h3>
           <p>Does every detection, regardless of who wrote it, go through the same lifecycle: hypothesis, logic, test, tune, deploy, and maintain, with peer review applied at every step? In an ad hoc program, quality tracks individual engineers. The senior person's rules are solid and the newer hire's rules are inconsistent, not because of a skill gap that can't be closed, but because there's no shared process forcing both through the same bar.</p>
           <h3>Documentation</h3>
@@ -160,7 +172,8 @@
           <h3>Measurement</h3>
           <p>Does the program track its own metrics from the first section of this chapter, or does it operate on the assumption that things are probably fine because nobody's complained? A team that can't currently answer "what's our false positive rate on the top ten noisiest rules" doesn't have a measurement practice yet, whatever else is going well.</p>
           <h3>Feedback loops</h3>
-          <p>Tuning feedback from chapter 5 and coverage-gap analysis from chapter 6 are only useful if they turn into scheduled work. A mature program has a mechanism, a backlog, a recurring review meeting, whatever fits the team, that reliably converts "this rule is noisy" or "we have no coverage here" into an assigned task with a timeline. An ad hoc program generates the same insights and then loses them; the gap gets noted once, in a chat message or a postmortem, and nobody revisits it.</p>
+          <p>Tuning feedback from chapter 5 and coverage-gap analysis from chapter 6 are only useful if they turn into scheduled work. A mature program has a mechanism, a backlog, a recurring review meeting, whatever fits the team, that reliably converts "this rule is noisy" or "we have no coverage here" into an assigned task with a timeline.</p>
+          <p>An ad hoc program generates the same insights and then loses them; the gap gets noted once, in a chat message or a postmortem, and nobody revisits it.</p>
           <div class="table-wrap">
             <table>
               <thead><tr><th>Dimension</th><th>Ad hoc</th><th>Mature</th></tr></thead>
@@ -190,9 +203,31 @@
 
         <section class="content-section" id="closing-the-module">
           <h2>Closing the Module: The Full Arc</h2>
-          <p>Chapter 1 introduced the detection engineering lifecycle as a whole. Chapter 2 built the language literacy needed to read and write across query languages rather than being locked to one. Chapters 3 and 4 narrowed to a single detection: building it, then proving it actually works before it ever reaches production. From there the module widened its scope again: chapter 5 covered tuning a live detection over time, chapter 6 covered thinking about coverage across the whole catalog rather than one rule at a time, chapter 7 covered treating detection logic as code with a real lifecycle and real documentation, and this chapter has covered how a program measures whether all of that is actually paying off.</p>
+          <h3>The module's arc, chapter by chapter</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Chapter</th><th>Role in the arc</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Introduced the detection engineering lifecycle as a whole</td></tr>
+                <tr><td>2</td><td>Built the language literacy needed to read and write across query languages rather than being locked to one</td></tr>
+                <tr><td>3 and 4</td><td>Narrowed to a single detection: building it, then proving it actually works before it ever reaches production</td></tr>
+                <tr><td>5</td><td>Tuning a live detection over time</td></tr>
+                <tr><td>6</td><td>Thinking about coverage across the whole catalog rather than one rule at a time</td></tr>
+                <tr><td>7</td><td>Treating detection logic as code with a real lifecycle and real documentation</td></tr>
+                <tr><td>8 (this chapter)</td><td>How a program measures whether all of that is actually paying off</td></tr>
+              </tbody>
+            </table>
+          </div>
           <p>That arc, foundations and language, then a single detection built and proven, then sustaining and scaling that work across a program, is the same shape most detection engineering practices grow into, whether or not a team ever names the stages explicitly.</p>
-          <p>This module doesn't stand alone. The SOC Operations module covers the platform and process layer this work eventually feeds into: how alerts get triaged, escalated, and resolved once a detection fires. The Threat Hunting module covers where many of the hypotheses that start chapter 1's lifecycle actually come from, an analyst noticing something during a hunt that doesn't have a detection behind it yet. Detection engineering sits between the two: it takes a hunting insight and turns it into something repeatable, and it hands that repeatable detection off to a SOC operations process built to act on it.</p>
+          <h3>Where this module fits</h3>
+          <p>This module doesn't stand alone.</p>
+          <div class="callout-info"><strong>Related modules:</strong>
+            <ul>
+              <li><strong>SOC Operations</strong> covers the platform and process layer this work eventually feeds into: how alerts get triaged, escalated, and resolved once a detection fires.</li>
+              <li><strong>Threat Hunting</strong> covers where many of the hypotheses that start chapter 1's lifecycle actually come from, an analyst noticing something during a hunt that doesn't have a detection behind it yet.</li>
+            </ul>
+          </div>
+          <p>Detection engineering sits between the two: it takes a hunting insight and turns it into something repeatable, and it hands that repeatable detection off to a SOC operations process built to act on it.</p>
         </section>
 
         <div class="chapter-summary">

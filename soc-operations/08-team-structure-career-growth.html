@@ -132,7 +132,8 @@
             </table>
           </div>
           <h3>Why These Roles Matter for Career Planning</h3>
-          <p>None of these paths require leaving the SOC's mission behind. Each one takes a skill an analyst already builds during L1-L3 work, pattern recognition, query writing, incident triage judgment, and points it at a narrower, deeper problem. An analyst who's good at spotting why a rule keeps firing on benign activity is already doing half of detection engineering. An analyst who gets curious about what isn't alerting yet is already thinking like a hunter.</p>
+          <p>None of these paths require leaving the SOC's mission behind. Each one takes a skill an analyst already builds during L1-L3 work, pattern recognition, query writing, incident triage judgment, and points it at a narrower, deeper problem.</p>
+          <p>An analyst who's good at spotting why a rule keeps firing on benign activity is already doing half of detection engineering. An analyst who gets curious about what isn't alerting yet is already thinking like a hunter.</p>
           <div class="callout-info"><strong>Note:</strong> Not every SOC has all five of these as dedicated roles. Smaller teams fold detection engineering and hunting duties into senior analyst responsibilities. The roles above describe the work, not necessarily a job title on an org chart.</div>
         </section>
 
@@ -158,10 +159,28 @@
 
         <section class="content-section" id="purple-teaming-as-a-bridge">
           <h2>Purple Teaming as a Bridge</h2>
-          <p>Purple teaming is collaborative work between a red team, which emulates attacker techniques, and a blue team, which includes the SOC analysts responsible for detecting and responding to that activity. Rather than a red team running a covert engagement and handing over a report afterward, a purple team exercise runs with both sides in the room (or on the same call), executing a specific technique and watching, in real time, whether the detections meant to catch it actually fire.</p>
-          <p>The value goes both directions. The offensive side learns which techniques are already covered and which slip through unnoticed. The defensive side learns exactly why a detection did or didn't trigger, whether the logic was wrong, the logging source was missing, or the technique simply wasn't in scope for any existing rule. That immediate feedback loop is something a traditional pentest report, delivered weeks after the engagement, can't replicate.</p>
+          <div class="callout-info">
+            <strong>Red team vs. blue team:</strong>
+            <ul>
+              <li><strong>Red team:</strong> emulates attacker techniques.</li>
+              <li><strong>Blue team:</strong> includes the SOC analysts responsible for detecting and responding to that activity.</li>
+            </ul>
+          </div>
+          <p>Purple teaming is collaborative work between the two. Rather than a red team running a covert engagement and handing over a report afterward, a purple team exercise runs with both sides in the room (or on the same call), executing a specific technique and watching, in real time, whether the detections meant to catch it actually fire.</p>
+          <h3>What Each Side Gets Out of It</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Side</th><th>What It Learns</th></tr></thead>
+              <tbody>
+                <tr><td>Offensive (red team)</td><td>Which techniques are already covered, and which slip through unnoticed.</td></tr>
+                <tr><td>Defensive (blue team / SOC)</td><td>Exactly why a detection did or didn't trigger, whether the logic was wrong, the logging source was missing, or the technique simply wasn't in scope for any existing rule.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>That immediate feedback loop is something a traditional pentest report, delivered weeks after the engagement, can't replicate.</p>
           <h3>Why It Matters for Career Growth</h3>
-          <p>For a SOC analyst, purple teaming is one of the most accessible ways to build technique-level fluency without leaving defense entirely. Sitting in on an exercise means watching how a specific ATT&CK technique actually looks on the wire or in a log, not just reading about it. That exposure sharpens the same instincts that make someone a better detection engineer or threat hunter later, understanding attacker behavior well enough to predict what evidence it leaves rather than only recognizing alerts after the fact.</p>
+          <p>For a SOC analyst, purple teaming is one of the most accessible ways to build technique-level fluency without leaving defense entirely. Sitting in on an exercise means watching how a specific ATT&CK technique actually looks on the wire or in a log, not just reading about it.</p>
+          <p>That exposure sharpens the same instincts that make someone a better detection engineer or threat hunter later, understanding attacker behavior well enough to predict what evidence it leaves rather than only recognizing alerts after the fact.</p>
           <p>It's also a lower-commitment step than a full move to an offensive role. An analyst can participate in purple team exercises periodically while still doing SOC work day to day, using it as both a skill-building exercise and a way to test whether offense-adjacent work is a direction worth pursuing further.</p>
         </section>
 
@@ -180,14 +199,25 @@
             </table>
           </div>
           <h3>Paths Beyond Certification</h3>
-          <p>Certifications open doors, but the paths described earlier in this chapter, detection engineering, threat hunting, incident response leadership, purple teaming, and SOC management, are built through a mix of demonstrated experience, deliberate skill-building (tuning your own rules, running your own hunt hypotheses, volunteering for purple team exercises), and, over time, certifications that back that experience up on paper. The most durable career growth in this field tends to come from analysts who treat their daily queue as a source of questions worth chasing further, not just tickets to close.</p>
+          <p>Certifications open doors, but the paths described earlier in this chapter, detection engineering, threat hunting, incident response leadership, purple teaming, and SOC management, are built through a mix of demonstrated experience, deliberate skill-building, and, over time, certifications that back that experience up on paper.</p>
+          <div class="callout-info">
+            <strong>What deliberate skill-building looks like:</strong>
+            <ul>
+              <li>Tuning your own rules</li>
+              <li>Running your own hunt hypotheses</li>
+              <li>Volunteering for purple team exercises</li>
+            </ul>
+          </div>
+          <p>The most durable career growth in this field tends to come from analysts who treat their daily queue as a source of questions worth chasing further, not just tickets to close.</p>
         </section>
 
         <section class="content-section" id="where-to-go-next">
           <h2>Where to Go Next in H3AD-LEARN</h2>
           <p>Chapter 1 opened this module with a roadmap: how a SOC is organized, how alerts move through it, and what the analysts inside it actually do all day. Eight chapters later, that roadmap ends here, at the question of where the work leads. The honest answer is that it leads in several directions, and H3AD-LEARN has more ground mapped out for two of them already.</p>
-          <p>If the threat hunter path from this chapter's role table sounds like the direction worth pursuing, the <a href="../threat-hunting/index.html">Threat Hunting module</a> builds the hypothesis-driven skills that role runs on. If the pull is toward understanding attacker tooling at a deeper technical level, the kind of fluency that feeds both detection engineering and purple team work, the <a href="../malware-analysis/index.html">Malware Analysis module</a> is the next step.</p>
-          <p>Detection Engineering and Incident Response are planned as standalone modules that will extend this material further, going beyond what this chapter and Chapter 5 could cover in a single pass. Until then, the fundamentals in this module, the tiered structure, the detection logic, the incident lifecycle, and now the roles and paths that sit above it, are the foundation the rest of a SOC career is built on.</p>
+          <p>If the threat hunter path from this chapter's role table sounds like the direction worth pursuing, the <a href="../threat-hunting/index.html">Threat Hunting module</a> builds the hypothesis-driven skills that role runs on.</p>
+          <p>If the pull is toward understanding attacker tooling at a deeper technical level, the kind of fluency that feeds both detection engineering and purple team work, the <a href="../malware-analysis/index.html">Malware Analysis module</a> is the next step.</p>
+          <p>Detection Engineering and Incident Response are planned as standalone modules that will extend this material further, going beyond what this chapter and Chapter 5 could cover in a single pass.</p>
+          <p>Until then, the fundamentals in this module, the tiered structure, the detection logic, the incident lifecycle, and now the roles and paths that sit above it, are the foundation the rest of a SOC career is built on.</p>
         </section>
 
         <div class="chapter-summary">

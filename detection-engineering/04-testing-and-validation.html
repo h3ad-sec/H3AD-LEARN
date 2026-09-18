@@ -118,16 +118,33 @@
 
         <section class="content-section" id="why-testing-matters">
           <h2>Why a Detection Needs Testing Before Deployment</h2>
-          <p>Detection logic that reads correctly is not the same thing as detection logic that behaves correctly. A query can be syntactically valid, reference a field that genuinely exists in the schema, and still fail in production because the assumption behind it was wrong: the log source doesn't populate that field under the conditions you expected, the process name is logged in a different case, or the event only gets generated when a specific audit policy is enabled and nobody enabled it. On paper the rule is airtight. In practice it never fires.</p>
-          <p>The opposite failure is just as common and arguably more damaging to a detection program's credibility: the condition is written too loosely, and it matches a huge slice of ordinary, legitimate activity. A rule looking for a scheduled task created by a non-standard account might be scoped correctly for a server fleet and catastrophically broad for a helpdesk team that provisions dozens of scheduled tasks a day as part of normal onboarding. Deployed untested, that rule doesn't produce zero value, it produces negative value: it trains the analyst rotation to expect noise from this alert and to triage it without real attention, which is exactly the condition under which a genuine positive gets waved through.</p>
+          <p>Detection logic that reads correctly is not the same thing as detection logic that behaves correctly. A query can be syntactically valid, reference a field that genuinely exists in the schema, and still fail in production because the assumption behind it was wrong. On paper the rule is airtight. In practice it never fires.</p>
+          <div class="callout-info"><strong>Common reasons a "correct" query never fires:</strong>
+            <ul>
+              <li>The log source doesn't populate that field under the conditions you expected.</li>
+              <li>The process name is logged in a different case.</li>
+              <li>The event only gets generated when a specific audit policy is enabled, and nobody enabled it.</li>
+            </ul>
+          </div>
+          <h3>The Opposite Failure: Too Broad to Be Useful</h3>
+          <p>The opposite failure is just as common and arguably more damaging to a detection program's credibility: the condition is written too loosely, and it matches a huge slice of ordinary, legitimate activity. A rule looking for a scheduled task created by a non-standard account might be scoped correctly for a server fleet and catastrophically broad for a helpdesk team that provisions dozens of scheduled tasks a day as part of normal onboarding.</p>
+          <p>Deployed untested, that rule doesn't produce zero value, it produces negative value: it trains the analyst rotation to expect noise from this alert and to triage it without real attention, which is exactly the condition under which a genuine positive gets waved through.</p>
           <p>Both failure modes are invisible from the query editor. The only way to surface either one is to run the logic against something real: data that already happened, or behavior generated specifically to test it. Testing isn't a formality tacked onto the end of the detection engineering workflow, it's the step that turns a plausible-looking rule into one you can actually stand behind.</p>
           <div class="callout-info"><strong>Note:</strong> a detection that "looks right" and a detection that has been proven to fire on the intended behavior and stay quiet on everything else are two different things. Testing is the gap between them.</div>
         </section>
 
         <section class="content-section" id="testing-against-historical-data">
           <h2>Testing Against Historical Data</h2>
-          <p>The first and cheapest test available to a detection engineer is a backtest: taking the draft detection logic and running it against a window of log data that already exists in the SIEM or data lake, rather than waiting for it to run live going forward. Most platforms that support scheduled detection rules also let you run the same query manually against an arbitrary time range, which makes this step a matter of picking a reasonable lookback window (a few days to a few weeks, depending on data volume and how variable the target behavior is) and reviewing what comes back.</p>
-          <p>Backtesting answers a narrower question than atomic testing does, but it answers it fast: <em>if this rule had been live for the last two weeks, how often would it have fired, and on what?</em> A rule that returns zero results over two weeks of real traffic isn't necessarily broken, the behavior it targets may simply be rare, but a rule that returns several hundred results is telling you something concrete about scope. Pulling a sample of those matches and reading through them by hand is usually enough to spot the pattern: maybe they're all coming from one specific service account doing something routine, maybe they cluster around a particular business unit's normal workflow, maybe there's a shared parent process that the detection never accounted for.</p>
+          <p>The first and cheapest test available to a detection engineer is a backtest: taking the draft detection logic and running it against a window of log data that already exists in the SIEM or data lake, rather than waiting for it to run live going forward.</p>
+          <p>Most platforms that support scheduled detection rules also let you run the same query manually against an arbitrary time range, which makes this step a matter of picking a reasonable lookback window (a few days to a few weeks, depending on data volume and how variable the target behavior is) and reviewing what comes back.</p>
+          <p>Backtesting answers a narrower question than atomic testing does, but it answers it fast: <em>if this rule had been live for the last two weeks, how often would it have fired, and on what?</em> A rule that returns zero results over two weeks of real traffic isn't necessarily broken, the behavior it targets may simply be rare, but a rule that returns several hundred results is telling you something concrete about scope.</p>
+          <div class="callout-info"><strong>Reading a noisy backtest:</strong> pulling a sample of the matches and reading through them by hand is usually enough to spot the pattern, for example:
+            <ul>
+              <li>They're all coming from one specific service account doing something routine.</li>
+              <li>They cluster around a particular business unit's normal workflow.</li>
+              <li>There's a shared parent process that the detection never accounted for.</li>
+            </ul>
+          </div>
           <h3>What backtesting is good at</h3>
           <p>Real historical data reveals false-positive sources that a detection engineer would rarely think to test for manually, because it reflects the actual mess of a production environment: legacy scripts, third-party tooling, IT automation, and edge cases baked in over years of operational history. No amount of imagining "what could cause false positives" from a desk replaces the signal of watching the logic run against what the environment actually produced.</p>
           <h3>What backtesting can't tell you</h3>
@@ -136,8 +153,12 @@
 
         <section class="content-section" id="atomic-testing">
           <h2>Atomic Testing with Purpose-Built Simulation</h2>
-          <p>Backtesting tells you how a detection behaves against activity that has already happened. It says nothing about whether the detection would catch the attacker behavior it was actually designed for, unless that behavior happened to occur, and get logged, during the window you tested. For most techniques, especially anything reasonably specific, that's not a safe assumption. The fix is to stop waiting for the behavior to occur naturally and generate it on purpose, in a controlled way, and watch whether the detection fires.</p>
-          <p>This is what atomic testing means in a detection engineering context, and the best-known tool for it is Atomic Red Team, an open-source library maintained by Red Canary. It's built around small, discrete test scripts, each one mapped to a specific MITRE ATT&CK technique, designed to safely reproduce a narrow piece of attacker behavior (a particular command, a particular registry modification, a particular process relationship) without carrying out an actual attack. Run one of these tests in a lab or sandboxed environment that feeds the same log sources your detection reads from, and you get a clean, known-cause event: you know exactly what happened, when it happened, and which technique it corresponds to.</p>
+          <p>Backtesting tells you how a detection behaves against activity that has already happened. It says nothing about whether the detection would catch the attacker behavior it was actually designed for, unless that behavior happened to occur, and get logged, during the window you tested. For most techniques, especially anything reasonably specific, that's not a safe assumption.</p>
+          <p>The fix is to stop waiting for the behavior to occur naturally and generate it on purpose, in a controlled way, and watch whether the detection fires.</p>
+          <h3>What Atomic Red Team Does</h3>
+          <p>This is what atomic testing means in a detection engineering context, and the best-known tool for it is Atomic Red Team, an open-source library maintained by Red Canary. It's built around small, discrete test scripts, each one mapped to a specific MITRE ATT&CK technique, designed to safely reproduce a narrow piece of attacker behavior (a particular command, a particular registry modification, a particular process relationship) without carrying out an actual attack.</p>
+          <p>Run one of these tests in a lab or sandboxed environment that feeds the same log sources your detection reads from, and you get a clean, known-cause event: you know exactly what happened, when it happened, and which technique it corresponds to.</p>
+          <h3>From Guess to Direct Check</h3>
           <p>The value of that clean event is that it turns "does this detection fire on the right thing" from a guess into a direct check. Run the atomic test, then go look at whether the detection logic matched the resulting log data. If it fired, you've confirmed the rule works against the actual behavior it targets, not just against your mental model of that behavior. If it didn't fire, you've found the gap while the rule is still a draft, not after it's been live and silent for months.</p>
           <div class="callout-info"><strong>Why this matters beyond convenience:</strong> some techniques are rare enough, or specific enough to an attacker's tooling, that they may never show up in your historical data at all. Atomic testing is the only practical way to validate detection coverage for a technique you've never actually seen in your own environment. Without it, "we have a detection for this" and "we have a detection that has been proven to fire for this" quietly become the same claim, and they shouldn't be.</div>
           <h3>Keep the test controlled</h3>
@@ -146,7 +167,14 @@
 
         <section class="content-section" id="validating-tp-fp-rates">
           <h2>Validating True Positive and False Positive Rates</h2>
-          <p>Backtesting and atomic testing answer two different halves of the same question, and put together, they give a detection engineer a rough but grounded read on the rule's real-world behavior. The atomic test answers: does the detection fire when the exact behavior it's meant to catch actually happens? That's the true positive check. The backtest answers: how often does the same logic fire on activity that has nothing to do with that behavior? That's the false positive estimate. Neither one alone is enough. A rule that fires reliably on the atomic test but also fires constantly in the backtest is technically working but operationally unusable. A rule that stays quiet in the backtest but never fires on the atomic test either isn't tuned, it's broken.</p>
+          <p>Backtesting and atomic testing answer two different halves of the same question, and put together, they give a detection engineer a rough but grounded read on the rule's real-world behavior.</p>
+          <div class="callout-info"><strong>Two checks, not one:</strong>
+            <ul>
+              <li><strong>Atomic test (true positive check):</strong> does the detection fire when the exact behavior it's meant to catch actually happens?</li>
+              <li><strong>Backtest (false positive estimate):</strong> how often does the same logic fire on activity that has nothing to do with that behavior?</li>
+            </ul>
+          </div>
+          <p>Neither one alone is enough. A rule that fires reliably on the atomic test but also fires constantly in the backtest is technically working but operationally unusable. A rule that stays quiet in the backtest but never fires on the atomic test either isn't tuned, it's broken.</p>
           <p>Treat this as a repeatable cycle rather than a one-time check, especially the first few times a piece of logic gets revised based on what testing surfaces.</p>
           <div class="process-flow">
             <div class="flow-step"><span class="flow-step-num">1</span><div class="flow-step-title">Draft Logic</div><div class="flow-step-desc">Detection written from the hypothesis and mapped fields, not yet run against anything.</div></div>
@@ -159,7 +187,8 @@
             <div class="flow-arrow">&#8594;</div>
             <div class="flow-step"><span class="flow-step-num">5</span><div class="flow-step-title">Decide</div><div class="flow-step-desc">Ready to tune and deploy, or back to the logic if either check fails.</div></div>
           </div>
-          <p>"Decide" isn't a formality either. If the atomic test doesn't fire, the logic goes back to step one, there's no point tuning false positives on a rule that can't even catch its own target behavior. If the atomic test fires cleanly but the backtest volume is high, the rule is a candidate for the tuning process covered in the next chapter, not for immediate deployment. Only a rule that clears both checks, confirmed true positive and a false positive rate the team is comfortable with, is genuinely ready to move toward production.</p>
+          <p>"Decide" isn't a formality either. If the atomic test doesn't fire, the logic goes back to step one, there's no point tuning false positives on a rule that can't even catch its own target behavior. If the atomic test fires cleanly but the backtest volume is high, the rule is a candidate for the tuning process covered in the next chapter, not for immediate deployment.</p>
+          <p>Only a rule that clears both checks, confirmed true positive and a false positive rate the team is comfortable with, is genuinely ready to move toward production.</p>
           <div class="table-wrap">
             <table>
               <thead><tr><th>Backtest result</th><th>Atomic test result</th><th>What it means</th></tr></thead>
@@ -175,7 +204,8 @@
 
         <section class="content-section" id="testing-safely-outside-production">
           <h2>Testing Safely, Outside Production</h2>
-          <p>Every step above assumes the testing itself doesn't create risk for the people downstream of it. An untested rule should never be pointed at a live, unfiltered alert queue where a real analyst might see its output and act on it. If the logic is wrong, an analyst could chase a false signal that wastes investigation time, or worse, could see a string of meaningless alerts from a rule they don't know is still in testing and start discounting alerts from that source by habit, which undermines the rule even after it's fixed.</p>
+          <p>Every step above assumes the testing itself doesn't create risk for the people downstream of it. An untested rule should never be pointed at a live, unfiltered alert queue where a real analyst might see its output and act on it.</p>
+          <p>If the logic is wrong, an analyst could chase a false signal that wastes investigation time, or worse, could see a string of meaningless alerts from a rule they don't know is still in testing and start discounting alerts from that source by habit, which undermines the rule even after it's fixed.</p>
           <p>Most SIEM and detection platforms offer some way to run logic live without exposing it to the production queue, and which one applies depends on what the platform supports:</p>
           <ul>
             <li><strong>A staging or test queue.</strong> A separate alert destination, visible only to the detection engineering team, that mirrors production behavior without notifying the analyst rotation. New rules run here first and only get promoted to the production queue after they've cleared testing.</li>

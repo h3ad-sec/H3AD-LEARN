@@ -190,7 +190,32 @@
           </div>
 
           <h3>Collection Methods</h3>
-          <p>How an event gets from its source to the SIEM varies by platform and by what's generating the data. Agents installed on endpoints can tail local logs and forward them in near real time, and they tend to give you the richest, most granular telemetry because the agent runs on the box itself. Forwarders sit closer to infrastructure that can't run an agent, a network appliance or a legacy system, and relay syslog or similar output. API-based collection pulls data from cloud platforms and SaaS applications that expose their logs through a management API rather than a traditional log file, which is now the dominant pattern for cloud control-plane and identity provider logging.</p>
+          <p>How an event gets from its source to the SIEM varies by platform and by what's generating the data.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Agents</strong></td>
+                  <td>Installed on endpoints, tail local logs, and forward them in near real time. They tend to give you the richest, most granular telemetry because the agent runs on the box itself.</td>
+                </tr>
+                <tr>
+                  <td><strong>Forwarders</strong></td>
+                  <td>Sit closer to infrastructure that can't run an agent, a network appliance or a legacy system, and relay syslog or similar output.</td>
+                </tr>
+                <tr>
+                  <td><strong>API-based collection</strong></td>
+                  <td>Pulls data from cloud platforms and SaaS applications that expose their logs through a management API rather than a traditional log file. This is now the dominant pattern for cloud control-plane and identity provider logging.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
           <div class="callout-info"><strong>Note:</strong> Normalization is the unglamorous stage that makes everything downstream possible. A correlation rule that says "flag failed logon followed by successful logon from a new IP within five minutes" only works if failed and successful logons from every log source in the environment already share the same field names and value formats. Poorly normalized data quietly breaks rules without ever throwing an error, which is why a rule that used to fire can go silent after an unrelated log source change.</div>
         </section>
@@ -235,7 +260,9 @@
           </div>
 
           <h3>Why Identity and Endpoint Usually Come First</h3>
-          <p>Most intrusions eventually need a valid credential and a place to execute code, which is why identity and endpoint logging tend to sit at the top of onboarding priority lists. A stolen credential used to sign into an IdP, or a malicious script executed on a workstation, produces a log entry in exactly these two categories before it produces one anywhere else. Network logs remain valuable, they're often the only place lateral movement or command-and-control beaconing shows up cleanly, but they answer "where did traffic go" rather than "who did it and what did they run," which is usually the more urgent question during an active investigation.</p>
+          <p>Most intrusions eventually need a valid credential and a place to execute code, which is why identity and endpoint logging tend to sit at the top of onboarding priority lists. A stolen credential used to sign into an IdP, or a malicious script executed on a workstation, produces a log entry in exactly these two categories before it produces one anywhere else.</p>
+
+          <p>Network logs remain valuable, they're often the only place lateral movement or command-and-control beaconing shows up cleanly, but they answer "where did traffic go" rather than "who did it and what did they run," which is usually the more urgent question during an active investigation.</p>
 
           <p>Cloud control-plane logs have become a higher onboarding priority than they were a few years ago, simply because more of an organization's actual infrastructure now lives behind a cloud console rather than a physical firewall. An attacker who compromises a cloud administrator account can do more damage through the API than through anything a network sensor would ever see.</p>
 
@@ -337,9 +364,37 @@
         <!-- SECTION 5 -->
         <section class="content-section" id="retention-compliance">
           <h2>Retention and Compliance, Briefly</h2>
-          <p>How long log data stays searchable in a SIEM is rarely a purely technical decision. Retention periods are frequently set by regulatory or contractual obligations that apply to the organization's industry or customer agreements, and the SOC's job is usually to meet whatever floor those obligations set rather than to choose an arbitrary number independently. If your organization is subject to specific compliance frameworks, the retention requirement should come from whoever owns that compliance relationship, not from an assumption made at the SIEM console.</p>
 
-          <p>Underneath the compliance question sits a cost question that shapes day-to-day architecture. Log volume at scale gets expensive to keep fully indexed and instantly searchable, so most SIEM deployments split retention into tiers: a shorter "hot" window where data is fully indexed and fast to query, and a longer "cold" or archived tier where data is retained to satisfy retention obligations but takes longer, and sometimes a manual restoration step, to search. Where that line falls between hot and cold is a tradeoff every SOC has to make deliberately, because setting it purely by cost without regard to investigation needs means an analyst three months into an incident may find the logs they need have already aged out of fast search.</p>
+          <h3>Retention Follows Compliance, Not Preference</h3>
+          <p>How long log data stays searchable in a SIEM is rarely a purely technical decision. Retention periods are frequently set by regulatory or contractual obligations that apply to the organization's industry or customer agreements, and the SOC's job is usually to meet whatever floor those obligations set rather than to choose an arbitrary number independently.</p>
+
+          <p>If your organization is subject to specific compliance frameworks, the retention requirement should come from whoever owns that compliance relationship, not from an assumption made at the SIEM console.</p>
+
+          <h3>Hot and Cold Storage Tiers</h3>
+          <p>Underneath the compliance question sits a cost question that shapes day-to-day architecture. Log volume at scale gets expensive to keep fully indexed and instantly searchable, so most SIEM deployments split retention into tiers.</p>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Tier</th>
+                  <th>What It Means</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Hot</strong></td>
+                  <td>Data is fully indexed and fast to query</td>
+                </tr>
+                <tr>
+                  <td><strong>Cold / archived</strong></td>
+                  <td>Data is retained to satisfy retention obligations but takes longer, and sometimes a manual restoration step, to search</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Where that line falls between hot and cold is a tradeoff every SOC has to make deliberately, because setting it purely by cost without regard to investigation needs means an analyst three months into an incident may find the logs they need have already aged out of fast search.</p>
 
           <div class="callout-info"><strong>Note:</strong> Retention and detection are related but separate decisions. A log source can be fully onboarded for real-time correlation while still following its own retention schedule for historical search. Know both numbers for your critical sources: how long they're actively monitored, and how long they're actually retrievable if an investigation needs to look back further than the hot tier covers.</div>
         </section>
