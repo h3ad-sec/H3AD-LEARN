@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="02">
+  <meta name="module-id" content="digital-forensics">
+  <title>Disk and File System Forensics: Imaging, Partitions &amp; Data Recovery · Digital Forensics · H3AD-LEARN</title>
+  <meta name="description" content="Disk and file system forensics: acquisition and imaging, MBR/GPT partitioning, NTFS/FAT/exFAT internals, and deleted file recovery and data carving.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/02-disk-and-file-system-forensics.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/02-disk-and-file-system-forensics.html">
+  <meta property="og:title" content="Disk and File System Forensics: Imaging, Partitions &amp; Data Recovery · Digital Forensics · H3AD-LEARN">
+  <meta property="og:description" content="Disk and file system forensics: acquisition and imaging, MBR/GPT partitioning, NTFS/FAT/exFAT internals, and deleted file recovery and data carving.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Disk and File System Forensics: Imaging, Partitions &amp; Data Recovery · Digital Forensics · H3AD-LEARN">
+  <meta name="twitter:description" content="Disk and file system forensics: acquisition and imaging, MBR/GPT partitioning, NTFS/FAT/exFAT internals, and deleted file recovery and data carving.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Disk and File System Forensics: Imaging, Partitions & Data Recovery",
+    "description": "Disk and file system forensics: acquisition and imaging, MBR/GPT partitioning, NTFS/FAT/exFAT internals, and deleted file recovery and data carving.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/02-disk-and-file-system-forensics.html",
+    "isPartOf": { "@type": "Course", "name": "Digital Forensics", "url": "https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/" },
+    "provider": { "@type": "Organization", "name": "H3AD-SEC", "url": "https://h3ad-sec.github.io" }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" },
+    { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" },
+    { "@type": "ListItem", "position": 3, "name": "Digital Forensics", "item": "https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/" },
+    { "@type": "ListItem", "position": 4, "name": "Disk and File System Forensics: Imaging, Partitions & Data Recovery", "item": "https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/02-disk-and-file-system-forensics.html" }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">DF DISK FORENSICS</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub">&#8623; SOC OPERATIONS</a>
+    <a href="../detection-engineering/index.html" class="drawer-sub">&#8623; DETECTION ENGINEERING</a>
+    <a href="../incident-response/index.html" class="drawer-sub">&#8623; INCIDENT RESPONSE</a>
+    <a href="../digital-forensics/index.html" class="drawer-sub nav-current">&#8623; DIGITAL FORENSICS</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Digital Forensics</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 02 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 5 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 02</span>
+            <span class="badge-time muted mono">35 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Disk and File System Forensics: Imaging, Partitions &amp; Data Recovery</h1>
+          <p class="chapter-intro">Most investigations start with a disk image. This chapter covers how to acquire one forensically soundly, how partition tables and file systems organize what is on it, and how to recover data that is supposedly gone.</p>
+          <div class="chapter-tags">
+            <span class="tag">disk imaging</span>
+            <span class="tag">NTFS</span>
+            <span class="tag">data carving</span>
+            <span class="tag">write blockers</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="acquisition-and-imaging">
+          <h2>Acquisition and Imaging</h2>
+          <p>Acquisition is the process of capturing a copy of storage media that stands in for the original throughout the investigation. It happens two ways: live, against a running system, or dead-box, with the drive removed and imaged offline.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Method</th><th>When used</th><th>Trade-off</th></tr></thead>
+              <tbody>
+                <tr><td>Live acquisition</td><td>System can't be powered off (encryption, uptime requirements, volatile data needed)</td><td>Captures RAM and running state, but the act of imaging changes the live system slightly</td></tr>
+                <tr><td>Dead-box acquisition</td><td>Drive can be removed and imaged offline</td><td>Cleanest, most defensible copy, but loses volatile memory and any state that only exists while running</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>A write blocker, hardware or software, sits between the examiner's system and the original media and physically or logically prevents any write command from reaching it. This is what makes the acquisition forensically sound: the original disk is never modified during imaging.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Format</th><th>Notes</th></tr></thead>
+              <tbody>
+                <tr><td>Raw / dd</td><td>Bit-for-bit copy of the media, no metadata container, universally supported by forensic tools</td></tr>
+                <tr><td>E01 (EnCase)</td><td>Compressed, embeds case metadata and a hash inside the image file itself</td></tr>
+                <tr><td>AFF</td><td>Open format alternative, similar goals to E01 without vendor lock-in</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout-info"><strong>Note:</strong> A cryptographic hash (commonly SHA-256) is computed immediately after imaging and compared against a hash of the original media. A match proves the image is an exact, unaltered copy, which is what makes it defensible later.</div>
+        </section>
+
+        <section class="content-section" id="partitioning-and-boot-structures">
+          <h2>Partitioning and Boot Structures</h2>
+          <p>Before an examiner looks at any file, they check the partition table. It shows what volumes and file systems exist on the disk, which determines every tool and technique used from that point forward.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Property</th><th>MBR</th><th>GPT</th></tr></thead>
+              <tbody>
+                <tr><td>Max primary partitions</td><td>4 (or 3 primary + 1 extended holding logical partitions)</td><td>128 by default</td></tr>
+                <tr><td>Max disk size</td><td>Capped by its 32-bit sector addressing, around 2 TB</td><td>Not limited by the same constraint, supports much larger disks</td></tr>
+                <tr><td>Partition table location</td><td>First sector of the disk</td><td>Primary header near the start of the disk</td></tr>
+                <tr><td>Redundancy</td><td>No backup, a damaged sector 0 can take the whole table with it</td><td>Keeps a backup header, typically at the end of the disk</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>A corrupted or unusual partition table is itself a finding worth noting before any deeper analysis begins.</p>
+        </section>
+
+        <section class="content-section" id="file-system-internals">
+          <h2>File System Internals</h2>
+          <p>Once the partitions are known, the examiner is working inside a specific file system. Each tracks files differently, and that difference shapes what evidence survives.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Property</th><th>NTFS</th><th>FAT32</th><th>exFAT</th></tr></thead>
+              <tbody>
+                <tr><td>Primary metadata structure</td><td>$MFT (Master File Table)</td><td>FAT table</td><td>FAT table (extended)</td></tr>
+                <tr><td>Journaling</td><td>Yes, via $LogFile</td><td>No</td><td>No</td></tr>
+                <tr><td>Typical use today</td><td>Windows internal drives</td><td>Legacy systems, some embedded devices</td><td>Removable and flash media</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout-info"><strong>Note:</strong> Slack space (the unused portion of a cluster past the end of a file's actual data) and unallocated space (clusters not currently assigned to any file) are both forensically significant. Old data can persist in either after a file is deleted or a cluster is only partially overwritten by newer, smaller data.</div>
+        </section>
+
+        <section class="content-section" id="deleted-file-recovery-and-carving">
+          <h2>Deleted File Recovery and Data Carving</h2>
+          <p>Deleting a file normally just removes the file system's pointer or reference to its data. The data itself stays on disk until something else overwrites those clusters, which is why recovery is often possible well after deletion.</p>
+          <ul>
+            <li><strong>Metadata-based recovery:</strong> the file system record still exists (marked deleted) and still points to the original clusters, so the file can often be restored intact with its name and timestamps.</li>
+            <li><strong>Signature-based carving:</strong> unallocated space is scanned for known file header and footer byte patterns, and data between them is reconstructed as a file even with no surviving metadata.</li>
+          </ul>
+          <div class="callout-info"><strong>Limitation:</strong> Fragmented files, where a file's data is not stored in contiguous clusters, are hard or impossible to carve cleanly, since carving assumes the data between a header and footer belongs to one continuous file.</div>
+        </section>
+
+        <section class="content-section" id="practical-disk-examination-workflow">
+          <h2>Practical Disk Examination Workflow</h2>
+          <p>Disk examination is rarely exhaustive from the start. Examiners scale effort to what the investigation actually needs.</p>
+          <div class="process-flow">
+            <div class="flow-step">
+              <div class="flow-step-num">1</div>
+              <div class="flow-step-title">Triage</div>
+              <div class="flow-step-desc">Quick look for obvious, relevant artifacts to confirm the disk is worth full examination</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <div class="flow-step-num">2</div>
+              <div class="flow-step-title">Targeted Examination</div>
+              <div class="flow-step-desc">Pull specific artifact types tied directly to the investigation's questions</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <div class="flow-step-num">3</div>
+              <div class="flow-step-title">Full Analysis</div>
+              <div class="flow-step-desc">Exhaustive review of the image when targeted examination doesn't answer the questions</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <div class="flow-step-num">4</div>
+              <div class="flow-step-title">Reporting Handoff</div>
+              <div class="flow-step-desc">Findings documented and handed off with enough detail to be reproduced</div>
+            </div>
+          </div>
+          <div class="callout-info"><strong>Note:</strong> The disk image acquired here is what the next two chapters build on directly, Chapter 3 (Windows Artifact Forensics) pulls specific artifacts from it, and Chapter 5 (Timeline Analysis) reconstructs activity across it.</div>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>Write blockers prevent any write to original media, which is what makes an acquisition forensically sound.</li>
+            <li>Raw/dd, E01, and AFF trade off simplicity, compression, and embedded metadata differently.</li>
+            <li>A hash computed after imaging and checked against the original proves the image is an exact copy.</li>
+            <li>GPT supports far larger disks and more partitions than MBR, and keeps a backup header MBR lacks.</li>
+            <li>NTFS, FAT32, and exFAT differ in metadata structure and journaling, which affects what evidence survives.</li>
+            <li>Deletion removes a pointer, not the data, so recovery and carving are possible until overwritten, but fragmentation defeats carving.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">Why is a write blocker used during disk acquisition?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. To speed up the imaging process</button>
+              <button class="kc-option" data-correct="true">B. To prevent any write command from reaching the original media</button>
+              <button class="kc-option" data-correct="false">C. To automatically hash the image once complete</button>
+              <button class="kc-option" data-correct="false">D. To compress the resulting image file</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. A write blocker physically or logically blocks writes to the original disk, keeping it unmodified so the acquired image remains defensible.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">What is a key advantage of GPT over MBR for partitioning?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. GPT stores its partition table only on removable media</button>
+              <button class="kc-option" data-correct="true">B. GPT supports larger disks and keeps a backup header for redundancy</button>
+              <button class="kc-option" data-correct="false">C. GPT does not require a partition table at all</button>
+              <button class="kc-option" data-correct="false">D. GPT is only compatible with FAT32</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. MBR is capped by 32-bit sector addressing and has no backup of its partition table, while GPT supports much larger disks and stores a backup header, typically at the end of the disk.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">Why are deleted files often still recoverable?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Deletion always moves the file to a hidden backup partition</button>
+              <button class="kc-option" data-correct="true">B. Deletion typically only removes the file system's pointer to the data, not the data itself</button>
+              <button class="kc-option" data-correct="false">C. All file systems encrypt deleted files instead of removing them</button>
+              <button class="kc-option" data-correct="false">D. Deleted files are automatically copied to unallocated space by the OS</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. Deletion normally removes the reference to the file's clusters, not the underlying data, so the data persists and can be recovered until it is overwritten.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="01-digital-forensics-foundations.html" class="chapter-nav-prev">← Digital Forensics Foundations</a>
+          <a href="03-windows-artifact-forensics.html" class="chapter-nav-next">Windows Artifact Forensics →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Digital Forensics</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('02', 5));</script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="04">
+  <meta name="module-id" content="digital-forensics">
+  <title>Memory Forensics: Acquisition, Volatility &amp; Live System Analysis · Digital Forensics · H3AD-LEARN</title>
+  <meta name="description" content="Memory forensics: why RAM matters, memory acquisition methods, analysis with the Volatility framework, and finding process injection and hidden process artifacts.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/04-memory-forensics.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/04-memory-forensics.html">
+  <meta property="og:title" content="Memory Forensics: Acquisition, Volatility &amp; Live System Analysis · Digital Forensics · H3AD-LEARN">
+  <meta property="og:description" content="Memory forensics: why RAM matters, memory acquisition methods, analysis with the Volatility framework, and finding process injection and hidden process artifacts.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Memory Forensics: Acquisition, Volatility &amp; Live System Analysis · Digital Forensics · H3AD-LEARN">
+  <meta name="twitter:description" content="Memory forensics: why RAM matters, memory acquisition methods, analysis with the Volatility framework, and finding process injection and hidden process artifacts.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <script type="application/ld+json">
+  { "@context": "https://schema.org", "@type": "LearningResource", "name": "Memory Forensics: Acquisition, Volatility & Live System Analysis", "description": "Memory forensics: why RAM matters, memory acquisition methods, analysis with the Volatility framework, and finding process injection and hidden process artifacts.", "url": "https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/04-memory-forensics.html", "isPartOf": { "@type": "Course", "name": "Digital Forensics", "url": "https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/" }, "provider": { "@type": "Organization", "name": "H3AD-SEC", "url": "https://h3ad-sec.github.io" } }
+  </script>
+  <script type="application/ld+json">
+{ "@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [ { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" }, { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" }, { "@type": "ListItem", "position": 3, "name": "Digital Forensics", "item": "https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/" }, { "@type": "ListItem", "position": 4, "name": "Memory Forensics: Acquisition, Volatility & Live System Analysis", "item": "https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/04-memory-forensics.html" } ] }
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/"><img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC"></a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">DF MEMORY FORENSICS</span>
+    </a>
+    <div class="nav-right"><div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme"><div class="toggle-track"><div class="toggle-thumb"></div></div></div></div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub">&#8623; SOC OPERATIONS</a>
+    <a href="../detection-engineering/index.html" class="drawer-sub">&#8623; DETECTION ENGINEERING</a>
+    <a href="../incident-response/index.html" class="drawer-sub">&#8623; INCIDENT RESPONSE</a>
+    <a href="../digital-forensics/index.html" class="drawer-sub nav-current">&#8623; DIGITAL FORENSICS</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Digital Forensics</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 04 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 5 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 04</span>
+            <span class="badge-time muted mono">35 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Memory Forensics: Acquisition, Volatility &amp; Live System Analysis</h1>
+          <p class="chapter-intro">RAM holds some of the most important evidence on a compromised system: running processes, network connections in progress, decryption keys in use, and injected code that was never written to disk. Fileless malware can live entirely in memory and never touch the drive at all. This chapter covers how to acquire that memory before it's gone and how to start pulling it apart.</p>
+          <div class="chapter-tags"><span class="tag">memory forensics</span><span class="tag">memory acquisition</span><span class="tag">Volatility framework</span><span class="tag">process injection</span></div>
+        </header>
+
+        <section class="content-section" id="why-memory-matters">
+          <h2>Why Memory Matters</h2>
+          <p>Disk forensics captures what a system has saved. Memory forensics captures what a system is doing right now, including things that were deliberately designed to never be saved.</p>
+          <div class="table-wrap"><table><thead><tr><th>Disk Evidence</th><th>Memory-Only Evidence</th></tr></thead><tbody>
+            <tr><td>Installed applications and files at rest</td><td>Running processes and their command-line arguments</td></tr>
+            <tr><td>Saved documents and downloads</td><td>Network connections currently open or recently closed</td></tr>
+            <tr><td>Registry hives as written to disk</td><td>Decrypted data and encryption keys actively in use</td></tr>
+            <tr><td>Malware binaries, if dropped to disk at all</td><td>Injected or unpacked malware code that never touched disk</td></tr>
+            <tr><td>N/A</td><td>Fileless malware that only ever existed in RAM</td></tr>
+          </tbody></table></div>
+          <p>This is why memory sits near the top of the order of volatility from chapter 1. Only CPU registers, cache, and live kernel state rank above it, and none of those can be collected in practice, which makes RAM the first source an examiner actually captures. Once a system is powered off or rebooted, everything in that right-hand column is gone permanently. Disk evidence can usually wait a few hours for a proper response; memory usually cannot.</p>
+        </section>
+
+        <section class="content-section" id="memory-acquisition">
+          <h2>Memory Acquisition</h2>
+          <p>There are two broad ways to get memory content for analysis, depending on whether the system is still running.</p>
+          <div class="process-flow">
+            <div class="flow-step"><span class="flow-step-num">1</span><span class="flow-step-title">Live Acquisition</span><span class="flow-step-desc">Run a memory-imaging tool on the running system to capture the full contents of physical RAM to a file.</span></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step"><span class="flow-step-num">2</span><span class="flow-step-title">Existing Memory Sources</span><span class="flow-step-desc">Recover memory content already saved to disk: hibernation files, pagefiles, or crash dumps.</span></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step"><span class="flow-step-num">3</span><span class="flow-step-title">Preserve and Hash</span><span class="flow-step-desc">Hash the acquired image immediately and store it alongside other collected evidence.</span></div>
+          </div>
+          <div class="callout-info"><strong>Note:</strong> Acquiring memory on a live system means running a tool on that system, which leaves a small footprint on the very evidence being collected. This is an accepted tradeoff. The alternative, not acquiring memory at all, loses far more evidence than the acquisition tool disturbs.</div>
+        </section>
+
+        <section class="content-section" id="analysis-with-volatility">
+          <h2>Analysis With the Volatility Framework</h2>
+          <p>Volatility is a widely used open-source memory analysis framework built around plugins, each designed to answer a specific question about the memory image. Exact plugin names and syntax vary between framework versions, so the table below stays at the category level.</p>
+          <div class="table-wrap"><table><thead><tr><th>Plugin Category</th><th>What It Reveals</th></tr></thead><tbody>
+            <tr><td>Process listing</td><td>Running processes, plus processes that were hidden or unlinked from the normal list</td></tr>
+            <tr><td>Network connections</td><td>Active sockets and recently closed connections still resident in memory</td></tr>
+            <tr><td>Process memory scanning</td><td>Injected code, where a process's in-memory content doesn't match what's expected for it</td></tr>
+            <tr><td>Command history</td><td>Commands typed into shells or consoles during the session</td></tr>
+            <tr><td>Registry hives in memory</td><td>Registry data loaded at capture time, sometimes ahead of what's flushed to disk</td></tr>
+          </tbody></table></div>
+          <div class="callout-info"><strong>Note:</strong> Think of each plugin category as answering a narrow question. Building a full picture of an incident usually means running several categories and correlating what they show, not relying on any single output alone.</div>
+        </section>
+
+        <section class="content-section" id="process-and-injection-artifacts">
+          <h2>Process and Injection Artifacts in Memory</h2>
+          <p>Memory analysis is where a lot of malware behavior that hides well on disk becomes visible. A few patterns come up repeatedly.</p>
+          <ul>
+            <li><strong>Parent-child anomalies:</strong> a process spawned by a parent that wouldn't normally spawn it, such as an office application launching a command shell.</li>
+            <li><strong>Process hollowing and injection signatures:</strong> a process whose in-memory code doesn't match its on-disk image, a strong indicator that legitimate process space was hollowed out and replaced.</li>
+            <li><strong>Hidden or unlinked processes:</strong> a technique sometimes called DKOM, where a process is removed from the visible process list in memory but is still actually running.</li>
+            <li><strong>Orphaned network connections:</strong> an otherwise ordinary-looking process holding a network connection that doesn't fit its normal behavior.</li>
+          </ul>
+          <div class="callout-info"><strong>Note:</strong> None of these indicators are proof on their own. A legitimate installer can spawn a shell too. Weigh each pattern against what's normal for that specific host and process before calling it malicious.</div>
+        </section>
+
+        <section class="content-section" id="memory-forensics-limitations">
+          <h2>Limitations and Best Practices</h2>
+          <p>Memory forensics is powerful, but it comes with real constraints an examiner has to plan around.</p>
+          <div class="table-wrap"><table><thead><tr><th>Limitation</th><th>Practical Impact</th></tr></thead><tbody>
+            <tr><td>Extreme volatility</td><td>Memory must be acquired first, or before disk in many response plans, or the evidence is lost forever</td></tr>
+            <tr><td>Anti-forensic tooling</td><td>Memory-wiping and scrubbing tools exist and can destroy evidence before an examiner ever arrives on scene</td></tr>
+            <tr><td>Single point in time</td><td>A memory image is only a snapshot; it doesn't show how the system got there</td></tr>
+          </tbody></table></div>
+          <p>Memory analysis is strongest when read alongside the disk and filesystem artifacts covered in chapters 2 and 3, not in isolation. A memory snapshot is a single point in time; the next chapter builds the timeline around it.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>Memory holds evidence disk never will: running processes, live network connections, decryption keys in use, and injected or fileless code.</li>
+            <li>Memory can be acquired live from a running system, or recovered from existing sources like hibernation files, pagefiles, and crash dumps.</li>
+            <li>Live acquisition tools leave a small footprint on the evidence, an accepted tradeoff against losing memory evidence entirely.</li>
+            <li>Volatility is a plugin-based framework where each plugin category answers a specific question about the memory image.</li>
+            <li>Process hollowing, hidden/unlinked processes (DKOM), and orphaned network connections are key injection indicators to look for.</li>
+            <li>Because memory is the most volatile evidence source that can actually be collected, it must be acquired first or it's lost permanently once the system reboots or shuts down.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">Why must memory usually be acquired before other evidence during incident response?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Memory is easier to hash than disk images</button>
+              <button class="kc-option" data-correct="true">B. Memory is the most volatile evidence source and is lost on shutdown or reboot</button>
+              <button class="kc-option" data-correct="false">C. Disk evidence can always be recreated later</button>
+              <button class="kc-option" data-correct="false">D. Memory acquisition tools automatically preserve disk evidence too</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. Memory sits near the top of the order of volatility, and it is the most volatile source that can realistically be collected. Once a system powers off or reboots, its contents are gone permanently, while most disk evidence can wait.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">A process's in-memory code doesn't match its on-disk image. What does this most likely indicate?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. The process is using more RAM than usual</button>
+              <button class="kc-option" data-correct="false">B. The process was recently updated by Windows Update</button>
+              <button class="kc-option" data-correct="true">C. Process hollowing or code injection has occurred</button>
+              <button class="kc-option" data-correct="false">D. The process has a corrupted pagefile entry</button>
+            </div>
+            <div class="kc-answer">Correct answer: C. A mismatch between a process's on-disk image and its in-memory code is a classic sign of process hollowing or injection, where legitimate process space is used to run different code.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">What is Volatility primarily used for in digital forensics?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Imaging hard drives sector by sector</button>
+              <button class="kc-option" data-correct="false">B. Carving deleted files from unallocated disk space</button>
+              <button class="kc-option" data-correct="false">C. Parsing Windows Event Logs</button>
+              <button class="kc-option" data-correct="true">D. Analyzing memory images through a plugin-based framework</button>
+            </div>
+            <div class="kc-answer">Correct answer: D. Volatility is an open-source memory analysis framework structured around plugins, each built to answer a specific question about a captured memory image, such as process listing, network connections, or injection detection.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="03-windows-artifact-forensics.html" class="chapter-nav-prev">← Windows Artifact Forensics</a>
+          <a href="05-timeline-analysis.html" class="chapter-nav-next">Timeline Analysis →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Digital Forensics</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('04', 5));</script>
+</body>
+</html>

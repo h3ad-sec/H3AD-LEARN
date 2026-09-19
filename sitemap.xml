@@ -490,6 +490,61 @@
   </url>
 
   <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/01-digital-forensics-foundations.html</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/02-disk-and-file-system-forensics.html</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/03-windows-artifact-forensics.html</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/04-memory-forensics.html</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/05-timeline-analysis.html</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/06-network-forensics.html</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/07-mobile-and-cloud-forensics.html</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/08-anti-forensics-and-reporting.html</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
     <loc>https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/</loc>
     <lastmod>2026-09-19</lastmod>
     <changefreq>monthly</changefreq>

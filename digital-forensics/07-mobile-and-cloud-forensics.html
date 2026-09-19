@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="07">
+  <meta name="module-id" content="digital-forensics">
+  <title>Mobile and Cloud Forensics: iOS, Android &amp; Cloud Provider Evidence · Digital Forensics · H3AD-LEARN</title>
+  <meta name="description" content="Mobile and cloud forensics: mobile acquisition tiers, iOS and Android artifact categories, cloud forensics fundamentals, and evidence sources like M365, Entra ID, and AWS CloudTrail.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/07-mobile-and-cloud-forensics.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/07-mobile-and-cloud-forensics.html">
+  <meta property="og:title" content="Mobile and Cloud Forensics: iOS, Android &amp; Cloud Provider Evidence · Digital Forensics · H3AD-LEARN">
+  <meta property="og:description" content="Mobile and cloud forensics: mobile acquisition tiers, iOS and Android artifact categories, cloud forensics fundamentals, and evidence sources like M365, Entra ID, and AWS CloudTrail.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Mobile and Cloud Forensics: iOS, Android &amp; Cloud Provider Evidence · Digital Forensics · H3AD-LEARN">
+  <meta name="twitter:description" content="Mobile and cloud forensics: mobile acquisition tiers, iOS and Android artifact categories, cloud forensics fundamentals, and evidence sources like M365, Entra ID, and AWS CloudTrail.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <script type="application/ld+json">
+  { "@context": "https://schema.org", "@type": "LearningResource", "name": "Mobile and Cloud Forensics: iOS, Android & Cloud Provider Evidence", "description": "Mobile and cloud forensics: mobile acquisition tiers, iOS and Android artifact categories, cloud forensics fundamentals, and evidence sources like M365, Entra ID, and AWS CloudTrail.", "url": "https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/07-mobile-and-cloud-forensics.html", "isPartOf": { "@type": "Course", "name": "Digital Forensics", "url": "https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/" }, "provider": { "@type": "Organization", "name": "H3AD-SEC", "url": "https://h3ad-sec.github.io" } }
+  </script>
+  <script type="application/ld+json">
+{ "@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [ { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" }, { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" }, { "@type": "ListItem", "position": 3, "name": "Digital Forensics", "item": "https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/" }, { "@type": "ListItem", "position": 4, "name": "Mobile and Cloud Forensics: iOS, Android & Cloud Provider Evidence", "item": "https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/07-mobile-and-cloud-forensics.html" } ] }
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/"><img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC"></a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">DF MOBILE &amp; CLOUD</span>
+    </a>
+    <div class="nav-right"><div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme"><div class="toggle-track"><div class="toggle-thumb"></div></div></div></div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub">&#8623; SOC OPERATIONS</a>
+    <a href="../detection-engineering/index.html" class="drawer-sub">&#8623; DETECTION ENGINEERING</a>
+    <a href="../incident-response/index.html" class="drawer-sub">&#8623; INCIDENT RESPONSE</a>
+    <a href="../digital-forensics/index.html" class="drawer-sub nav-current">&#8623; DIGITAL FORENSICS</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Digital Forensics</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 07 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">40 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 5 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 07</span>
+            <span class="badge-time muted mono">40 MIN READ</span>
+            <span class="badge-diff badge-advanced">ADVANCED</span>
+          </div>
+          <h1 class="chapter-title">Mobile and Cloud Forensics: iOS, Android &amp; Cloud Provider Evidence</h1>
+          <p class="chapter-intro">More evidence now lives on phones and in cloud provider logs than on local disks alone. This chapter covers both, plus the acquisition and legal complications that come with evidence you don't physically control.</p>
+          <div class="chapter-tags"><span class="tag">mobile forensics</span><span class="tag">cloud forensics</span><span class="tag">iOS acquisition</span><span class="tag">cloud audit logs</span></div>
+        </header>
+
+        <section class="content-section" id="mobile-forensics-fundamentals">
+          <h2>Mobile Forensics Fundamentals</h2>
+          <p>Mobile acquisition is usually described in tiers, from a quick manual look to a full bit-for-bit copy. Each tier trades off completeness against what the device and its encryption will actually allow.</p>
+          <div class="table-wrap"><table><thead><tr><th>Acquisition Tier</th><th>What It Recovers</th></tr></thead><tbody>
+            <tr><td>Manual</td><td>Examiner navigates the device UI directly and photographs or notes what's visible. Minimal, but sometimes the only option on a locked or unsupported device.</td></tr>
+            <tr><td>Logical</td><td>Extracts accessible files and databases through the OS's normal APIs, similar in concept to a live triage collection rather than a raw disk copy.</td></tr>
+            <tr><td>Filesystem</td><td>A fuller extraction of the accessible filesystem. More than logical, but still not everything on the device.</td></tr>
+            <tr><td>Physical</td><td>Ideally a full bit-for-bit copy of the device's storage, though modern device encryption makes true physical acquisition increasingly hard or impossible without device-specific support.</td></tr>
+          </tbody></table></div>
+          <p>Encryption and secure hardware enclaves on modern iOS and Android devices have pushed most real-world acquisitions toward the logical and filesystem tiers. Full physical acquisition still happens, but it increasingly depends on vendor-specific tooling and known device vulnerabilities rather than being a routine option.</p>
+          <div class="callout-info"><strong>Note:</strong> the tier you can achieve is a device and case-specific decision, not a preference. Document why a given tier was chosen alongside what it recovered.</div>
+        </section>
+
+        <section class="content-section" id="ios-and-android-artifacts">
+          <h2>iOS and Android Artifact Categories</h2>
+          <p>Once data is extracted, it groups into a handful of recurring artifact categories across both platforms. These categories are where an examiner starts looking, not an exhaustive list.</p>
+          <div class="table-wrap"><table><thead><tr><th>Artifact Category</th><th>Example</th></tr></thead><tbody>
+            <tr><td>Communications</td><td>Call logs, SMS, iMessage, and RCS messages.</td></tr>
+            <tr><td>App data</td><td>Most apps store data in SQLite databases on-device, covering everything from chat history to app-specific settings.</td></tr>
+            <tr><td>Location history</td><td>Cached location data tied to individual apps and to OS-level location services.</td></tr>
+            <tr><td>Deleted-item recovery</td><td>SQLite databases often retain deleted records in unallocated pages or write-ahead log files until overwritten, similar in spirit to the deleted-file recovery covered in chapter 2.</td></tr>
+          </tbody></table></div>
+          <div class="callout-info"><strong>Note:</strong> app data artifacts are the largest and fastest-moving category. New apps and app updates change database schemas often, so tooling and known artifact locations need regular revalidation.</div>
+        </section>
+
+        <section class="content-section" id="cloud-forensics-fundamentals">
+          <h2>Cloud Forensics Fundamentals</h2>
+          <p>Cloud forensics operates inside the shared responsibility model rather than something separate from it. What an examiner can access and acquire depends on which layer the organization actually controls.</p>
+          <div class="callout-info">For the full shared responsibility breakdown and cloud attack techniques, see <a href="../cloud-security/index.html">the Cloud Security module</a>.</div>
+          <p>The key forensic difference from on-prem is where the evidence lives. Instead of a disk the organization holds, evidence sits in provider-side logs whose retention the examiner doesn't control.</p>
+          <p>This ties back to the order-of-volatility idea from chapter 1. Cloud log retention windows can be short, which makes some cloud evidence effectively more volatile than a local disk sitting untouched on a shelf.</p>
+        </section>
+
+        <section class="content-section" id="cloud-provider-evidence-sources">
+          <h2>Cloud Provider Evidence Sources</h2>
+          <p>Each major cloud and productivity platform exposes its own audit log format. The specific fields retained vary and change over time, but the general purpose of each source is stable.</p>
+          <div class="table-wrap"><table><thead><tr><th>Source</th><th>What It Captures</th></tr></thead><tbody>
+            <tr><td>M365 Unified Audit Log</td><td>User and admin activity across Exchange, SharePoint, and Teams.</td></tr>
+            <tr><td>Azure AD / Entra ID sign-in logs</td><td>Authentication attempts and conditional access decisions.</td></tr>
+            <tr><td>AWS CloudTrail</td><td>API calls made against an AWS account.</td></tr>
+            <tr><td>GCP Audit Logs</td><td>API and admin activity in Google Cloud.</td></tr>
+          </tbody></table></div>
+          <div class="callout-info"><strong>Note:</strong> treat exact field names and retention defaults as something to verify per engagement. They shift as providers update their logging products.</div>
+        </section>
+
+        <section class="content-section" id="legal-complexity-across-jurisdictions">
+          <h2>Legal Complexity Across Jurisdictions</h2>
+          <p>Mobile and cloud evidence introduces legal wrinkles that an on-prem disk the organization already owns doesn't have.</p>
+          <ul>
+            <li><strong>Data residency:</strong> where the data physically sits can determine whose law applies to it.</li>
+            <li><strong>Provider cooperation:</strong> getting data from a cloud provider or mobile carrier typically requires going through their own legal request process, not direct access.</li>
+            <li><strong>Earlier legal involvement:</strong> because of the above, legal counsel needs to be looped in earlier for mobile and cloud evidence requests than for a disk the organization already controls.</li>
+          </ul>
+          <p>This legal complexity is a major reason cloud and mobile evidence takes longer to obtain than the host evidence covered in earlier chapters.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>Mobile acquisition tiers run manual, logical, filesystem, physical, with encryption pushing most real-world work toward logical and filesystem.</li>
+            <li>iOS and Android artifacts group into communications, app data, location history, and deleted-item recovery from SQLite databases.</li>
+            <li>Cloud forensics sits inside the shared responsibility model; what you can acquire depends on which layer you control.</li>
+            <li>Cloud evidence lives in provider logs the examiner doesn't control the retention of, which can make it more volatile than a local disk.</li>
+            <li>Key cloud evidence sources include the M365 Unified Audit Log, Entra ID sign-in logs, AWS CloudTrail, and GCP Audit Logs.</li>
+            <li>Data residency and provider cooperation requirements mean legal counsel needs to be involved earlier for mobile and cloud evidence.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">A logical acquisition of a mobile device recovers which of the following?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. A full bit-for-bit copy of device storage</button>
+              <button class="kc-option" data-correct="true">B. Accessible files and databases through the OS's normal APIs</button>
+              <button class="kc-option" data-correct="false">C. Only what the examiner can see on-screen</button>
+              <button class="kc-option" data-correct="false">D. Unallocated space on the device's flash storage</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. Logical acquisition uses the OS's own APIs to pull accessible files and databases. A full bit-for-bit copy is physical acquisition, and on-screen-only review is manual acquisition.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">What does AWS CloudTrail primarily capture?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Network packet captures inside a VPC</button>
+              <button class="kc-option" data-correct="true">B. API calls made against an AWS account</button>
+              <button class="kc-option" data-correct="false">C. File content stored in S3 buckets</button>
+              <button class="kc-option" data-correct="false">D. Endpoint process execution on EC2 instances</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. CloudTrail logs API calls made against the account, which is the cloud equivalent of an activity trail rather than packet or endpoint telemetry.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">Why can cloud provider logs be considered more volatile than a local disk in some cases?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Cloud logs are always encrypted and unreadable</button>
+              <button class="kc-option" data-correct="true">B. Provider-side log retention windows can be short and are outside the examiner's control</button>
+              <button class="kc-option" data-correct="false">C. Cloud logs are stored on removable media</button>
+              <button class="kc-option" data-correct="false">D. Local disks never lose data over time</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. A local disk can sit untouched, but provider-side retention windows are set by the provider and can roll evidence off before it's collected, which is why it needs to be treated with urgency similar to other volatile evidence.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="06-network-forensics.html" class="chapter-nav-prev">← Network Forensics</a>
+          <a href="08-anti-forensics-and-reporting.html" class="chapter-nav-next">Anti-Forensics and Reporting →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Digital Forensics</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('07', 5));</script>
+</body>
+</html>

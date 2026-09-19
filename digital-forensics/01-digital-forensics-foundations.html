@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="01">
+  <meta name="module-id" content="digital-forensics">
+  <title>Digital Forensics Foundations: Legal Process, Order of Volatility &amp; Chain of Custody · Digital Forensics · H3AD-LEARN</title>
+  <meta name="description" content="The branches of digital forensics, the legal and ethical basis for collecting evidence, order of volatility, chain of custody, and the six-step forensic investigation process.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/01-digital-forensics-foundations.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/01-digital-forensics-foundations.html">
+  <meta property="og:title" content="Digital Forensics Foundations: Legal Process, Order of Volatility &amp; Chain of Custody · Digital Forensics · H3AD-LEARN">
+  <meta property="og:description" content="The branches of digital forensics, the legal and ethical basis for collecting evidence, order of volatility, chain of custody, and the six-step forensic investigation process.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Digital Forensics Foundations: Legal Process, Order of Volatility &amp; Chain of Custody · Digital Forensics · H3AD-LEARN">
+  <meta name="twitter:description" content="The branches of digital forensics, the legal and ethical basis for collecting evidence, order of volatility, chain of custody, and the six-step forensic investigation process.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Digital Forensics Foundations: Legal Process, Order of Volatility & Chain of Custody",
+    "description": "The branches of digital forensics, the legal and ethical basis for collecting evidence, order of volatility, chain of custody, and the six-step forensic investigation process.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/01-digital-forensics-foundations.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Digital Forensics",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" },
+    { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" },
+    { "@type": "ListItem", "position": 3, "name": "Digital Forensics", "item": "https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/" },
+    { "@type": "ListItem", "position": 4, "name": "Digital Forensics Foundations: Legal Process, Order of Volatility & Chain of Custody", "item": "https://h3ad-sec.github.io/H3AD-LEARN/digital-forensics/01-digital-forensics-foundations.html" }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">DF FOUNDATIONS</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub">&#8623; SOC OPERATIONS</a>
+    <a href="../detection-engineering/index.html" class="drawer-sub">&#8623; DETECTION ENGINEERING</a>
+    <a href="../incident-response/index.html" class="drawer-sub">&#8623; INCIDENT RESPONSE</a>
+    <a href="../digital-forensics/index.html" class="drawer-sub nav-current">&#8623; DIGITAL FORENSICS</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Digital Forensics</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 01 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">25 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 5 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 01</span>
+            <span class="badge-time muted mono">25 MIN READ</span>
+            <span class="badge-diff badge-beginner">BEGINNER</span>
+          </div>
+          <h1 class="chapter-title">Digital Forensics Foundations: Legal Process, Order of Volatility &amp; Chain of Custody</h1>
+          <p class="chapter-intro">Digital forensics is the discipline of turning a compromised system into legally defensible evidence: collected, handled, and documented in a way that survives scrutiny later. This chapter lays the foundation, the branches of the field, the legal basis for collecting evidence, and the custody discipline, that every other chapter in this module (disk, Windows artifacts, memory, timeline, network, mobile and cloud, anti-forensics) builds on directly.</p>
+          <div class="chapter-tags">
+            <span class="tag">digital forensics process</span>
+            <span class="tag">chain of custody</span>
+            <span class="tag">order of volatility</span>
+            <span class="tag">forensic branches</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="branches-of-digital-forensics">
+          <h2>The Branches of Digital Forensics</h2>
+          <p>Digital forensics is not one skill, it is a set of related disciplines, each recovering a different kind of evidence from a different kind of source. This module covers five of them in depth, one chapter or more at a time.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Branch</th><th>What It Recovers</th><th>Typical Trigger</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Disk / Media Forensics</td><td>Deleted files, file system metadata, partition artifacts, slack space</td><td>Insider misuse, data theft, ransomware post-mortem</td></tr>
+                <tr><td>Memory Forensics</td><td>Running processes, injected code, encryption keys, network connections in memory</td><td>Live malware, fileless attacks, credential theft</td></tr>
+                <tr><td>Network Forensics</td><td>Packet captures, flow records, DNS and proxy logs, lateral movement traces</td><td>Active intrusion, exfiltration, C2 investigation</td></tr>
+                <tr><td>Mobile Forensics</td><td>App data, call and message history, location history, device backups</td><td>BYOD incidents, HR investigations, device seizure</td></tr>
+                <tr><td>Cloud Forensics</td><td>Control-plane logs, object storage history, identity and access logs, snapshot images</td><td>Cloud account compromise, misconfigured storage, SaaS abuse</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout-info"><strong>Note:</strong> this module is not the same scope as SOC Operations or Incident Response. SOC Operations covers alert triage, deciding whether something needs escalation. Incident Response owns the full incident lifecycle end to end. Digital Forensics is the deep, evidence-grade collection and analysis skillset that IR investigators draw on once an incident needs proof, not just a verdict. See <a href="../soc-operations/index.html">SOC Operations</a> and <a href="../incident-response/index.html">Incident Response</a> for those companion modules.</div>
+        </section>
+
+        <section class="content-section" id="legal-and-ethical-framework">
+          <h2>Legal and Ethical Framework</h2>
+          <p>Evidence that is collected without proper authority, or handled sloppily, can be challenged or thrown out entirely, no matter how technically sound the analysis behind it is. Before touching a device, an investigator needs to know who authorized the collection and why.</p>
+          <p>Authority to collect generally comes from one of a few sources: informed consent from the device owner, a legal hold issued once litigation is anticipated, a court order or warrant, or standing corporate policy that employees have already agreed to (commonly covered by an acceptable use or monitoring policy).</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Investigation Type</th><th>Typical Legal Basis</th><th>Example</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Internal / HR investigation</td><td>Employment agreement, acceptable use policy, employer-owned device</td><td>Suspected policy violation on a company laptop</td></tr>
+                <tr><td>Law enforcement investigation</td><td>Warrant or other judicial authorization</td><td>Seizure of a device as part of a criminal case</td></tr>
+                <tr><td>Civil litigation / eDiscovery</td><td>Legal hold, discovery request between parties</td><td>Preserving email and file activity ahead of a lawsuit</td></tr>
+                <tr><td>Regulatory investigation</td><td>Statutory reporting or audit authority of a regulator</td><td>Regulator-mandated review after a breach disclosure</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Whatever the basis, evidence only stays usable later if four things hold: the collector had proper authority, custody was unbroken from collection to presentation, the methodology was sound and repeatable, and another qualified examiner could reproduce the same result from the same evidence. Privacy and regulatory factors matter too, data residency rules, employee privacy expectations, and what a policy actually permits to be searched all shape what an investigator is allowed to touch before any technical work starts.</p>
+        </section>
+
+        <section class="content-section" id="order-of-volatility">
+          <h2>Order of Volatility</h2>
+          <p>Not all evidence decays at the same rate. Some data disappears the moment power is lost, other data can sit untouched on a disk for years. Collection has to move from the most volatile sources to the least, or the fast-decaying evidence is gone before anyone gets to it.</p>
+          <div class="process-flow">
+            <div class="flow-step">
+              <div class="flow-step-num">1</div>
+              <div class="flow-step-title">CPU Registers &amp; Cache</div>
+              <div class="flow-step-desc">Exists only while the CPU is executing, gone in nanoseconds.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">2</div>
+              <div class="flow-step-title">Routing Tables, ARP Cache, Process Table, Kernel Stats</div>
+              <div class="flow-step-desc">Live operational state, overwritten continuously by normal system activity.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">3</div>
+              <div class="flow-step-title">System Memory (RAM)</div>
+              <div class="flow-step-desc">Holds running processes, injected code, and keys, lost on power-off.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">4</div>
+              <div class="flow-step-title">Temporary Filesystem / Swap Space</div>
+              <div class="flow-step-desc">Paged-out memory contents, still tied to the running session.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">5</div>
+              <div class="flow-step-title">Disk</div>
+              <div class="flow-step-desc">Persistent, but still changes as the system keeps running.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">6</div>
+              <div class="flow-step-title">Remote Logging &amp; Monitoring Data</div>
+              <div class="flow-step-desc">Retained on a schedule set by whoever owns that logging system.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">7</div>
+              <div class="flow-step-title">Physical Configuration &amp; Network Topology</div>
+              <div class="flow-step-desc">Stable, but can change if hardware is reconfigured or replaced.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">8</div>
+              <div class="flow-step-title">Archival Media &amp; Backups</div>
+              <div class="flow-step-desc">The most durable copies, but often the oldest and least current.</div>
+            </div>
+          </div>
+          <p>This ordering comes from RFC 3227, <em>Guidelines for Evidence Collection and Archiving</em> (February 2002), which tells collectors to work from the volatile to the less volatile in this sequence: registers and cache; routing table, ARP cache, process table, kernel statistics and memory; temporary file systems; disk; remote logging and monitoring data relevant to the system; physical configuration and network topology; archival media. The flow above splits system memory and swap out as their own steps, since in practice they are captured by separate tools, but the ranking is the RFC's.</p>
+          <div class="callout-info"><strong>Why order matters:</strong> imaging the disk first on a live, running system can mean the RAM gets overwritten before anyone captures it, and evidence that only ever existed in memory (an injected payload, a decryption key, a C2 connection) is lost for good.</div>
+        </section>
+
+        <section class="content-section" id="chain-of-custody">
+          <h2>Chain of Custody</h2>
+          <p>Chain of custody is a continuous, documented record of who possessed a piece of evidence, when, and what they did with it. A gap in that record is often enough for opposing counsel or an auditor to question whether the evidence was tampered with, even if it wasn't.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Field</th><th>Purpose</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Item description / identifier</td><td>Uniquely identifies the exact piece of evidence (serial number, case ID, label)</td></tr>
+                <tr><td>Collected by (name)</td><td>Ties the initial acquisition to an accountable individual</td></tr>
+                <tr><td>Date / time of each transfer</td><td>Establishes a timeline with no unexplained gaps</td></tr>
+                <tr><td>From / to (custodian)</td><td>Shows exactly who held the evidence at every point</td></tr>
+                <tr><td>Purpose of transfer</td><td>Explains why possession changed hands (analysis, storage, court)</td></tr>
+                <tr><td>Location stored</td><td>Confirms the evidence was kept somewhere secure and access-controlled</td></tr>
+                <tr><td>Hash value at each step</td><td>Proves the evidence itself was never altered</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout-tip"><strong>Integrity verification:</strong> compute a cryptographic hash (SHA-256 is standard) at the moment of acquisition, then re-verify it at every subsequent access. For physical media, pair that with tamper-evident bags and write blockers so the original can be examined without ever being altered.</div>
+        </section>
+
+        <section class="content-section" id="the-forensic-process">
+          <h2>The Forensic Investigation Process</h2>
+          <p>Most forensic work follows the same high-level lifecycle, regardless of which branch is involved. Each stage exists to protect the integrity of the stage before it.</p>
+          <div class="process-flow">
+            <div class="flow-step">
+              <div class="flow-step-num">1</div>
+              <div class="flow-step-title">Identification</div>
+              <div class="flow-step-desc">Determine what potential evidence exists and where it lives.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">2</div>
+              <div class="flow-step-title">Preservation</div>
+              <div class="flow-step-desc">Protect evidence from change before it is collected.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">3</div>
+              <div class="flow-step-title">Collection</div>
+              <div class="flow-step-desc">Acquire the evidence using sound, repeatable methods.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">4</div>
+              <div class="flow-step-title">Examination</div>
+              <div class="flow-step-desc">Process the acquired evidence to surface relevant artifacts.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">5</div>
+              <div class="flow-step-title">Analysis</div>
+              <div class="flow-step-desc">Interpret the artifacts to answer the investigation's questions.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">6</div>
+              <div class="flow-step-title">Presentation</div>
+              <div class="flow-step-desc">Report findings clearly enough to support a decision or a case.</div>
+            </div>
+          </div>
+          <p>The rest of this module walks through each branch this process is applied to:</p>
+          <ul>
+            <li><strong>Disk and File System Forensics</strong>: recovering deleted files, parsing file system metadata, and reading slack space.</li>
+            <li><strong>Windows Artifact Forensics</strong>: registry hives, event logs, prefetch, and other OS-level evidence.</li>
+            <li><strong>Memory Forensics</strong>: capturing and analyzing RAM for processes, injected code, and live network state.</li>
+            <li><strong>Timeline Analysis</strong>: correlating timestamps across sources into a single sequence of events.</li>
+            <li><strong>Network Forensics</strong>: packet captures, flow data, and log-based reconstruction of network activity.</li>
+            <li><strong>Mobile and Cloud Forensics</strong>: device backups, app data, and cloud control-plane evidence.</li>
+            <li><strong>Anti-Forensics and Reporting</strong>: recognizing evidence tampering and writing findings up for presentation.</li>
+          </ul>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>Digital forensics splits into distinct branches, disk, memory, network, mobile, and cloud, each recovering different evidence and triggered by different scenarios.</li>
+            <li>Evidence only remains usable later if it was collected under proper legal authority, with unbroken custody, sound methodology, and reproducible results.</li>
+            <li>Collection must follow order of volatility, most volatile sources (registers, memory) first, most durable (backups) last, or fast-decaying evidence is lost.</li>
+            <li>Chain of custody is a continuous documented record of who held evidence, when, and what they did with it, verified at each step by hashing.</li>
+            <li>The forensic process runs through six stages: identification, preservation, collection, examination, analysis, and presentation.</li>
+            <li>This module is the technical evidence-handling skillset that Incident Response investigations draw on once proof, not just triage, is required.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">Following order of volatility, which of these should generally be captured first on a live, running system?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Archival backup tapes</button>
+              <button class="kc-option" data-correct="true">B. System memory (RAM)</button>
+              <button class="kc-option" data-correct="false">C. Disk image</button>
+              <button class="kc-option" data-correct="false">D. Network topology diagrams</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. RAM is far more volatile than disk or archival media, it is lost the moment power is cut, so it needs to be captured before slower-decaying sources like disk.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">A chain of custody log is missing the hash value recorded at the point of collection. What does this gap put at risk?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. The read speed of the original media</button>
+              <button class="kc-option" data-correct="true">B. The ability to prove the evidence was never altered</button>
+              <button class="kc-option" data-correct="false">C. The file system's timestamp accuracy</button>
+              <button class="kc-option" data-correct="false">D. The order of volatility ranking</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. The hash at acquisition is the baseline used to prove integrity at every later access. Without it, there is no way to demonstrate the evidence was never changed.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">Which stage of the forensic investigation process comes immediately after preservation?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Presentation</button>
+              <button class="kc-option" data-correct="false">B. Analysis</button>
+              <button class="kc-option" data-correct="true">C. Collection</button>
+              <button class="kc-option" data-correct="false">D. Identification</button>
+            </div>
+            <div class="kc-answer">Correct answer: C. The six-step process runs identification, preservation, collection, examination, analysis, presentation, so collection follows directly after preservation.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="index.html" class="chapter-nav-prev">← Digital Forensics Overview</a>
+          <a href="02-disk-and-file-system-forensics.html" class="chapter-nav-next">Disk and File System Forensics →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Digital Forensics</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('01', 5));</script>
+</body>
+</html>
