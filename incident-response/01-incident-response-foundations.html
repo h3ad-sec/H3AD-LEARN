@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="01">
+  <meta name="module-id" content="incident-response">
+  <title>Incident Response Foundations: NIST, PICERL &amp; Team Roles · Incident Response · H3AD-LEARN</title>
+  <meta name="description" content="The incident response lifecycle from NIST 800-61 and SANS PICERL, incident classification and severity, and the roles that make up an IR team.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/incident-response/01-incident-response-foundations.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/incident-response/01-incident-response-foundations.html">
+  <meta property="og:title" content="Incident Response Foundations: NIST, PICERL &amp; Team Roles · Incident Response · H3AD-LEARN">
+  <meta property="og:description" content="The incident response lifecycle from NIST 800-61 and SANS PICERL, incident classification and severity, and the roles that make up an IR team.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Incident Response Foundations: NIST, PICERL &amp; Team Roles · Incident Response · H3AD-LEARN">
+  <meta name="twitter:description" content="The incident response lifecycle from NIST 800-61 and SANS PICERL, incident classification and severity, and the roles that make up an IR team.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Incident Response Foundations: NIST, PICERL & Team Roles",
+    "description": "The incident response lifecycle from NIST 800-61 and SANS PICERL, incident classification and severity, and the roles that make up an IR team.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/incident-response/01-incident-response-foundations.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Incident Response",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/incident-response/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" },
+    { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" },
+    { "@type": "ListItem", "position": 3, "name": "Incident Response", "item": "https://h3ad-sec.github.io/H3AD-LEARN/incident-response/" },
+    { "@type": "ListItem", "position": 4, "name": "Incident Response Foundations: NIST, PICERL & Team Roles", "item": "https://h3ad-sec.github.io/H3AD-LEARN/incident-response/01-incident-response-foundations.html" }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">IR FOUNDATIONS</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub">&#8623; SOC OPERATIONS</a>
+    <a href="../detection-engineering/index.html" class="drawer-sub">&#8623; DETECTION ENGINEERING</a>
+    <a href="../incident-response/index.html" class="drawer-sub nav-current">&#8623; INCIDENT RESPONSE</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Incident Response</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 01 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">25 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 5 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 01</span>
+            <span class="badge-time muted mono">25 MIN READ</span>
+            <span class="badge-diff badge-beginner">BEGINNER</span>
+          </div>
+          <h1 class="chapter-title">Incident Response Foundations: NIST, PICERL &amp; Team Roles</h1>
+          <p class="chapter-intro">Incident response is the discipline of taking a confirmed security incident from first confirmation through full recovery and a formal lessons-learned review. This chapter lays the groundwork, the frameworks, the classification system, and the team roles, that the remaining seven chapters in this module build on directly.</p>
+          <div class="chapter-tags">
+            <span class="tag">incident response lifecycle</span>
+            <span class="tag">NIST 800-61</span>
+            <span class="tag">PICERL</span>
+            <span class="tag">IR team roles</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="soc-triage-vs-full-ir">
+          <h2>SOC Incident Handling vs Full Incident Response</h2>
+          <p>SOC Operations and Incident Response cover different slices of the same incident. Knowing where one ends and the other begins avoids duplicated work and dropped handoffs.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Dimension</th><th>SOC-Scoped Incident Handling</th><th>Full Incident Response Ownership</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Covered in</td><td>SOC Operations module, Chapter 5 (Incident Handling Workflow)</td><td>This module, all 8 chapters</td></tr>
+                <tr><td>Scope</td><td>Confirm the alert is a real incident, apply initial containment, open a case</td><td>Own the incident end-to-end through post-incident review</td></tr>
+                <tr><td>Ends when</td><td>Handoff to IR, or closure of a minor incident fully resolved at SOC level</td><td>The incident is closed, documented, and lessons learned are captured</td></tr>
+                <tr><td>Typical owner</td><td>L1/L2 SOC analyst</td><td>Incident Commander and a cross-functional IR team</td></tr>
+                <tr><td>Depth of investigation</td><td>Enough to confirm and contain</td><td>Full scoping, root cause, evidence handling, chain of custody</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout-info"><strong>Note:</strong> This module does not re-teach SOC-scoped triage. If you need that grounding first, see <a href="../soc-operations/05-incident-handling-workflow.html">SOC Operations, Chapter 5: Incident Handling Workflow</a>. Everything here picks up where SOC-scoped handling stops.</div>
+        </section>
+
+        <section class="content-section" id="nist-vs-picerl">
+          <h2>Two Frameworks: NIST 800-61 vs SANS PICERL</h2>
+          <p>Two frameworks describe the same underlying work at different levels of granularity. Most IR teams reference both.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>NIST SP 800-61 Phase</th><th>Maps to SANS PICERL Phase(s)</th><th>Notes</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Preparation</td><td>Preparation</td><td>Same scope in both: policies, tooling, training, and playbooks built before an incident happens</td></tr>
+                <tr><td>Detection and Analysis</td><td>Identification</td><td>Confirming and scoping that an incident is real</td></tr>
+                <tr><td>Containment, Eradication, and Recovery</td><td>Containment, Eradication, Recovery</td><td>NIST combines three PICERL phases into one; the underlying work is identical</td></tr>
+                <tr><td>Post-Incident Activity</td><td>Lessons Learned</td><td>A formal review after the incident is closed</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>The remaining chapters in this module are structured around PICERL's six steps, since each maps to one chapter.</p>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Preparation</div>
+              <div class="flow-step-desc">Plans, playbooks, tooling, and tabletop exercises built before anything happens.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Identification</div>
+              <div class="flow-step-desc">Confirming an incident is real and scoping its initial extent.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Containment</div>
+              <div class="flow-step-desc">Stopping the incident from spreading or causing further damage.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Eradication</div>
+              <div class="flow-step-desc">Removing the threat and the conditions that let it in.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">5</span>
+              <div class="flow-step-title">Recovery</div>
+              <div class="flow-step-desc">Restoring systems to normal operation with confidence.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">6</span>
+              <div class="flow-step-title">Lessons Learned</div>
+              <div class="flow-step-desc">Formal review of what happened and what changes as a result.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="content-section" id="incident-classification-severity">
+          <h2>Incident Classification and Severity</h2>
+          <p>Every incident gets sorted along two axes: what kind of incident it is, and how bad it is. Both drive who gets paged and how fast.</p>
+          <h3>Common Incident Categories</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Category</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Malware / Ransomware</td><td>Malicious code executes on a system, encrypting or destroying data or giving an attacker persistent access</td></tr>
+                <tr><td>Unauthorized Access</td><td>An actor gains access to a system or account without authorization, often via stolen or misused credentials</td></tr>
+                <tr><td>Data Breach / Exfiltration</td><td>Sensitive data is accessed, copied, or removed by an unauthorized party</td></tr>
+                <tr><td>Denial of Service</td><td>An attack degrades or disables the availability of a system or service</td></tr>
+                <tr><td>Insider Threat</td><td>A current or former employee, contractor, or partner misuses legitimate access to cause harm</td></tr>
+                <tr><td>Phishing / BEC</td><td>An attacker uses deceptive email or messaging to steal credentials, deliver malware, or redirect payments</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>Severity Levels</h3>
+          <div class="callout-info">
+            <strong>Severity glossary:</strong>
+            <ul>
+              <li><strong>Critical</strong>: active ransomware encrypting production systems, or confirmed exfiltration of regulated data.</li>
+              <li><strong>High</strong>: confirmed unauthorized access to a sensitive system with containment not yet applied.</li>
+              <li><strong>Medium</strong>: contained malware limited to a single non-critical endpoint.</li>
+              <li><strong>Low</strong>: an isolated phishing email reported and blocked before any user interaction.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="content-section" id="ir-team-roles">
+          <h2>The IR Team: Roles and Structure</h2>
+          <p>Full incident response is a team function, not a solo one. A working IR team spans technical, communications, legal, and business roles.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Role</th><th>Responsibility</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Incident Commander / IR Manager</td><td>Owns the incident end-to-end and makes the final call on every major decision</td></tr>
+                <tr><td>Lead Investigator / Forensic Analyst</td><td>Runs the technical investigation: scope, root cause, and evidence collection</td></tr>
+                <tr><td>Communications Lead</td><td>Manages internal updates and external, customer, or regulator communication</td></tr>
+                <tr><td>Legal / Compliance Liaison</td><td>Advises on breach notification obligations, privilege, and regulatory exposure</td></tr>
+                <tr><td>IT / Infrastructure Support</td><td>Executes containment, eradication, and recovery actions on affected systems</td></tr>
+                <tr><td>Executive Sponsor</td><td>Provides authority and resourcing, and makes business-risk decisions above the IC's authority</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout-info"><strong>CSIRT vs CERT vs PSIRT:</strong> All three describe an incident response function, but they are not interchangeable. <strong>CSIRT</strong> (Computer Security Incident Response Team) is the general term for an organization's internal IR team. <strong>CERT</strong> (Computer Emergency Response Team) historically referred to national or regional coordination bodies, though some companies still use the name internally. <strong>PSIRT</strong> (Product Security Incident Response Team) handles vulnerabilities and incidents in a vendor's own products, not internal IT incidents.</div>
+        </section>
+
+        <section class="content-section" id="how-this-module-builds">
+          <h2>How the Rest of This Module Builds on This Chapter</h2>
+          <p>This chapter set the frame. The next seven chapters walk PICERL's phases in order, then close with a chapter on scenarios that don't follow the standard playbook cleanly.</p>
+          <ul>
+            <li><strong>Preparation</strong>: IR plans, playbooks, and tabletop exercises built before an incident hits.</li>
+            <li><strong>Detection and Analysis</strong>: scoping an incident, handling evidence, chain of custody, and building a timeline.</li>
+            <li><strong>Containment Strategy</strong>: how to decide what to isolate, and when.</li>
+            <li><strong>Eradication</strong>: removing the threat for good, not just the symptom.</li>
+            <li><strong>Recovery</strong>: phased restoration back to normal operations.</li>
+            <li><strong>Post-Incident Activity</strong>: lessons learned, metrics, and disclosure obligations.</li>
+            <li><strong>Specialized IR Scenarios</strong>: ransomware, BEC, insider threat, and cloud incidents.</li>
+          </ul>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>NIST SP 800-61 uses 4 phases; SANS PICERL uses 6 phases that map cleanly onto it, with Containment, Eradication, and Recovery collapsing into one NIST phase.</li>
+            <li>PICERL's 6 phases, Preparation, Identification, Containment, Eradication, Recovery, and Lessons Learned, structure the rest of this module.</li>
+            <li>Incidents are classified by category (malware, unauthorized access, data breach, DoS, insider threat, phishing/BEC) and rated by severity to drive prioritization.</li>
+            <li>A functioning IR team spans technical, communications, legal, infrastructure, and executive roles, not just investigators.</li>
+            <li>SOC-scoped incident handling confirms and contains; full IR ownership carries the incident through post-incident review, and this module starts where SOC-scoped handling stops.</li>
+            <li>CSIRT, CERT, and PSIRT are related but distinct terms for an incident response function.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">Which single NIST SP 800-61 phase covers the same ground as PICERL's Containment, Eradication, and Recovery phases combined?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Preparation</button>
+              <button class="kc-option" data-correct="false">B. Detection and Analysis</button>
+              <button class="kc-option" data-correct="true">C. Containment, Eradication, and Recovery</button>
+              <button class="kc-option" data-correct="false">D. Post-Incident Activity</button>
+            </div>
+            <div class="kc-answer">Correct answer: C. NIST groups three of PICERL's six phases, Containment, Eradication, and Recovery, into a single combined phase. The work is the same either way; NIST just describes it at a coarser grain.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">An L2 SOC analyst confirms a phishing email led to a compromised account and disables it as initial containment. At what point does this typically move from SOC-scoped handling into full incident response ownership?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. It never does; SOC-scoped handling is always sufficient once an account is disabled.</button>
+              <button class="kc-option" data-correct="true">B. Once the incident needs work beyond confirm-and-contain, such as full impact scoping, forensic evidence collection, or a coordinated recovery plan.</button>
+              <button class="kc-option" data-correct="false">C. Only after the incident becomes public knowledge.</button>
+              <button class="kc-option" data-correct="false">D. Only once every affected user has been personally interviewed.</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. SOC-scoped handling covers confirm, initial containment, and handoff. The moment an incident needs deeper scoping, evidence handling, or a multi-step recovery plan, it has outgrown that scope and belongs with a full IR team.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">A breach investigation confirms exposure of regulated customer data. Who is primarily responsible for advising on breach notification obligations?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. IT / Infrastructure Support</button>
+              <button class="kc-option" data-correct="false">B. Communications Lead</button>
+              <button class="kc-option" data-correct="true">C. Legal / Compliance Liaison</button>
+              <button class="kc-option" data-correct="false">D. Lead Investigator / Forensic Analyst</button>
+            </div>
+            <div class="kc-answer">Correct answer: C. The Legal/Compliance Liaison advises on breach notification obligations, privilege, and regulatory exposure. The Communications Lead executes messaging once that guidance is set, but the underlying legal call sits with Legal/Compliance.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="index.html" class="chapter-nav-prev">← Incident Response Overview</a>
+          <a href="02-preparation-and-planning.html" class="chapter-nav-next">Preparation and Planning →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Incident Response</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('01', 5));</script>
+</body>
+</html>

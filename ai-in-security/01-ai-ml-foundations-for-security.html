@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="01">
+  <meta name="module-id" content="ai-in-security">
+  <title>AI and ML Foundations for Security · AI in Security · H3AD-LEARN</title>
+  <meta name="description" content="Plain-language definitions of AI, machine learning, deep learning, and LLMs, the supervised/unsupervised/reinforcement learning distinction, where AI already sits in the security stack, and why it matters now for defenders.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/01-ai-ml-foundations-for-security.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/01-ai-ml-foundations-for-security.html">
+  <meta property="og:title" content="AI and ML Foundations for Security · AI in Security · H3AD-LEARN">
+  <meta property="og:description" content="Plain-language definitions of AI, machine learning, deep learning, and LLMs, the supervised/unsupervised/reinforcement learning distinction, where AI already sits in the security stack, and why it matters now for defenders.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AI and ML Foundations for Security · AI in Security · H3AD-LEARN">
+  <meta name="twitter:description" content="Plain-language definitions of AI, machine learning, deep learning, and LLMs, the supervised/unsupervised/reinforcement learning distinction, where AI already sits in the security stack, and why it matters now for defenders.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "AI and ML Foundations for Security",
+    "description": "Plain-language definitions of AI, machine learning, deep learning, and LLMs, the supervised/unsupervised/reinforcement learning distinction, where AI already sits in the security stack, and why it matters now for defenders.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/01-ai-ml-foundations-for-security.html",
+    "isPartOf": { "@type": "Course", "name": "AI in Security", "url": "https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/" },
+    "provider": { "@type": "Organization", "name": "H3AD-SEC", "url": "https://h3ad-sec.github.io" }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" },
+    { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" },
+    { "@type": "ListItem", "position": 3, "name": "AI in Security", "item": "https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/" },
+    { "@type": "ListItem", "position": 4, "name": "AI and ML Foundations for Security", "item": "https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/01-ai-ml-foundations-for-security.html" }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">AI AND ML FOUNDATIONS FOR SECURITY</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub">&#8623; SOC OPERATIONS</a>
+    <a href="../detection-engineering/index.html" class="drawer-sub">&#8623; DETECTION ENGINEERING</a>
+    <a href="../incident-response/index.html" class="drawer-sub">&#8623; INCIDENT RESPONSE</a>
+    <a href="../ai-in-security/index.html" class="drawer-sub nav-current">&#8623; AI IN SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← AI in Security Overview</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 01 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">25 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 5 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 01</span>
+            <span class="badge-time muted mono">25 MIN READ</span>
+            <span class="badge-diff badge-beginner">BEGINNER</span>
+          </div>
+          <h1 class="chapter-title">AI and ML Foundations for Security</h1>
+          <p class="chapter-intro">"AI" shows up in every vendor pitch, every SOC tooling roadmap, and every headline about the next phishing wave, usually without anyone pausing to define it. This chapter builds that shared vocabulary: what AI, machine learning, deep learning, and large language models actually mean, how they relate to each other, and where each one already lives in the security stack. Everything in the rest of this module, from AI-powered phishing to LLM application security to building an AI security program, sits on top of the distinctions made here.</p>
+          <div class="chapter-tags">
+            <span class="tag">AI terminology</span><span class="tag">machine learning types</span><span class="tag">large language models</span><span class="tag">why AI matters for defenders</span>
+          </div>
+        </header>
+
+        <div class="callout-tip"><strong>Before you start:</strong> This chapter assumes no prior machine learning or data science background. If you can read a phishing report and understand what a false positive is, you have everything you need. The goal is vocabulary and mental models, not math.</div>
+
+        <section class="content-section" id="what-ai-actually-means">
+          <h2>What "AI" Actually Means in a Security Context</h2>
+          <p>"AI" gets used as a catch-all for anything that feels automated or clever, which is exactly why the word has stopped being useful on its own. In practice, the term covers a set of nested, overlapping ideas, and knowing which one a vendor or a headline is actually pointing at changes how you should read the claim.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Term</th><th>What it means</th><th>How it relates</th></tr></thead>
+              <tbody>
+                <tr><td>Artificial intelligence (AI)</td><td>Broadest label: any system that performs a task normally associated with human judgment, from flagging a suspicious login to writing a paragraph.</td><td>A goal, not a specific technique. Even a rules engine blocking known-bad IPs is arguably a primitive AI by the loosest definitions.</td></tr>
+                <tr><td>Machine learning (ML)</td><td>The dominant technique for building AI today. Instead of a human writing explicit rules, the system learns patterns from data and predicts on data it has never seen.</td><td>Subset of AI. Almost everything marketed as "AI" in a security product is ML underneath.</td></tr>
+                <tr><td>Deep learning</td><td>Uses layered neural networks, loosely inspired by the brain, to learn more complex patterns than older ML techniques could handle.</td><td>Subset of ML. What made modern image recognition, speech transcription, and language modeling practical.</td></tr>
+                <tr><td>Large language models (LLMs)</td><td>Models trained on enormous amounts of text that learn to predict and generate language.</td><td>Subset of deep learning. Sits behind chat assistants, AI-written phishing emails, and SOC copilots.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout-info"><strong>The distinction that matters most for this module:</strong>
+            <ul>
+              <li><strong>Classifier / detector models</strong> take an input and output a judgment: malicious or benign, spam or legitimate, anomalous or normal. This style of ML has been inside antivirus engines, EDR platforms, and spam filters for well over a decade. It doesn't create anything, it decides.</li>
+              <li><strong>Generative models</strong>, including LLMs and image or voice generators, take a prompt and produce new content: text, code, images, cloned audio. This is the newer, faster-moving category, and it's the one driving most of the current "AI changes everything" conversation.</li>
+            </ul>
+          </div>
+          <p>Keep that split in mind as you move through this module: Chapter 2 is almost entirely about generative AI misused by attackers, while Chapters 4 and 5 use both flavors together, classifiers for detection, generative models for summarization and copiloting. Conflating the two is how you end up either dismissing a real new risk as "just spam filters again" or panicking about a threat model that doesn't actually apply.</p>
+        </section>
+
+        <section class="content-section" id="types-of-ml-relevant-to-security">
+          <h2>Types of ML Relevant to Security Work</h2>
+          <p>You don't need to build models to work in security, just enough vocabulary to read a vendor datasheet critically. Three categories cover almost everything you'll encounter.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ML type</th><th>How it learns</th><th>Needs labeled data?</th><th>Typical security use</th></tr></thead>
+              <tbody>
+                <tr><td>Supervised learning</td><td>Trained on examples a human already labeled (this file is malware, this email is phishing), then applies that pattern to new data.</td><td>Yes</td><td>Malware classification, phishing email detection</td></tr>
+                <tr><td>Unsupervised learning</td><td>Looks for structure, clusters, or outliers in the data on its own, no labels involved.</td><td>No</td><td>UEBA baselining, anomaly and outlier detection</td></tr>
+                <tr><td>Reinforcement learning</td><td>Takes actions in an environment and gets rewarded or penalized for the outcome, refining behavior over many iterations.</td><td>No (reward signal instead)</td><td>Autonomous/agentic decision-making systems</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout-info"><strong>Worth knowing:</strong>
+            <ul>
+              <li>A supervised model is only as good as its training labels, which is why "training data" comes up constantly in any serious conversation about model reliability.</li>
+              <li>UEBA tools are noisy when first deployed because the unsupervised baseline hasn't stabilized yet; they typically quiet down over the following weeks.</li>
+              <li>Reinforcement learning is the least common of the three in day-to-day security tooling, but it shows up in agentic systems making a sequence of decisions rather than a single classification.</li>
+            </ul>
+          </div>
+          <p>The payoff: when a vendor claims "our platform uses AI to detect zero-day threats," you can ask a sharper question, supervised on what labeled dataset, or unsupervised against what baseline? The answer usually tells you more than the marketing copy does.</p>
+        </section>
+
+        <section class="content-section" id="where-ai-already-sits-in-the-security-stack">
+          <h2>Where AI Already Sits in the Security Stack</h2>
+          <p>A common misconception: that AI in security started with chat-based assistants. It didn't, ML-driven detection has quietly powered mainstream security tooling for over a decade. What's genuinely new is generative AI, both as something attackers now have cheap access to and as a new category of assistant inside the SOC.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Where</th><th>AI/ML technique</th><th>What it does</th></tr></thead>
+              <tbody>
+                <tr><td>EDR / antivirus behavioral detection</td><td>Supervised classifier</td><td>Scores files and process behavior against patterns learned from labeled malware and benign samples</td></tr>
+                <tr><td>SIEM UEBA modules</td><td>Unsupervised anomaly detection</td><td>Baselines normal user/host behavior and flags statistical deviations</td></tr>
+                <tr><td>Email security / spam filters</td><td>Supervised classifier</td><td>Scores incoming mail for phishing and spam indicators</td></tr>
+                <tr><td>SOC copilots and chat-based assistants</td><td>Generative (LLM)</td><td>Summarizes alerts, drafts queries, explains findings in natural language</td></tr>
+                <tr><td>Automated malware triage / sandbox reporting</td><td>Mix of classifier and generative</td><td>Classifies sample behavior and generates a human-readable summary of the analysis</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Classifier and anomaly-detection ML does quiet background work across nearly every security product already in use. Generative AI is the new layer on top, mostly an interface that reads, writes, and explains rather than decides. Both matter, but they are not the same risk or the same opportunity.</p>
+        </section>
+
+        <section class="content-section" id="why-this-matters-now-for-defenders">
+          <h2>Why This Matters Now for Defenders</h2>
+          <p>If AI has been in security tooling for a decade, why does it suddenly deserve an eight-chapter module? Because generative AI changed the economics on three fronts at roughly the same time, and none of them are optional to understand.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Front</th><th>What changed</th><th>Covered in</th></tr></thead>
+              <tbody>
+                <tr><td>Offense</td><td>Cheap, scalable access to fluent personalized phishing, synthetic voice for vishing, faster malware iteration, on-demand pretexts. Not new attack categories, just a sharply lower cost and skill floor.</td><td>Chapter 2</td></tr>
+                <tr><td>Defense</td><td>New SOC tooling: faster alert triage, incident timeline summarization, hunting queries drafted from plain language, reduced analyst toil.</td><td>Chapters 4 and 5</td></tr>
+                <tr><td>Your own AI systems</td><td>LLM-integrated apps, copilots, and agents are now infrastructure with their own attack surface: prompt injection, data leakage, over-permissioned agents taking actions they shouldn't.</td><td>Chapters 3, 6, and 7</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout-info"><strong>Scope of this module:</strong>
+            <ul>
+              <li>This is not a data science course. You will not train a model or write Python for gradient descent.</li>
+              <li>This is not a prompt-engineering course. Prompting technique is a means to an end here, not the subject.</li>
+              <li>This module teaches the security implications of AI, from both the offense side (what attackers can now do) and the defense side (what defenders can now do, and what they now have to protect).</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="content-section" id="module-roadmap">
+          <h2>Module Roadmap</h2>
+          <p>Here's what the remaining seven chapters cover, in order. Each one builds on the vocabulary from this chapter.</p>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">AI-Powered Threats</div>
+              <div class="flow-step-desc">How attackers use generative AI for phishing, malware development, and social engineering at scale.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Prompt Injection & LLM Application Security</div>
+              <div class="flow-step-desc">How LLM-integrated applications get attacked, and the defenses that actually hold up.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">AI in the SOC (Detection & Triage)</div>
+              <div class="flow-step-desc">Copilots, alert triage assistants, and where AI genuinely reduces analyst toil.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">5</span>
+              <div class="flow-step-title">AI-Augmented Threat Hunting & Detection Engineering</div>
+              <div class="flow-step-desc">Using AI to accelerate hunting hypotheses and detection content development.</div>
+            </div>
+          </div>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">6</span>
+              <div class="flow-step-title">Securing AI/ML Systems</div>
+              <div class="flow-step-desc">Model integrity, data poisoning, supply chain risk for models, and securing the AI pipeline itself.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">7</span>
+              <div class="flow-step-title">AI Governance, Risk & Compliance</div>
+              <div class="flow-step-desc">Policy, risk frameworks, and the compliance landscape shaping how organizations adopt AI.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">8</span>
+              <div class="flow-step-title">Building an AI Security Program</div>
+              <div class="flow-step-desc">Pulling the previous seven chapters into an actual program: people, process, and priorities.</div>
+            </div>
+          </div>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>AI, ML, deep learning, and LLMs are nested, overlapping terms, not separate technologies. LLMs are a product of deep learning, which is a subset of ML, which is a technique for building AI.</li>
+            <li>The distinction that matters most: classifier/detector models judge (malicious vs. benign), generative models create (text, images, audio). AI-powered threats are mostly about generative AI abuse; AI in detection uses both.</li>
+            <li>Supervised learning needs labeled data (malware classifiers), unsupervised learning finds structure without labels (UEBA baselining), and reinforcement learning is less common but relevant to agentic systems.</li>
+            <li>ML-driven detection has been in EDR, antivirus, SIEM UEBA, and spam filters for over a decade. Generative AI is the genuinely new layer, mostly as an interface rather than a decision-maker.</li>
+            <li>AI changes the picture for defenders on three fronts at once: attackers have cheaper access to generative AI, defenders have new AI-assisted tooling, and the organization's own AI systems are a new attack surface to secure.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">A vendor says their EDR platform uses "AI" to detect malware, and separately, their SOC assistant uses "AI" to summarize incidents. What's the key technical distinction between these two uses?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. There is no real distinction, both are simply "AI" and work the same way internally.</button>
+              <button class="kc-option" data-correct="true">B. The EDR detection is likely a classifier model that judges files as malicious or benign, while the SOC assistant is likely a generative model (an LLM) that produces new text.</button>
+              <button class="kc-option" data-correct="false">C. The EDR detection uses reinforcement learning, while the SOC assistant uses supervised learning.</button>
+              <button class="kc-option" data-correct="false">D. Only the SOC assistant qualifies as machine learning; the EDR detection is a manually written rule set.</button>
+            </div>
+            <div class="kc-answer">Classifier/detector models output a judgment on existing input (malicious or benign), which is what malware detection needs. Generative models produce new content, like a natural-language summary, which is what a copilot needs. Both can be built on ML, but they solve fundamentally different problems.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">A SIEM's UEBA module flags a user account as anomalous after it starts logging in from an unusual location at unusual hours, without anyone ever telling the system what "malicious login behavior" looks like in advance. Which type of machine learning does this describe?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Supervised learning, because the system was trained on thousands of labeled malicious logins.</button>
+              <button class="kc-option" data-correct="true">B. Unsupervised learning, because the system built a baseline of normal behavior on its own and flagged a deviation from it.</button>
+              <button class="kc-option" data-correct="false">C. Reinforcement learning, because the system was rewarded for correctly identifying the anomaly.</button>
+              <button class="kc-option" data-correct="false">D. This isn't machine learning, it's a static rule comparing login location to a blocklist.</button>
+            </div>
+            <div class="kc-answer">UEBA baselining is the classic example of unsupervised learning in security tooling. No one labels each historical login as "normal" or "malicious" ahead of time; the model finds structure in the behavior data itself and flags statistical outliers against that self-built baseline.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">Which statement best captures why this module treats "AI in security" as more than just a story about generative AI and chatbots?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Because generative AI hasn't actually reached security products yet and is purely theoretical.</button>
+              <button class="kc-option" data-correct="false">B. Because classifier-based ML and generative AI are the same technique with different names.</button>
+              <button class="kc-option" data-correct="true">C. Because ML-driven classifiers and anomaly detection have been embedded in EDR, antivirus, and SIEM tooling for over a decade; generative AI is a newer, additional layer, not a replacement for that history.</button>
+              <button class="kc-option" data-correct="false">D. Because reinforcement learning is the primary technique behind all current security products.</button>
+            </div>
+            <div class="kc-answer">Supervised and unsupervised ML have quietly powered mainstream security tooling for well over ten years. What's new with the recent AI wave is generative AI, both as an attacker capability and as a SOC assistant layer. Understanding that history keeps you from either overstating how novel "AI in security" is or underestimating what generative AI specifically changes.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="index.html" class="chapter-nav-prev">← AI in Security Overview</a>
+          <a href="02-ai-powered-threats.html" class="chapter-nav-next">AI-Powered Threats →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">AI in Security</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('01', 5));</script>
+</body>
+</html>

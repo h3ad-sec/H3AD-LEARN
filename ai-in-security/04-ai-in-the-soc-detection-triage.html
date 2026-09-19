@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="04">
+  <meta name="module-id" content="ai-in-security">
+  <title>AI in the SOC: Detection and Triage · AI in Security · H3AD-LEARN</title>
+  <meta name="description" content="How UEBA and unsupervised anomaly detection work in practice, how AI copilots pre-triage and enrich alerts, and why human-in-the-loop review remains standard for AI-suggested dispositions.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/04-ai-in-the-soc-detection-triage.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/04-ai-in-the-soc-detection-triage.html">
+  <meta property="og:title" content="AI in the SOC: Detection and Triage · AI in Security · H3AD-LEARN">
+  <meta property="og:description" content="How UEBA and unsupervised anomaly detection work in practice, how AI copilots pre-triage and enrich alerts, and why human-in-the-loop review remains standard for AI-suggested dispositions.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AI in the SOC: Detection and Triage · AI in Security · H3AD-LEARN">
+  <meta name="twitter:description" content="How UEBA and unsupervised anomaly detection work in practice, how AI copilots pre-triage and enrich alerts, and why human-in-the-loop review remains standard for AI-suggested dispositions.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "AI in the SOC: Detection and Triage",
+    "description": "How UEBA and unsupervised anomaly detection work in practice, how AI copilots pre-triage and enrich alerts, and why human-in-the-loop review remains standard for AI-suggested dispositions.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/04-ai-in-the-soc-detection-triage.html",
+    "isPartOf": { "@type": "Course", "name": "AI in Security", "url": "https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/" },
+    "provider": { "@type": "Organization", "name": "H3AD-SEC", "url": "https://h3ad-sec.github.io" }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" },
+    { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" },
+    { "@type": "ListItem", "position": 3, "name": "AI in Security", "item": "https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/" },
+    { "@type": "ListItem", "position": 4, "name": "AI in the SOC: Detection and Triage", "item": "https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/04-ai-in-the-soc-detection-triage.html" }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">AI IN THE SOC: DETECTION AND TRIAGE</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub">&#8623; SOC OPERATIONS</a>
+    <a href="../detection-engineering/index.html" class="drawer-sub">&#8623; DETECTION ENGINEERING</a>
+    <a href="../incident-response/index.html" class="drawer-sub">&#8623; INCIDENT RESPONSE</a>
+    <a href="../ai-in-security/index.html" class="drawer-sub nav-current">&#8623; AI IN SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← AI in Security</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 04 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 5 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 04</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">AI in the SOC: Detection and Triage</h1>
+          <p class="chapter-intro">A SOC analyst opening their queue on a Tuesday morning is not short on alerts, they are short on time to look at each one properly. AI is now embedded in that workflow at three distinct points: behind the alert (anomaly detection deciding what fires at all), on top of the alert (copilots enriching and summarizing what came in), and beside the analyst (natural-language interfaces that translate a question into a query). This chapter walks through each layer honestly, including where they help and where they quietly introduce new risk.</p>
+          <div class="chapter-tags">
+            <span class="tag">AI-assisted triage</span><span class="tag">SOC copilots</span><span class="tag">anomaly detection</span><span class="tag">UEBA</span>
+          </div>
+        </header>
+
+        <div class="callout-tip"><strong>Before you start:</strong> this chapter assumes you already know what a SOC analyst's triage queue looks like day to day, and that you have some familiarity with signature-based detection (a rule that fires on a known pattern). It does not assume prior exposure to machine learning concepts, those are introduced as needed.</div>
+
+        <section class="content-section" id="anomaly-detection-and-ueba">
+          <h2>Anomaly detection and UEBA: unsupervised ML in practice</h2>
+          <p>User and Entity Behavior Analytics (UEBA) is the most mature deployment of machine learning inside the SOC. Instead of writing a rule that says "alert when X happens," a model learns what "normal" looks like for a specific user, host, or entity, then flags moments where behavior deviates from that baseline by a statistically significant margin.</p>
+          <p>The baseline is built per entity, not globally. A service account querying a database every sixty seconds all day is normal for that account, even though the same volume from a marketing laptop would be wildly abnormal. This is unsupervised learning: nobody hand-labels "malicious" or "fine," the model infers unusual entirely from the shape of the entity's own history and its peer group.</p>
+          <div class="callout-info"><strong>What a UEBA baseline typically tracks:</strong>
+            <ul>
+              <li>Login time-of-day and geographic pattern for a given user</li>
+              <li>Typical volume and destination of data a host or account moves</li>
+              <li>Which systems, shares, or applications an entity routinely touches versus never touches</li>
+              <li>Peer-group comparison, how this entity's behavior compares to others with a similar role</li>
+              <li>Rate and sequence of actions, not just whether an action happened but how fast and in what order</li>
+            </ul>
+          </div>
+          <p>The payoff: this catches behavior nobody wrote a rule for. A compromised account used in a technically permitted way, wrong hours, an unusual resource, an oversized data pull, will not trip a single signature, because no individual action is inherently malicious. It is the deviation from that entity's own history that is the signal, the "unknown unknown" case: a technique nobody has documented, expressed through behavior that doesn't look like the account it's coming from.</p>
+          <p>The tradeoff is just as real. Unsupervised anomaly detection tends to run a higher false-positive rate than a well-tuned signature, for a few structural reasons:</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Reason</th><th>Why it inflates false positives</th></tr></thead>
+              <tbody>
+                <tr><td>Unusual is not the same as malicious</td><td>A legitimate but rare event, an employee's first trip to a new office, a one-time bulk export for a quarterly audit, looks exactly like an anomaly to the model because it is one. It just isn't an attack.</td></tr>
+                <tr><td>The baselining period is a weak spot</td><td>A model that has only observed two weeks of an entity's behavior has a thin, noisy picture of "normal," and over-flags during that window until enough history accumulates.</td></tr>
+                <tr><td>High behavioral variance is harder to baseline</td><td>A consulting firm where analysts touch different client systems every week is inherently harder to baseline than a stable back-office environment, and the false-positive rate reflects that regardless of tuning quality.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>The detection engineering module covers false-positive tuning for signature-based rules in depth. The same underlying discipline, understanding what "normal" looks like in your environment before deciding what should alert, applies here too, just expressed through baseline tuning, sensitivity thresholds, and peer-group configuration instead of rule logic.</p>
+        </section>
+
+        <section class="content-section" id="ai-assisted-alert-triage-and-enrichment">
+          <h2>AI-assisted alert triage and enrichment</h2>
+          <p>Once an alert exists, whether from a signature or a UEBA anomaly, it still has to be worked. This is where LLMs and ML classifiers have made the most visible inroads into day-to-day SOC operations: pre-triage of the incoming queue, a layer sitting between the raw alert and the analyst.</p>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Alert fires</div>
+              <div class="flow-step-desc">Signature or anomaly-based detection generates a raw alert with minimal context attached.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Auto-enrichment</div>
+              <div class="flow-step-desc">System pulls process tree, host/user history, and threat intel context without analyst action.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Plain-language summary</div>
+              <div class="flow-step-desc">LLM condenses the enriched data into a short narrative and a suggested severity.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Draft disposition</div>
+              <div class="flow-step-desc">A recommended close or escalate decision is proposed, not applied.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">5</span>
+              <div class="flow-step-title">Analyst confirms</div>
+              <div class="flow-step-desc">A human reviews the summary and evidence, then accepts, edits, or overrides the recommendation.</div>
+            </div>
+          </div>
+          <p>It is worth being precise about what this is and is not. This is augmentation of Tier 1 triage work, not a replacement for it. The reason the line is drawn there rather than further along is not tradition, it is risk math: an LLM can hallucinate, stating a process is signed when it is not, misattributing an IOC to the wrong campaign, or simply misjudging context it was never given. The cost of an incorrectly auto-closed true positive is high, a real intrusion dismissed as noise can sit undetected for weeks, while the cost of a human spending thirty extra seconds confirming a correct AI suggestion is negligible by comparison. That asymmetry is why human review of AI-suggested dispositions remains standard practice rather than an optional safeguard, even at organizations that have otherwise gone all-in on AI tooling.</p>
+        </section>
+
+        <section class="content-section" id="soc-copilots-and-natural-language-interfaces">
+          <h2>SOC copilots and natural-language interfaces</h2>
+          <p>A second, related category of tooling is now common inside SIEM and XDR platforms: chat-style copilots that let an analyst ask a question in plain English (e.g. "show me all failed logins from this host in the last 24 hours") and get back a query, its results, and a summary, without writing the query language themselves.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th></th><th>What it looks like</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Benefit</strong></td><td>Lowers the barrier to a query language that can take months to get comfortable with, and speeds up routine lookups an experienced analyst could write fast but a newer one would have to look up syntax for.</td></tr>
+                <tr><td><strong>Risk</strong></td><td>Structural, not incidental: an analyst who can't read the underlying query has no independent way to verify the copilot translated their intent correctly. An ambiguous request ("failed logins") could mean interactive logons only, or every auth attempt including service accounts and RDP, and a narrower interpretation the analyst never catches produces a summary that looks complete while quietly missing part of the picture.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Chapter 5 goes deeper into natural-language-to-query workflows in the hunting and rule-authoring context, including how experienced practitioners use these tools without losing the underlying skill they're built on top of.</p>
+        </section>
+
+        <section class="content-section" id="where-ai-assisted-triage-breaks-down">
+          <h2>Where AI-assisted triage breaks down</h2>
+          <p>Worth being direct about the failure modes rather than treating them as footnotes, they're the reason every one of these tools is deployed with a human still in the loop.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Failure mode</th><th>What it looks like</th></tr></thead>
+              <tbody>
+                <tr><td>Hallucination</td><td>A model states something incorrect with the same confident tone as something correct, no built-in signal distinguishes them. E.g. mischaracterizing a process as a known Windows binary when it's actually a lookalike, or misattributing an IOC to the wrong campaign.</td></tr>
+                <tr><td>Missing organizational context</td><td>Not really the model's fault: it can't judge context it was never given. Unusual admin activity at 2 a.m. during a scheduled maintenance window looks identical to a real intrusion unless the maintenance calendar was explicitly fed into its context.</td></tr>
+                <tr><td>Automation bias (complacency)</td><td>Trust in AI-suggested dispositions builds with repeated correct outcomes, leading to less scrutiny over time, a well-documented human factors pattern. The tool being usually right is exactly what makes its rare wrong call dangerous.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>These are why human-in-the-loop review stays standard for consequential dispositions (closing an alert benign, escalating to IR) rather than a transitional step toward full automation. They're structural properties of a probabilistic summarizer lacking full organizational context, not bugs the next model version patches out.</p>
+        </section>
+
+        <section class="content-section" id="practical-guidance-for-adopting-ai-triage-tools">
+          <h2>Practical guidance for adopting AI triage tools</h2>
+          <p>None of the above is an argument against using these tools, it is an argument for adopting them deliberately. A SOC evaluating or rolling out AI-assisted triage should treat it the same way it would treat any other change to a process that carries operational risk.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Consideration</th><th>Why it matters</th></tr></thead>
+              <tbody>
+                <tr><td>Pilot against ground truth before trusting it at scale</td><td>Run the tool's suggestions alongside human dispositions for a defined period and compare them directly, rather than assuming vendor-claimed accuracy transfers to your environment.</td></tr>
+                <tr><td>Keep a human decision point for closes and escalations</td><td>Anything that ends an alert's lifecycle, benign close or IR escalation, should require a human action to actually execute, not just a suggestion an analyst can ignore by doing nothing.</td></tr>
+                <tr><td>Log AI-suggested dispositions separately from human ones</td><td>Auditing the two streams independently is the only way to measure drift, bias, or a slow decline in suggestion quality over time, rather than discovering it after an incident.</td></tr>
+                <tr><td>Don't let copilots replace learning the query language</td><td>Analysts who never learn the underlying syntax cannot verify what a copilot ran or catch a misinterpreted request, a gap covered in more depth in chapter 2 of the Detection Engineering module.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>None of these considerations require slowing adoption to a crawl. They require building in the checkpoints that let a SOC find out it is wrong before that wrongness compounds into a missed intrusion or a burned-out team that has quietly stopped reading what the AI hands them.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>UEBA and unsupervised anomaly detection baseline normal behavior per entity and flag statistically significant deviations, catching novel behavior signatures miss, at the cost of a higher false-positive rate, especially early in baselining or in high-variance environments.</li>
+            <li>AI-assisted triage tools summarize, enrich, and propose a disposition for incoming alerts, augmenting Tier 1 work rather than replacing it, because the cost of an incorrectly auto-closed true positive is too high to automate away entirely.</li>
+            <li>SOC copilots translate natural-language questions into queries, lowering the barrier to routine lookups, but an analyst who cannot read the underlying query has no way to verify the translation was correct.</li>
+            <li>Hallucination, missing organizational context, and automation bias are structural limitations, not temporary bugs, which is why human-in-the-loop review stays standard for consequential dispositions.</li>
+            <li>Adopting these tools responsibly means piloting against ground truth, keeping a human checkpoint on closes and escalations, auditing AI dispositions separately, and not letting copilots substitute for learning the query language underneath them.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">Compared to a well-tuned signature-based detection, what is the core tradeoff of unsupervised anomaly detection like UEBA?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. It requires no baselining period and performs identically from day one</button>
+              <button class="kc-option" data-correct="true">B. It can catch novel behavior no signature was written for, but tends toward a higher false-positive rate, especially early in baselining or in high-variance environments</button>
+              <button class="kc-option" data-correct="false">C. It only detects known IOCs, making it functionally identical to signature-based detection</button>
+              <button class="kc-option" data-correct="false">D. It eliminates the need for any human review of flagged activity</button>
+            </div>
+            <div class="kc-answer">Unsupervised anomaly detection learns a per-entity baseline of normal behavior and flags statistically significant deviations from it, which means it can surface "unknown unknown" behavior that no signature covers. The same mechanism that makes it useful for novel detection also makes it prone to flagging rare-but-legitimate events, particularly while the baseline is still thin or in environments where behavior naturally varies a lot.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">Why does human review of AI-suggested alert dispositions remain standard practice rather than being replaced by full automation?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Current regulations universally require it regardless of the tool's accuracy</button>
+              <button class="kc-option" data-correct="false">B. AI classifiers are too slow to keep up with alert volume without human help</button>
+              <button class="kc-option" data-correct="true">C. Models can hallucinate or lack organizational context, and the cost of an incorrectly auto-closed true positive is high enough that the asymmetry favors keeping a human checkpoint</button>
+              <button class="kc-option" data-correct="false">D. Analysts are contractually required to review every alert regardless of source</button>
+            </div>
+            <div class="kc-answer">The reasoning is a risk asymmetry: confirming a correct AI suggestion costs a human a few seconds, while an incorrectly auto-closed true positive can let a real intrusion go undetected. Since models can state incorrect things confidently and cannot see context they were never given, that asymmetry is what keeps a human decision point in place for consequential dispositions.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">An analyst has accepted a SOC copilot's "likely benign" recommendation correctly for months, and now reviews each new recommendation with less scrutiny than they used to, assuming the tool is probably right again. What is this pattern called?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Baseline drift</button>
+              <button class="kc-option" data-correct="false">B. Signature decay</button>
+              <button class="kc-option" data-correct="true">C. Automation bias (complacency)</button>
+              <button class="kc-option" data-correct="false">D. Peer-group clustering</button>
+            </div>
+            <div class="kc-answer">This is automation bias, also called complacency: trust in an AI's suggestions builds up with repeated correct outcomes, leading to less scrutiny over time, even though the tool being usually right is exactly what makes its rare wrong call more likely to slip through unnoticed.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="03-prompt-injection-llm-app-security.html" class="chapter-nav-prev">← Prompt Injection and LLM Application Security</a>
+          <a href="05-ai-augmented-threat-hunting-detection-engineering.html" class="chapter-nav-next">AI-Augmented Threat Hunting and Detection Engineering →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">AI in Security</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('04', 5));</script>
+</body>
+</html>

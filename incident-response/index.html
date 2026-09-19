@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>H3AD-LEARN: Incident Response &middot; PICERL, Containment &amp; Recovery</title>
+  <meta name="description" content="Incident Response curriculum: NIST and SANS PICERL lifecycle, preparation and playbooks, scoping and evidence, containment strategy, eradication, recovery, post-incident review, and specialized scenarios like ransomware, BEC, insider threat, and cloud IR." />
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/incident-response/" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="H3AD-SEC" />
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/incident-response/" />
+  <meta property="og:title" content="H3AD-LEARN: Incident Response &middot; PICERL, Containment &amp; Recovery" />
+  <meta property="og:description" content="Incident Response curriculum: NIST and SANS PICERL lifecycle, preparation and playbooks, scoping and evidence, containment strategy, eradication, recovery, post-incident review, and specialized scenarios like ransomware, BEC, insider threat, and cloud IR." />
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="H3AD-LEARN: Incident Response &middot; PICERL, Containment &amp; Recovery" />
+  <meta name="twitter:description" content="Incident Response curriculum: NIST and SANS PICERL lifecycle, preparation and playbooks, scoping and evidence, containment strategy, eradication, recovery, post-incident review, and specialized scenarios like ransomware, BEC, insider threat, and cloud IR." />
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png" />
+
+  <meta name="theme-color" content="#080c14" />
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    .module-hero { padding: 3.5rem 0 2.5rem; }
+    .module-hero-inner { display: flex; flex-direction: column; gap: 1.25rem; }
+    .back-link { display: inline-flex; align-items: center; gap: 0.4rem; font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .back-link:hover { color: var(--accent); }
+    .back-link::before { content: '\2190'; }
+    .module-badge { display: inline-block; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; letter-spacing: 0.14em; color: var(--accent); background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.25); border-radius: 4px; padding: 0.25em 0.75em; }
+    .module-hero-title { font-size: clamp(1.75rem, 4vw, 2.75rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; margin: 0; }
+    .module-hero-desc { color: var(--muted); font-size: 0.95rem; line-height: 1.7; max-width: 680px; }
+    .module-stats-strip { display: flex; flex-wrap: wrap; gap: 2rem; padding: 1.25rem 1.5rem; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; }
+    .module-stat { display: flex; flex-direction: column; gap: 0.2rem; }
+    .module-stat-value { font-family: 'Share Tech Mono', monospace; font-size: 1rem; color: var(--text); font-weight: 600; }
+    .module-stat-label { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; color: var(--muted); }
+    .module-progress-wrap { display: flex; flex-direction: column; gap: 0.5rem; }
+    .module-progress-bar-outer { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .module-progress-bar-inner { height: 100%; background: linear-gradient(90deg, var(--accent), var(--secondary)); border-radius: 3px; transition: width 0.6s ease; width: 0%; }
+    .module-progress-meta { display: flex; justify-content: space-between; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+    .module-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .module-tag { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--secondary); background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.15); border-radius: 3px; padding: 0.2em 0.55em; }
+
+    .chapters-section { padding: 3rem 0; }
+    .chapters-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+    @media (max-width: 768px) { .chapters-grid { grid-template-columns: 1fr; } }
+
+    .search-wrap { position: relative; max-width: 420px; margin-bottom: 1.5rem; }
+    .quick-search { width: 100%; font-family: 'Share Tech Mono', monospace; font-size: 0.78rem; color: var(--text); background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 0.6em 2.5em 0.6em 0.9em; outline: none; transition: border-color 0.15s; }
+    .quick-search:focus { border-color: var(--accent); }
+    .quick-search::placeholder { color: var(--muted); }
+    .search-kbd { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; color: var(--muted); background: var(--panel-alt); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; pointer-events: none; }
+    .search-wrap:focus-within .search-kbd { display: none; }
+    .search-empty { font-size: 0.8rem; color: var(--muted); }
+
+    .chapter-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; text-decoration: none; color: inherit; transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s; cursor: pointer; position: relative; animation: fadeIn 0.35s ease backwards; }
+    .chapter-card:nth-child(1) { animation-delay: 0s; }
+    .chapter-card:nth-child(2) { animation-delay: 0.04s; }
+    .chapter-card:nth-child(3) { animation-delay: 0.08s; }
+    .chapter-card:nth-child(4) { animation-delay: 0.12s; }
+    .chapter-card:nth-child(5) { animation-delay: 0.16s; }
+    .chapter-card:nth-child(n+6) { animation-delay: 0.2s; }
+    .chapter-card:hover { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(0,212,255,0.1), 0 4px 20px rgba(0,212,255,0.05); transform: translateY(-1px); }
+    .chapter-card-top { display: flex; align-items: center; justify-content: space-between; }
+    .chapter-num { font-family: 'Share Tech Mono', monospace; font-size: 1.4rem; color: var(--accent); font-weight: 700; opacity: 0.7; line-height: 1; }
+    .chapter-badges { display: flex; gap: 0.5rem; align-items: center; }
+    .chapter-time { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--muted); background: var(--panel-alt); border: 1px solid var(--border); border-radius: 3px; padding: 0.2em 0.55em; }
+    .chapter-diff-beginner { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; color: var(--secondary); background: rgba(88,166,255,0.1); border: 1px solid rgba(88,166,255,0.2); border-radius: 3px; padding: 0.2em 0.55em; }
+    .chapter-diff-intermediate { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; color: var(--amber); background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); border-radius: 3px; padding: 0.2em 0.55em; }
+    .chapter-diff-advanced { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; color: var(--accent); background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2); border-radius: 3px; padding: 0.2em 0.55em; }
+    .chapter-title { font-size: 1rem; font-weight: 600; color: var(--text); margin: 0; line-height: 1.3; }
+    .chapter-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.55; margin: 0; }
+    .chapter-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .chapter-tag { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; color: var(--muted); background: var(--panel-alt); border: 1px solid var(--border); border-radius: 3px; padding: 0.15em 0.45em; }
+    .chapter-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+    .chapter-status { display: flex; align-items: center; gap: 0.4rem; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; }
+    .chapter-status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+    .chapter-status-dot.is-reading { background: var(--amber); }
+    .chapter-status-dot.is-complete { background: var(--accent); }
+    .chapter-status-text { color: var(--muted); }
+    .chapter-arrow { font-size: 1rem; color: var(--accent); opacity: 0; transition: opacity 0.2s; }
+    .chapter-card:hover .chapter-arrow { opacity: 1; }
+
+    .prereq-section { padding: 3rem 0; background: var(--panel-alt); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .prereq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 768px) { .prereq-grid { grid-template-columns: 1fr; } }
+    .prereq-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; }
+    .prereq-card-title { font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; letter-spacing: 0.1em; color: var(--accent); margin: 0 0 1rem; }
+    .prereq-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+    .prereq-list li { font-size: 0.88rem; color: var(--muted); line-height: 1.45; padding-left: 1.1rem; position: relative; }
+    .prereq-list li::before { content: '\00B7'; position: absolute; left: 0; color: var(--accent); font-size: 1rem; line-height: 1.3; }
+    .prereq-card.is-outcomes .prereq-list li::before { color: var(--secondary); }
+  </style>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "Incident Response",
+    "description": "Incident Response curriculum: NIST and SANS PICERL lifecycle, preparation and playbooks, scoping and evidence, containment strategy, eradication, recovery, post-incident review, and specialized scenarios like ransomware, BEC, insider threat, and cloud IR.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/incident-response/",
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://h3ad-sec.github.io/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "H3AD-LEARN",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Incident Response",
+      "item": "https://h3ad-sec.github.io/H3AD-LEARN/incident-response/"
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">INCIDENT RESPONSE</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD/">H3AD &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-X/">H3AD-X &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/IOC-VERDIKT/" target="_blank" rel="noopener" class="drawer-sub">&#8623; IOC-VERDIKT &#8599;</a>
+    <a href="https://h3ad-sec.github.io/PARSE-X/" target="_blank" rel="noopener" class="drawer-sub">&#8623; PARSE-X &#8599;</a>
+    <a href="https://h3ad-sec.github.io/DNSCOPE/" target="_blank" rel="noopener" class="drawer-sub">&#8623; DNSCOPE &#8599;</a>
+    <a href="https://h3ad-sec.github.io/X-VERDIKT/" target="_blank" rel="noopener" class="drawer-sub">&#8623; X-VERDIKT &#8599;</a>
+    <a href="https://h3ad-sec.github.io/MAILSCOPE/" target="_blank" rel="noopener" class="drawer-sub">&#8623; MAILSCOPE &#8599;</a>
+    <a href="https://h3ad-sec.github.io/INFRA-SCOPE/" target="_blank" rel="noopener" class="drawer-sub">&#8623; INFRA-SCOPE &#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-AI/">H3AD-AI &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/PROMPTVAULT/" target="_blank" rel="noopener" class="drawer-sub">&#8623; PROMPTVAULT &#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-DETECT/">H3AD-DETECT &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/TRACERULES/" target="_blank" rel="noopener" class="drawer-sub">&#8623; TRACERULES &#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-HUNT/">H3AD-HUNT &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/HYPOS/" target="_blank" rel="noopener" class="drawer-sub">&#8623; HYPOS &#8599;</a>
+    <a href="https://h3ad-sec.github.io/PIVEX/" target="_blank" rel="noopener" class="drawer-sub">&#8623; PIVEX &#8599;</a>
+    <a href="https://h3ad-sec.github.io/TRACEPULSE/" target="_blank" rel="noopener" class="drawer-sub">&#8623; TRACEPULSE &#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-OPS/">H3AD-OPS &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/QUICKTRACE/" target="_blank" rel="noopener" class="drawer-sub">&#8623; QUICKTRACE &#8599;</a>
+    <a href="https://h3ad-sec.github.io/PHISHOPS/" target="_blank" rel="noopener" class="drawer-sub">&#8623; PHISHOPS &#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-DF/">H3AD-DF &nbsp;&#8599;</a>
+    <a href="https://h3ad-sec.github.io/H3AD-IR/">H3AD-IR &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub">&#8623; SOC OPERATIONS</a>
+    <a href="../detection-engineering/index.html" class="drawer-sub">&#8623; DETECTION ENGINEERING</a>
+    <a href="../incident-response/index.html" class="drawer-sub nav-current">&#8623; INCIDENT RESPONSE</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+
+  <div class="container" style="padding-top: calc(var(--header-h) + 1.25rem); padding-bottom: 0;">
+    <nav aria-label="Breadcrumb" style="font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; color: var(--muted); display: flex; align-items: center; gap: 0.5rem;">
+      <a href="../index.html" style="color: var(--muted); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">Home</a>
+      <span aria-hidden="true">&#8250;</span>
+      <span style="color: var(--text);">Incident Response</span>
+    </nav>
+  </div>
+
+  <section class="module-hero">
+    <div class="container">
+      <div class="module-hero-inner">
+        <a href="../index.html" class="back-link">All Modules</a>
+        <span class="module-badge">INCIDENT RESPONSE</span>
+        <h1 class="module-hero-title">Incident Response &middot; Complete Guide</h1>
+        <p class="module-hero-desc">Eight chapters covering the full incident response lifecycle from NIST 800-61 and SANS PICERL through preparation, scoping and evidence, containment strategy, eradication, recovery, post-incident review, and specialized playbooks for ransomware, BEC, insider threat, and cloud incidents. Built for analysts moving from SOC-scoped triage into full ownership of an incident from detection to closure.</p>
+
+        <div class="module-stats-strip">
+          <div class="module-stat">
+            <span class="module-stat-value">8</span>
+            <span class="module-stat-label">CHAPTERS</span>
+          </div>
+          <div class="module-stat">
+            <span class="module-stat-value">~12 HRS</span>
+            <span class="module-stat-label">CONTENT</span>
+          </div>
+          <div class="module-stat">
+            <span class="module-stat-value">BEGINNER to ADVANCED</span>
+            <span class="module-stat-label">SKILL RANGE</span>
+          </div>
+          <div class="module-stat">
+            <span class="module-stat-value">SEP 2026</span>
+            <span class="module-stat-label">LAST UPDATED</span>
+          </div>
+        </div>
+
+        <div class="module-progress-wrap">
+          <div class="module-progress-meta">
+            <span>MODULE PROGRESS</span>
+            <span id="incident-response-progress-label">0 / 8 chapters complete</span>
+          </div>
+          <div class="module-progress-bar-outer">
+            <div class="module-progress-bar-inner" id="incident-response-progress-bar"></div>
+          </div>
+        </div>
+
+        <div class="module-tags">
+          <span class="module-tag">NIST 800-61</span>
+          <span class="module-tag">PICERL</span>
+          <span class="module-tag">containment</span>
+          <span class="module-tag">eradication</span>
+          <span class="module-tag">recovery</span>
+          <span class="module-tag">ransomware</span>
+          <span class="module-tag">BEC</span>
+          <span class="module-tag">cloud IR</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapters-section" aria-labelledby="chapters-heading">
+    <div class="container">
+      <div class="section-header" style="margin-bottom: 2rem;">
+        <span class="section-label">CURRICULUM</span>
+        <h2 class="section-title" id="chapters-heading">ALL CHAPTERS</h2>
+      </div>
+      <div class="search-wrap">
+        <input class="quick-search" id="chapterSearch" type="search" placeholder="Search chapters&hellip; (titles, tags)" aria-label="Search chapters">
+        <kbd class="search-kbd">/</kbd>
+      </div>
+      <p class="search-empty" id="chapterSearchEmpty" hidden>No chapters match &ldquo;<span id="chapterSearchEmptyTerm"></span>&rdquo;.</p>
+      <div class="chapters-grid" id="chaptersGrid">
+
+        <a class="chapter-card" href="./01-incident-response-foundations.html" aria-label="Chapter 1: Incident Response Foundations">
+          <div class="chapter-card-top">
+            <span class="chapter-num">01</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-beginner">BEGINNER</span>
+              <span class="chapter-time">25 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Incident Response Foundations: NIST, PICERL &amp; Team Roles</h3>
+          <p class="chapter-desc">SOC-scoped incident handling versus full IR ownership, the NIST 800-61 and SANS PICERL frameworks compared, incident classification and severity, and the roles that make up an IR team.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">PICERL</span>
+            <span class="chapter-tag">NIST 800-61</span>
+            <span class="chapter-tag">IR team roles</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="01">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <a class="chapter-card" href="./02-preparation-and-planning.html" aria-label="Chapter 2: Preparation and Planning">
+          <div class="chapter-card-top">
+            <span class="chapter-num">02</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-beginner">BEGINNER</span>
+              <span class="chapter-time">30 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Preparation: IR Plans, Playbooks &amp; Tabletop Exercises</h3>
+          <p class="chapter-desc">Building an incident response plan, the difference between an IRP and a playbook, IR tooling and the jump bag, and running tabletop exercises.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">IR plan</span>
+            <span class="chapter-tag">playbooks</span>
+            <span class="chapter-tag">tabletop exercises</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="02">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <a class="chapter-card" href="./03-detection-and-analysis.html" aria-label="Chapter 3: Detection and Analysis">
+          <div class="chapter-card-top">
+            <span class="chapter-num">03</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
+              <span class="chapter-time">35 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Detection and Analysis: Scoping, Evidence &amp; Timelines</h3>
+          <p class="chapter-desc">Scoping an incident once it becomes full IR, evidence collection and chain of custody, building an incident timeline, and common analysis pitfalls.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">scoping</span>
+            <span class="chapter-tag">chain of custody</span>
+            <span class="chapter-tag">timeline reconstruction</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="03">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <a class="chapter-card" href="./04-containment-strategy.html" aria-label="Chapter 4: Containment Strategy">
+          <div class="chapter-card-top">
+            <span class="chapter-num">04</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
+              <span class="chapter-time">35 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Containment Strategy: Isolation Decisions Under Pressure</h3>
+          <p class="chapter-desc">Short-term versus long-term containment, the factors that drive containment decisions, containment techniques by incident type, and the contain-versus-watch dilemma.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">containment</span>
+            <span class="chapter-tag">network isolation</span>
+            <span class="chapter-tag">business impact</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="04">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <a class="chapter-card" href="./05-eradication.html" aria-label="Chapter 5: Eradication">
+          <div class="chapter-card-top">
+            <span class="chapter-num">05</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
+              <span class="chapter-time">30 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Eradication: Removing the Threat for Good</h3>
+          <p class="chapter-desc">Root cause versus symptom removal, common eradication actions, verifying eradication actually worked, and deciding when to rebuild instead of clean.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">eradication</span>
+            <span class="chapter-tag">root cause</span>
+            <span class="chapter-tag">credential rotation</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="05">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <a class="chapter-card" href="./06-recovery.html" aria-label="Chapter 6: Recovery">
+          <div class="chapter-card-top">
+            <span class="chapter-num">06</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-intermediate">INTERMEDIATE</span>
+              <span class="chapter-time">30 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Recovery: Restoring Trust in Compromised Systems</h3>
+          <p class="chapter-desc">Phased restoration priorities, validation before returning systems to production, heightened post-recovery monitoring, and communicating recovery status.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">recovery</span>
+            <span class="chapter-tag">phased restoration</span>
+            <span class="chapter-tag">validation</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="06">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <a class="chapter-card" href="./07-post-incident-activity.html" aria-label="Chapter 7: Post-Incident Activity">
+          <div class="chapter-card-top">
+            <span class="chapter-num">07</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-advanced">ADVANCED</span>
+              <span class="chapter-time">35 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Post-Incident Activity: Lessons Learned, Metrics &amp; Disclosure</h3>
+          <p class="chapter-desc">Running a blameless lessons-learned meeting, writing an after-action report, the IR metrics that matter, and legal and regulatory breach notification obligations.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">lessons learned</span>
+            <span class="chapter-tag">MTTD / MTTC / MTTR</span>
+            <span class="chapter-tag">breach notification</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="07">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+        <a class="chapter-card" href="./08-specialized-ir-scenarios.html" aria-label="Chapter 8: Specialized IR Scenarios">
+          <div class="chapter-card-top">
+            <span class="chapter-num">08</span>
+            <div class="chapter-badges">
+              <span class="chapter-diff-advanced">ADVANCED</span>
+              <span class="chapter-time">40 min</span>
+            </div>
+          </div>
+          <h3 class="chapter-title">Specialized IR Scenarios: Ransomware, BEC, Insider Threat &amp; Cloud</h3>
+          <p class="chapter-desc">How incident response adapts for ransomware, business email compromise, insider threats, and cloud environments, tying the full PICERL lifecycle together.</p>
+          <div class="chapter-tags">
+            <span class="chapter-tag">ransomware</span>
+            <span class="chapter-tag">BEC</span>
+            <span class="chapter-tag">cloud IR</span>
+          </div>
+          <div class="chapter-footer">
+            <div class="chapter-status" data-chapter-id="08">
+              <span class="chapter-status-dot"></span>
+              <span class="chapter-status-text">UNREAD</span>
+            </div>
+            <span class="chapter-arrow">&#8594;</span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="prereq-section" aria-labelledby="prereq-heading">
+    <div class="container">
+      <div class="section-header" style="margin-bottom: 2rem;">
+        <span class="section-label">BEFORE YOU START</span>
+        <h2 class="section-title" id="prereq-heading">PREREQUISITES &amp; OUTCOMES</h2>
+      </div>
+      <div class="prereq-grid">
+
+        <div class="prereq-card">
+          <p class="prereq-card-title">WHAT YOU SHOULD KNOW</p>
+          <ul class="prereq-list">
+            <li>No prior IR experience required, Chapter 1 builds the frameworks and terminology from scratch</li>
+            <li>SOC Operations is a good companion module, since this module deliberately picks up where SOC-scoped incident handling ends</li>
+            <li>General awareness of common attack types (malware, phishing, unauthorized access) is useful but not assumed</li>
+            <li>No coding or forensic-tool experience required, this module covers process and decision-making, not tool operation</li>
+          </ul>
+        </div>
+
+        <div class="prereq-card is-outcomes">
+          <p class="prereq-card-title">WHAT YOU WILL KNOW AFTER</p>
+          <ul class="prereq-list">
+            <li>How NIST 800-61 and SANS PICERL structure the incident response lifecycle, and how the two map to each other</li>
+            <li>How to build an IR plan and playbooks, and run a tabletop exercise to test them</li>
+            <li>How to scope an incident, collect evidence with proper chain of custody, and reconstruct a timeline</li>
+            <li>How to choose between short-term and long-term containment, and match technique to incident type</li>
+            <li>The difference between symptom removal and true eradication, and when to rebuild instead of clean</li>
+            <li>How to validate and phase a recovery, and keep monitoring after systems return to production</li>
+            <li>How to run a blameless lessons-learned process, read IR metrics, and navigate disclosure obligations</li>
+            <li>How the full lifecycle adapts for ransomware, BEC, insider threat, and cloud-native incidents</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="resources-section" aria-labelledby="tools-heading">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">TOOLS</span>
+        <h2 class="section-title" id="tools-heading">RECOMMENDED TOOLS</h2>
+        <p class="section-subtitle">H3AD-SEC tools that pair directly with this module's content.</p>
+      </div>
+      <div class="resources-grid">
+
+        <a class="resource-card" href="https://h3ad-sec.github.io/PHISHOPS/" target="_blank" rel="noopener noreferrer">
+          <div class="resource-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>
+          </div>
+          <div class="resource-card-body">
+            <span class="resource-card-name mono">PHISHOPS</span>
+            <p class="resource-card-desc">A 7-step phishing investigation tracker with a live IOC aggregator, a working model of the case tracking and disposition discipline this module's chapters assume.</p>
+          </div>
+          <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
+        </a>
+
+        <a class="resource-card" href="https://h3ad-sec.github.io/X-VERDIKT/" target="_blank" rel="noopener noreferrer">
+          <div class="resource-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <div class="resource-card-body">
+            <span class="resource-card-name mono">X-VERDIKT</span>
+            <p class="resource-card-desc">Multi-source IOC analysis across VirusTotal, Shodan, OTX, and AbuseIPDB, useful for the IOC pivoting and scoping work covered in Chapter 3.</p>
+          </div>
+          <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
+        </a>
+
+        <a class="resource-card" href="https://h3ad-sec.github.io/PARSE-X/" target="_blank" rel="noopener noreferrer">
+          <div class="resource-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+          </div>
+          <div class="resource-card-body">
+            <span class="resource-card-name mono">PARSE-X</span>
+            <p class="resource-card-desc">Parses 18 forensic artifact types, a direct fit for the evidence collection and timeline reconstruction work covered in Chapter 3.</p>
+          </div>
+          <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
+        </a>
+
+        <a class="resource-card" href="https://h3ad-sec.github.io/MAILSCOPE/" target="_blank" rel="noopener noreferrer">
+          <div class="resource-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 8V7l-3 2-3-2-3 2-3-2-3 2v9a2 2 0 002 2h10a2 2 0 002-2v-9z"/><path d="M3 7l9 6 9-6"/></svg>
+          </div>
+          <div class="resource-card-body">
+            <span class="resource-card-name mono">MAILSCOPE</span>
+            <p class="resource-card-desc">Email header and risk analysis across 18 risk codes, a direct fit for the mailbox forensics work in Chapter 8's BEC response section.</p>
+          </div>
+          <span class="resource-card-arrow" aria-hidden="true">&#8599;</span>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Incident Response</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const pct   = getModuleProgress('incident-response');
+      const bar   = document.getElementById('incident-response-progress-bar');
+      const label = document.getElementById('incident-response-progress-label');
+      if (bar)   bar.style.width = pct + '%';
+      if (label) {
+        const progress  = initProgress();
+        const chapters  = progress.modules?.['incident-response']?.chapters || {};
+        const completed = Object.values(chapters).filter(c => c.status === 'complete').length;
+        label.textContent = completed + ' / 8 chapters complete';
+      }
+
+      const progress = initProgress();
+      const chapters = progress.modules?.['incident-response']?.chapters || {};
+      document.querySelectorAll('.chapter-status[data-chapter-id]').forEach(el => {
+        const id  = el.dataset.chapterId;
+        const ch  = chapters[id];
+        if (!ch) return;
+        const dot  = el.querySelector('.chapter-status-dot');
+        const text = el.querySelector('.chapter-status-text');
+        if (ch.status === 'complete') {
+          dot.classList.add('is-complete');
+          text.textContent = 'COMPLETE';
+        } else if (ch.status === 'reading') {
+          dot.classList.add('is-reading');
+          text.textContent = 'IN PROGRESS';
+        }
+      });
+    });
+
+    (function(){
+      var input = document.getElementById('chapterSearch');
+      var grid = document.getElementById('chaptersGrid');
+      var empty = document.getElementById('chapterSearchEmpty');
+      var emptyTerm = document.getElementById('chapterSearchEmptyTerm');
+      if (!input || !grid) return;
+      var cards = Array.prototype.slice.call(grid.querySelectorAll('.chapter-card'));
+      function filter(){
+        var q = input.value.trim().toLowerCase();
+        var visible = 0;
+        cards.forEach(function(card){
+          var match = !q || card.textContent.toLowerCase().indexOf(q) > -1;
+          card.style.display = match ? '' : 'none';
+          if (match) visible++;
+        });
+        if (empty) {
+          empty.hidden = visible !== 0;
+          if (emptyTerm) emptyTerm.textContent = input.value.trim();
+        }
+      }
+      input.addEventListener('input', filter);
+      input.addEventListener('keydown', function(e){
+        if (e.key === 'Escape') { input.value = ''; filter(); input.blur(); }
+      });
+      document.addEventListener('keydown', function(e){
+        if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return;
+        var active = document.activeElement;
+        if (active === input || /^(INPUT|TEXTAREA|SELECT)$/.test(active && active.tagName)) return;
+        e.preventDefault();
+        input.focus();
+      });
+    })();
+  </script>
+</body>
+</html>

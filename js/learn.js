@@ -30,7 +30,9 @@ const MODULES = {
   'cloud-security': { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 11 },
   'malware-analysis': { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 12 },
   'soc-operations':   { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 11 },
-  'detection-engineering': { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 12 }
+  'detection-engineering': { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 12 },
+  'incident-response': { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 12 },
+  'ai-in-security': { chapters: ['01','02','03','04','05','06','07','08'], totalHours: 11 }
 };
 
 /* ---------------------------------------------------------

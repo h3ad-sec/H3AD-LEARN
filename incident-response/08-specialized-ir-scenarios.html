@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="08">
+  <meta name="module-id" content="incident-response">
+  <title>Specialized IR Scenarios: Ransomware, BEC, Insider Threat &amp; Cloud · Incident Response · H3AD-LEARN</title>
+  <meta name="description" content="How incident response adapts for ransomware, business email compromise, insider threats, and cloud environments, tying the full PICERL lifecycle together.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/incident-response/08-specialized-ir-scenarios.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/incident-response/08-specialized-ir-scenarios.html">
+  <meta property="og:title" content="Specialized IR Scenarios: Ransomware, BEC, Insider Threat &amp; Cloud · Incident Response · H3AD-LEARN">
+  <meta property="og:description" content="How incident response adapts for ransomware, business email compromise, insider threats, and cloud environments, tying the full PICERL lifecycle together.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Specialized IR Scenarios: Ransomware, BEC, Insider Threat &amp; Cloud · Incident Response · H3AD-LEARN">
+  <meta name="twitter:description" content="How incident response adapts for ransomware, business email compromise, insider threats, and cloud environments, tying the full PICERL lifecycle together.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Specialized IR Scenarios: Ransomware, BEC, Insider Threat & Cloud",
+    "description": "How incident response adapts for ransomware, business email compromise, insider threats, and cloud environments, tying the full PICERL lifecycle together.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/incident-response/08-specialized-ir-scenarios.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Incident Response",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/incident-response/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" },
+    { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" },
+    { "@type": "ListItem", "position": 3, "name": "Incident Response", "item": "https://h3ad-sec.github.io/H3AD-LEARN/incident-response/" },
+    { "@type": "ListItem", "position": 4, "name": "Specialized IR Scenarios: Ransomware, BEC, Insider Threat & Cloud", "item": "https://h3ad-sec.github.io/H3AD-LEARN/incident-response/08-specialized-ir-scenarios.html" }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">SPECIALIZED SCENARIOS</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub">&#8623; SOC OPERATIONS</a>
+    <a href="../detection-engineering/index.html" class="drawer-sub">&#8623; DETECTION ENGINEERING</a>
+    <a href="../incident-response/index.html" class="drawer-sub nav-current">&#8623; INCIDENT RESPONSE</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Incident Response</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 08 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">40 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 5 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 08</span>
+            <span class="badge-time muted mono">40 MIN READ</span>
+            <span class="badge-diff badge-advanced">ADVANCED</span>
+          </div>
+          <h1 class="chapter-title">Specialized IR Scenarios: Ransomware, BEC, Insider Threat &amp; Cloud</h1>
+          <p class="chapter-intro">The PICERL lifecycle from earlier chapters stays the same, but the specific actions inside each phase shift enough by incident type to deserve their own playbook. This closing chapter walks four of the most common specialized scenarios and ties the whole module back together.</p>
+          <div class="chapter-tags">
+            <span class="tag">ransomware response</span>
+            <span class="tag">BEC</span>
+            <span class="tag">insider threat</span>
+            <span class="tag">cloud incident response</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="why-specialized-playbooks-matter">
+          <h2>Why Specialized Playbooks Matter</h2>
+          <p>PICERL's six phases (Preparation, Identification, Containment, Eradication, Recovery, Lessons Learned from Chapter 1) apply to every incident type. What changes is the specific action taken inside each phase.</p>
+          <p>Chapter 2 introduced playbooks as per-incident-type runbooks sitting under the governing IR plan. The four scenarios below are exactly the kind of incidents that earn their own playbook, since generic guidance is too slow to act on when the clock is running.</p>
+        </section>
+
+        <section class="content-section" id="ransomware-response">
+          <h2>Ransomware Response</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>PICERL Phase</th><th>Ransomware-Specific Action</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Containment</td><td>Isolate affected hosts immediately to stop encryption from spreading before it reaches shared storage or backups.</td></tr>
+                <tr><td>Eradication</td><td>Find and remove every foothold the actor planted, not just the encryptor binary itself, since ransomware crews often establish backup access first.</td></tr>
+                <tr><td>Recovery</td><td>Verify backup integrity before restoring anything. Never restore blindly from a backup that could itself be compromised or already encrypted.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout-info"><strong>Note:</strong> Ransom payment decisions involve legal, insurance, and sometimes regulatory considerations well beyond the technical response. Paying is never a guarantee of receiving a working decryptor, and the decision should never sit with the IR team alone.</div>
+        </section>
+
+        <section class="content-section" id="bec-response">
+          <h2>Business Email Compromise (BEC) Response</h2>
+          <div class="callout-info">
+            <strong>BEC-specific actions:</strong>
+            <ul>
+              <li><strong>Mailbox Forensics and Sign-In Log Review</strong>: check authentication logs for anomalous logins and review mailbox activity for signs of access.</li>
+              <li><strong>Hunting Malicious Forwarding and Inbox Rules</strong>: attackers often add silent forwarding rules or filters to hide their tracks and keep visibility after a password reset.</li>
+              <li><strong>Financial Institution Coordination</strong>: if a fraudulent wire transfer occurred, contact the receiving bank immediately to attempt a recall.</li>
+              <li><strong>Password and MFA Token Reset</strong>: reset credentials and revoke all active sessions and tokens, not just the password.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="content-section" id="insider-threat-response">
+          <h2>Insider Threat Response</h2>
+          <div class="callout-info">
+            <strong>Insider-specific considerations:</strong>
+            <ul>
+              <li><strong>Early HR and Legal Coordination</strong>: insider cases carry employment and legal risk that external-actor incidents don't, so involve HR and legal from the start.</li>
+              <li><strong>Evidence Handling for Potential Litigation</strong>: chain of custody from Chapter 3 becomes especially critical if the case may end in termination or legal action.</li>
+              <li><strong>Covert vs Overt Investigation</strong>: decide early whether the subject should know they're being investigated, since tipping them off can prompt evidence destruction.</li>
+              <li><strong>Access Review Scope</strong>: review not just the suspected system but everything the individual had legitimate access to.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="content-section" id="cloud-incident-response">
+          <h2>Cloud Incident Response</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Cloud Factor</th><th>How It Changes IR</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Shared Responsibility Model</td><td>Limits what evidence you can collect directly, since the provider controls the underlying infrastructure layer.</td></tr>
+                <tr><td>Provider API and Audit Logs</td><td>Become the primary evidence source in place of traditional host-level forensics.</td></tr>
+                <tr><td>Ephemeral Infrastructure</td><td>Containers and auto-scaled instances can vanish before disk forensics is possible, so logging has to capture what disk imaging can't.</td></tr>
+                <tr><td>IAM-Centric Containment</td><td>Revoking access keys, tokens, and role assumptions often replaces network isolation as the fastest containment action.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Picture a cloud ransomware case moving through the full lifecycle from Chapter 1: <strong>Preparation</strong> already had cloud-specific tooling and IAM access ready. <strong>Identification</strong> came from provider audit logs showing anomalous key usage. <strong>Containment</strong> revoked the compromised access key within minutes. <strong>Eradication</strong> removed every IAM policy the attacker had modified. <strong>Recovery</strong> restored from verified clean backups after integrity checks. <strong>Lessons Learned</strong> fed a new detection rule and a tighter IAM policy back into preparation, closing the loop this entire module has been building toward.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>PICERL's six phases stay constant across incident types, but the specific action inside each phase depends heavily on the scenario.</li>
+            <li>Ransomware containment must move fast to stop spread, and recovery requires verifying backup integrity before ever restoring from it.</li>
+            <li>BEC investigations hinge on mailbox forensics, hunting hidden forwarding rules, and fast coordination with financial institutions.</li>
+            <li>Insider threat cases require early HR and legal coordination and extra procedural care around evidence and investigation approach.</li>
+            <li>Cloud incidents shift evidence collection toward provider logs and containment toward IAM actions like revoking keys and tokens.</li>
+            <li>A single incident, worked end to end, is the clearest proof that the PICERL lifecycle from Chapter 1 actually holds together in practice.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">A ransomware incident has been contained and eradicated. Before restoring from backup, what should the team verify first?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. That the ransom note has been deleted from all affected systems.</button>
+              <button class="kc-option" data-correct="true">B. That the backup itself is intact and was not already compromised or encrypted.</button>
+              <button class="kc-option" data-correct="false">C. That the attacker's identity has been confirmed.</button>
+              <button class="kc-option" data-correct="false">D. That leadership has approved paying the ransom.</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. Restoring from a backup that is itself compromised or already encrypted just reintroduces the problem. Backup integrity verification has to happen before recovery, not after.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">During a BEC investigation, a compromised mailbox's password has already been reset. What else should the team check that a password reset alone won't fix?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Nothing further is needed once the password is reset.</button>
+              <button class="kc-option" data-correct="true">B. Malicious inbox rules or forwarding filters the attacker may have added, plus revoking any active sessions and tokens.</button>
+              <button class="kc-option" data-correct="false">C. Whether the user's manager has been informed.</button>
+              <button class="kc-option" data-correct="false">D. Whether the mailbox's storage quota needs to be increased.</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. A password reset alone doesn't remove forwarding rules or revoke already-active sessions and tokens, both common ways attackers maintain access into a mailbox after the visible compromise.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">A cloud environment shows signs of a compromised IAM access key being used to enumerate resources. What is typically the fastest containment action?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Physically disconnect the data center's network cables.</button>
+              <button class="kc-option" data-correct="true">B. Revoke or disable the compromised access key and any role assumptions tied to it.</button>
+              <button class="kc-option" data-correct="false">C. Wait for the next scheduled key rotation cycle.</button>
+              <button class="kc-option" data-correct="false">D. Delete the cloud account entirely.</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. In cloud environments, IAM-centric containment (revoking keys, tokens, and role assumptions) is usually faster and more precise than traditional network isolation, since the compromised identity is often the actual attack surface.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="07-post-incident-activity.html" class="chapter-nav-prev">← Post-Incident Activity</a>
+          <a href="index.html" class="chapter-nav-next">Incident Response Overview →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Incident Response</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('08', 5));</script>
+</body>
+</html>

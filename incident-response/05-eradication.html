@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="05">
+  <meta name="module-id" content="incident-response">
+  <title>Eradication: Removing the Threat for Good · Incident Response · H3AD-LEARN</title>
+  <meta name="description" content="Root cause versus symptom removal, common eradication actions, verifying eradication actually worked, and deciding when to rebuild instead of clean.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/incident-response/05-eradication.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/incident-response/05-eradication.html">
+  <meta property="og:title" content="Eradication: Removing the Threat for Good · Incident Response · H3AD-LEARN">
+  <meta property="og:description" content="Root cause versus symptom removal, common eradication actions, verifying eradication actually worked, and deciding when to rebuild instead of clean.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Eradication: Removing the Threat for Good · Incident Response · H3AD-LEARN">
+  <meta name="twitter:description" content="Root cause versus symptom removal, common eradication actions, verifying eradication actually worked, and deciding when to rebuild instead of clean.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Eradication: Removing the Threat for Good",
+    "description": "Root cause versus symptom removal, common eradication actions, verifying eradication actually worked, and deciding when to rebuild instead of clean.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/incident-response/05-eradication.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Incident Response",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/incident-response/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" },
+    { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" },
+    { "@type": "ListItem", "position": 3, "name": "Incident Response", "item": "https://h3ad-sec.github.io/H3AD-LEARN/incident-response/" },
+    { "@type": "ListItem", "position": 4, "name": "Eradication: Removing the Threat for Good", "item": "https://h3ad-sec.github.io/H3AD-LEARN/incident-response/05-eradication.html" }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">ERADICATION</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub">&#8623; SOC OPERATIONS</a>
+    <a href="../detection-engineering/index.html" class="drawer-sub">&#8623; DETECTION ENGINEERING</a>
+    <a href="../incident-response/index.html" class="drawer-sub nav-current">&#8623; INCIDENT RESPONSE</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Incident Response</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 05</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 5 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 05</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Eradication: Removing the Threat for Good</h1>
+          <p class="chapter-intro">Eradication is where containment's temporary fix becomes a permanent one. In PICERL, this is the phase for removing the threat, not just isolating it. Get it wrong and the same attacker walks back in through the same door.</p>
+          <div class="chapter-tags">
+            <span class="tag">eradication</span>
+            <span class="tag">root cause</span>
+            <span class="tag">credential rotation</span>
+            <span class="tag">persistence removal</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="what-eradication-requires">
+          <h2>What Eradication Actually Requires</h2>
+          <p>Containment stops the bleeding. Eradication closes the wound. Skipping straight to "clean and move on" without addressing how the attacker got in is the single most common reason incidents recur.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Approach</th><th>What It Does</th><th>What It Leaves Behind</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Symptom Removal</td>
+                  <td>Deletes the malicious file, kills the process, removes the obvious artifact</td>
+                  <td>The vulnerability or access path that let the attacker in the first time, still open</td>
+                </tr>
+                <tr>
+                  <td>Root Cause Removal</td>
+                  <td>Closes the vulnerability, revokes the compromised access, fixes the misconfiguration that was exploited</td>
+                  <td>Nothing exploitable through the same path; attacker has to find a new way in</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout-info"><strong>Note:</strong> Containment alone or symptom removal alone leaves the door open. An attacker who re-enters through the same unpatched service or the same stolen credential isn't a new incident. It's the same incident, reopened.</div>
+        </section>
+
+        <section class="content-section" id="common-eradication-actions">
+          <h2>Common Eradication Actions</h2>
+          <p>Eradication actions cluster into a few recurring categories. Most real incidents need more than one at once.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Action Category</th><th>Example</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Malware and Backdoor Removal</td><td>Removing a dropped implant and any secondary payload it staged on disk</td></tr>
+                <tr><td>Credential and Secret Rotation</td><td>Resetting passwords, API keys, and tokens for every account or service touched during the intrusion</td></tr>
+                <tr><td>Patching the Exploited Vulnerability</td><td>Applying the vendor patch or configuration fix for the specific flaw the attacker used to get in</td></tr>
+                <tr><td>Removing Persistence Mechanisms</td><td>Deleting malicious scheduled tasks, registry run keys, or rogue services the attacker set up to survive a reboot</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="verifying-eradication">
+          <h2>Verifying Eradication</h2>
+          <p>Believing eradication worked and confirming it worked are different things. Verification methods below each catch something self-verification by the same analyst tends to miss.</p>
+          <div class="callout-info">
+            <strong>Verification methods:</strong>
+            <ul>
+              <li><strong>Follow-up Scans</strong>: catches artifacts the initial cleanup missed, since a single pass rarely finds every dropped file or modified binary.</li>
+              <li><strong>Monitoring for Recurrence Indicators</strong>: catches a return of the same behavior days or weeks later, when a one-time check would already have moved on.</li>
+              <li><strong>Re-checking Persistence Locations</strong>: catches a second or backup persistence mechanism the attacker planted as a fallback in case the first one was found.</li>
+              <li><strong>Independent Review by a Second Analyst</strong>: catches assumptions and blind spots from the analyst who did the eradication work, who is the least likely person to spot their own gap.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="content-section" id="rebuild-vs-clean">
+          <h2>When to Rebuild vs Clean</h2>
+          <p>Cleaning saves time. Rebuilding buys certainty. The decision depends on how well the compromise is understood and how much the asset is worth.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Rebuild</th><th>Clean-and-Verify</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Kernel-level or rootkit compromise</td><td>Well-understood, commodity malware</td></tr>
+                <tr><td>Unknown persistence depth</td><td>Clear, complete removal path</td></tr>
+                <tr><td>High-value asset where certainty matters most</td><td>Low-value asset that's easy to reimage later if something was missed</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout-tip"><strong>Rule of thumb:</strong> when you can't say with confidence exactly what the attacker changed, rebuild. Cleaning a system you don't fully understand just relocates the uncertainty instead of removing it.</div>
+        </section>
+
+        <section class="content-section" id="coordinating-eradication-timing">
+          <h2>Coordinating Eradication Timing Across Systems</h2>
+          <p>When multiple systems are compromised, eradication needs to happen at the same time everywhere, not one system at a time.</p>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Confirm Full Scope</div>
+              <div class="flow-step-desc">Identify every system, account, and access path the attacker touched before eradicating anything.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Prepare All Fixes in Parallel</div>
+              <div class="flow-step-desc">Stage patches, credential resets, and removal steps for every affected system ahead of time.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Execute Simultaneously Across Systems</div>
+              <div class="flow-step-desc">Trigger eradication on all systems at the same time, so no window exists for the attacker to shift ground.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Verify Immediately After</div>
+              <div class="flow-step-desc">Confirm across all systems at once that the threat is actually gone, not just gone from the first system touched.</div>
+            </div>
+          </div>
+          <div class="callout-info"><strong>Note:</strong> Eradicating one system at a time can tip off the attacker the moment the first cleanup lands. They notice access dying on one box and immediately shift to re-establish persistence on the systems not yet cleaned, turning a coordinated takedown into a game of whack-a-mole.</div>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>Eradication has to address root cause, not just remove the visible symptom, or the same intrusion path stays open.</li>
+            <li>Common eradication actions cover malware and backdoor removal, credential and secret rotation, patching the exploited vulnerability, and removing persistence mechanisms.</li>
+            <li>Verification should come from more than one method: follow-up scans, recurrence monitoring, re-checking persistence locations, and independent review all catch different gaps.</li>
+            <li>Rebuild when the compromise depth is unknown, involves kernel-level access, or the asset is high-value; clean-and-verify when the malware and removal path are well understood.</li>
+            <li>Simultaneous eradication across all affected systems prevents the attacker from shifting to systems not yet cleaned.</li>
+            <li>Eradicating one system at a time can tip off the attacker and turn cleanup into an ongoing chase.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">An analyst deletes a malicious executable from an infected host and closes the incident. A week later, the same host is compromised again through the same unpatched service. What went wrong?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. The analyst should have deleted the file sooner.</button>
+              <button class="kc-option" data-correct="true">B. The analyst performed symptom removal without root cause removal, leaving the exploited vulnerability open.</button>
+              <button class="kc-option" data-correct="false">C. Nothing went wrong; reinfection through the same path is unrelated to the first incident.</button>
+              <button class="kc-option" data-correct="false">D. The host should have been placed in containment instead of being cleaned.</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. Deleting the file addressed the symptom, not the vulnerable service the attacker exploited to deliver it. Without patching that path, reinfection through the same route was only a matter of time.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">A forensic review finds a rootkit with kernel-level hooks on a high-value production server, and the full extent of its persistence is unclear. What's the appropriate eradication approach?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Clean-and-verify, since a rootkit is still just malware that can be scanned and removed.</button>
+              <button class="kc-option" data-correct="true">B. Rebuild, since kernel-level compromise and unknown persistence depth on a high-value asset both point away from cleaning.</button>
+              <button class="kc-option" data-correct="false">C. Leave the server as-is and only monitor it more closely going forward.</button>
+              <button class="kc-option" data-correct="false">D. Wait for the next scheduled maintenance window before taking any action.</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. Kernel-level compromise means the attacker can hide from the same tools used to verify cleanliness, and unknown persistence depth on a high-value asset removes any confidence that a clean scan actually means clean. Rebuilding removes that uncertainty entirely.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">A team eradicates malware from one compromised server, then moves on to the next server the following day. Why is this sequencing risky?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. It isn't risky, since eradication order has no effect on outcome.</button>
+              <button class="kc-option" data-correct="true">B. The attacker can notice access lost on the first system and re-establish or reinforce persistence on the systems not yet cleaned.</button>
+              <button class="kc-option" data-correct="false">C. It's risky only because it takes longer than eradicating all systems at once.</button>
+              <button class="kc-option" data-correct="false">D. Sequential eradication is always the correct order regardless of scope.</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. Cleaning systems one at a time gives an attacker with access to multiple systems a warning sign and time to react on the ones still compromised, which is why simultaneous eradication across the full scope matters.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="04-containment-strategy.html" class="chapter-nav-prev">&larr; Containment Strategy</a>
+          <a href="06-recovery.html" class="chapter-nav-next">Recovery &rarr;</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Incident Response</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('05', 5));</script>
+</body>
+</html>

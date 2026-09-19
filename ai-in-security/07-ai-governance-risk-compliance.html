@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="07">
+  <meta name="module-id" content="ai-in-security">
+  <title>AI Governance, Risk, and Compliance · AI in Security · H3AD-LEARN</title>
+  <meta name="description" content="Why AI governance is a security concern, the NIST AI RMF's four functions, the EU AI Act's phased timeline, AI red teaming, and how to run governance and security as one continuing lifecycle.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/07-ai-governance-risk-compliance.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/07-ai-governance-risk-compliance.html">
+  <meta property="og:title" content="AI Governance, Risk, and Compliance · AI in Security · H3AD-LEARN">
+  <meta property="og:description" content="Why AI governance is a security concern, the NIST AI RMF's four functions, the EU AI Act's phased timeline, AI red teaming, and how to run governance and security as one continuing lifecycle.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AI Governance, Risk, and Compliance · AI in Security · H3AD-LEARN">
+  <meta name="twitter:description" content="Why AI governance is a security concern, the NIST AI RMF's four functions, the EU AI Act's phased timeline, AI red teaming, and how to run governance and security as one continuing lifecycle.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "AI Governance, Risk, and Compliance",
+    "description": "Why AI governance is a security concern, the NIST AI RMF's four functions, the EU AI Act's phased timeline, AI red teaming, and how to run governance and security as one continuing lifecycle.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/07-ai-governance-risk-compliance.html",
+    "isPartOf": { "@type": "Course", "name": "AI in Security", "url": "https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/" },
+    "provider": { "@type": "Organization", "name": "H3AD-SEC", "url": "https://h3ad-sec.github.io" }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" },
+    { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" },
+    { "@type": "ListItem", "position": 3, "name": "AI in Security", "item": "https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/" },
+    { "@type": "ListItem", "position": 4, "name": "AI Governance, Risk, and Compliance", "item": "https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/07-ai-governance-risk-compliance.html" }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">AI GOVERNANCE, RISK, AND COMPLIANCE</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub">&#8623; SOC OPERATIONS</a>
+    <a href="../detection-engineering/index.html" class="drawer-sub">&#8623; DETECTION ENGINEERING</a>
+    <a href="../incident-response/index.html" class="drawer-sub">&#8623; INCIDENT RESPONSE</a>
+    <a href="../ai-in-security/index.html" class="drawer-sub nav-current">&#8623; AI IN SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← AI in Security</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 07 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 5 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 07</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-advanced">ADVANCED</span>
+          </div>
+          <h1 class="chapter-title">AI Governance, Risk, and Compliance</h1>
+          <p class="chapter-intro">Every earlier chapter in this module assumed the AI system in question was known, approved, and intentionally deployed. That assumption breaks down constantly in real organizations. This chapter covers the governance layer that sits above the technical controls: why ungoverned AI adoption is itself a security problem, the two frameworks security teams are most likely to hear referenced in this space, the practice of red teaming AI systems before and during deployment, and how to fold all of it into a working program rather than a one-time compliance exercise.</p>
+          <div class="chapter-tags">
+            <span class="tag">NIST AI RMF</span><span class="tag">EU AI Act</span><span class="tag">AI red teaming</span><span class="tag">shadow AI</span>
+          </div>
+        </header>
+
+        <div class="callout-tip"><strong>Before you start:</strong> this chapter assumes familiarity with the AI/LLM failure modes covered in chapters 2, 3, and 6 (prompt injection, data leakage, model and pipeline attack surface). Governance is easier to reason about once you know what, specifically, is being governed.</div>
+
+        <section class="content-section" id="why-ai-governance-is-a-security-concern">
+          <h2>Why AI governance is now a security concern, not just a legal one</h2>
+          <p>Governance used to be something security teams handed off to legal or compliance and checked in on once a quarter. AI has collapsed that separation: organizations adopt AI tools faster than formal review can keep pace, and every review gap becomes a security gap almost immediately, unknown data handling, an unreviewed supply-chain dependency, an incident with no clear owner.</p>
+          <p><strong>Shadow AI</strong> is the clearest entry point into this problem, borrowed directly from an older one. Shadow IT was employees standing up their own SaaS tools or devices outside IT's visibility because the sanctioned process was too slow; shadow AI is the same behavior, applied to AI.</p>
+          <div class="callout-tip"><strong>Shadow AI in practice:</strong>
+            <ul>
+              <li>An employee pastes a chunk of a customer contract into a public chatbot to get a faster summary.</li>
+              <li>A team installs a browser extension that quietly routes page content through a third-party model.</li>
+              <li>A business unit turns on an AI feature bundled into a SaaS product without anyone from security ever reviewing what data it sends where.</li>
+            </ul>
+          </div>
+          <p>None of this is malicious. All of it is invisible to the organization until something goes wrong.</p>
+          <div class="callout-info"><strong>What makes shadow AI a security problem, specifically:</strong>
+            <ul>
+              <li>Sensitive data (source code, customer records, unreleased financials, credentials) can leave the organization's boundary with no logging, no DLP visibility, and no way to claw it back.</li>
+              <li>The organization inherits the data retention, training-use, and security posture of whatever vendor is on the other end, without ever having evaluated it.</li>
+              <li>There is no inventory, so there is no way to know the actual blast radius when a vendor discloses a breach or a model provider changes its terms of service.</li>
+              <li>Accountability is undefined. If the AI tool contributes to a bad outcome, no one signed off on it being in use, so no one is positioned to answer for it.</li>
+            </ul>
+          </div>
+          <p>Security has the visibility tooling (network egress monitoring, SaaS discovery, endpoint telemetry) to actually find shadow AI. Governance has the framework for deciding what to do once it's found. Neither function alone closes the gap.</p>
+        </section>
+
+        <section class="content-section" id="nist-ai-risk-management-framework">
+          <h2>The NIST AI Risk Management Framework (AI RMF)</h2>
+          <p>In January 2023, NIST published the AI Risk Management Framework (AI RMF) 1.0, a voluntary framework for identifying, assessing, and managing AI risk across a system's lifecycle, from design through deployment and retirement. Voluntary matters: nothing in it compels an organization to do anything. It's guidance, not law (the next section covers a framework where that's reversed).</p>
+          <p>The AI RMF organizes its guidance around four core functions. They aren't a sequence completed once, they operate together, continuously, feeding back into each other as an AI system and its risk profile evolve.</p>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Govern</div>
+              <div class="flow-step-desc">Cultivate a risk-aware culture and put the organizational structures, roles, and policies in place to manage AI risk at all.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Map</div>
+              <div class="flow-step-desc">Identify the context and the risks specific to a given AI system and its intended use case. Different deployments of the same model carry different risk.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Measure</div>
+              <div class="flow-step-desc">Assess, analyze, and track the risks identified in Map, using metrics appropriate to the system and the harm being evaluated.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Manage</div>
+              <div class="flow-step-desc">Prioritize and act on the risks surfaced by Map and Measure, and keep monitoring as the system, its usage, and its threat landscape change.</div>
+            </div>
+          </div>
+          <p>Govern sits first but doesn't finish before Map begins, and Manage doesn't close the loop, it feeds back into ongoing monitoring that reshapes what gets mapped and measured next.</p>
+          <div class="callout-tip"><strong>In practice, same week:</strong> a security team evaluating a new internal LLM deployment might confirm a policy covers this kind of deployment (Govern), scope what data it will touch and who can prompt it (Map), run evaluations against known failure modes (Measure), and decide whether to ship, restrict, or block it (Manage).</div>
+        </section>
+
+        <section class="content-section" id="eu-ai-act">
+          <h2>The EU AI Act</h2>
+          <p>Where the AI RMF is voluntary guidance, the EU AI Act is binding law. Formally Regulation (EU) 2024/1689, it entered into force on 1 August 2024 and applies to providers and users of AI systems operating in or serving the EU market, regardless of where the provider is headquartered. It does not take effect all at once. It rolls out on a phased, risk-tiered timeline, with different obligations activating on different dates over several years.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Date</th><th>What takes effect</th></tr></thead>
+              <tbody>
+                <tr><td>2 February 2025</td><td>Prohibited AI practices (such as social scoring) become unlawful; AI literacy obligations begin applying.</td></tr>
+                <tr><td>2 August 2025</td><td>Rules for general-purpose AI (GPAI) models, governance structures, and penalty provisions start applying.</td></tr>
+                <tr><td>2 August 2026</td><td>General application of the Act, plus Article 50 transparency duties (chatbot disclosure, synthetic content labeling).</td></tr>
+                <tr><td>2 December 2027</td><td>High-risk systems under Annex III must comply. Deferred from the original August 2026 target.</td></tr>
+                <tr><td>2 August 2028</td><td>High-risk, product-embedded systems under Annex I must comply. Deferred from the original August 2027 target.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Underneath that timeline sits the Act's core structure: AI systems are categorized by risk level, and obligations scale with it. Systems that pose unacceptable risk are prohibited outright. High-risk systems face the heaviest compliance burden: documentation, human oversight, testing, and conformity requirements. Limited-risk systems carry transparency obligations, such as disclosing that a user is interacting with an AI system. Minimal-risk systems face essentially no obligations under the Act. Penalties scale with severity too; the maximum tier, for violations involving prohibited practices, is up to €35 million or 7% of global annual turnover, whichever is higher.</p>
+          <div class="callout-info"><strong>Scope note:</strong> this section is a security-relevant overview for practitioners, not legal advice. If your organization operates in or serves the EU market, the compliance specifics (which systems qualify as high-risk, what documentation is required, how deadlines apply to your specific product) need review from qualified legal counsel, not a training chapter.</div>
+        </section>
+
+        <section class="content-section" id="ai-red-teaming">
+          <h2>AI red teaming</h2>
+          <p>AI red teaming is adversarial testing of an AI system, done before it ships and repeated after, to find where it breaks. It's penetration testing extended into a domain with its own failure modes, the exact ones covered in chapters 2, 3, and 6:</p>
+          <div class="callout-info"><strong>What a red team probes for:</strong>
+            <ul>
+              <li>Prompt injection payloads that steer the model off its instructions</li>
+              <li>Jailbreaks that bypass safety guardrails</li>
+              <li>Leakage of training data or context that shouldn't be disclosed</li>
+              <li>Biased or harmful outputs under adversarial or ordinary prompting</li>
+            </ul>
+          </div>
+          <p>Governance frameworks increasingly point to red teaming as evidence of due diligence, not an optional extra, under the NIST AI RMF it's a natural way to satisfy Map and Measure. The mistake to avoid: treating it as a pre-launch gate that never gets revisited. Models get fine-tuned, guardrails get updated, new jailbreak techniques get published constantly, a system that passed six months ago hasn't necessarily passed now. Ongoing testing, not a one-time exercise, is what the practice requires to mean anything.</p>
+        </section>
+
+        <section class="content-section" id="bringing-governance-and-security-together">
+          <h2>Bringing governance and security together in practice</h2>
+          <p>None of the frameworks above do anything on their own. What actually closes the gap between "we have a policy document" and "we know what AI is running in our environment" is a small set of practical habits, most of which a security team is already positioned to own.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Habit</th><th>Why it matters</th></tr></thead>
+              <tbody>
+                <tr><td>Maintain an inventory</td><td>The direct countermeasure to shadow AI: a maintained list of AI systems in active use, including ones embedded inside other SaaS products, not just standalone chatbots. You can't govern, measure, or defend what you don't know exists.</td></tr>
+                <tr><td>Risk-tier new use cases</td><td>A marketing copywriting assistant shouldn't get the same review burden as a system with access to customer financial data. Scaling effort to actual risk keeps the process from collapsing under its own weight or being bypassed as too slow.</td></tr>
+                <tr><td>Security checkpoint before production</td><td>Any system touching sensitive data or taking a consequential action (approving a transaction, modifying access, generating externally-shipped content) gets reviewed before it reaches production, not after an incident surfaces it.</td></tr>
+                <tr><td>Treat it as a lifecycle, not a checklist</td><td>Maps directly onto the AI RMF: Govern the policy and culture, Map each system's specific risk, Measure it against real evidence, Manage it with monitoring that continues for as long as it's in use. A program that stops at initial approval only checks things once.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Chapter 8 covers what it takes to build all of this into a functioning, ongoing program rather than a set of good intentions.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>Shadow AI, unsanctioned AI tool use outside any governed process, turns governance gaps into security gaps: unknown data handling, unreviewed vendor dependencies, and undefined accountability.</li>
+            <li>The NIST AI RMF (published January 2023) is voluntary guidance built around four functions working together: Govern, Map, Measure, Manage.</li>
+            <li>The EU AI Act, Regulation (EU) 2024/1689, is binding law with a phased timeline: prohibited practices and AI literacy (Feb 2025), GPAI/governance/penalties (Aug 2025), general application and Article 50 transparency (Aug 2026), high-risk Annex III (Dec 2027), high-risk Annex I product-embedded (Aug 2028).</li>
+            <li>AI red teaming adversarially tests for prompt injection, jailbreaks, data leakage, and biased or harmful output, and needs to be ongoing, not a one-time pre-launch gate.</li>
+            <li>An AI inventory, risk-tiered review, a security checkpoint before production, and treating governance as a continuing lifecycle are what actually make these frameworks operational.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">What does "shadow AI" refer to?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. An AI model trained on an organization's internal data without their consent</button>
+              <button class="kc-option" data-correct="true">B. Employees or teams using AI tools outside of any approved, governed process</button>
+              <button class="kc-option" data-correct="false">C. A red-teaming technique for hiding adversarial prompts from a model's safety filters</button>
+              <button class="kc-option" data-correct="false">D. An AI system that operates without human oversight by design</button>
+            </div>
+            <div class="kc-answer">Shadow AI is the AI-era analog of shadow IT: consumer chatbots, browser extensions, or unsanctioned SaaS AI features adopted outside of any approved process, often used to paste in work content the organization has no visibility into.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">Under the NIST AI RMF, which function is primarily responsible for identifying the context and risks specific to a given AI system's use case?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Govern</button>
+              <button class="kc-option" data-correct="true">B. Map</button>
+              <button class="kc-option" data-correct="false">C. Measure</button>
+              <button class="kc-option" data-correct="false">D. Manage</button>
+            </div>
+            <div class="kc-answer">Map identifies the context and risks specific to a given AI system and its use case. Govern builds the organizational culture and structures, Measure assesses and tracks identified risks with metrics, and Manage prioritizes and acts on those risks with ongoing monitoring.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">Under the EU AI Act's phased timeline, which milestone corresponds to 2 February 2025?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. General-purpose AI model rules and penalty provisions begin applying</button>
+              <button class="kc-option" data-correct="false">B. High-risk systems under Annex III must comply</button>
+              <button class="kc-option" data-correct="true">C. Prohibited AI practices take effect, alongside AI literacy obligations</button>
+              <button class="kc-option" data-correct="false">D. Article 50 transparency duties, including chatbot disclosure, begin applying</button>
+            </div>
+            <div class="kc-answer">2 February 2025 is when prohibited AI practices, such as social scoring, become unlawful, alongside AI literacy obligations. GPAI and penalty provisions start 2 August 2025, general application and Article 50 transparency start 2 August 2026, and Annex III high-risk compliance is due 2 December 2027.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="06-securing-ai-ml-systems.html" class="chapter-nav-prev">← Securing AI and ML Systems</a>
+          <a href="08-building-an-ai-security-program.html" class="chapter-nav-next">Building an AI Security Program →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">AI in Security</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('07', 5));</script>
+</body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="02">
+  <meta name="module-id" content="ai-in-security">
+  <title>AI-Powered Threats · AI in Security · H3AD-LEARN</title>
+  <meta name="description" content="How attackers use generative AI, voice cloning, deepfakes, AI-assisted malware, and adversarial machine learning to enhance phishing, fraud, and evasion, plus a first look at MITRE ATLAS.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/02-ai-powered-threats.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/02-ai-powered-threats.html">
+  <meta property="og:title" content="AI-Powered Threats · AI in Security · H3AD-LEARN">
+  <meta property="og:description" content="How attackers use generative AI, voice cloning, deepfakes, AI-assisted malware, and adversarial machine learning to enhance phishing, fraud, and evasion, plus a first look at MITRE ATLAS.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AI-Powered Threats · AI in Security · H3AD-LEARN">
+  <meta name="twitter:description" content="How attackers use generative AI, voice cloning, deepfakes, AI-assisted malware, and adversarial machine learning to enhance phishing, fraud, and evasion, plus a first look at MITRE ATLAS.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "AI-Powered Threats",
+    "description": "How attackers use generative AI, voice cloning, deepfakes, AI-assisted malware, and adversarial machine learning to enhance phishing, fraud, and evasion, plus a first look at MITRE ATLAS.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/02-ai-powered-threats.html",
+    "isPartOf": { "@type": "Course", "name": "AI in Security", "url": "https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/" },
+    "provider": { "@type": "Organization", "name": "H3AD-SEC", "url": "https://h3ad-sec.github.io" }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" },
+    { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" },
+    { "@type": "ListItem", "position": 3, "name": "AI in Security", "item": "https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/" },
+    { "@type": "ListItem", "position": 4, "name": "AI-Powered Threats", "item": "https://h3ad-sec.github.io/H3AD-LEARN/ai-in-security/02-ai-powered-threats.html" }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">AI-POWERED THREATS</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub">&#8623; SOC OPERATIONS</a>
+    <a href="../detection-engineering/index.html" class="drawer-sub">&#8623; DETECTION ENGINEERING</a>
+    <a href="../incident-response/index.html" class="drawer-sub">&#8623; INCIDENT RESPONSE</a>
+    <a href="../ai-in-security/index.html" class="drawer-sub nav-current">&#8623; AI IN SECURITY</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← AI in Security</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 02 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 5 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 02</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-beginner">BEGINNER</span>
+          </div>
+          <h1 class="chapter-title">AI-Powered Threats</h1>
+          <p class="chapter-intro">Generative AI did not invent phishing, fraud, or malware. What it changed is the cost of doing each of them well. A convincing pretext used to take a skilled social engineer real time to write; a cloned voice used to require studio equipment and a long audio sample; a malware variant that dodges signatures used to need a developer who understood the detection logic. This chapter walks through where AI is measurably lowering that cost for attackers, and where the capability is real versus where it is still speculation.</p>
+          <div class="chapter-tags">
+            <span class="tag">ai-powered threats</span><span class="tag">deepfakes</span><span class="tag">adversarial machine learning</span><span class="tag">data poisoning</span><span class="tag">mitre atlas</span>
+          </div>
+        </header>
+
+        <div class="callout-tip"><strong>Before you start:</strong> this chapter is about attackers using AI as a tool against your organization's normal defenses. Chapter 3 covers a different problem: attackers targeting the AI applications your organization builds or deploys. Keep that distinction in mind as you read, since the two get conflated a lot in vendor marketing.</div>
+
+        <section class="content-section" id="llm-generated-phishing-and-social-engineering">
+          <h2>LLM-generated phishing and social engineering</h2>
+          <p>Security awareness training used to lean on a reliable set of tells: stilted grammar, generic greetings, phrasing that read like it had been translated twice. A capable LLM removes most of that signal, producing fluent, contextually appropriate prose in seconds.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Old attack pattern</th><th>What AI changes</th></tr></thead>
+              <tbody>
+                <tr><td>Classic BEC (reused templates: urgent wire transfer, gift card request, fake invoice)</td><td>An LLM drafts a pretext tailored to the specific sender/recipient relationship, matching tone and register per target. The template itself stops being a reliable detection surface.</td></tr>
+                <tr><td>Spear-phishing recon (manually researching a target's role, projects, vendors, writing style)</td><td>AI tools summarize public profiles and scraped content into a usable target profile far faster than manual OSINT, making spear-phishing-grade targeting cheap enough to scale beyond high-value targets.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Neither is a new capability, BEC and OSINT-driven spear phishing already existed. What changes is the economics: effort that used to justify itself only for high-value targets now scales cheaply to many more targets.</p>
+          <div class="callout-info"><strong>Tells that no longer hold up reliably:</strong>
+            <ul>
+              <li>Awkward grammar or phrasing as a sole indicator, since fluent generated text passes this check easily</li>
+              <li>Generic greetings, since personalization from scraped profile data is now cheap to produce</li>
+              <li>Obviously templated wording, since each message can be uniquely generated rather than copy-pasted</li>
+              <li>Mismatched tone for the claimed sender, since a model can be prompted to imitate a specific register or prior writing sample</li>
+            </ul>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>What still works as a detection signal</th><th>Why it survives AI-generated text</th></tr></thead>
+              <tbody>
+                <tr><td>Sender authentication (SPF, DKIM, DMARC)</td><td>Text quality does not change the infrastructure the message actually came from</td></tr>
+                <tr><td>Out-of-band verification for payment or credential requests</td><td>A phone call or a second channel confirms intent independent of how well the email reads</td></tr>
+                <tr><td>Behavioral and metadata anomalies</td><td>Unusual sending patterns, reply-to mismatches, and link destinations do not improve just because the prose does</td></tr>
+                <tr><td>Reporting culture and user skepticism toward urgency and pressure</td><td>Fluency does not remove the underlying social engineering pressure tactic, which is still detectable</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="voice-cloning-and-deepfakes">
+          <h2>Voice cloning and deepfakes</h2>
+          <p>Voice cloning generates new audio in someone's voice from a sample of their speech. Modern tools need very little sample audio, and executives who speak on earnings calls or company videos generate that sample just by doing their jobs.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Mechanism</th><th>Attack pattern it enables</th></tr></thead>
+              <tbody>
+                <tr><td>Voice cloning from a short public sample</td><td>An evolution of CEO fraud/vishing: a cloned voice purporting to be an executive or vendor contact creates urgency around a wire transfer, credential reset, or policy exception. A short, urgent voicemail is often enough, it doesn't need to fool a careful listener on a long call.</td></tr>
+                <tr><td>Deepfake video/image generation</td><td>Synthetic video of someone saying or doing something they didn't, or fabricated images supporting disinformation, fake IDs, or a social engineering chain. Quality varies; automated detection is an active research area with no fully reliable solution yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>The psychological lever is identical to older phone-based social engineering; what changes is that "I recognized the voice" stops being a safe verification method on its own. The defensive answer is process, not better ear training: any sensitive or urgent request should go through verification that doesn't rely on the same channel or claimed identity as the request itself.</p>
+          <div class="callout-tip"><strong>Defensive baseline:</strong> require out-of-band verification for financial or credential-sensitive requests, use a pre-agreed call-back number rather than one supplied in the request, and consider a shared verification phrase or code word for high-risk approval paths such as executive wire authorizations. None of this requires detecting that audio or video is synthetic; it just refuses to trust identity claims made over a single, unverified channel.</div>
+        </section>
+
+        <section class="content-section" id="ai-assisted-malware-and-offensive-tooling">
+          <h2>AI-assisted malware and offensive tooling</h2>
+          <p>There's a real and growing pattern of attackers using LLMs as a coding assistant: drafting boilerplate, explaining unfamiliar APIs, converting proof-of-concept code between languages, or helping obfuscate a payload. None of this requires the model to be malicious by design, just a competent assistant that doesn't refuse the request.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Claim</th><th>Established?</th><th>Why</th></tr></thead>
+              <tbody>
+                <tr><td>AI lowers the skill floor for less sophisticated actors</td><td>Yes</td><td>Guardrails on mainstream LLMs push misuse toward jailbreaks and open-weight models fine-tuned to remove restrictions, marketed as "uncensored" coding assistants in criminal forums.</td></tr>
+                <tr><td>AI speeds up malware variant generation</td><td>Yes</td><td>A model can rapidly produce functionally equivalent versions of the same malicious code with different structure/naming/packing, each evading a rule tuned to the previous sample. Not new in concept (polymorphism is old), just cheaper.</td></tr>
+                <tr><td>LLMs autonomously discover and weaponize novel zero-days without human direction</td><td>No</td><td>Not a demonstrated, reproducible capability as of this writing. Treat vendor/commentary claims to the contrary skeptically.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>The honest framing: AI is a capable assistant that speeds up and broadens access to offensive tooling development. It is not, currently, an autonomous threat actor.</p>
+        </section>
+
+        <section class="content-section" id="adversarial-machine-learning-evasion-and-data-poisoning">
+          <h2>Adversarial machine learning: evasion and data poisoning</h2>
+          <p>So far this chapter has covered attackers using AI as a tool. This section covers something different: attacks that target machine learning models themselves, including the ones defenders rely on for malware classification, spam filtering, and fraud/anomaly detection.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Attack type</th><th>When it happens</th><th>What it targets</th><th>How it works</th></tr></thead>
+              <tbody>
+                <tr><td>Evasion / adversarial example</td><td>Inference time, against a deployed model</td><td>Causes a specific malicious input to be misclassified as benign</td><td>Modifies an input (e.g. a malicious file) so it crosses the model's decision boundary without changing its actual behavior. The attacker doesn't need to know the model's internals, many techniques work by probing outputs and iterating, or transferring adversarial inputs crafted against a similar model.</td></tr>
+                <tr><td>Data poisoning</td><td>Training or fine-tuning time</td><td>Corrupts what the model learns, biasing future predictions or planting a backdoor trigger</td><td>Influences the data a model learns from (a public dataset, scraped content, user-submitted retraining samples) without ever breaching the model itself. Especially relevant when fine-tuning on user-supplied or less-trusted data.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>This is a good point to introduce <strong>MITRE ATLAS</strong>, the Adversarial Threat Landscape for Artificial-Intelligence Systems, a MITRE-maintained knowledge base of real-world adversary tactics and techniques against AI systems, built in the same style as ATT&CK.</p>
+          <div class="callout-info"><strong>MITRE ATLAS at a glance:</strong>
+            <ul>
+              <li>Structured like ATT&CK: a matrix of tactics, with techniques and sub-techniques mapped under each, plus case studies and mitigations</li>
+              <li>As of its most recent 2025 update, covers around 16 tactics and roughly 80-plus techniques, including data poisoning, evasion, model extraction, and prompt-based attacks</li>
+              <li>Exists because ATT&CK was built for conventional IT infrastructure and doesn't natively capture attacks on models, training pipelines, or AI-specific components</li>
+              <li>Covered in more depth in Chapter 6, once the focus shifts to defending AI systems directly</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="content-section" id="what-this-means-for-defenders">
+          <h2>What this means for defenders</h2>
+          <p>Nothing in this chapter replaces the existing threat landscape, it sits on top of it. None of these AI-enhanced techniques change the underlying goal an attacker is trying to reach; what changes is the economics, cheaper, faster, more convincing at scale, putting attacks that used to require patient, well-resourced actors within reach of many more of them.</p>
+          <div class="callout-tip"><strong>The practical response is process, not detection-by-eye:</strong>
+            <ul>
+              <li>Verification procedures that assume any request could be fabricated</li>
+              <li>Detection logic built on behavior and infrastructure, not surface text/audio/video polish</li>
+              <li>Awareness training that teaches people to recognize pressure tactics, not typos</li>
+            </ul>
+          </div>
+          <p>Chapter 3 turns to a related but distinct problem: not the attacker using AI as a tool against your defenses, but the target being your own organization's AI or LLM application, through prompt injection and the broader risks of deploying LLM-powered features. Keep the two mentally separate going forward.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>Generative AI removes the classic phishing tells, fluency, personalization, and correct grammar no longer indicate a legitimate sender, so detection has to rely on authentication, infrastructure, and behavior instead of text quality.</li>
+            <li>AI-assisted OSINT makes spear-phishing-grade targeting cheap enough to apply broadly, not just to high-value targets.</li>
+            <li>Voice cloning and deepfakes undermine identity verification based on recognizing a voice or a face; the fix is process-based out-of-band verification, not better ear training.</li>
+            <li>AI-assisted malware development mostly lowers the skill floor and speeds up variant generation; claims of autonomous zero-day discovery by LLMs are not an established capability.</li>
+            <li>Evasion attacks manipulate inputs at inference time to fool a deployed model; data poisoning corrupts what a model learns during training. They are different attacks against different points in the ML lifecycle.</li>
+            <li>MITRE ATLAS is a knowledge base of adversary tactics and techniques against AI systems, modeled on ATT&CK, covering roughly 16 tactics and 80-plus techniques as of its 2025 update. Chapter 6 goes deeper on defending against it.</li>
+            <li>AI changes the economics of existing attacks rather than replacing them; fundamentals like verification procedures and detection engineering remain the core defense.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">Why do traditional phishing "tells" like poor grammar and generic greetings no longer reliably indicate a phishing attempt?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Email filters now rewrite messages before delivery, removing errors automatically</button>
+              <button class="kc-option" data-correct="true">B. LLMs can generate fluent, personalized, context-aware text at scale, removing the quality gap that used to expose phishing</button>
+              <button class="kc-option" data-correct="false">C. Attackers have stopped using email as a phishing channel entirely</button>
+              <button class="kc-option" data-correct="false">D. Modern spam filters block all grammatically incorrect emails before they reach the inbox</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. Generative AI produces fluent, personalized, contextually appropriate text on demand, so the quality gap that used to expose phishing attempts is far less reliable. Detection now has to lean on authentication, infrastructure signals, and behavioral cues instead of text quality.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">What is the key difference between an evasion attack and a data poisoning attack against a machine learning model?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Evasion attacks target training data, while data poisoning targets the model at inference time</button>
+              <button class="kc-option" data-correct="true">B. Evasion attacks craft malicious input at inference time to fool a deployed model, while data poisoning corrupts the training data so the model learns incorrect behavior</button>
+              <button class="kc-option" data-correct="false">C. They are two names for the same technique used interchangeably in the industry</button>
+              <button class="kc-option" data-correct="false">D. Evasion attacks only apply to image classifiers, while data poisoning only applies to text models</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. Evasion attacks happen at inference time against an already-trained, deployed model, crafting input that crosses its decision boundary without changing the attacker's underlying intent. Data poisoning happens earlier, during training or fine-tuning, corrupting what the model learns so its future predictions are biased or backdoored.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">What is MITRE ATLAS?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. An automated vulnerability scanner for large language model applications</button>
+              <button class="kc-option" data-correct="false">B. A compliance framework requiring specific controls before deploying AI systems</button>
+              <button class="kc-option" data-correct="true">C. A MITRE-maintained knowledge base of real-world adversary tactics and techniques against AI systems, modeled on MITRE ATT&CK</button>
+              <button class="kc-option" data-correct="false">D. A commercial threat intelligence feed exclusively for deepfake detection</button>
+            </div>
+            <div class="kc-answer">Correct answer: C. ATLAS (Adversarial Threat Landscape for Artificial-Intelligence Systems) is a MITRE-maintained knowledge base structured like ATT&CK, cataloguing tactics and techniques adversaries use against AI systems, including data poisoning and evasion. It is not a scanner, a compliance framework, or a commercial feed. Chapter 6 covers it in more depth.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="01-ai-ml-foundations-for-security.html" class="chapter-nav-prev">← AI and ML Foundations for Security</a>
+          <a href="03-prompt-injection-llm-app-security.html" class="chapter-nav-next">Prompt Injection and LLM Application Security →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">AI in Security</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('02', 5));</script>
+</body>
+</html>

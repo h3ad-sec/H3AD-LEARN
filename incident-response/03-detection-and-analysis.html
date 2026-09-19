@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="03">
+  <meta name="module-id" content="incident-response">
+  <title>Detection and Analysis: Scoping, Evidence &amp; Timelines · Incident Response · H3AD-LEARN</title>
+  <meta name="description" content="Scoping an incident once it becomes full IR, evidence collection and chain of custody, building an incident timeline, and common analysis pitfalls.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/incident-response/03-detection-and-analysis.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/incident-response/03-detection-and-analysis.html">
+  <meta property="og:title" content="Detection and Analysis: Scoping, Evidence &amp; Timelines · Incident Response · H3AD-LEARN">
+  <meta property="og:description" content="Scoping an incident once it becomes full IR, evidence collection and chain of custody, building an incident timeline, and common analysis pitfalls.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Detection and Analysis: Scoping, Evidence &amp; Timelines · Incident Response · H3AD-LEARN">
+  <meta name="twitter:description" content="Scoping an incident once it becomes full IR, evidence collection and chain of custody, building an incident timeline, and common analysis pitfalls.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Detection and Analysis: Scoping, Evidence & Timelines",
+    "description": "Scoping an incident once it becomes full IR, evidence collection and chain of custody, building an incident timeline, and common analysis pitfalls.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/incident-response/03-detection-and-analysis.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Incident Response",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/incident-response/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" },
+    { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" },
+    { "@type": "ListItem", "position": 3, "name": "Incident Response", "item": "https://h3ad-sec.github.io/H3AD-LEARN/incident-response/" },
+    { "@type": "ListItem", "position": 4, "name": "Detection and Analysis: Scoping, Evidence & Timelines", "item": "https://h3ad-sec.github.io/H3AD-LEARN/incident-response/03-detection-and-analysis.html" }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">DETECTION & ANALYSIS</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub">&#8623; SOC OPERATIONS</a>
+    <a href="../detection-engineering/index.html" class="drawer-sub">&#8623; DETECTION ENGINEERING</a>
+    <a href="../incident-response/index.html" class="drawer-sub nav-current">&#8623; INCIDENT RESPONSE</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Incident Response</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 03</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 5 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 03</span>
+            <span class="badge-time muted mono">35 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Detection and Analysis: Scoping, Evidence &amp; Timelines</h1>
+          <p class="chapter-intro">This chapter covers PICERL's Identification phase in full: the point where a suspected incident becomes a scoped, evidence-backed investigation. Everything downstream, containment, eradication, recovery, depends on getting scope and evidence right here.</p>
+          <div class="chapter-tags">
+            <span class="tag">scoping</span>
+            <span class="tag">evidence collection</span>
+            <span class="tag">chain of custody</span>
+            <span class="tag">timeline reconstruction</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="from-soc-alert-to-ir-ownership">
+          <h2>From SOC Alert to IR Ownership</h2>
+          <p>Not every SOC alert needs full IR treatment. Certain signals mark the point where an incident outgrows SOC-scoped handling and needs to move to dedicated IR ownership.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Handoff Trigger</th><th>Why It Exceeds SOC Scope</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Multi-system scope</td><td>The activity spans multiple hosts, business units, or environments, beyond what a single analyst can triage in one queue item.</td></tr>
+                <tr><td>Targeted or persistent actor signs</td><td>Evidence of deliberate, human-driven intrusion rather than opportunistic or automated malware, which changes both urgency and depth of analysis needed.</td></tr>
+                <tr><td>Need for forensic-level analysis</td><td>The case requires disk, memory, or malware analysis beyond what SIEM and EDR consoles surface on their own.</td></tr>
+                <tr><td>Legal, regulatory, or reputational stakes</td><td>Anything that may require notification, litigation hold, or executive briefing needs formal IR process and documentation.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout-info"><strong>Note:</strong> SOC Operations' own workflow chapter covers the triage side of this handoff, how an L1/L2 analyst recognizes these signs and escalates. This chapter picks up where that handoff completes.</div>
+        </section>
+
+        <section class="content-section" id="scoping-the-incident">
+          <h2>Scoping the Incident</h2>
+          <p>Scoping answers one question: how big is this, really? These four concepts are the vocabulary IR teams use to answer it.</p>
+          <div class="callout-info">
+            <strong>Scoping glossary:</strong>
+            <ul>
+              <li><strong>Patient Zero</strong>: the first system or account confirmed compromised, the entry point the rest of the investigation traces forward and backward from.</li>
+              <li><strong>Blast Radius</strong>: every system, account, and dataset the attacker could plausibly have reached from patient zero, based on network access and privilege level.</li>
+              <li><strong>Initial Scope vs. Full Scope</strong>: initial scope is what's confirmed compromised at handoff; full scope is what investigation eventually proves was actually touched, almost always larger.</li>
+              <li><strong>IOC Pivoting</strong>: using a confirmed indicator (a hash, an IP, a domain) to search other systems and logs for the same indicator, expanding scope one confirmed match at a time.</li>
+            </ul>
+          </div>
+          <div class="callout-tip"><strong>Common mistake:</strong> treating initial scope as final scope. Closing an investigation before pivoting on every known IOC is one of the most common ways a "contained" incident reopens weeks later.</div>
+        </section>
+
+        <section class="content-section" id="evidence-collection-chain-of-custody">
+          <h2>Evidence Collection and Chain of Custody</h2>
+          <p>Evidence has to be collected in an order that respects how quickly it disappears, and documented well enough to hold up under scrutiny later.</p>
+          <h3>Order of Volatility (Most to Least Volatile)</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>#</th><th>Evidence Type</th><th>Why It's Volatile</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>1</td><td>CPU registers and cache</td><td>Changes constantly during normal operation; gone the instant power or process state changes.</td></tr>
+                <tr><td>2</td><td>RAM</td><td>Lost completely on reboot or shutdown; holds running processes, open network connections, and decrypted data.</td></tr>
+                <tr><td>3</td><td>Network state</td><td>Active connections and ARP/routing tables change continuously and aren't retained after the session ends.</td></tr>
+                <tr><td>4</td><td>Running processes</td><td>Process lists and handles exist only while the system stays up.</td></tr>
+                <tr><td>5</td><td>Disk</td><td>Persists through reboot, but can be overwritten by normal disk activity or attacker anti-forensics.</td></tr>
+                <tr><td>6</td><td>Remote logging and backups</td><td>Most durable; typically retained on separate infrastructure with its own retention schedule.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout-info">
+            <strong>A chain-of-custody record must capture:</strong>
+            <ul>
+              <li>Who collected the evidence, by name and role.</li>
+              <li>When it was collected, with exact timestamps.</li>
+              <li>How it was collected, including tool and method used.</li>
+              <li>Hash values (e.g. SHA-256) computed at collection, to prove integrity later.</li>
+              <li>Every handoff: who received the evidence next, and when.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="content-section" id="building-an-incident-timeline">
+          <h2>Building an Incident Timeline</h2>
+          <p>A timeline turns scattered evidence into a coherent story of what the attacker did and when. Different sources reveal different parts of that story.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Data Source</th><th>What It Reveals</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>EDR process trees</td><td>Parent-child process relationships, showing exactly how a payload was launched and what it spawned afterward.</td></tr>
+                <tr><td>Authentication logs</td><td>Account logons, failed attempts, and privilege use, useful for tracing lateral movement and credential abuse.</td></tr>
+                <tr><td>Network flow and DNS logs</td><td>Connections to external infrastructure, including command-and-control beaconing and data staging destinations.</td></tr>
+                <tr><td>Cloud audit logs</td><td>API calls and configuration changes in cloud environments, often the only record of actions with no endpoint footprint.</td></tr>
+                <tr><td>File system timestamps</td><td>Creation, modification, and access times that help place file drops and staging activity in sequence.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="process-flow">
+            <div class="flow-step">
+              <span class="flow-step-num">1</span>
+              <div class="flow-step-title">Collect Timestamps</div>
+              <div class="flow-step-desc">Pull relevant events from every available source, normalized to a single time zone.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">2</span>
+              <div class="flow-step-title">Sequence Events</div>
+              <div class="flow-step-desc">Order events chronologically and flag gaps where no telemetry exists.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">3</span>
+              <div class="flow-step-title">Correlate Across Sources</div>
+              <div class="flow-step-desc">Match events across log types to confirm the same activity from independent angles.</div>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+              <span class="flow-step-num">4</span>
+              <div class="flow-step-title">Validate the Narrative</div>
+              <div class="flow-step-desc">Check the resulting story against known TTPs and patient zero to confirm it's internally consistent.</div>
+            </div>
+          </div>
+          <div class="callout-info"><strong>Note:</strong> Clock drift between systems is a real problem. Normalize every source to UTC before building the timeline, or sequencing conclusions can be wrong by minutes or hours.</div>
+        </section>
+
+        <section class="content-section" id="analysis-pitfalls">
+          <h2>Analysis Pitfalls</h2>
+          <p>The same cognitive shortcuts that help analysts move fast under pressure can also quietly wreck an investigation.</p>
+          <div class="callout-info">
+            <strong>Pitfall glossary:</strong>
+            <ul>
+              <li><strong>Confirmation Bias</strong>: favoring evidence that supports an early theory of the incident while discounting evidence that contradicts it.</li>
+              <li><strong>Tunnel Vision</strong>: fixating on the first compromised system or IOC found and missing a wider blast radius as a result.</li>
+              <li><strong>Premature Closure</strong>: declaring an incident contained or resolved before full scope and root cause are actually confirmed.</li>
+              <li><strong>Ignoring Negative Evidence</strong>: dismissing the absence of expected artifacts, when a missing log or artifact can itself indicate anti-forensic activity.</li>
+            </ul>
+          </div>
+          <div class="callout-tip"><strong>Guardrail:</strong> a second analyst reviewing the timeline and scope before closure catches most of these pitfalls. Fresh eyes aren't attached to the first theory.</div>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>An incident moves from SOC ownership to full IR when scope, actor sophistication, or forensic need exceeds what SOC triage covers.</li>
+            <li>Scoping runs on four concepts: patient zero, blast radius, initial vs. full scope, and IOC pivoting.</li>
+            <li>Evidence collection follows the order of volatility, from CPU registers and RAM down to remote logs and backups.</li>
+            <li>Chain of custody must record who, when, how, hash values, and every handoff for evidence to hold up later.</li>
+            <li>A timeline draws on EDR, authentication, network, cloud audit, and file system data, normalized to a single time zone.</li>
+            <li>Confirmation bias, tunnel vision, premature closure, and ignoring negative evidence are the most common ways an analysis goes wrong.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">During incident response, in which order should evidence generally be collected?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Disk first, then RAM, then network state, since disk is the most complete record.</button>
+              <button class="kc-option" data-correct="true">B. Most volatile to least volatile: CPU/cache, RAM, network state, running processes, disk, then remote logs and backups.</button>
+              <button class="kc-option" data-correct="false">C. Whatever is easiest to access first, since order doesn't affect evidence integrity.</button>
+              <button class="kc-option" data-correct="false">D. Remote logs and backups first, since they are the most durable and least likely to be lost.</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. The order of volatility exists because the most fragile evidence disappears fastest. Collecting RAM after disk risks losing running-process and network-connection data that a reboot or normal system activity would otherwise erase.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">An IR team confirms a single laptop was compromised via a phishing email. The laptop had domain admin credentials cached and network access to the company's file servers. What should the team do next regarding scope?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Close the case, since patient zero has been identified and confirmed.</button>
+              <button class="kc-option" data-correct="true">B. Treat the file servers and any systems reachable with those cached credentials as part of the blast radius and investigate accordingly.</button>
+              <button class="kc-option" data-correct="false">C. Only investigate other laptops of the same hardware model, since the compromise method was phishing.</button>
+              <button class="kc-option" data-correct="false">D. Wait for a help desk ticket from another user before expanding scope.</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. Patient zero is just the starting point. Blast radius is defined by what the compromised system could reach, and cached domain admin credentials with file server access make that reach significant regardless of how the initial compromise happened.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">An analyst builds a timeline showing an attacker moved from initial access to data staging in under an hour, and closes the case as fully scoped. A missing DNS log for the affected host during the incident window was never explained. What pitfall does this best illustrate?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Confirmation bias, because the analyst favored a theory that matched a known attack pattern.</button>
+              <button class="kc-option" data-correct="true">B. Ignoring negative evidence, because the missing DNS log was dismissed instead of investigated as a possible sign of log tampering or an unaccounted-for gap.</button>
+              <button class="kc-option" data-correct="false">C. Tunnel vision, because the analyst only looked at one compromised host.</button>
+              <button class="kc-option" data-correct="false">D. This is not a pitfall, since the timeline was otherwise complete.</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. A gap in expected telemetry is itself a data point. Treating a missing log as a non-issue rather than something to explain is the classic shape of ignoring negative evidence, and it can hide anti-forensic activity or an incomplete timeline.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="02-preparation-and-planning.html" class="chapter-nav-prev">&larr; Preparation and Planning</a>
+          <a href="04-containment-strategy.html" class="chapter-nav-next">Containment Strategy &rarr;</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Incident Response</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('03', 5));</script>
+</body>
+</html>
