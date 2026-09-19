@@ -157,7 +157,8 @@
               </thead>
               <tbody>
                 <tr><td><code>HISTFILE</code> unset or redirected</td><td>Commands stop being written to the history file at all.</td></tr>
-                <tr><td><code>HISTSIZE</code> / <code>HISTFILESIZE</code> set to zero</td><td>Effectively disables history retention going forward.</td></tr>
+                <tr><td><code>HISTSIZE</code> set to zero</td><td>Stops new commands from being kept in the in-memory history going forward.</td></tr>
+                <tr><td><code>HISTFILESIZE</code> set to zero</td><td>Truncates the existing history file to nothing immediately, destroying prior history rather than just stopping future writes.</td></tr>
                 <tr><td><code>HISTCONTROL</code> set to ignore commands with a leading space</td><td>A legitimate feature some attackers rely on to keep specific commands out of history.</td></tr>
                 <tr><td>Manual deletion or truncation of the history file</td><td>Removes the record after the fact, once it's no longer needed.</td></tr>
               </tbody>
@@ -166,7 +167,7 @@
           <p>A suspiciously short or entirely missing history file, especially on an account that's clearly been used, is itself a forensic signal worth investigating.</p>
         </section>
 
-        <section class="content-section" id="linux-living-off-the-land" >
+        <section class="content-section" id="linux-living-off-the-land">
           <h2>Linux Living-Off-the-Land</h2>
           <p>The underlying idea is the same one this platform's LOLBAS module covers for Windows: pre-installed, legitimate binaries can be repurposed for download, execution, or data transfer instead of an attacker bringing their own tools. Using what's already trusted on the box helps them blend into normal admin activity.</p>
           <p>GTFOBins is a well-known, publicly documented project cataloging exactly this for Unix-like systems, the direct parallel to LOLBAS on Windows. It lists common Linux binaries alongside the unintended ways they can be used to bypass restrictions or execute unexpected actions.</p>
@@ -189,7 +190,7 @@
               </tbody>
             </table>
           </div>
-          <p>Any one of these can have an innocent explanation: an admin testing connectivity, a account that legitimately clears its own history, a script that spawns a shell for a valid reason. Several of them together, on the same host, in the same window, is a strong indicator.</p>
+          <p>Any one of these can have an innocent explanation: an admin testing connectivity, an account that legitimately clears its own history, a script that spawns a shell for a valid reason. Several of them together, on the same host, in the same window, is a strong indicator.</p>
         </section>
 
         <section class="content-section" id="chapter-recap">

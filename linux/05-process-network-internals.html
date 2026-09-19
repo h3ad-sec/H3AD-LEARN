@@ -141,7 +141,7 @@
                 <tr><td><code>/proc/[pid]/cmdline</code></td><td>The exact command line a process was launched with, including arguments</td></tr>
                 <tr><td><code>/proc/[pid]/exe</code></td><td>A symlink to the actual binary that's running, useful when a process name alone is misleading</td></tr>
                 <tr><td><code>/proc/[pid]/fd/</code></td><td>Every file descriptor the process currently has open</td></tr>
-                <tr><td><code>/proc/net/</code></td><td>Kernel-level network state, the same data tools like <code>ss</code> read from</td></tr>
+                <tr><td><code>/proc/net/</code></td><td>Kernel-level network state, the socket tables <code>netstat</code> reads directly and that <code>ss</code> reports on via the faster netlink interface</td></tr>
               </tbody>
             </table>
           </div>

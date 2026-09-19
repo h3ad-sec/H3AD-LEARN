@@ -154,6 +154,7 @@
                 <tr><th>/etc/shadow Field</th><th>Purpose</th></tr>
               </thead>
               <tbody>
+                <tr><td>Username</td><td>Matches the corresponding entry in <code>/etc/passwd</code></td></tr>
                 <tr><td>Password hash</td><td>The actual hashed credential, never stored in the world-readable <code>/etc/passwd</code></td></tr>
                 <tr><td>Last change date</td><td>When the password was last set</td></tr>
                 <tr><td>Minimum age</td><td>Days that must pass before the password can be changed again</td></tr>
@@ -162,7 +163,7 @@
               </tbody>
             </table>
           </div>
-          <p><code>/etc/passwd</code> is readable by any user, which is why it never holds the real hash. <code>/etc/shadow</code> is readable only by root, keeping the sensitive credential material away from unprivileged accounts entirely.</p>
+          <p><code>/etc/passwd</code> is readable by any user, which is why it never holds the real hash. <code>/etc/shadow</code> is restricted instead: RedHat-family systems typically leave it readable by root alone, while Debian-family systems own it <code>root:shadow</code> with group-read, so only root and the <code>shadow</code> group can read it. Either way the credential material stays out of reach of ordinary unprivileged accounts.</p>
           <div class="callout-info"><strong>UID 0 is root, no matter the name:</strong> the kernel grants full root privileges to UID 0, regardless of what the username field says. A second account with UID 0 sitting alongside the standard <code>root</code> entry is not a normal configuration, it is one of the classic backdoor indicators worth checking <code>/etc/passwd</code> for directly.</div>
         </section>
 
@@ -252,7 +253,7 @@
         <div class="chapter-summary">
           <h3 class="chapter-summary-label">Key Takeaways</h3>
           <ul>
-            <li><code>/etc/passwd</code> is the world-readable account database, while <code>/etc/shadow</code> holds the actual password hash and aging fields, readable only by root.</li>
+            <li><code>/etc/passwd</code> is the world-readable account database, while <code>/etc/shadow</code> holds the actual password hash and aging fields, restricted to root (and the <code>shadow</code> group on Debian-family systems).</li>
             <li>UID 0 means root privileges regardless of username, so a second UID 0 account is a real backdoor indicator to check for directly.</li>
             <li>PAM is the stackable, per-service framework behind most Linux authentication, configured through files under <code>/etc/pam.d/</code>.</li>
             <li>A backdoored PAM module sits in the authentication path for nearly everything, making PAM integrity a serious persistence and credential-theft concern.</li>
