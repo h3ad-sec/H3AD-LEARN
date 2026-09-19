@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="05">
+  <meta name="module-id" content="linux">
+  <title>Process and Network Internals: /proc, Process Trees &amp; Socket Visibility · Linux · H3AD-LEARN</title>
+  <meta name="description" content="The /proc filesystem, process tree analysis, network visibility with ss and netstat, and open file visibility with lsof for live Linux investigation.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/linux/05-process-network-internals.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/linux/05-process-network-internals.html">
+  <meta property="og:title" content="Process and Network Internals: /proc, Process Trees &amp; Socket Visibility · Linux · H3AD-LEARN">
+  <meta property="og:description" content="The /proc filesystem, process tree analysis, network visibility with ss and netstat, and open file visibility with lsof for live Linux investigation.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Process and Network Internals: /proc, Process Trees &amp; Socket Visibility · Linux · H3AD-LEARN">
+  <meta name="twitter:description" content="The /proc filesystem, process tree analysis, network visibility with ss and netstat, and open file visibility with lsof for live Linux investigation.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Process and Network Internals: /proc, Process Trees & Socket Visibility",
+    "description": "The /proc filesystem, process tree analysis, network visibility with ss and netstat, and open file visibility with lsof for live Linux investigation.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/linux/05-process-network-internals.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Linux",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/linux/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" },
+    { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" },
+    { "@type": "ListItem", "position": 3, "name": "Linux", "item": "https://h3ad-sec.github.io/H3AD-LEARN/linux/" },
+    { "@type": "ListItem", "position": 4, "name": "Process and Network Internals: /proc, Process Trees & Socket Visibility", "item": "https://h3ad-sec.github.io/H3AD-LEARN/linux/05-process-network-internals.html" }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">LX PROCESS &amp; NETWORK</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub">&#8623; SOC OPERATIONS</a>
+    <a href="../detection-engineering/index.html" class="drawer-sub">&#8623; DETECTION ENGINEERING</a>
+    <a href="../incident-response/index.html" class="drawer-sub">&#8623; INCIDENT RESPONSE</a>
+    <a href="../digital-forensics/index.html" class="drawer-sub">&#8623; DIGITAL FORENSICS</a>
+    <a href="../linux/index.html" class="drawer-sub nav-current">&#8623; LINUX</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Linux</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 05 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">35 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 5 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 05</span>
+            <span class="badge-time muted mono">35 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Process and Network Internals: /proc, Process Trees &amp; Socket Visibility</h1>
+          <p class="chapter-intro">Once persistence has launched something, or an attacker is actively on a box, this is where you find it: live process state, network connections, and open files. Everything in this chapter reads the running system directly rather than a log or a saved artifact, which makes it the fastest path to ground truth during an active investigation.</p>
+          <div class="chapter-tags">
+            <span class="tag">/proc filesystem</span>
+            <span class="tag">process tree analysis</span>
+            <span class="tag">network visibility</span>
+            <span class="tag">lsof</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="the-proc-filesystem">
+          <h2>The /proc Filesystem</h2>
+          <p><code>/proc</code> is a virtual filesystem. It is generated live by the kernel rather than stored on disk, and it exposes process and system state as if it were a normal directory tree you can <code>cd</code> into and read with everyday tools.</p>
+          <p>Every running process gets its own numbered directory under <code>/proc</code>, named after its PID. Inside that directory sit files and symlinks that describe exactly what the process is doing right now.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Path</th><th>Reveals</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>/proc/[pid]/cmdline</code></td><td>The exact command line a process was launched with, including arguments</td></tr>
+                <tr><td><code>/proc/[pid]/exe</code></td><td>A symlink to the actual binary that's running, useful when a process name alone is misleading</td></tr>
+                <tr><td><code>/proc/[pid]/fd/</code></td><td>Every file descriptor the process currently has open</td></tr>
+                <tr><td><code>/proc/net/</code></td><td>Kernel-level network state, the same data tools like <code>ss</code> read from</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout-info"><strong>Why this matters live:</strong> a process can rename itself in the process list, but <code>/proc/[pid]/exe</code> still points at the real binary on disk. That mismatch between claimed identity and actual binary is a recurring way disguised processes get caught.</div>
+        </section>
+
+        <section class="content-section" id="process-tree-analysis">
+          <h2>Process Tree Analysis</h2>
+          <p>Chapter 1 introduced PID and PPID as the identifiers that link a process to its parent. Applied practically, that ancestry chain is one of the most reliable things you can check on a live system, because for a given service it usually looks the same every single time.</p>
+          <p>A web server process is expected to have a predictable parent, and its children are expected to be predictable too, worker processes, not interactive shells. An unexpected parent, such as a web server process spawning a shell, is one of the strongest anomaly signals available, because it means something outside the service's normal behavior caused that execution. Legitimate application code does not usually need to hand control to a shell.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Observation</th><th>What It Suggests</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Service process with an unfamiliar parent</td><td>The service may have been started or re-launched outside its normal supervision path</td></tr>
+                <tr><td>Web server or database process spawning a shell</td><td>Likely command execution through an application vulnerability</td></tr>
+                <tr><td>Long-lived process with a very recent start time</td><td>Possible replacement, injection, or process masquerading as something older</td></tr>
+                <tr><td>Cron or init-owned process with an odd ancestry</td><td>Worth checking against the persistence mechanisms covered in chapter 4</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="network-visibility-tools">
+          <h2>Network Visibility: ss and netstat</h2>
+          <p>Once a process looks suspicious, the next question is usually who it's talking to. Two tools answer that on Linux, and they overlap heavily in what they can show.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Tool</th><th>Notes</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>ss</code></td><td>The modern socket-statistics tool, faster and the current standard on most distributions</td></tr>
+                <tr><td><code>netstat</code></td><td>The older tool, still present on many systems but considered legacy</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Both show listening ports and established connections, the two states that matter most during triage. With the right options, both can also show which process owns each connection, which is what turns "something is talking to this IP" into "this specific process is talking to this IP."</p>
+          <div class="callout-tip"><strong>Practical habit:</strong> reach for <code>ss</code> first on any modern distribution. Treat <code>netstat</code> as a fallback for older or minimal systems where <code>ss</code> isn't installed.</div>
+        </section>
+
+        <section class="content-section" id="open-file-visibility">
+          <h2>Open File Visibility with lsof</h2>
+          <p><code>lsof</code> lists every file descriptor held open by every process. On Linux that scope is wider than it sounds, since sockets and pipes are file descriptors too, not just regular files on disk.</p>
+          <p>That breadth is why <code>lsof</code> is often used alongside <code>ss</code> and <code>/proc</code>: it can confirm which process owns a given socket, what regular files a suspicious process is reading or writing, and what a process is holding open that nothing else on the system references anymore.</p>
+          <div class="callout-info"><strong>Deleted-but-open files:</strong> a process can keep a file handle open even after that file has been deleted from the filesystem. The contents still exist as long as the process keeps the handle open, invisible to a normal directory listing. This is both a real technique malware uses to hide its own binary from disk and a real way an investigator can recover that binary through the still-open descriptor.</div>
+        </section>
+
+        <section class="content-section" id="putting-it-together">
+          <h2>Putting It Together</h2>
+          <p>These tools are rarely used in isolation. A live investigation usually moves through them in the same order, narrowing from "something looks off" to a specific, evidenced conclusion.</p>
+          <div class="process-flow">
+            <div class="flow-step">
+              <div class="flow-step-num">1</div>
+              <div class="flow-step-title">Notice an unexpected process</div>
+              <div class="flow-step-desc">Something in the process tree doesn't match the ancestry you'd expect.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">2</div>
+              <div class="flow-step-title">Check its command line and binary path via /proc</div>
+              <div class="flow-step-desc">Read /proc/[pid]/cmdline and /proc/[pid]/exe to confirm what's really running.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">3</div>
+              <div class="flow-step-title">Check its network connections via ss</div>
+              <div class="flow-step-desc">Identify who it's talking to and whether that traffic makes sense.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">4</div>
+              <div class="flow-step-title">Check its open files via lsof</div>
+              <div class="flow-step-desc">Look for deleted-but-open handles, unexpected sockets, or unusual files.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">5</div>
+              <div class="flow-step-title">Correlate with persistence mechanisms</div>
+              <div class="flow-step-desc">Check the chapter 4 persistence locations that might have launched this process.</div>
+            </div>
+          </div>
+          <p>That workflow covers what a process is doing right now, but a lot of live tradecraft happens inside a shell before a process ever looks this suspicious, which is exactly where chapter 6 picks up.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li><code>/proc</code> is a live, kernel-generated view of process and system state, not a stored filesystem, with per-PID directories exposing command lines, real binary paths, and open file descriptors.</li>
+            <li>Process ancestry (PID/PPID) is predictable for a given service, so an unexpected parent, like a web server spawning a shell, is a strong anomaly signal.</li>
+            <li><code>ss</code> is the modern, faster socket-statistics tool and the current standard; <code>netstat</code> is older but still found on many systems.</li>
+            <li>Both <code>ss</code> and <code>netstat</code> can tie a connection to the specific process that owns it, not just the remote IP involved.</li>
+            <li><code>lsof</code> reveals every file descriptor a process holds, including sockets and pipes, and can expose files that were deleted from disk but are still held open, a real hiding and recovery technique.</li>
+            <li>Live investigation follows a repeatable sequence: spot the process, verify it via /proc, check its network activity via ss, check its open files via lsof, then correlate with known persistence mechanisms.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">What does <code>/proc/[pid]/exe</code> show for a running process?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. The process's command-line arguments</button>
+              <button class="kc-option" data-correct="true">B. A symlink to the actual binary that's running</button>
+              <button class="kc-option" data-correct="false">C. A list of the process's open network sockets</button>
+              <button class="kc-option" data-correct="false">D. The process's parent PID</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. /proc/[pid]/exe is a symlink pointing to the real binary behind a process, which matters when a process name alone is misleading.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">Why is <code>ss</code> generally preferred over <code>netstat</code> on modern Linux distributions?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. netstat cannot show listening ports</button>
+              <button class="kc-option" data-correct="false">B. ss is the only tool that can show established connections</button>
+              <button class="kc-option" data-correct="true">C. ss is the modern socket-statistics tool and the current standard, while netstat is legacy</button>
+              <button class="kc-option" data-correct="false">D. netstat requires root and ss does not</button>
+            </div>
+            <div class="kc-answer">Correct answer: C. ss is faster and is the current standard socket-statistics tool on most distributions; netstat still exists on many systems but is considered legacy.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">During an <code>lsof</code> review, you find a process holding open a file that no longer appears anywhere on the filesystem. What does this indicate?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. The process has a corrupted file descriptor table and should be ignored</button>
+              <button class="kc-option" data-correct="false">B. This is normal behavior for every long-running process</button>
+              <button class="kc-option" data-correct="true">C. The file was deleted from disk but its contents still exist as long as the process keeps the handle open, a known hiding and recovery technique</button>
+              <button class="kc-option" data-correct="false">D. The process is using a network socket instead of a regular file</button>
+            </div>
+            <div class="kc-answer">Correct answer: C. A deleted-but-open file handle is a well-known technique malware uses to hide its own binary from disk, and it's also a real way an investigator can recover that binary through the still-open descriptor.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="04-persistence-mechanisms.html" class="chapter-nav-prev">← Persistence Mechanisms</a>
+          <a href="06-shell-tradecraft-detection.html" class="chapter-nav-next">Shell Tradecraft and Detection →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Linux</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('05', 5));</script>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="07">
+  <meta name="module-id" content="linux">
+  <title>Container and Docker Security: Fundamentals, Escape Techniques &amp; Hardening · Linux · H3AD-LEARN</title>
+  <meta name="description" content="Container fundamentals (namespaces and cgroups), Docker architecture and risk, container escape technique categories, Kubernetes security basics, and hardening practices.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/linux/07-container-docker-security.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/linux/07-container-docker-security.html">
+  <meta property="og:title" content="Container and Docker Security: Fundamentals, Escape Techniques &amp; Hardening · Linux · H3AD-LEARN">
+  <meta property="og:description" content="Container fundamentals (namespaces and cgroups), Docker architecture and risk, container escape technique categories, Kubernetes security basics, and hardening practices.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Container and Docker Security: Fundamentals, Escape Techniques &amp; Hardening · Linux · H3AD-LEARN">
+  <meta name="twitter:description" content="Container fundamentals (namespaces and cgroups), Docker architecture and risk, container escape technique categories, Kubernetes security basics, and hardening practices.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Container and Docker Security: Fundamentals, Escape Techniques & Hardening",
+    "description": "Container fundamentals (namespaces and cgroups), Docker architecture and risk, container escape technique categories, Kubernetes security basics, and hardening practices.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/linux/07-container-docker-security.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Linux",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/linux/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" },
+    { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" },
+    { "@type": "ListItem", "position": 3, "name": "Linux", "item": "https://h3ad-sec.github.io/H3AD-LEARN/linux/" },
+    { "@type": "ListItem", "position": 4, "name": "Container and Docker Security: Fundamentals, Escape Techniques & Hardening", "item": "https://h3ad-sec.github.io/H3AD-LEARN/linux/07-container-docker-security.html" }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">LX CONTAINERS</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub">&#8623; SOC OPERATIONS</a>
+    <a href="../detection-engineering/index.html" class="drawer-sub">&#8623; DETECTION ENGINEERING</a>
+    <a href="../incident-response/index.html" class="drawer-sub">&#8623; INCIDENT RESPONSE</a>
+    <a href="../digital-forensics/index.html" class="drawer-sub">&#8623; DIGITAL FORENSICS</a>
+    <a href="../linux/index.html" class="drawer-sub nav-current">&#8623; LINUX</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Linux</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 07 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">40 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 5 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 07</span>
+            <span class="badge-time muted mono">40 MIN READ</span>
+            <span class="badge-diff badge-advanced">ADVANCED</span>
+          </div>
+          <h1 class="chapter-title">Container and Docker Security: Fundamentals, Escape Techniques &amp; Hardening</h1>
+          <p class="chapter-intro">Containers share the host kernel instead of virtualizing hardware, which is what makes them lighter than a virtual machine. That same design means a container boundary is a different, and sometimes weaker, kind of boundary than most people assume when they hear the word "isolation."</p>
+          <div class="chapter-tags">
+            <span class="tag">container fundamentals</span>
+            <span class="tag">Docker security</span>
+            <span class="tag">container escape</span>
+            <span class="tag">Kubernetes basics</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="container-fundamentals">
+          <h2>Container Fundamentals: Namespaces and cgroups</h2>
+          <p>Everything a container is rests on two Linux kernel mechanisms, not on some separate container technology. Namespaces control what a process can see. cgroups control what a process can use.</p>
+          <ul>
+            <li><strong>Namespaces</strong>: isolate a process's view of the system, its own process list (PID namespace), its own network stack (network namespace), its own mount points (mount namespace), and more. A process inside a namespace generally cannot see or touch what is outside it.</li>
+            <li><strong>cgroups (control groups)</strong>: limit and account for the resources a process or group of processes can consume, CPU time, memory, disk I/O. cgroups are why one noisy container can be stopped from starving every other workload on the same host.</li>
+          </ul>
+          <p>A container, in practice, is just a regular Linux process launched with a specific set of namespaces and cgroup limits applied to it. There is no separate "container kernel" running underneath.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Aspect</th><th>Containers</th><th>Virtual Machines</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Kernel</td><td>Share the host's single kernel</td><td>Each VM runs its own separate guest kernel</td></tr>
+                <tr><td>Isolation mechanism</td><td>Namespaces and cgroups, enforced in the shared kernel</td><td>A hypervisor virtualizing hardware, with a stronger boundary between guests</td></tr>
+                <tr><td>Startup weight</td><td>Lightweight, starts in seconds</td><td>Heavier, boots a full guest OS</td></tr>
+                <tr><td>Blast radius of a kernel flaw</td><td>Can potentially affect every container sharing that kernel</td><td>A guest kernel flaw is contained to that one VM, not the host or its siblings</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout-info"><strong>The practical consequence:</strong> a kernel-level vulnerability is a shared-fate risk for every container on that host in a way it simply is not for separate VMs, because VMs do not share a kernel with each other or with the hypervisor's own workloads.</div>
+        </section>
+
+        <section class="content-section" id="docker-architecture-and-risk">
+          <h2>Docker Architecture and Risk</h2>
+          <p>The Docker daemon (<code>dockerd</code>) is the process that actually creates and manages containers, and it typically runs as root. Anything that can talk to that daemon is, functionally, talking to something with full host privileges.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Configuration</th><th>Risk</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Privileged container (<code>--privileged</code>)</td><td>Disables most of the isolation containers normally provide, giving the container far broader access to the host than a default container would have</td></tr>
+                <tr><td>Host network or PID namespace sharing</td><td>The container can see host-level network traffic or host processes it would not normally be able to see, weakening the isolation those namespaces exist to provide</td></tr>
+                <tr><td>Mounting the Docker socket (<code>/var/run/docker.sock</code>) into a container</td><td>A well-known technique that gives the container the ability to control the host's Docker daemon directly, which is effectively equivalent to host root</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>None of these three configurations are exotic. They show up in real deployments, often because a monitoring tool, a CI runner, or a debugging container needed broad access and nobody scoped it back down afterward.</p>
+        </section>
+
+        <section class="content-section" id="container-escape-techniques">
+          <h2>Container Escape Technique Categories</h2>
+          <p>A container escape is any technique that lets a process break out of its container's isolation and reach the host or other containers. These fall into a small number of conceptual categories, described here at the category level rather than as working exploit steps.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Category</th><th>What It Relies On</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Privileged-container abuse</td><td>The relaxed isolation of a <code>--privileged</code> container, which removes many of the normal restrictions between the container and the host</td></tr>
+                <tr><td>Sensitive mount abuse</td><td>A mounted host path, or the Docker socket, that gives the container direct access to host resources it should not be able to reach</td></tr>
+                <tr><td>Kernel vulnerability exploitation</td><td>A flaw in the shared kernel itself, unrelated to how the container was configured, and directly connected to the shared-kernel risk described in the fundamentals section above</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout-info"><strong>Why the category matters more than the exact technique:</strong> the first two categories are fixable through configuration choices covered later in this chapter. The third is a kernel patching and update problem, not a container configuration problem.</div>
+        </section>
+
+        <section class="content-section" id="kubernetes-security-basics">
+          <h2>Kubernetes Security Basics</h2>
+          <p>Kubernetes is the layer that schedules and manages containers across a fleet of hosts, and it introduces its own security concepts on top of the container-level risks already covered.</p>
+          <ul>
+            <li><strong>Pods</strong>: the smallest deployable unit in Kubernetes, one or more containers scheduled together on the same node, sharing some resources between them.</li>
+            <li><strong>RBAC (role-based access control)</strong>: governs what a given identity is allowed to do against the Kubernetes API, including what a pod's own service account is permitted to do.</li>
+          </ul>
+          <div class="callout-info"><strong>Token scope matters:</strong> a compromised pod's service account token can sometimes be used to interact with the Kubernetes API directly. An overly broad RBAC role attached to that service account turns a single compromised pod into a foothold against the whole cluster's API.</div>
+          <div class="callout-info">This chapter covers Kubernetes concepts only, not hunting methodology. See <a href="../threat-hunting/11-container-kubernetes-hunting.html">Threat Hunting, Chapter 11: Container and Kubernetes Hunting</a> for the ATT&amp;CK-for-Containers hunting methodology, Kubernetes audit log analysis, and Falco-based runtime detection.</div>
+        </section>
+
+        <section class="content-section" id="container-hardening-basics">
+          <h2>Container Hardening Basics</h2>
+          <p>Most of the hardening guidance here directly closes off the risks and escape categories already covered in this chapter.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Practice</th><th>Why</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Avoid privileged containers unless there is a specific, understood reason</td><td>Minimizes the escape surface described in the escape technique categories section</td></tr>
+                <tr><td>Never mount the Docker socket into a container that doesn't need to control Docker itself</td><td>Removes the most direct path from container access to effective host root</td></tr>
+                <tr><td>Run processes inside containers as a non-root user</td><td>Limits what an attacker can do even if they do get code running inside the container</td></tr>
+                <tr><td>Use read-only root filesystems where the application allows it</td><td>Prevents an attacker from writing new tools or persistence into the container itself</td></tr>
+                <tr><td>Keep base images minimal and patched</td><td>Fewer installed tools means less for an attacker to abuse if they get in, the same living-off-the-land theme as shell tradecraft</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout-tip"><strong>Default to least privilege:</strong> every one of these practices is a variation on the same idea, give a container exactly the access it needs to do its job, and nothing more. That single principle closes most of the risk surface covered in this chapter.</div>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>Containers are built on two kernel mechanisms: namespaces isolate what a process can see, cgroups limit and account for what a process can use.</li>
+            <li>Containers share the host's single kernel, unlike VMs, so a kernel vulnerability can potentially affect every container on that host.</li>
+            <li>The Docker daemon typically runs as root, and mounting the Docker socket into a container is effectively equivalent to giving that container host root.</li>
+            <li>Container escapes fall into three categories: privileged-container abuse, sensitive mount abuse, and kernel vulnerability exploitation.</li>
+            <li>Kubernetes adds pods and RBAC on top of container-level risk, and a compromised pod's service account token is only as dangerous as the RBAC role attached to it.</li>
+            <li>Hardening comes down to least privilege: avoid privileged mode, never expose the Docker socket unnecessarily, run as non-root, use read-only filesystems, and keep images minimal.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">Mounting <code>/var/run/docker.sock</code> into a container effectively grants that container what?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Read-only access to container logs</button>
+              <button class="kc-option" data-correct="false">B. A slightly larger CPU cgroup limit</button>
+              <button class="kc-option" data-correct="true">C. The ability to control the host's Docker daemon, effectively equivalent to host root</button>
+              <button class="kc-option" data-correct="false">D. Access to a separate guest kernel</button>
+            </div>
+            <div class="kc-answer">Correct answer: C. The Docker daemon runs as root, so anything able to issue commands to it through the socket can direct it to do anything root-level Docker access allows on the host.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">What is the core difference between what namespaces do and what cgroups do?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Namespaces limit resource usage, cgroups isolate visibility</button>
+              <button class="kc-option" data-correct="true">B. Namespaces isolate what a process can see, cgroups limit and account for what a process can use</button>
+              <button class="kc-option" data-correct="false">C. Namespaces only apply to Kubernetes pods, cgroups only apply to Docker containers</button>
+              <button class="kc-option" data-correct="false">D. They are two names for the same kernel mechanism</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. Namespaces control visibility, such as a container's own process list or network stack. cgroups control and account for consumption of resources like CPU and memory.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">Why is a shared-kernel vulnerability a container-specific risk that virtual machines don't share in the same way?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. VMs never run a kernel at all</button>
+              <button class="kc-option" data-correct="true">B. Containers on the same host share one kernel, so a flaw in it can potentially affect every container, while each VM runs its own separate guest kernel</button>
+              <button class="kc-option" data-correct="false">C. VMs are always patched automatically, containers are not</button>
+              <button class="kc-option" data-correct="false">D. Containers do not use a kernel, only cgroups</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. Every container on a host is a process running against that same shared kernel. VMs each have their own guest kernel, so a kernel flaw in one VM does not extend to its siblings or the host the way it can across containers.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="06-shell-tradecraft-detection.html" class="chapter-nav-prev">← Shell Tradecraft and Detection</a>
+          <a href="08-linux-incident-response-hardening.html" class="chapter-nav-next">Linux Incident Response and Hardening →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Linux</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('07', 5));</script>
+</body>
+</html>

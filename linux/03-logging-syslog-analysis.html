@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="03">
+  <meta name="module-id" content="linux">
+  <title>Logging and Syslog Analysis: rsyslog, journald &amp; Key Log Files · Linux · H3AD-LEARN</title>
+  <meta name="description" content="Linux logging architecture, key log files, reading authentication events, journald and journalctl, and log tampering as an anti-forensic technique.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/linux/03-logging-syslog-analysis.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/linux/03-logging-syslog-analysis.html">
+  <meta property="og:title" content="Logging and Syslog Analysis: rsyslog, journald &amp; Key Log Files · Linux · H3AD-LEARN">
+  <meta property="og:description" content="Linux logging architecture, key log files, reading authentication events, journald and journalctl, and log tampering as an anti-forensic technique.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Logging and Syslog Analysis: rsyslog, journald &amp; Key Log Files · Linux · H3AD-LEARN">
+  <meta name="twitter:description" content="Linux logging architecture, key log files, reading authentication events, journald and journalctl, and log tampering as an anti-forensic technique.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Logging and Syslog Analysis: rsyslog, journald & Key Log Files",
+    "description": "Linux logging architecture, key log files, reading authentication events, journald and journalctl, and log tampering as an anti-forensic technique.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/linux/03-logging-syslog-analysis.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Linux",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/linux/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" },
+    { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" },
+    { "@type": "ListItem", "position": 3, "name": "Linux", "item": "https://h3ad-sec.github.io/H3AD-LEARN/linux/" },
+    { "@type": "ListItem", "position": 4, "name": "Logging and Syslog Analysis: rsyslog, journald & Key Log Files", "item": "https://h3ad-sec.github.io/H3AD-LEARN/linux/03-logging-syslog-analysis.html" }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">LX LOGGING</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub">&#8623; SOC OPERATIONS</a>
+    <a href="../detection-engineering/index.html" class="drawer-sub">&#8623; DETECTION ENGINEERING</a>
+    <a href="../incident-response/index.html" class="drawer-sub">&#8623; INCIDENT RESPONSE</a>
+    <a href="../digital-forensics/index.html" class="drawer-sub">&#8623; DIGITAL FORENSICS</a>
+    <a href="../linux/index.html" class="drawer-sub nav-current">&#8623; LINUX</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Linux</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 03 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 5 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 03</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Logging and Syslog Analysis: rsyslog, journald &amp; Key Log Files</h1>
+          <p class="chapter-intro">Logs are usually the first place an investigation turns, and Linux hosts often run two logging systems side by side rather than one. This chapter covers where that evidence actually lives, how to read it, and what its absence tells you.</p>
+          <div class="chapter-tags">
+            <span class="tag">syslog</span>
+            <span class="tag">journald</span>
+            <span class="tag">auth log</span>
+            <span class="tag">log analysis</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="logging-architecture">
+          <h2>Logging Architecture: syslog vs journald</h2>
+          <p>Most Linux distributions log through one or both of two systems. Knowing which is active on a host determines whether you go looking for flat files or reach for a query tool instead.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>System</th><th>Storage</th><th>Notes</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>rsyslog / syslog</td><td>Plain-text files under <code>/var/log/</code></td><td>The traditional approach, still widely used and readable with any text tool</td></tr>
+                <tr><td>systemd-journald</td><td>Structured binary journal</td><td>Not a flat text file, queried with a dedicated tool rather than grepped directly</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Many distributions run both side by side. journald often forwards entries to rsyslog, which is what keeps the traditional flat-log files under <code>/var/log/</code> populated even on a system that logs natively into the journal first.</p>
+        </section>
+
+        <section class="content-section" id="key-log-files">
+          <h2>Key Log Files</h2>
+          <p>Where a given category of event lands depends on which distribution family the host belongs to. Debian-family and RedHat-family systems use different filenames for the same purpose.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>File</th><th>Purpose</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>/var/log/auth.log</code></td><td>Debian/Ubuntu-family authentication events (logins, sudo, SSH)</td></tr>
+                <tr><td><code>/var/log/secure</code></td><td>The RedHat/CentOS-family equivalent, same purpose, different name</td></tr>
+                <tr><td><code>/var/log/syslog</code></td><td>General system activity on Debian/Ubuntu-family hosts</td></tr>
+                <tr><td><code>/var/log/messages</code></td><td>The RedHat/CentOS-family equivalent of general system activity</td></tr>
+                <tr><td><code>/var/log/audit/audit.log</code></td><td>Present only when auditd is configured, detailed system call and file-access auditing</td></tr>
+                <tr><td><code>/var/log/cron</code></td><td>Scheduled task activity, on some distributions mixed into the general system log instead</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout-info"><strong>Note:</strong> exact paths vary by distribution. Confirming which logging setup is in play, Debian-family or RedHat-family, rsyslog or journald or both, is a normal first step in any investigation, not something to assume.</div>
+        </section>
+
+        <section class="content-section" id="reading-authentication-events">
+          <h2>Reading Authentication Events</h2>
+          <p>Exact log line formatting varies by distribution and daemon version, so this is about what to look for conceptually rather than a specific string to grep for.</p>
+          <ul>
+            <li><strong>Repeated failed SSH login attempts</strong>: a burst against one account, or many accounts from one source, points toward a brute-force attempt.</li>
+            <li><strong>A successful login right after a burst of failures</strong>: often the strongest single signal in an auth log, a credential-guessing attempt that landed.</li>
+            <li><strong>sudo invocations tied to a specific account and command</strong>: shows exactly who escalated privilege and what they ran with it.</li>
+            <li><strong>New user or group creation events</strong>: legitimate during provisioning, worth scrutiny anywhere else, especially outside a known change window.</li>
+          </ul>
+        </section>
+
+        <section class="content-section" id="querying-journald">
+          <h2>Querying journald</h2>
+          <p><code>journalctl</code> is the standard tool for reading the structured journal. It can filter by systemd unit, by time range, and by priority level, which is often faster than grepping through flat files for the same information.</p>
+          <div class="callout-info"><strong>Persistence depends on configuration:</strong> whether the journal survives a reboot is a configuration choice, not a guarantee. A volatile, memory-only journal loses its history at every reboot, which matters a great deal to an investigator trying to reconstruct what happened before the current boot.</div>
+        </section>
+
+        <section class="content-section" id="log-tampering-and-gaps">
+          <h2>Log Tampering and Gaps</h2>
+          <p>Clearing or truncating logs is a real, well-documented technique attackers use to cover their tracks. A gap or discontinuity in log timestamps and sequence numbers is itself a forensic tell, worth flagging even without knowing exactly what content was removed.</p>
+          <p>Being able to read logs accurately is the foundation the next three chapters build on:</p>
+          <ul>
+            <li><strong>Persistence Mechanisms</strong>: many persistence techniques leave a log trace at the moment they are installed.</li>
+            <li><strong>Process and Network Internals</strong>: correlating live process and connection state against what the logs already showed.</li>
+            <li><strong>Shell Tradecraft and Detection</strong>: recognizing command-line activity that logging alone may only partially capture.</li>
+          </ul>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>Linux logs through rsyslog (plain-text files), systemd-journald (structured binary journal), or often both at once, with journald commonly forwarding to rsyslog.</li>
+            <li>Key log locations split by distribution family: auth.log/syslog on Debian-family hosts, secure/messages on RedHat-family hosts.</li>
+            <li>auditd, when configured, adds detailed system call and file-access auditing in <code>/var/log/audit/audit.log</code>.</li>
+            <li>Auth log review centers on failed login bursts, a success following a burst, sudo activity, and new account creation.</li>
+            <li><code>journalctl</code> filters the structured journal by unit, time range, and priority, but journal persistence across reboots depends on configuration.</li>
+            <li>Cleared logs and gaps in timestamps or sequence numbers are themselves forensic evidence of tampering, detectable even without recovering what was removed.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">On a RedHat/CentOS-family host, which file serves the same purpose as <code>/var/log/auth.log</code> on Debian/Ubuntu?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. /var/log/messages</button>
+              <button class="kc-option" data-correct="true">B. /var/log/secure</button>
+              <button class="kc-option" data-correct="false">C. /var/log/cron</button>
+              <button class="kc-option" data-correct="false">D. /var/log/audit/audit.log</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. /var/log/secure is the RedHat/CentOS-family equivalent of auth.log, same authentication-event purpose, different filename.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">What is journalctl primarily used for?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Rotating flat-text log files under /var/log/</button>
+              <button class="kc-option" data-correct="true">B. Querying the structured systemd journal, filtered by unit, time, or priority</button>
+              <button class="kc-option" data-correct="false">C. Configuring auditd rules</button>
+              <button class="kc-option" data-correct="false">D. Forwarding syslog messages to a remote server</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. journalctl is the standard tool for reading journald's structured binary journal, and it supports filtering by unit, time range, and priority level.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">An investigator notices a discontinuity in log sequence numbers with no content explaining the missing entries. Why does this matter even without recovering what was deleted?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. It has no forensic significance on its own</button>
+              <button class="kc-option" data-correct="true">B. The gap itself is a detectable sign of possible log tampering</button>
+              <button class="kc-option" data-correct="false">C. It only indicates a journald configuration change</button>
+              <button class="kc-option" data-correct="false">D. It proves the host was never compromised</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. Clearing or truncating logs is a documented anti-forensic technique, and a gap in timestamps or sequence numbers is itself evidence worth flagging, independent of recovering the removed content.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="02-users-authentication-privilege.html" class="chapter-nav-prev">← Users, Authentication &amp; Privilege</a>
+          <a href="04-persistence-mechanisms.html" class="chapter-nav-next">Persistence Mechanisms →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Linux</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('03', 5));</script>
+</body>
+</html>

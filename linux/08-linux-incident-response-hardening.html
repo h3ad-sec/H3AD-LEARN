@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="08">
+  <meta name="module-id" content="linux">
+  <title>Linux Incident Response and Hardening: Investigation Workflow &amp; Baseline Controls · Linux · H3AD-LEARN</title>
+  <meta name="description" content="Linux live response, an incident response workflow, common Linux incident patterns, baseline hardening controls, and how this module fits together.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/linux/08-linux-incident-response-hardening.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/linux/08-linux-incident-response-hardening.html">
+  <meta property="og:title" content="Linux Incident Response and Hardening: Investigation Workflow &amp; Baseline Controls · Linux · H3AD-LEARN">
+  <meta property="og:description" content="Linux live response, an incident response workflow, common Linux incident patterns, baseline hardening controls, and how this module fits together.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Linux Incident Response and Hardening: Investigation Workflow &amp; Baseline Controls · Linux · H3AD-LEARN">
+  <meta name="twitter:description" content="Linux live response, an incident response workflow, common Linux incident patterns, baseline hardening controls, and how this module fits together.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <script type="application/ld+json">
+  { "@context": "https://schema.org", "@type": "LearningResource", "name": "Linux Incident Response and Hardening: Investigation Workflow & Baseline Controls", "description": "Linux live response, an incident response workflow, common Linux incident patterns, baseline hardening controls, and how this module fits together.", "url": "https://h3ad-sec.github.io/H3AD-LEARN/linux/08-linux-incident-response-hardening.html", "isPartOf": { "@type": "Course", "name": "Linux", "url": "https://h3ad-sec.github.io/H3AD-LEARN/linux/" }, "provider": { "@type": "Organization", "name": "H3AD-SEC", "url": "https://h3ad-sec.github.io" } }
+  </script>
+  <script type="application/ld+json">
+{ "@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [ { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" }, { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" }, { "@type": "ListItem", "position": 3, "name": "Linux", "item": "https://h3ad-sec.github.io/H3AD-LEARN/linux/" }, { "@type": "ListItem", "position": 4, "name": "Linux Incident Response and Hardening: Investigation Workflow & Baseline Controls", "item": "https://h3ad-sec.github.io/H3AD-LEARN/linux/08-linux-incident-response-hardening.html" } ] }
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/"><img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC"></a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">LX IR &amp; HARDENING</span>
+    </a>
+    <div class="nav-right"><div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme"><div class="toggle-track"><div class="toggle-thumb"></div></div></div></div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub">&#8623; SOC OPERATIONS</a>
+    <a href="../detection-engineering/index.html" class="drawer-sub">&#8623; DETECTION ENGINEERING</a>
+    <a href="../incident-response/index.html" class="drawer-sub">&#8623; INCIDENT RESPONSE</a>
+    <a href="../digital-forensics/index.html" class="drawer-sub">&#8623; DIGITAL FORENSICS</a>
+    <a href="../linux/index.html" class="drawer-sub nav-current">&#8623; LINUX</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Linux</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 08 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">40 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 5 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 08</span>
+            <span class="badge-time muted mono">40 MIN READ</span>
+            <span class="badge-diff badge-advanced">ADVANCED</span>
+          </div>
+          <h1 class="chapter-title">Linux Incident Response and Hardening: Investigation Workflow &amp; Baseline Controls</h1>
+          <p class="chapter-intro">Every earlier chapter in this module taught a skill in isolation: reading accounts, parsing logs, spotting persistence, reading process and network state, catching shell tradecraft, securing containers. This closing chapter pulls all of it into one repeatable investigation workflow, then covers the baseline hardening that prevents a repeat.</p>
+          <div class="chapter-tags"><span class="tag">Linux incident response</span><span class="tag">live response</span><span class="tag">hardening baseline</span></div>
+        </header>
+
+        <section class="content-section" id="linux-live-response">
+          <h2>Linux Live Response</h2>
+          <p>The <a href="../digital-forensics/01-digital-forensics-foundations.html">Digital Forensics, Chapter 1</a> order of volatility applies to a live Linux host the same way it applies to any system: capture what decays fastest first. On a suspected-compromised host that is still running, that ordering shapes exactly what to pull before anything else changes state.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Priority</th><th>What To Collect</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>1 (highest volatility)</td><td>Running process list and process tree, so parent/child relationships aren't lost when a short-lived process exits.</td></tr>
+                <tr><td>2</td><td>Active network connections, since a live C2 socket or exfil connection disappears the moment it closes.</td></tr>
+                <tr><td>3</td><td>Currently logged-in users and their sessions, before a session ends and that context is gone.</td></tr>
+                <tr><td>4</td><td>Loaded kernel modules, to catch a rootkit module before a reboot unloads it.</td></tr>
+                <tr><td>5 (lowest volatility)</td><td>Disk-resident evidence: logs and persistence locations, both covered in earlier chapters of this module, which survive a reboot.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>A live-response collection script or tool automates this capture in one pass, so the order is enforced consistently instead of depending on an analyst remembering it under pressure.</p>
+          <div class="callout-info"><strong>Why this order:</strong> process and network state exist only while the host keeps running. Disk-resident logs and persistence artifacts will still be there in an hour; the process tree and open sockets will not.</div>
+        </section>
+
+        <section class="content-section" id="linux-ir-workflow">
+          <h2>Linux Incident Response Workflow</h2>
+          <p>A live-response capture on its own is not an investigation. It feeds into a workflow that decides whether the host is actually compromised and what happens next.</p>
+          <div class="process-flow">
+            <div class="flow-step">
+              <div class="flow-step-num">1</div>
+              <div class="flow-step-title">Triage</div>
+              <div class="flow-step-desc">Decide whether this is a real incident, based on the alert or anomaly that triggered the review.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">2</div>
+              <div class="flow-step-title">Contain</div>
+              <div class="flow-step-desc">Isolate the host from the network without necessarily powering it off, to preserve memory for capture.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">3</div>
+              <div class="flow-step-title">Collect</div>
+              <div class="flow-step-desc">Run live response, plus a full disk image if the investigation needs deeper offline analysis.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">4</div>
+              <div class="flow-step-title">Analyze</div>
+              <div class="flow-step-desc">Correlate findings from earlier chapters: accounts, logs, persistence, process and network state.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">5</div>
+              <div class="flow-step-title">Recover and Harden</div>
+              <div class="flow-step-desc">Remove the attacker's access, restore the host to a trusted state, and apply controls that stop a repeat.</div>
+            </div>
+          </div>
+          <div class="callout-tip"><strong>On containment:</strong> pulling network access, rather than cutting power, keeps memory intact for capture. A powered-off host loses everything that only ever existed in RAM.</div>
+        </section>
+
+        <section class="content-section" id="common-linux-incident-patterns">
+          <h2>Common Linux Incident Patterns</h2>
+          <p>Recognizing the pattern points straight at which chapter's skillset to apply first, instead of starting the analysis from scratch every time.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Pattern</th><th>Where To Look</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Web shell dropped on a server</td><td>Persistence locations from chapter 4, plus unexpected child processes of the web server from chapter 5.</td></tr>
+                <tr><td>SSH brute-force or compromised credentials</td><td>Auth events from chapter 3, plus account changes from chapter 2.</td></tr>
+                <tr><td>Cryptomining malware</td><td>Unusual sustained CPU use visible in process state from chapter 5.</td></tr>
+                <tr><td>Container escape</td><td>Container and Docker security controls from chapter 7.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>A web server spawning a shell it never should, or CPU pegged at 100% with no obvious cause, are both starting points, not conclusions. They tell the analyst exactly which earlier chapter's technique to reach for next.</p>
+        </section>
+
+        <section class="content-section" id="hardening-baseline">
+          <h2>Hardening Baseline</h2>
+          <p>Hardening is what turns a one-time recovery into a durable fix. Each control below closes a specific gap this module already covered.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Control</th><th>What It Does</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>SSH hardening</td><td>Key-based authentication and disabling direct root login, cutting off the most common brute-force and credential-stuffing path.</td></tr>
+                <tr><td>Least-privilege sudo rules</td><td>Narrows chapter 2's sudo risk down to only the specific commands a role actually needs.</td></tr>
+                <tr><td>Mandatory access control (SELinux or AppArmor)</td><td>Confines what even a compromised process is allowed to do, beyond what standard file permissions restrict.</td></tr>
+                <tr><td>auditd configured for execve and file-access monitoring</td><td>Closes the shell-history-tampering gap from chapter 6 by logging execution independent of any shell's own history file.</td></tr>
+                <tr><td>Timely security updates</td><td>Closes known kernel and package vulnerabilities before chapter 7's escape techniques can use them.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout-info"><strong>Note:</strong> a mandatory access control framework matters because standard Unix permissions are discretionary, an application running as its own user can still do a lot of damage within that user's rights. SELinux and AppArmor add a policy layer on top that restricts even that.</div>
+        </section>
+
+        <section class="content-section" id="how-this-module-fits-together">
+          <h2>How This Module Fits Together</h2>
+          <p>Every chapter in this module builds toward the same outcome: a Linux investigation that's actually defensible, not a guess backed by a single log line.</p>
+          <div class="process-flow">
+            <div class="flow-step"><span class="flow-step-num">1</span><span class="flow-step-title">Foundations</span><span class="flow-step-desc">Chapter 1</span></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step"><span class="flow-step-num">2</span><span class="flow-step-title">Accounts and Privilege</span><span class="flow-step-desc">Chapter 2</span></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step"><span class="flow-step-num">3</span><span class="flow-step-title">Logging</span><span class="flow-step-desc">Chapter 3</span></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step"><span class="flow-step-num">4</span><span class="flow-step-title">Persistence</span><span class="flow-step-desc">Chapter 4</span></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step"><span class="flow-step-num">5</span><span class="flow-step-title">Process and Network Internals</span><span class="flow-step-desc">Chapter 5</span></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step"><span class="flow-step-num">6</span><span class="flow-step-title">Shell Tradecraft</span><span class="flow-step-desc">Chapter 6</span></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step"><span class="flow-step-num">7</span><span class="flow-step-title">Containers</span><span class="flow-step-desc">Chapter 7</span></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step"><span class="flow-step-num">8</span><span class="flow-step-title">Incident Response and Hardening</span><span class="flow-step-desc">Chapter 8</span></div>
+          </div>
+          <p>No single chapter's skillset catches everything on its own. An attacker who covers their tracks in the shell history from chapter 6 still leaves auth events in chapter 3's logs and a persistence mechanism from chapter 4. The layered approach, account discipline, logging, persistence awareness, process and network visibility, shell tradecraft, container isolation, and a repeatable IR workflow, is what makes a Linux investigation stand up to scrutiny instead of resting on one lucky find.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li>Live response on a Linux host follows order of volatility: process list and tree, network connections, logged-in sessions, kernel modules, then disk-resident logs and persistence artifacts.</li>
+            <li>The IR workflow runs triage, containment (network isolation, not necessarily power-off), collection, analysis, and recovery and hardening.</li>
+            <li>Common incident patterns, a web shell, SSH compromise, cryptomining, or container escape, each point to a specific earlier chapter's skillset.</li>
+            <li>Hardening controls include SSH hardening, least-privilege sudo, a mandatory access control framework like SELinux or AppArmor, auditd execve and file monitoring, and timely security updates.</li>
+            <li>SELinux and AppArmor add a policy layer beyond standard discretionary permissions, confining what a compromised process can do even as its own user.</li>
+            <li>No single chapter in this module catches every incident alone; the combination of accounts, logging, persistence, process/network visibility, shell tradecraft, and container security is what makes an investigation defensible.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">During live response on a running Linux host, which of these should generally be collected first, and why?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Disk-resident log files, because they are the most complete source</button>
+              <button class="kc-option" data-correct="true">B. The running process list and process tree, because it is lost the moment a short-lived process exits</button>
+              <button class="kc-option" data-correct="false">C. Loaded kernel modules, because rootkits always hide there</button>
+              <button class="kc-option" data-correct="false">D. Currently logged-in user sessions, because they never change</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. Process state is more volatile than session lists, kernel modules, or disk-resident evidence, so it needs to be captured before that volatile state changes or disappears.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">What does a mandatory access control framework like SELinux or AppArmor add beyond standard Linux file permissions?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. It replaces the need for sudo entirely</button>
+              <button class="kc-option" data-correct="false">B. It encrypts files at rest automatically</button>
+              <button class="kc-option" data-correct="true">C. It confines what even a compromised process is allowed to do, beyond what its user's discretionary permissions would normally restrict</button>
+              <button class="kc-option" data-correct="false">D. It replaces auditd for execve monitoring</button>
+            </div>
+            <div class="kc-answer">Correct answer: C. Standard permissions are discretionary and tied to the running user; a mandatory access control policy adds a separate confinement layer that limits a process regardless of what its user account is otherwise allowed to do.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">An analyst finds a web server spawning an unexpected child process. Which chapters' skillsets does this incident pattern point to first?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. Container security (chapter 7) only</button>
+              <button class="kc-option" data-correct="true">B. Persistence locations (chapter 4) and process state (chapter 5)</button>
+              <button class="kc-option" data-correct="false">C. Account changes (chapter 2) only</button>
+              <button class="kc-option" data-correct="false">D. Shell tradecraft (chapter 6) only</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. A web shell pattern points straight at persistence locations from chapter 4 and unexpected child processes of the web server from chapter 5, since that's exactly how a dropped web shell typically surfaces.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="07-container-docker-security.html" class="chapter-nav-prev">← Container and Docker Security</a>
+          <a href="index.html" class="chapter-nav-next">Linux Overview →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Linux</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('08', 5));</script>
+</body>
+</html>

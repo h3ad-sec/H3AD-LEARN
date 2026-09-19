@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="chapter-id" content="02">
+  <meta name="module-id" content="linux">
+  <title>Users, Authentication &amp; Privilege: passwd, shadow, PAM &amp; sudo · Linux · H3AD-LEARN</title>
+  <meta name="description" content="Linux user account structure, PAM authentication, sudo versus su, common privilege escalation vectors, and privileged group membership.">
+  <link rel="canonical" href="https://h3ad-sec.github.io/H3AD-LEARN/linux/02-users-authentication-privilege.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="H3AD-SEC">
+  <meta property="og:url" content="https://h3ad-sec.github.io/H3AD-LEARN/linux/02-users-authentication-privilege.html">
+  <meta property="og:title" content="Users, Authentication &amp; Privilege: passwd, shadow, PAM &amp; sudo · Linux · H3AD-LEARN">
+  <meta property="og:description" content="Linux user account structure, PAM authentication, sudo versus su, common privilege escalation vectors, and privileged group membership.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Users, Authentication &amp; Privilege: passwd, shadow, PAM &amp; sudo · Linux · H3AD-LEARN">
+  <meta name="twitter:description" content="Linux user account structure, PAM authentication, sudo versus su, common privilege escalation vectors, and privileged group membership.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/h3ad-sec/h3ad-sec.github.io/main/logo-dark.png">
+
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" href="https://h3ad-sec.github.io/fevicon.png?v=2026" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "Users, Authentication & Privilege: passwd, shadow, PAM & sudo",
+    "description": "Linux user account structure, PAM authentication, sudo versus su, common privilege escalation vectors, and privileged group membership.",
+    "url": "https://h3ad-sec.github.io/H3AD-LEARN/linux/02-users-authentication-privilege.html",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "Linux",
+      "url": "https://h3ad-sec.github.io/H3AD-LEARN/linux/"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "H3AD-SEC",
+      "url": "https://h3ad-sec.github.io"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://h3ad-sec.github.io/" },
+    { "@type": "ListItem", "position": 2, "name": "H3AD-LEARN", "item": "https://h3ad-sec.github.io/H3AD-LEARN/" },
+    { "@type": "ListItem", "position": 3, "name": "Linux", "item": "https://h3ad-sec.github.io/H3AD-LEARN/linux/" },
+    { "@type": "ListItem", "position": 4, "name": "Users, Authentication & Privilege: passwd, shadow, PAM & sudo", "item": "https://h3ad-sec.github.io/H3AD-LEARN/linux/02-users-authentication-privilege.html" }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+    <div id="scroll-sentinel" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer" onclick="toggleDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrawer();}"><span></span><span></span><span></span></div>
+    <a class="nav-brand" href="https://h3ad-sec.github.io/">
+      <img id="site-logo" src="https://h3ad-sec.github.io/logo-dark.png" alt="H3AD-SEC">
+    </a>
+    <a class="xv-nav-pill" id="xv-nav-pill" href="../index.html" style="text-decoration:none">
+      <span class="xv-pill-name"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+      <span class="xv-pill-tagline">LX USERS &amp; AUTH</span>
+    </a>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="https://h3ad-sec.github.io/">HOME &nbsp;&#8599;</a>
+    <a href="../index.html">H3AD-LEARN</a>
+    <a href="../fundamentals/index.html" class="drawer-sub">&#8623; FUNDAMENTALS</a>
+    <a href="../networking/index.html" class="drawer-sub">&#8623; NETWORKING</a>
+    <a href="../windows/index.html" class="drawer-sub">&#8623; WINDOWS</a>
+    <a href="../threat-hunting/index.html" class="drawer-sub">&#8623; THREAT HUNTING</a>
+    <a href="../lolbas/index.html" class="drawer-sub">&#8623; LOLBAS</a>
+    <a href="../threat-intel/index.html" class="drawer-sub">&#8623; THREAT INTELLIGENCE</a>
+    <a href="../cloud-security/index.html" class="drawer-sub">&#8623; CLOUD SECURITY</a>
+    <a href="../malware-analysis/index.html" class="drawer-sub">&#8623; MALWARE ANALYSIS</a>
+    <a href="../soc-operations/index.html" class="drawer-sub">&#8623; SOC OPERATIONS</a>
+    <a href="../detection-engineering/index.html" class="drawer-sub">&#8623; DETECTION ENGINEERING</a>
+    <a href="../incident-response/index.html" class="drawer-sub">&#8623; INCIDENT RESPONSE</a>
+    <a href="../digital-forensics/index.html" class="drawer-sub">&#8623; DIGITAL FORENSICS</a>
+    <a href="../linux/index.html" class="drawer-sub nav-current">&#8623; LINUX</a>
+    <a href="../interview-prep/index.html" class="drawer-sub">&#8623; INTERVIEW PREP</a>
+  </div>
+  <div class="chapter-layout">
+    <aside class="toc-sidebar" id="tocSidebar">
+      <a href="index.html" class="toc-back-link">← Linux</a>
+      <div class="toc-chapter-info">
+        <span class="mono accent" style="font-size:0.75rem;letter-spacing:0.1em;">CHAPTER 02 of 8</span>
+        <span class="muted" style="font-size:0.75rem;font-family:var(--font-mono)">30 MIN READ</span>
+      </div>
+      <nav class="toc-nav" id="tocNav"><!-- JS-populated --></nav>
+      <div class="toc-progress">
+        <span class="section-label" style="font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);font-family:var(--font-mono)">PROGRESS</span>
+        <div class="toc-progress-bar"><div class="toc-progress-fill" id="chapterProgressFill"></div></div>
+        <span class="muted" style="font-size:0.72rem;font-family:var(--font-mono)" id="chapterProgressLabel">0 of 5 sections</span>
+      </div>
+    </aside>
+    <main class="chapter-body" id="chapterBody">
+      <article>
+        <header class="chapter-header">
+          <div class="chapter-meta">
+            <span class="badge-module mono">CHAPTER 02</span>
+            <span class="badge-time muted mono">30 MIN READ</span>
+            <span class="badge-diff badge-intermediate">INTERMEDIATE</span>
+          </div>
+          <h1 class="chapter-title">Users, Authentication &amp; Privilege: passwd, shadow, PAM &amp; sudo</h1>
+          <p class="chapter-intro">Every Linux investigation eventually comes down to one question: who could act as whom. This chapter covers how accounts, authentication, and privilege actually work under the hood, the account database, the PAM framework behind logins, and how sudo, su, and group membership decide what a user is allowed to become.</p>
+          <div class="chapter-tags">
+            <span class="tag">user accounts</span>
+            <span class="tag">PAM</span>
+            <span class="tag">sudo</span>
+            <span class="tag">privilege escalation</span>
+          </div>
+        </header>
+
+        <section class="content-section" id="user-account-structure">
+          <h2>User Account Structure</h2>
+          <p>Every local account on a Linux system is recorded as one line in <code>/etc/passwd</code>, the account database that the system and most tools consult first. Each line is a set of colon-separated fields, and reading them correctly is the starting point for any account review.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Field</th><th>Meaning</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Username</td><td>The login name tied to this account</td></tr>
+                <tr><td>Password placeholder</td><td>An <code>x</code>, meaning the real password hash lives in <code>/etc/shadow</code>, not here</td></tr>
+                <tr><td>UID</td><td>Numeric user ID that the kernel actually uses to enforce permissions</td></tr>
+                <tr><td>GID</td><td>Numeric ID of the account's primary group</td></tr>
+                <tr><td>Comment / GECOS field</td><td>Free-text field, usually a full name or description</td></tr>
+                <tr><td>Home directory</td><td>Where the account lands on login and stores its personal files</td></tr>
+                <tr><td>Login shell</td><td>The program started on login, for example a shell, or <code>/usr/sbin/nologin</code> for service accounts that should never get an interactive session</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>The password hash itself, along with the aging rules around it, lives in a separate file for a reason.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>/etc/shadow Field</th><th>Purpose</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Password hash</td><td>The actual hashed credential, never stored in the world-readable <code>/etc/passwd</code></td></tr>
+                <tr><td>Last change date</td><td>When the password was last set</td></tr>
+                <tr><td>Minimum age</td><td>Days that must pass before the password can be changed again</td></tr>
+                <tr><td>Maximum age</td><td>Days after which the password expires and must be changed</td></tr>
+                <tr><td>Warning period</td><td>Days before expiry that the user starts getting warned</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p><code>/etc/passwd</code> is readable by any user, which is why it never holds the real hash. <code>/etc/shadow</code> is readable only by root, keeping the sensitive credential material away from unprivileged accounts entirely.</p>
+          <div class="callout-info"><strong>UID 0 is root, no matter the name:</strong> the kernel grants full root privileges to UID 0, regardless of what the username field says. A second account with UID 0 sitting alongside the standard <code>root</code> entry is not a normal configuration, it is one of the classic backdoor indicators worth checking <code>/etc/passwd</code> for directly.</div>
+        </section>
+
+        <section class="content-section" id="pam-authentication">
+          <h2>PAM: Pluggable Authentication Modules</h2>
+          <p>PAM is the framework that most Linux authentication actually runs through: console login, sudo, SSH, and many other services all call into it instead of implementing their own authentication logic. It is stackable, a single login can chain several checks together, and it is configurable per service.</p>
+          <p>Each service that uses PAM has its own configuration file under <code>/etc/pam.d/</code>, for example one for <code>login</code>, one for <code>sudo</code>, one for <code>sshd</code>. Each file defines which modules run, in what order, and whether a failure there is fatal to the whole authentication attempt.</p>
+          <ul>
+            <li><strong>auth</strong>: verifies the user is who they claim to be, typically a password check</li>
+            <li><strong>account</strong>: checks account restrictions, such as expiry or time-of-day limits</li>
+            <li><strong>password</strong>: handles updating credentials</li>
+            <li><strong>session</strong>: sets up or tears down things needed for the session, such as mounting a home directory</li>
+          </ul>
+          <div class="callout-info"><strong>Why PAM integrity matters to an investigator:</strong> because PAM sits directly in the authentication path for nearly every login method on the system, a modified or backdoored PAM module is a known, serious persistence and credential-theft technique. An attacker with root can patch a PAM module to silently accept a hardcoded password or log every credential that passes through it. That is exactly why PAM configuration and module integrity deserve attention during an investigation, not just the account database.</div>
+        </section>
+
+        <section class="content-section" id="sudo-and-privilege-escalation-basics">
+          <h2>sudo, su, and Privilege Escalation Basics</h2>
+          <p><code>su</code> switches you to another user's full session, and by default that means authenticating with the target account's own password. <code>sudo</code> instead runs a single command as another user, typically authenticated with your own password, and is governed by rules defined in <code>/etc/sudoers</code> that specify exactly which users can run which commands as which accounts.</p>
+          <p>That rule-based model is precise when configured well, but a single overly broad rule can hand a low-privilege user a direct path to root. Privilege escalation on Linux tends to fall into a small set of recurring categories.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Vector</th><th>What It Looks Like</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Misconfigured sudo rule</td><td>A user is allowed to run a command as root that, by design or oversight, gives them a path to a full root shell</td></tr>
+                <tr><td>SUID binary abuse</td><td>An unexpected or unfamiliar setuid binary, the kind of artifact covered in chapter 1, running with elevated privileges it shouldn't need</td></tr>
+                <tr><td>Writable cron job or script</td><td>A script or job run by a privileged account that a lower-privileged user can modify, a persistence angle chapter 4 covers further</td></tr>
+                <tr><td>Unpatched kernel vulnerability</td><td>A known local privilege escalation flaw in an outdated kernel version</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="privileged-groups">
+          <h2>Privileged Group Membership</h2>
+          <p>Group membership can grant privilege just as directly as a sudoers rule can, and it is easy to overlook during a quick account review.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Group</th><th>Why It Matters</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>root</code></td><td>Full system privileges, membership here is equivalent to being root</td></tr>
+                <tr><td><code>sudo</code> or <code>wheel</code></td><td>Depending on the distribution, membership in one of these grants the ability to use sudo</td></tr>
+                <tr><td><code>docker</code></td><td>Effectively root-equivalent, since the Docker daemon runs as root and a container can be used to reach and modify the host filesystem</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>None of these groups look dangerous by name alone, which is exactly why an account-and-group audit is a standard early step in any Linux investigation. A quiet addition to <code>docker</code> or <code>sudo</code> can be just as significant as a new UID 0 account.</p>
+        </section>
+
+        <section class="content-section" id="auditing-accounts-and-privilege">
+          <h2>Auditing Accounts and Privilege</h2>
+          <p>Pulling the threads from this chapter together, a practical account and privilege review follows a short, repeatable sequence.</p>
+          <div class="process-flow">
+            <div class="flow-step">
+              <div class="flow-step-num">1</div>
+              <div class="flow-step-title">Enumerate All Accounts and UIDs</div>
+              <div class="flow-step-desc">Walk through /etc/passwd for every account, its UID, and its shell.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">2</div>
+              <div class="flow-step-title">Check for Duplicate UID 0 Accounts</div>
+              <div class="flow-step-desc">Any username besides root carrying UID 0 is a strong backdoor indicator.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">3</div>
+              <div class="flow-step-title">Review Sudoers Rules</div>
+              <div class="flow-step-desc">Look for overly broad or unexpected entries in /etc/sudoers.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">4</div>
+              <div class="flow-step-title">Check Privileged Group Membership</div>
+              <div class="flow-step-desc">Review who belongs to sudo, wheel, and docker.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">5</div>
+              <div class="flow-step-title">Look for Unfamiliar SUID Binaries</div>
+              <div class="flow-step-desc">Flag setuid binaries that are unexpected or don't belong to the base install.</div>
+            </div>
+          </div>
+          <p>This same checklist feeds directly into chapter 4's persistence hunting, since attackers who gain elevated privilege here almost always try to make it stick somewhere else on the system.</p>
+        </section>
+
+        <div class="chapter-summary">
+          <h3 class="chapter-summary-label">Key Takeaways</h3>
+          <ul>
+            <li><code>/etc/passwd</code> is the world-readable account database, while <code>/etc/shadow</code> holds the actual password hash and aging fields, readable only by root.</li>
+            <li>UID 0 means root privileges regardless of username, so a second UID 0 account is a real backdoor indicator to check for directly.</li>
+            <li>PAM is the stackable, per-service framework behind most Linux authentication, configured through files under <code>/etc/pam.d/</code>.</li>
+            <li>A backdoored PAM module sits in the authentication path for nearly everything, making PAM integrity a serious persistence and credential-theft concern.</li>
+            <li><code>su</code> switches to a full session using the target account's password, while <code>sudo</code> runs a single command using your own password under rules in <code>/etc/sudoers</code>.</li>
+            <li>Privilege escalation commonly comes from misconfigured sudo rules, SUID binary abuse, writable privileged cron jobs, unpatched kernel flaws, or privileged group membership like sudo, wheel, or docker.</li>
+          </ul>
+        </div>
+
+        <div class="knowledge-check">
+          <h3 class="kc-title">Knowledge Check</h3>
+          <p class="kc-intro muted">Click an answer to reveal the explanation.</p>
+          <div class="kc-question">
+            <p class="kc-prompt">You find a second account in /etc/passwd, alongside root, that also has UID 0. What does this indicate?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. A harmless duplicate entry with no security impact</button>
+              <button class="kc-option" data-correct="true">B. That account has full root privileges, a strong backdoor indicator</button>
+              <button class="kc-option" data-correct="false">C. The account is locked out of the system</button>
+              <button class="kc-option" data-correct="false">D. The account's password has expired</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. The kernel grants root privileges based on UID 0, not the username field, so any second account carrying UID 0 has full root privileges and should be treated as a serious backdoor indicator.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">What is PAM, in the context of Linux authentication?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. A firewall rule set that filters login attempts by IP address</button>
+              <button class="kc-option" data-correct="true">B. A stackable, configurable framework that most login, sudo, and SSH authentication is built on</button>
+              <button class="kc-option" data-correct="false">C. A replacement for the /etc/passwd file</button>
+              <button class="kc-option" data-correct="false">D. A logging daemon that only records failed sudo attempts</button>
+            </div>
+            <div class="kc-answer">Correct answer: B. PAM is the pluggable, per-service authentication framework configured under /etc/pam.d/ that most Linux authentication paths, including login, sudo, and SSH, are built on.</div>
+          </div>
+          <div class="kc-question">
+            <p class="kc-prompt">Why does membership in the docker group matter during a privilege audit?</p>
+            <div class="kc-options">
+              <button class="kc-option" data-correct="false">A. It only allows read access to container logs</button>
+              <button class="kc-option" data-correct="false">B. It has no privilege implications since containers are isolated from the host</button>
+              <button class="kc-option" data-correct="true">C. It is effectively root-equivalent, since the Docker daemon runs as root</button>
+              <button class="kc-option" data-correct="false">D. It only grants access to pull public images</button>
+            </div>
+            <div class="kc-answer">Correct answer: C. Because the Docker daemon runs as root, membership in the docker group lets a user run a container that can be used to access and modify the host filesystem, making it effectively root-equivalent.</div>
+          </div>
+        </div>
+
+        <nav class="chapter-nav">
+          <a href="01-linux-foundations.html" class="chapter-nav-prev">← Linux Foundations</a>
+          <a href="03-logging-syslog-analysis.html" class="chapter-nav-next">Logging and Syslog Analysis →</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+    <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="footer-left">H3AD-SEC © 2026 &nbsp;|&nbsp; H3AD-LEARN</span>
+        <span class="footer-right">Linux</span>
+        <div class="footer-credit-row">
+          <a class="footer-credit-pill" href="https://www.linkedin.com/in/hrushikesh-badgujar/" target="_blank" rel="noopener" title="Connect on LinkedIn">
+            <span class="credit-tool"><span class="xv-pill-accent">H3AD</span><span class="xv-pill-text">-LEARN</span></span>
+            <span class="credit-by">created by</span>
+            <span class="credit-name">H3AD</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../js/learn.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initChapter('02', 5));</script>
+</body>
+</html>
