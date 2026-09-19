@@ -116,7 +116,7 @@
           </div>
         </header>
 
-        <div class="callout-tip"><strong>Before you start:</strong> This chapter assumes the model-as-attack-surface framing from chapter 2 (data poisoning, adversarial examples, model theft) and the LLM application risks from chapter 3 (prompt injection). Here we treat the AI system as infrastructure your team builds, deploys, and operates, and ask how you secure it the way you'd secure any other production service.</div>
+        <div class="callout-tip"><strong>Before you start:</strong> This chapter assumes the model-as-attack-surface framing from chapter 2 (data poisoning, adversarial examples) and the LLM application risks from chapter 3 (prompt injection). Model theft and extraction is new material, introduced in this chapter's first section. Here we treat the AI system as infrastructure your team builds, deploys, and operates, and ask how you secure it the way you'd secure any other production service.</div>
 
         <section class="content-section" id="model-theft-and-extraction">
           <h2>Model Theft and Extraction</h2>
@@ -198,7 +198,7 @@
         <section class="content-section" id="mitre-atlas-reference-framework">
           <h2>MITRE ATLAS as the Reference Framework, and Where to Go from Here</h2>
           <p>Chapter 2 introduced MITRE ATLAS as the ATT&CK-style knowledge base for adversary behavior against AI systems. It's worth returning to here because everything in this chapter, model extraction, supply chain compromise, MLOps pipeline attacks, and RAG-specific risks, maps onto tactics and techniques that ATLAS already catalogs in a structured way.</p>
-          <p>ATLAS spans the full ML lifecycle the same way ATT&CK spans the enterprise kill chain: reconnaissance and resource development against an ML system, initial access, ML model access, execution, persistence, and on through exfiltration and impact. Model theft, the training data poisoning covered in chapter 2, and the supply chain and RAG risks covered in this chapter all have a home somewhere in that structure. ATLAS spans over a dozen tactics and dozens of techniques at this point, and each technique entry typically includes real-world case studies and suggested mitigations, which makes it useful for more than reference reading; it's a working checklist for threat-modeling a specific AI system.</p>
+          <p>ATLAS spans the full ML lifecycle the same way ATT&CK spans the enterprise kill chain: reconnaissance and resource development against an ML system, initial access, ML model access, execution, persistence, and on through exfiltration and impact. Model theft, the training data poisoning covered in chapter 2, and the supply chain and RAG risks covered in this chapter all have a home somewhere in that structure. ATLAS spans around 16 tactics and roughly 80-plus techniques at this point, and each technique entry typically includes real-world case studies and suggested mitigations, which makes it useful for more than reference reading; it's a working checklist for threat-modeling a specific AI system.</p>
           <div class="process-flow">
             <div class="flow-step">
               <span class="flow-step-num">1</span>
